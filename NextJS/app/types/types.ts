@@ -112,10 +112,18 @@ export interface BloodGroupType {
 export interface PatologysType {
   id: number;
   patologia: string;
+  categoria: {
+    id: number;
+    nombre_categoria: string;
+  };
 }
 export interface DisabilitysType {
   id: number;
   discapacidad: string;
+  categoria: {
+    id: number;
+    nombre_categoria: string;
+  };
 }
 
 export interface ShirtSize {
@@ -221,7 +229,7 @@ export interface EmployeeData {
       estatusid: Status;
       observaciones: string | null;
       fecha_actualizacion: string;
-    }
+    },
   ];
 }
 export interface Sex {
@@ -276,4 +284,18 @@ export interface Code {
 export interface ReportStatus {
   estatusid__estatus: string;
   count: number;
+}
+export interface Carrera {
+  id: number;
+  nombre_carrera: string;
+}
+
+export interface Mencion {
+  id: number;
+  nombre_mencion: string;
+  carrera: Carrera;
+}
+export interface ConditionDwelling {
+  id: number;
+  condicion: string;
 }

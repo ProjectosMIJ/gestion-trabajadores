@@ -1,11 +1,39 @@
 import { z } from "zod";
 
 export const schemaAcademy = z.object({
-  perfil_fisico: z.object({
-    nivel_Academico_id: z.number(),
-    carrera_id: z.number(),
-    mencion_id: z.number(),
-    capacitacion: z.string(),
-    institucion: z.string(),
+  formacion_academica: z.object({
+    nivel_Academico_id: z
+      .number({
+        message: "Debe Seleccionar un Nivel Academico",
+        required_error: "Este Campo Es Requerido",
+      })
+      .min(1, {
+        message: "Debe Seleccionar un Nivel Academico",
+      }),
+    carrera_id: z
+      .number({
+        message: "Debe Ingresar Informacion Valida",
+        required_error: "Este Campo Es Requerido",
+      })
+      .optional(),
+    mencion_id: z
+      .number({
+        message: "Debe Ingresar Informacion Valida",
+        required_error: "Este Campo Es Requerido",
+      })
+      .optional(),
+    capacitacion: z
+      .string({
+        message: "Debe Ingresar Informacion Valida",
+        required_error: "Este Campo Es Requerido",
+      })
+      .optional(),
+    institucion: z
+      .string({
+        message: "Debe Ingresar Informacion Valida",
+        required_error: "Este Campo Es Requerido",
+      })
+      .optional(),
   }),
 });
+export type AcademyType = z.infer<typeof schemaAcademy>;

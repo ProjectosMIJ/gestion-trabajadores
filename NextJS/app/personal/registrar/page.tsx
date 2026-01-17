@@ -1,8 +1,7 @@
 "use client";
 import { Header } from "@/components/layout/header";
 import { Sidebar } from "@/components/layout/sidebar";
-import { EmployeeRegistration } from "@/components/employees/employee-registration-form";
-import { useEffect, useState } from "react";
+import MultiStepForm from "./forms/form-multi-steps";
 
 export default function RegistrarEmpleadoPage() {
   return (
@@ -12,7 +11,8 @@ export default function RegistrarEmpleadoPage() {
         <Header />
         <main className="flex-1 overflow-auto">
           <div className="p-8">
-            <EmployeeRegistration />
+            {/* <EmployeeRegistration /> */}
+            <MultiStepForm />
           </div>
         </main>
       </div>

@@ -5,7 +5,7 @@ import { ApiResponse } from "@/app/types/types";
 
 export async function registerEmployee(
   values: z.infer<typeof schemaRac>,
-  user_id: string
+  user_id: string,
 ) {
   try {
     const { success, error } = schemaRac.safeParse(values);
@@ -38,7 +38,7 @@ export async function registerEmployee(
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ ...payload, usuario_id: user_id }),
-      }
+      },
     );
     const message: ApiResponse<string> = await response.json();
     if (!response.ok) {
@@ -55,7 +55,7 @@ export async function registerEmployee(
       {
         method: "POST",
         body: formData,
-      }
+      },
     );
     return {
       success: true,
