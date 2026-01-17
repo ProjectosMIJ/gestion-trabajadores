@@ -1,0 +1,393 @@
+from django.db import models
+
+#importacion de aplicacion para las cuentas del personal usuario
+from USER.models import cuenta
+
+#importacion para las direcciones del personal
+from . import ubicacion_models as direccion_models
+
+#importacion del modelo de familiares
+from .family_personal_models import Employeefamily
+
+# historial de cambios
+from simple_history.models import HistoricalRecords
+
+
+# cargos 
+class Denominacioncargo(models.Model):
+    cargo = models.TextField()
+    class Meta:
+        managed = True
+        db_table = 'DenominacionCargo'
+        app_label = 'RAC'
+
+class Denominacioncargoespecifico(models.Model):
+    cargo = models.TextField()
+
+    class Meta:
+        managed = True
+        db_table = 'DenominacionCargoEspecifico'
+        app_label = 'RAC'
+        
+ 
+# organismos adscritos  
+class OrganismoAdscrito(models.Model):
+     Organismoadscrito = models.TextField(db_column='organismoAdscrito')
+     class Meta:
+        managed = True
+        app_label = 'RAC'
+        db_table = 'OrganismoAdscrito'
+        
+
+class NivelAcademico(models.Model):
+    nivelacademico = models.TextField(db_column='nivelAcademico') 
+
+    class Meta:
+        managed = True
+        db_table = 'NivelAcademico'
+        app_label = 'RAC'
+        
+
+class Grado(models.Model):
+    grado = models.TextField()
+
+    class Meta:
+        managed = True
+        db_table = 'Grado'
+        app_label = 'RAC'
+
+
+class Tiponomina(models.Model):
+    nomina = models.TextField()
+    requiere_codig = models.BooleanField(db_column='requiereCodig',default=False)
+
+    class Meta:
+        managed = True
+        db_table = 'TipoNomina'
+        app_label = 'RAC'
+
+
+
+class DireccionGeneral(models.Model):
+    Codigo = models.CharField(max_length=20, unique=True)
+    direccion_general = models.CharField(max_length=200, unique=True)
+
+    class Meta:
+        managed = True
+        db_table = 'DireccionGeneral'
+        app_label = 'RAC'
+    
+class DireccionLinea(models.Model):
+    Codigo = models.CharField(max_length=20, unique=True)
+    direccion_linea = models.CharField(max_length=200, unique=True)
+    direccionGeneral = models.ForeignKey('DireccionGeneral', models.DO_NOTHING, db_column='direccionGeneralId')
+
+    class Meta:
+        managed = True
+        db_table = 'DireccionLinea'
+        app_label = 'RAC'
+
+class Coordinaciones(models.Model):
+    Codigo = models.CharField(max_length=20, unique=True)
+    coordinacion = models.CharField(max_length=200, unique=True)
+    direccionLinea = models.ForeignKey('DireccionLinea', models.DO_NOTHING, db_column='direccionLineaId')
+    
+    class Meta:
+        managed = True
+        db_table = 'Coordinaciones'
+        app_label = 'RAC'
+
+
+class Estatus(models.Model):
+    estatus = models.TextField()
+
+    class Meta:
+        managed = True
+        db_table = 'Estatus'
+        app_label = 'RAC'
+
+
+class Tipo_personal(models.Model):
+    TipoChoices = [
+        ('ACTIVO', 'ACTIVO'),
+        ('PASIVO', 'PASIVO'),  
+    ]
+    tipo_personal = models.TextField(db_column='tipoPersonal',choices=TipoChoices) 
+
+    class Meta:
+        managed = True
+        db_table = 'TipoPersonal'
+        app_label = 'RAC'
+
+# datos personales 
+
+class Sexo(models.Model):
+    sexo = models.TextField()
+
+    class Meta:
+        managed = True
+        db_table = 'Sexo'
+        app_label = 'RAC'
+
+class categorias_discapacidad(models.Model):
+    nombre_categoria = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        managed = True
+        app_label = 'RAC'
+
+class categorias_patologias(models.Model):
+    nombre_categoria = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        managed = True
+        app_label = 'RAC'
+
+class patologias_Cronicas(models.Model):
+    patologia = models.CharField(max_length=200, unique=True)
+    categoria_id = models.ForeignKey(categorias_patologias, models.DO_NOTHING, db_column='categoriaId')
+
+    class Meta:
+        managed = True
+        app_label = 'RAC'
+    
+    
+class Discapacidades(models.Model):
+    discapacidad = models.CharField(max_length=200, unique=True)
+    categoria_id = models.ForeignKey(categorias_discapacidad, models.DO_NOTHING, db_column='categoriaId')
+
+    class Meta:
+        managed = True
+        app_label = 'RAC'
+    
+class estado_civil(models.Model):
+    estadoCivil = models.CharField(max_length=100, unique=True)
+    
+    class Meta:
+        managed = True
+        app_label = 'RAC'
+# tallas vestimenta 
+
+class Talla_Camisas(models.Model):
+    talla = models.CharField(max_length=50, unique=True)
+
+    class Meta:
+        managed = True
+        app_label = 'RAC'
+
+class Talla_Pantalones(models.Model):
+    talla = models.CharField(max_length=50, unique=True)
+
+    class Meta:
+        managed = True
+        app_label = 'RAC'
+
+class Talla_Zapatos(models.Model):
+    talla = models.CharField(max_length=50, unique=True)
+
+    class Meta:
+        managed = True
+        app_label = 'RAC'
+
+class GrupoSanguineo(models.Model):
+    GrupoSanguineo = models.CharField(max_length=50, unique=True, verbose_name='Descripción')
+
+    class Meta:
+        managed = True
+        app_label = 'RAC'
+
+class carreras(models.Model):
+    nombre_carrera = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        managed = True
+        app_label = 'RAC'
+
+class Menciones(models.Model):
+    carrera_id = models.ForeignKey(carreras, models.DO_NOTHING, db_column='carreraId')
+    nombre_mencion = models.CharField(max_length=100, unique=True)
+   
+    class Meta:
+        managed = True
+        app_label = 'RAC'
+    
+
+
+class condicion_vivienda(models.Model):
+    condicion = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        managed = True
+        app_label = 'RAC'
+
+class datos_vivienda(models.Model):
+    empleado_id = models.ForeignKey('Employee', models.DO_NOTHING, db_column='empleadoId', null=True, blank=True)
+    familiar_id = models.ForeignKey(Employeefamily, models.DO_NOTHING, db_column='familiarId', null=True, blank=True)
+    estado_id = models.ForeignKey(direccion_models.Estado, models.DO_NOTHING, db_column='estadoId')
+    municipio_id = models.ForeignKey(direccion_models.Municipio, models.DO_NOTHING, db_column='municipioId')
+    parroquia = models.ForeignKey(direccion_models.Parroquia, models.DO_NOTHING, db_column='parroquiaId')
+    direccion_exacta = models.TextField(db_column='direccionExacta')
+    condicion_vivienda_id = models.ForeignKey(condicion_vivienda, models.DO_NOTHING, db_column='condicionViviendaId')
+    
+
+    class Meta:
+        managed = True
+        db_table = 'datos_vivienda'
+        app_label = 'RAC'
+
+
+class perfil_salud(models.Model):
+    empleado_id = models.ForeignKey('Employee', models.DO_NOTHING, db_column='empleadoId', null=True, blank=True)
+    familiar_id = models.ForeignKey(Employeefamily, models.DO_NOTHING, db_column='familiarId', null=True, blank=True)
+    grupoSanguineo = models.ForeignKey('GrupoSanguineo', models.DO_NOTHING, db_column='grupoSanguineoId', blank=True, null=True)
+    patologiaCronica = models.ManyToManyField(patologias_Cronicas, db_column='patologiaCronicaId', blank=True)
+    discapacidad = models.ForeignKey(Discapacidades, models.DO_NOTHING, db_column='discapacidadId', blank=True, null=True)
+    
+    class Meta:
+        managed = True
+        db_table = 'perfil_salud'
+        app_label = 'RAC'
+
+class perfil_fisico(models.Model):
+    empleado_id = models.ForeignKey('Employee', models.DO_NOTHING, db_column='empleadoId', null=True, blank=True)
+    familiar_id = models.ForeignKey(Employeefamily, models.DO_NOTHING, db_column='familiarId', null=True, blank=True)
+    tallaCamisa = models.ForeignKey(Talla_Camisas,models.DO_NOTHING, db_column='tallaCamisaId', blank=True, null=True)
+    tallaPantalon = models.ForeignKey(Talla_Pantalones, models.DO_NOTHING, db_column='tallaPantalonId', blank=True, null=True)
+    tallaZapatos = models.ForeignKey(Talla_Zapatos, models.DO_NOTHING, db_column='tallaZapatosId', blank=True, null=True)
+    
+    class Meta:
+        managed = True
+        db_table = 'perfil_fisico'
+        app_label = 'RAC'
+    
+
+class formacion_academica(models.Model):
+    empleado_id = models.ForeignKey('Employee', models.DO_NOTHING, db_column='empleadoId', null=True, blank=True)
+    familiar_id = models.ForeignKey(Employeefamily, models.DO_NOTHING, db_column='familiarId', null=True, blank=True)
+    nivel_Academico_id = models.ForeignKey('NivelAcademico', models.DO_NOTHING, db_column='nivelAcademicoId', blank=True, null=True)
+    carrera_id = models.ForeignKey('carreras', models.DO_NOTHING, db_column='carreraId', blank=True, null=True)
+    mencion_id = models.ForeignKey('Menciones', models.DO_NOTHING, db_column='mencionId', blank=True, null=True)
+    institucion = models.CharField(max_length=200, blank=True, null=True)
+    capacitacion = models.CharField(max_length=200, blank=True, null=True)
+    
+    class Meta:
+        managed = True
+        db_table = 'formacion_academica'
+        app_label = 'RAC'
+    
+    
+class antecedentes_servicio(models.Model):
+    empleado_id = models.ForeignKey('Employee', models.DO_NOTHING, db_column='empleadoId', null=True, blank=True)
+    institucion = models.CharField(max_length=200, blank=True, null=True)
+    fecha_ingreso = models.DateField(db_column='fechaIngreso', blank=True, null=True)
+    fecha_egreso = models.DateField(db_column='fechaEgreso', blank=True, null=True)
+    
+    class Meta:
+        managed = True
+        db_table = 'antecedentes_servicio'
+        app_label = 'RAC'
+    
+
+class Employee(models.Model):
+ 
+    cedulaidentidad = models.TextField(db_column='cedulaIdentidad', unique=True)
+    nombres = models.TextField()
+    apellidos = models.TextField() 
+    fecha_nacimiento = models.DateField(db_column='fechaNacimiento', blank=True, null=True)
+    profile = models.TextField(blank=True, null=True)
+    fechaingresoorganismo = models.DateField(db_column='fechaIngresoOrganismo', blank=True, null=True)
+    
+    n_contrato = models.TextField(null=True, max_length=50)
+    
+    sexoid = models.ForeignKey('Sexo', models.DO_NOTHING, db_column='sexoId')
+    
+    estadoCivil = models.ForeignKey(estado_civil, models.DO_NOTHING, db_column='estadoCivilId', blank=True, null=True)
+    
+    
+    
+    
+    historial  = HistoricalRecords(user_model=cuenta)
+    fecha_actualizacion = models.DateTimeField(auto_now=True) 
+    
+    @property
+    def _history_user(self):
+        return self.changed_by
+
+    @_history_user.setter
+    def _history_user(self, value):
+        self.changed_by = value
+    class Meta:
+        managed = True
+        db_table = 'Employee'
+        ordering = ['-fecha_actualizacion']
+        app_label = 'RAC'
+
+
+
+class AsigTrabajo(models.Model):
+    employee = models.ForeignKey(
+        Employee, 
+        models.SET_NULL,
+        related_name='assignments',
+        to_field='cedulaidentidad',
+        db_column='employeeCedula', null=True, blank=True
+    )
+    codigo = models.TextField(unique=True) 
+    denominacioncargoid = models.ForeignKey('Denominacioncargo', models.DO_NOTHING, db_column='denominacionCargoId')
+    denominacioncargoespecificoid = models.ForeignKey('Denominacioncargoespecifico', models.DO_NOTHING, db_column='denominacionCargoEspecificoId') 
+    OrganismoAdscritoid = models.ForeignKey('OrganismoAdscrito', models.DO_NOTHING, db_column='organismoAdscritoId', blank=True, null=True)
+    gradoid = models.ForeignKey('Grado', models.DO_NOTHING, db_column='gradoId', blank=True, null=True) 
+    tiponominaid = models.ForeignKey('Tiponomina', models.DO_NOTHING, db_column='tipoNominaId')
+    DireccionGeneral =  models.ForeignKey(DireccionGeneral, models.DO_NOTHING, db_column='direccionGeneralId', blank=True, null=True)
+    DireccionLinea = models.ForeignKey(DireccionLinea, models.DO_NOTHING, db_column='direccionLineaId', blank=True, null=True)
+    Coordinacion = models.ForeignKey(Coordinaciones, models.DO_NOTHING, db_column='coordinacionId', blank=True, null=True)
+    estatusid = models.ForeignKey('Estatus', models.DO_NOTHING, db_column='estatusId') 
+    Tipo_personal = models.ForeignKey('Tipo_personal', models.DO_NOTHING, db_column='tipoPersonalId', blank=True, null=True)
+    observaciones = models.TextField(blank=True, null=True)
+    historial  = HistoricalRecords(user_model=cuenta)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+    
+    @property
+    def _history_user(self):
+        return self.changed_by
+
+    @_history_user.setter
+    def _history_user(self, value):
+        self.changed_by = value
+    class Meta:
+        managed = True
+        db_table = 'AsigTrabajo'
+        ordering = ['-fecha_actualizacion']
+        app_label = 'RAC'
+        
+    
+    
+class Cargos_DireccionGeneral(models.Model):
+    
+    Cargo =  models.ForeignKey('Denominacioncargo', models.DO_NOTHING, db_column='cargoId')
+    Direccion_general = models.ForeignKey(DireccionGeneral, models.DO_NOTHING, db_column='direccionGeneralId')
+    Cantidad_disponible = models.PositiveIntegerField()
+  
+    class Meta:
+        managed = True
+        app_label = 'RAC'
+    
+class Cargos_DireccionLinea(models.Model):
+    
+    Cargo =  models.ForeignKey('Denominacioncargo', models.DO_NOTHING, db_column='cargoId')
+    Direccion_linea = models.ForeignKey(DireccionLinea, models.DO_NOTHING, db_column='direccionLineaId')
+    Cantidad_disponible = models.PositiveIntegerField()
+
+    class Meta:
+        managed = True
+        app_label = 'RAC'
+    
+class Cargos_Coordinacion(models.Model):
+    
+    Cargo =  models.ForeignKey('Denominacioncargo', models.DO_NOTHING, db_column='cargoId')
+    Coordinacion = models.ForeignKey(Coordinaciones, models.DO_NOTHING, db_column='CoordniacionId')
+    Cantidad_disponible = models.PositiveIntegerField()
+
+    class Meta:
+        managed = True
+        app_label = 'RAC'
