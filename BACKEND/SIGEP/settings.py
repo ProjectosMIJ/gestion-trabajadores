@@ -79,14 +79,15 @@ WSGI_APPLICATION = 'SIGEP.wsgi.application'
 DATABASES = {
     'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'SIGEP',
-            'USER': 'postgres',     
-            'PASSWORD': 'Miranda29..*',  
-            'PORT': '5432',
+           
+            "NAME":"RAC_New",
+            "USER": "postgres",
+            "PASSWORD": "admin",
+            "PORT": "5432",
     }
 }
 
-
+ # 'NAME': 'SIGEP',
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
 

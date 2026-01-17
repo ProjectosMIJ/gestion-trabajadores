@@ -1,10 +1,17 @@
 from rest_framework.decorators import api_view
 from rest_framework import  status, serializers
 from rest_framework.response import Response
+from drf_spectacular.utils import extend_schema
 from ..models.ubicacion_models import Estado, Municipio, Parroquia
 from ..serializers.ubicacion_serializers import EstadoSerializer, MunicipioSerializer, ParroquiaSerializer
 
 
+@extend_schema(
+    tags=["Recursos Humanos - Datos Vivienda"],
+    summary="Listar Parroquias por Municipio",
+    description="Devuelve una lista de parroquias para un municipio específico.",
+    responses=ParroquiaSerializer,
+)
 @api_view(['GET'])
 def get_estados(request):
     estados = Estado.objects.all()
@@ -15,7 +22,12 @@ def get_estados(request):
         "data": serializer.data,},
          status=status.HTTP_200_OK)
 
-
+@extend_schema(
+    tags=["Recursos Humanos - Datos Vivienda"],
+    summary="Listar Municipios por Estado",
+    description="Devuelve una lista de municipios para un estado específico.",
+    responses=MunicipioSerializer,
+    )
 @api_view(['GET'])
 def get_municipios(request, estadoid):
 
@@ -40,6 +52,12 @@ def get_municipios(request, estadoid):
     }, status=status.HTTP_200_OK)
 
 
+@extend_schema(
+    tags=["Recursos Humanos - Datos Vivienda"],
+    summary="Listar Parroquias por Municipio",
+    description="Devuelve una lista de parroquias para un municipio específico.",
+    responses=ParroquiaSerializer,
+)
 @api_view(['GET'])
 def get_parroquias(request, municipioid):
 
@@ -65,71 +83,3 @@ def get_parroquias(request, municipioid):
 
 
 
-
-@api_view(['POST']) 
-def estado_create_many(request):
-  
-    serializer = EstadoSerializer(data=request.data, many=True)
-    
-   
-    if serializer.is_valid():
-
-        serializer.save() 
-
-        return Response({
-            "status": "Ok",
-            "message": f"Se registraron {len(request.data)} estados exitosamente",
-            "data": serializer.data
-        }, status=status.HTTP_201_CREATED)
-
-    return Response({
-        "status": "Error",
-        "message": "Los datos proporcionados no son válidos para el registro masivo",
-        "errors": serializer.errors
-    }, status=status.HTTP_400_BAD_REQUEST)
-    
-    
-
-@api_view(['POST']) 
-def municipio_create_many(request):
-    
-    serializer = MunicipioSerializer(data=request.data, many=True)
-    
-    if serializer.is_valid():
-
-        serializer.save() 
-        
-
-        return Response({
-            "status": "Ok",
-            "message": f"Se registraron {len(request.data)} municipios exitosamente",
-            "data": serializer.data
-        }, status=status.HTTP_201_CREATED)
-
-    return Response({
-        "status": "Error",
-        "message": "Los datos proporcionados para Municipio no son válidos",
-        "errors": serializer.errors
-    }, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-@api_view(['POST']) 
-def parroquia_create_many(request):
-
-    serializer = ParroquiaSerializer(data=request.data, many=True)
-    
-    if serializer.is_valid():
-
-        serializer.save() 
-        return Response({
-            "status": "Ok",
-            "message": f"Se registraron {len(request.data)} parroquias exitosamente",
-            "data": serializer.data
-        }, status=status.HTTP_201_CREATED)
-
-    return Response({
-        "status": "Error",
-        "message": "Los datos proporcionados para Parroquia no son válidos",
-        "errors": serializer.errors
-    }, status=status.HTTP_400_BAD_REQUEST)

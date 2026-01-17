@@ -1,14 +1,22 @@
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status,serializers
 from django.db.models.functions import  Extract, Concat
 from django.db.models import Count, Value, CharField
 
 from ..models.historial_personal_models import EmployeeMovementHistory, EmployeeEgresado
 from ..models.personal_models import Employee,AsigTrabajo
 from ..serializers.historial_personal_serializers import MovimintoCargoSerializer,GestionStatusSerializer,GestionEgreso_PasivoSerializer,EmployeeCargoHistorySerializer,PersonalEgresadoSerializer
+from drf_spectacular.utils import extend_schema
 
 
+
+@extend_schema(
+    tags=["Movimientos de Personal"],
+    summary="Cambiar Asignación de Cargo ",
+    description="Permite realizar un cambio de cargo",
+    request=MovimintoCargoSerializer
+)
 @api_view(['PATCH'])
 def cambiar_cargo(request, cargo_id):
     try:
@@ -53,6 +61,14 @@ def cambiar_cargo(request, cargo_id):
     }, status=status.HTTP_400_BAD_REQUEST)
     
 
+@extend_schema(
+    tags=["Movimientos de Personal"],
+    summary="Gestionar Estatus de cargo (Bloqueo/Suspensión/Activo)",
+    description="Permite cambiar el estatus de un puesto activo a uno de los estatus permitidos",
+    request=GestionStatusSerializer
+
+    
+)
 @api_view(['PATCH'])
 def gestionar_estatus_puesto(request, cargo_id):
     try:
@@ -96,6 +112,13 @@ def gestionar_estatus_puesto(request, cargo_id):
     }, status=status.HTTP_400_BAD_REQUEST)
     
 
+
+@extend_schema(
+    tags=["Movimientos de Personal"],
+    summary="Gestión de Egreso o Cambio a Pasivo",
+    description="Gestiona el movimiento de un personal a cargo pasivo o egreso",
+    request=GestionEgreso_PasivoSerializer
+)
 @api_view(['PATCH'])
 def gestion_egreso_pasivo(request, cedulaidentidad):
     try:
@@ -135,7 +158,13 @@ def gestion_egreso_pasivo(request, cedulaidentidad):
     }, status=status.HTTP_400_BAD_REQUEST)
     
     
-    
+
+@extend_schema(
+    tags=["Movimientos de Personal"],
+    summary="Buscar personal egresado por cédula del empleado",
+    description="Devuelve el personal egresado",
+    responses=PersonalEgresadoSerializer
+)
 @api_view(['GET'])
 def listar_empleado_Egresado(request,cedulaidentidad):
     try:
@@ -163,7 +192,14 @@ def listar_empleado_Egresado(request,cedulaidentidad):
         }, status = status.HTTP_400_BAD_REQUEST) 
         
 
+@extend_schema(
+    tags=["Movimientos de Personal"],
+    summary="Buscar movimiento por cédula del empleado",
+    description="Devuelve el historial de movimientos del empleado",
+    responses=EmployeeCargoHistorySerializer,
 
+    
+)
 @api_view(['GET'])
 def listar_historial_cargo(request, cedulaidentidad):
     try:
@@ -194,8 +230,11 @@ def listar_historial_cargo(request, cedulaidentidad):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
         
-    
-
+@extend_schema(
+    tags=['Reportes'],
+    summary="Reporte historico de movimientos de personal  mensual",
+    description="Calcula el total de movimientos realizados por mes.",
+)
 @api_view(['GET'])
 def reporte_movimientos(request):
     try:

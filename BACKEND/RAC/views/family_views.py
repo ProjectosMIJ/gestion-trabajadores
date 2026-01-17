@@ -1,12 +1,23 @@
 from rest_framework.decorators import api_view
-from rest_framework import status,serializers
+from rest_framework import status
 from django.db import transaction
 from rest_framework.response import Response
 from ..models.family_personal_models import Employeefamily, Parentesco
 from ..models.personal_models import Employee
 from ..serializers.family_serializers import FamilyCreateSerializer,FamilyListSerializer,ParentescoSerializer
+from drf_spectacular.utils import extend_schema
 
 
+
+@extend_schema(
+    tags=["Familiares de Empleados"],
+    summary="Registrar un nuevo familiar",
+    description=(
+        "Crea un nuevo registro en la carga familiar"
+    ),
+    request=FamilyCreateSerializer,
+
+)
 @api_view(['POST'])
 def registrar_familiar(request):
 
@@ -42,6 +53,14 @@ def registrar_familiar(request):
     }, status=status.HTTP_400_BAD_REQUEST)
     
     
+
+@extend_schema(
+    tags=["Familiares de Empleados"],
+    summary="Listar carga familiar detallada",
+    description="Obtiene todos los familiares de un empleado por la cedula del trabajador",
+    request=FamilyListSerializer,
+
+)
 @api_view(['GET'])
 def  listar_familiares(request, cedula_empleado):
     try:
@@ -70,7 +89,59 @@ def  listar_familiares(request, cedula_empleado):
         
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
- 
+@extend_schema(
+    tags=["Familiares de Empleados"],
+    summary="Registro masivo de familiares",
+    description="Registra múltiples familiares enviando una lista de objetos.",
+    request=FamilyCreateSerializer(many=True),
+  
+
+)
+@api_view(['POST'])
+def registrar_familiares_masivo(request):
+
+    serializer = FamilyCreateSerializer(data=request.data, many=True)
+    
+    if serializer.is_valid():
+        try:
+            with transaction.atomic():
+                familiares_creados = serializer.save()
+                
+                data_response = [
+                    {
+                        "id": f.id,
+                        "cedulaFamiliar": f.cedulaFamiliar,
+                        "nombre_completo": f"{f.primer_nombre} {f.primer_apellido}",
+                        "parentesco": f.parentesco.descripcion_parentesco if f.parentesco else None
+                    }
+                    for f in familiares_creados
+                ]
+
+                return Response({
+                    "status": "Ok",
+                    "message": "Familiares registrados correctamente.",
+                    "data": data_response
+                }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({
+                "status": "Error",
+                "message": "Error al registrar"
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+    return Response({
+        "status": "Error",
+        "message": "Error de validación en la lista.",
+        "errors": serializer.errors,
+    }, status=status.HTTP_400_BAD_REQUEST)
+     
+@extend_schema(
+    tags=["Familiares de Empleados"],
+    summary="Listar patentescos",
+    description="Devuelve una lista de todos los parentescosa disponibles.",
+    responses=ParentescoSerializer,
+  
+)
 @api_view(['GET'])
 def listar_parentesco(request):
    try:

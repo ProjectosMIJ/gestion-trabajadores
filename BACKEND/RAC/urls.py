@@ -23,7 +23,7 @@ urlpatterns = [
     path('asignacion_CodigoEspecia/',views.Cargo_Especial, name='asignacion-cargo-especial'),
     
     # crear organismos adscrito
-   path('register-organismoAdscrito/',views.register_organismoAdscrito, name= "registro-organismo-Adscrito"),
+   path('OrganismoAdscrito/',views.register_organismoAdscrito, name= "registro-organismo-Adscrito"),
    
 
    
@@ -32,16 +32,16 @@ urlpatterns = [
 #     creacion  de direccion general
     path('register-direccionGeneral/', views.register_DireccionGeneral, name= "registro-direccion-general"),
     #  Actualizacion de dirccion general
-    path('update_direccionGeneral/<int:id>/',views.Actualizar_DireccionGeneral, name= "actualizar-direccion-general"),
+    path('DireccionGeneral/<int:id>/',views.Actualizar_DireccionGeneral, name= "actualizar-direccion-general"),
     #  creacion de direccion de linea 
     path('register-direccionLinea/', views.register_DireccionLinea, name= "registro-direccion-linea"),  
 #    actualizacion de direccion de linea
-    path('update-direccionLinea/<int:id>/', views.Actualizar_DireccionLinea, name= "actualizar-direccion-linea "),
+    path('DireccionLinea/<int:id>/', views.Actualizar_DireccionLinea, name= "actualizar-direccion-linea "),
     
     # creacion de coordinacion 
     path('register-Coordinacion/', views.register_Coordinacion, name= "registro-coordinacion"),  
 #    actualizacion de coordinacion
-    path('update-coordinacion/<int:id>/', views.Actualizar_Coordinacion, name= "actualizar-coordinacion "),
+    path('Coordinaciones/<int:id>/', views.Actualizar_Coordinacion, name= "actualizar-coordinacion "),
 # ------------------
 # Gestion del codigo
 # -------------------   
@@ -93,11 +93,11 @@ urlpatterns = [
     # categorias de las patologias 
     path('categorias-patologias/', views.categorias_Patologias, name='listar-categorias-patologias '),
     #  patologias
-    path('listar-patologias/<int:categoria_id>/', views.Patologias, name='listar-patologias'),
+    path('Patologias/', views.Patologias, name='listar-patologias'),
     # categorias de las discapacidades 
-    path('categorias-discapacidad/', views.listar_Categorias_Discapacidades, name='listar-categorias-discapacidades'),
+    path('categorias-discapacidad/', views.Categorias_Discapacidades, name='listar-categorias-discapacidades'),
     # discapacidades
-    path('discapacidades/<int:categoria_id>/', views.listar_Discapacidades, name='listar-discapacidades'),
+    path('Discapacidades/', views.discapacidades, name='listar-discapacidades'),
     
     path('Menciones/<int:carrera_id>/', views.Menciones_carreras, name='listar-menciones'),
     path('carreras/', views.Carreras, name='listar-carreras'),
@@ -119,7 +119,7 @@ urlpatterns = [
     path('listar-denominacion-cargo-especifico/', views.listar_denominacion_cargo_especifico, name='listar-denominacion-cargo-especifico'),
     
     # organismos adscritos 
-    path('organismos-adscritos/', views.listar_Organismo_adscrito, name='lista de organismos adscritos'),
+    path('organismos-adscritos/', views.Organismo_adscrito, name='lista de organismos adscritos'),
     
     # grados 
     path('listar-grado/', views.listar_grado, name='lista de grados'), 
@@ -158,40 +158,37 @@ urlpatterns = [
 
     #path para la ubicacion del personal
 
+    path('direccion/estados/', views.get_estados, name='estados'),    
+    path('direccion/municipios/<int:estadoid>/', views.get_municipios, name='municipios_por_estado'),
+    path('direccion/parroquias/<int:municipioid>/', views.get_parroquias, name='parroquias'),
+  
 
-    path('estados/', views.get_estados, name='estados'),    
-    path('municipios/<int:estadoid>/', views.get_municipios, name='municipios_por_estado'),
-    path('parroquias/<int:municipioid>/', views.get_parroquias, name='parroquias'),
-    # registrar
-    path('estadoregister/',views.estado_create_many),
-    path('municipios/crear/', views.municipio_create_many, name='municipio-create-many'),
-    # Parroquia: POST /api/parroquias/crear/
-    path('parroquias/crear/', views.parroquia_create_many, name='parroquia-create-many'),
 
 # # RUTAS HISTORIAL DE EMPLEADOS
 #  # cambio de cargo 
-    path('cargo-movimiento/<int:cargo_id>/', views.cambiar_cargo, name='cargo-movimiento'),
+    path('historyEmployee/cargo-movimiento/<int:cargo_id>/', views.cambiar_cargo, name='cargo-movimiento'),
     
 # # #     #  egreso de un empleado (cambiar nombre)
-    path('egreso/<str:cedulaidentidad>/', views.gestion_egreso_pasivo, name='empleado-egreso'),
+    path('historyEmployee/egreso/<str:cedulaidentidad>/', views.gestion_egreso_pasivo, name='empleado-egreso'),
 
 
 # #         # Estatus
-    path('Estatus/<int:cargo_id>/',views.gestionar_estatus_puesto, name='gestion-puestos'),
+    path('historyEmployee/Estatus/<int:cargo_id>/',views.gestionar_estatus_puesto, name='gestion-puestos'),
 # # #     # historial de un empleado
-    path('historial/<str:cedulaidentidad>/', views.listar_historial_cargo, name='historial-por-cedula'),
+    path('EmployeeMovementHistory/<str:cedulaidentidad>/', views.listar_historial_cargo, name='historial-por-cedula'),
 
 #   listar egresado por cedula 
-    path('listar-egresados/<str:cedulaidentidad>/', views.listar_empleado_Egresado, name='egresados-detail'),
+    path('EmployeeEgresado/<str:cedulaidentidad>/', views.listar_empleado_Egresado, name='egresados-detail'),
 
    
 #   reporte
-    path('reporte-movimiento/',views.reporte_movimientos, name='reporte-movimiento'),
+    path('EmployeeMovementHistory/reporte/',views.reporte_movimientos, name='reporte-movimiento'),
    
 ### urls de familiares
-    path('create-empleadoFamiliar/', views.registrar_familiar, name='creacion-empleadoFamiliar'),
-    path('familiares/<str:cedula_empleado>/',views.listar_familiares, name='listar-familiares-por-cedula'),
-    path('listar-parentesco/', views.listar_parentesco, name="listar-parentesco")
+    path('Employeefamily/', views.registrar_familiar, name='creacion-empleadoFamiliar'),
+    path('Employeefamily/masivo', views.registrar_familiares_masivo, name='creacion-masiva-empleadoFamiliar'),
+    path('Employeefamily/<str:cedula_empleado>/',views.listar_familiares, name='listar-familiares-por-cedula'),
+    path('Parentesco/', views.listar_parentesco, name="listar-parentesco")
 
 
 ]

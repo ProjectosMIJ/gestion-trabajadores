@@ -17,10 +17,8 @@ from ..serializers import (DireccionGeneralSerializer,DireccionLineaSerializer,C
                            denominacionCargoEspecificoSerializer,denominacionCargoSerializer,
                            gradoSerializer,OrganismoAdscritoSerializer)
 
-# SERIALIZER PARA GESTIONAR MOVIMIENTOS DE CARGO 
-class MovimintoCargoSerializer(serializers.Serializer):
-    
 
+class MovimintoCargoSerializer(serializers.Serializer):
     nuevo_cargo_id = serializers.IntegerField(required=True)
     usuario_id = serializers.IntegerField(required=True)
     motivo = serializers.CharField(required=True)
@@ -239,7 +237,23 @@ class GestionEgreso_PasivoSerializer(BaseActionInputSerializer):
     
 #    REGISTRO DE EGRESO 
     def _procesar_egreso_total(self, empleado, motivo, usuario, estatus_vacante):
+        
+        try:
+            estatus_egresado = Estatus.objects.get(estatus__iexact="EGRESADO") 
+        except Estatus.DoesNotExist:
+            raise serializers.ValidationError("No se encontró el estatus EGRESADO en la base de datos.")
+        
+        fecha_hoy = timezone.now().date()
         asignaciones = AsigTrabajo.objects.filter(employee=empleado)
+        
+        ultima_asig = asignaciones.first()
+        antecedentes_servicio.objects.create(
+            empleado_id=empleado,
+            institucion="Ministerio del Poder Popular para Relaciones Interiores, Justicia y Paz", 
+        
+            fecha_ingreso=empleado.fechaingresoorganismo,
+            fecha_egreso=fecha_hoy
+        )
         for asig in asignaciones:
             EmployeeEgresado.objects.create(
                 employee=empleado,
@@ -257,6 +271,9 @@ class GestionEgreso_PasivoSerializer(BaseActionInputSerializer):
                 OrganismoAdscritoid=asig.OrganismoAdscritoid,
                 motivo_egreso=motivo
             )
+            
+            
+            asig.estatusid = estatus_egresado
             # REGISTRO EN EL HISTORIAL 
             registrar_historial_movimiento(empleado, asig, 'EGRESO', motivo, usuario)
             
@@ -279,12 +296,11 @@ class PersonalEgresadoSerializer(serializers.ModelSerializer):
         model = EmployeeEgresado
         fields = [
                 
-                
+                'employee',
                 'nombres',
                 'apellidos',
                 'codigo',
                 'fechaingresoorganismo',
-                'fechaingresoapn',
                 'denominacioncargo',
                 'denominacioncargoespecifico',
                 'grado',
