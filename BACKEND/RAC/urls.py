@@ -6,7 +6,7 @@ urlpatterns = [
     # crear empleado (datos personales)
     path('employees_register/',views.register_employee, name='employee-register'),
     # actulizacion de datos personales
-    path('employes-actualizar/<int:id>/', views.editar_empleado, name='actualizar-empleado'),
+    path('Employee/<int:id>/', views.editar_empleado, name='actualizar-empleado'),
  # CREACION  Y DE LOS CARGOS
     # registrar nuevo codigo 
      path('empleados-codigo/', views.register_codigo, name='registrar-codigo'),
@@ -62,7 +62,7 @@ urlpatterns = [
     path('listar-data-empleados/<str:cedulaidentidad>/', views.listar_empleadosData, name='listar-data-empleados'),
 # con su cargo 
 #       # listar empleados con su cargo
-    path('empleados-listar/', views.listar_empleados, name='empleados-listar'),
+    path('Employee/cargos/', views.listar_empleados, name='empleados-listar'),
     
     # D
     path('empleados/', views.EmployeeViewSet.as_view({'get': 'list'}), name='empleado-list-create'),
