@@ -49,7 +49,7 @@ import z from "zod";
 import { AsignCode } from "@/app/personal/asignar-codigo/actions/asign-code";
 export function AsigCode() {
   const [searchEmployee, setSearchEmployee] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const [isLoading, setIsloading] = useState<boolean>(false);
   const [selecteCodes, setSelecteCodes] = useState<Code[]>([]);
@@ -84,7 +84,7 @@ export function AsigCode() {
       status: "",
       message: "",
       data: [],
-    }
+    },
   );
   const [message, setMessage] = useState<string>("");
   useEffect(() => {
@@ -133,7 +133,6 @@ export function AsigCode() {
       setIsloading(true);
       setSelecteCodes([]);
       const code = await getCodeByDirectionGeneral(selecteIdDirectionGeneral);
-      console.log(code);
       if (Array.isArray(code.data)) setSelecteCodes(code.data);
       setIsloading(false);
     } catch {
@@ -150,7 +149,6 @@ export function AsigCode() {
       setSelecteCodes([]);
 
       const code = await getCodeByDirectionLine(selecteIdDirectionLine);
-      console.log(code);
 
       if (Array.isArray(code.data)) setSelecteCodes(code.data);
       setIsloading(false);
@@ -168,7 +166,6 @@ export function AsigCode() {
       setSelecteCodes([]);
 
       const code = await getCodeByCoordination(selecteIdCoordination);
-      console.log(code);
       if (Array.isArray(code.data)) setSelecteCodes(code.data);
       setIsloading(false);
     } catch {
@@ -347,7 +344,7 @@ export function AsigCode() {
                                 Direccion General:{" "}
                                 {
                                   selecteCodes.find(
-                                    (v) => v.id === selectedCode
+                                    (v) => v.id === selectedCode,
                                   )?.DireccionGeneral.direccion_general
                                 }
                               </p>
@@ -357,7 +354,7 @@ export function AsigCode() {
                                 {selecteCodes.find((v) => v.id === selectedCode)
                                   ?.DireccionLinea?.direccion_linea
                                   ? selecteCodes.find(
-                                      (v) => v.id === selectedCode
+                                      (v) => v.id === selectedCode,
                                     )?.DireccionLinea?.direccion_linea
                                   : "N/A"}
                               </p>
@@ -367,7 +364,7 @@ export function AsigCode() {
                                 {selecteCodes.find((v) => v.id === selectedCode)
                                   ?.Coordinacion?.coordinacion
                                   ? selecteCodes.find(
-                                      (v) => v.id === selectedCode
+                                      (v) => v.id === selectedCode,
                                     )?.Coordinacion?.coordinacion
                                   : "N/A"}
                               </p>
@@ -376,7 +373,7 @@ export function AsigCode() {
                                 {selecteCodes.find((v) => v.id === selectedCode)
                                   ?.OrganismoAdscrito
                                   ? selecteCodes.find(
-                                      (v) => v.id === selectedCode
+                                      (v) => v.id === selectedCode,
                                     )?.OrganismoAdscrito
                                   : "N/A"}
                               </p>
@@ -385,7 +382,7 @@ export function AsigCode() {
                                 {selecteCodes.find((v) => v.id === selectedCode)
                                   ?.grado?.grado
                                   ? selecteCodes.find(
-                                      (v) => v.id === selectedCode
+                                      (v) => v.id === selectedCode,
                                     )?.grado?.grado
                                   : "N/A"}
                               </p>
@@ -393,7 +390,7 @@ export function AsigCode() {
                                 Cargo:{" "}
                                 {
                                   selecteCodes.find(
-                                    (v) => v.id === selectedCode
+                                    (v) => v.id === selectedCode,
                                   )?.denominacioncargo.cargo
                                 }
                               </p>
@@ -401,7 +398,7 @@ export function AsigCode() {
                                 Cargo Especifico:{" "}
                                 {
                                   selecteCodes.find(
-                                    (v) => v.id === selectedCode
+                                    (v) => v.id === selectedCode,
                                   )?.denominacioncargoespecifico.cargo
                                 }
                               </p>
@@ -409,7 +406,7 @@ export function AsigCode() {
                                 Estatus:{" "}
                                 {
                                   selecteCodes.find(
-                                    (v) => v.id === selectedCode
+                                    (v) => v.id === selectedCode,
                                   )?.estatusid.estatus
                                 }
                               </p>
@@ -417,7 +414,7 @@ export function AsigCode() {
                                 Tipo De Nomina:{" "}
                                 {
                                   selecteCodes.find(
-                                    (v) => v.id === selectedCode
+                                    (v) => v.id === selectedCode,
                                   )?.tiponomina.nomina
                                 }
                               </p>
