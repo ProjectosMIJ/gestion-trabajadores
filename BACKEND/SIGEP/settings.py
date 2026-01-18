@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    "corsheaders",
     'drf_spectacular',
     'RAC',
     'USER'
@@ -60,7 +59,6 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'SIGEP.urls'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://127.0.0.1:3000",
 ]
 TEMPLATES = [
     {
