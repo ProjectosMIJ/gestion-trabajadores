@@ -5,7 +5,13 @@ import {
   schemaAcademy,
 } from "../schemas/schema-academic_training";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -83,6 +89,9 @@ export default function FormAcademyLevel({ onSubmit, defaultValues }: Props) {
           <CardTitle>Formacion Academica</CardTitle>
         </CardHeader>
         <CardContent>
+          <CardAction className="text-gray-500">
+            Paso 2: Informacion Academica
+          </CardAction>
           <div>
             <Form {...form}>
               <form

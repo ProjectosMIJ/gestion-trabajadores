@@ -309,7 +309,7 @@ export const getMaritalstatus = async (): Promise<
 
 export const getParent = async (): Promise<ApiResponse<ParentType[]>> => {
   const responseParent = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}FamilyRac/listar-parentesco/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}Parentesco/`,
   );
   const getParent: ApiResponse<ParentType[]> = await responseParent.json();
   return getParent;

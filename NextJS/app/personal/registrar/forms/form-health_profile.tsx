@@ -1,4 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   HealthType,
   schemaHealthProfile,
@@ -78,9 +84,6 @@ export default function FormHealth({ onSubmit, defaultValues }: Props) {
         getBloodGroup(),
         getDisability(),
       ]);
-      console.log(patology);
-      console.log(bloodGroup);
-      console.log(disability);
 
       if (Array.isArray(patology.data)) setPatology(patology);
       if (Array.isArray(bloodGroup.data)) setBloodGroup(bloodGroup);
@@ -126,7 +129,11 @@ export default function FormHealth({ onSubmit, defaultValues }: Props) {
         <CardHeader>
           <CardTitle> Datos De Salud</CardTitle>
         </CardHeader>
+
         <CardContent>
+          <CardAction className="text-gray-500">
+            Paso 4: Perfil De Salud
+          </CardAction>
           <div>
             <Form {...form}>
               <form
@@ -138,7 +145,7 @@ export default function FormHealth({ onSubmit, defaultValues }: Props) {
                   name="perfil_salud.grupoSanguineo"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Grupo Sanguineo (Opcional)</FormLabel>
+                      <FormLabel>Grupo Sanguineo </FormLabel>
                       <Select
                         onValueChange={(values) => {
                           field.onChange(Number.parseInt(values));

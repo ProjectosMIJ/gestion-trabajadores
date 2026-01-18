@@ -23,6 +23,8 @@ import { HealthType } from "../schemas/schema-health_profile";
 import { PhysicalProfileType } from "../schemas/schema-physical_profile";
 import { DwellingType } from "../schemas/schema-dwelling";
 import { registerEmployeeSteps } from "../actions/formStepActions";
+import { FamilyEmployeeType } from "../schemas/schema-family_employee";
+import { FormFamilyEmployee } from "./form-family";
 type Values = [
   FormFormity<BasicInfoType>,
   FormFormity<AcademyType>,
@@ -30,13 +32,15 @@ type Values = [
   FormFormity<HealthType>,
   FormFormity<PhysicalProfileType>,
   FormFormity<DwellingType>,
+  FormFormity<FamilyEmployeeType>,
   ReturnFormity<
     BasicInfoType &
       AcademyType &
       BackgroundType &
       HealthType &
       PhysicalProfileType &
-      DwellingType
+      DwellingType &
+      FamilyEmployeeType
   >,
 ];
 
@@ -48,7 +52,7 @@ const schema: SchemaFormity<Values> = [
         cedulaidentidad: ["", []],
         nombres: ["", []],
         apellidos: ["", []],
-        file: [null, []],
+        file: [null as unknown as File, []],
         fecha_nacimiento: [new Date(), []],
         fechaingresoorganismo: [new Date(), []],
         n_contrato: ["", []],
@@ -67,10 +71,10 @@ const schema: SchemaFormity<Values> = [
         formacion_academica: [
           {
             nivel_Academico_id: 0,
-            carrera_id: 0,
-            mencion_id: 0,
-            capacitacion: "",
-            institucion: "",
+            carrera_id: undefined,
+            mencion_id: undefined,
+            capacitacion: undefined,
+            institucion: undefined,
           },
           [],
         ],
@@ -83,12 +87,13 @@ const schema: SchemaFormity<Values> = [
   {
     form: {
       values: () => ({
+        fechaingresoorganismo: [new Date(), []],
         antecedentes: [
           [
             {
-              institucion: "",
-              fecha_ingreso: new Date(),
-              fecha_egreso: new Date(),
+              institucion: undefined as unknown as string,
+              fecha_ingreso: undefined as unknown as Date,
+              fecha_egreso: undefined as unknown as Date,
             },
           ],
           [],
@@ -155,6 +160,19 @@ const schema: SchemaFormity<Values> = [
     },
   },
   {
+    form: {
+      values: () => ({
+        familys: [[], []],
+      }),
+      render: ({ values, onNext, onBack }) => {
+        const familysData = [] as FamilyEmployeeType;
+        return (
+          <FormFamilyEmployee defaultValues={familysData} onSubmit={onNext} />
+        );
+      },
+    },
+  },
+  {
     return: (data) => {
       return data;
     },
@@ -168,7 +186,8 @@ export default function MultiStepForm() {
         BackgroundType &
         HealthType &
         PhysicalProfileType &
-        DwellingType)
+        DwellingType &
+        FamilyEmployeeType)
     | null
   >(null);
   const onReturn = useCallback<OnReturn<Values>>((output) => {
