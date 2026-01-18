@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    "corsheaders",
     'drf_spectacular',
     'RAC',
     'USER'
@@ -48,6 +49,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -135,3 +137,41 @@ REST_FRAMEWORK = {
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+CORS_ALLOWED_ORIGINS = [
+    "http://192.168.1.5:3000", 
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://next-app:3000",
+    "http://172.16.24.81:3000",
+    "http://172.21.192.1:3000",
+    "http://172.21.192.1:3000",
+    "http://172.16.24.56:3000",
+    "http://192.168.137.22:3000",
+    "http://172.22.112.1:3000",
+    "http://172.16.24.46:3000",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOWED_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+]
+
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
