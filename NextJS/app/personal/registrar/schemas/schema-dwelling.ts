@@ -2,28 +2,36 @@ import { z } from "zod";
 
 export const schemaDwelling = z.object({
   datos_vivienda: z.object({
-    direccion_exacta: z.string({
-      message: "Debe Ingresar Informacion Valida",
-      required_error: "Este Campo Es Requerido",
-    }),
-    estado_id: z.number({
-      message: "Debe Ingresar Informacion Valida",
-      required_error: "Este Campo Es Requerido",
-    }),
-    municipio_id: z.number({
-      message: "Debe Ingresar Informacion Valida",
-      required_error: "Este Campo Es Requerido",
-    }),
-    parroquia: z.number({
-      message: "Debe Ingresar Informacion Valida",
-      required_error: "Este Campo Es Requerido",
-    }),
+    direccion_exacta: z
+      .string({
+        message: "Debe Ingresar Informacion Valida",
+        required_error: "Este Campo Es Requerido",
+      })
+      .min(3, "La Direccion Exacta Debe Tener Minimo 3 Caracteres"),
+    estado_id: z
+      .number({
+        message: "Debe Ingresar Informacion Valida",
+        required_error: "Este Campo Es Requerido",
+      })
+      .min(1, "Debe Seleccionar Un Estado"),
+    municipio_id: z
+      .number({
+        message: "Debe Ingresar Informacion Valida",
+        required_error: "Este Campo Es Requerido",
+      })
+      .min(1, "Debe Seleccionar Un Municipio"),
+    parroquia: z
+      .number({
+        message: "Debe Ingresar Informacion Valida",
+        required_error: "Este Campo Es Requerido",
+      })
+      .min(1, "Debe Seleccionar Una Parroquia"),
     condicion_vivienda_id: z
       .number({
         message: "Debe Ingresar Informacion Valida",
         required_error: "Este Campo Es Requerido",
       })
-      .optional(),
+      .min(1, "Debe Seleccionar Una Parroquia"),
   }),
 });
 export type DwellingType = z.infer<typeof schemaDwelling>;

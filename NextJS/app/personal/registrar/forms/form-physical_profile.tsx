@@ -1,6 +1,12 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -81,6 +87,9 @@ export default function FormPhysical({ onSubmit, defaultValues }: Props) {
         <CardTitle>Vestimenta</CardTitle>
       </CardHeader>
       <CardContent>
+        <CardAction className="text-gray-600">
+          Paso 5: Datos De Vestimenta
+        </CardAction>
         <Form {...form}>
           <form
             className="grid grid-cols-2 gap-2 space-y-2"

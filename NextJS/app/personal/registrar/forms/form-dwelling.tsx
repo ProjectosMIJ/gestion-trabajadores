@@ -3,7 +3,13 @@
 import { useForm } from "react-hook-form";
 import { DwellingType, schemaDwelling } from "../schemas/schema-dwelling";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Form,
   FormControl,
@@ -31,6 +37,7 @@ import {
 } from "@/app/types/types";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
 export type Props = {
   onSubmit: (values: DwellingType) => void;
   defaultValues: DwellingType;
@@ -105,7 +112,10 @@ export default function FormDwelling({ onSubmit, defaultValues }: Props) {
         <CardHeader>
           <CardTitle>Datos Socio-economicos</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-3">
+          <CardAction className="text-gray-500">
+            Paso 6: Datos De Vivienda
+          </CardAction>
           <div>
             <Form {...form}>
               <form
@@ -251,6 +261,22 @@ export default function FormDwelling({ onSubmit, defaultValues }: Props) {
                       <FormDescription>
                         Esta Informacion Sera Publica
                       </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="datos_vivienda.direccion_exacta"
+                  render={({ field }) => (
+                    <FormItem className="col-span-2">
+                      <FormLabel>Direccion Exacta *</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Calle, Casa, Apartamento, Sector"
+                          {...field}
+                        />
+                      </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 
 import {
   Card,
+  CardAction,
   CardContent,
   CardDescription,
   CardHeader,
@@ -52,6 +53,7 @@ import { toast } from "sonner";
 import { ApiResponse, MaritalStatusType } from "@/app/types/types";
 import { getMaritalstatus } from "@/app/api/getInfoRac";
 import { BasicInfoType, schemaBasicInfo } from "../schemas/schema-basic-info";
+import { validateWeight } from "@/constants/fileSize";
 type Props = {
   onSubmit: (values: BasicInfoType) => void;
   defaultValues: BasicInfoType;
@@ -68,13 +70,12 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
   const [photoPreview, setPhotoPreview] = useState<string | null | undefined>(
     null,
   );
-
+  const [file, setFile] = useState<File | null>(null);
   useEffect(() => {
     const loadData = async () => {
       const [maritalStatus] = await Promise.all([getMaritalstatus()]);
 
       setMaritalStatus(maritalStatus);
-      console.log(maritalStatus);
     };
     loadData();
   }, []);
@@ -84,7 +85,7 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
   });
   const handleRemovePhoto = () => {
     setPhotoPreview(null);
-    form.setValue("file", null);
+    form.setValue("file", null as unknown as File);
   };
 
   const onSubmitFormity = (data: BasicInfoType) => {
@@ -95,7 +96,11 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
       <CardHeader>
         <CardTitle>Registrar Nuevo Trabajador</CardTitle>
       </CardHeader>
+
       <CardContent>
+        <CardAction className="text-gray-500">
+          Paso 1: Informacion Basica
+        </CardAction>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmitFormity)}>
             <div className="space-y-6">
@@ -118,7 +123,7 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
                 <div className="border rounded-lg p-4 space-y-3">
                   <Label>Foto del Trabajador</Label>
                   {photoPreview ? (
-                    <div className="relative w-full h-40">
+                    <div className="relative w-full h-40 p-2">
                       <img
                         src={photoPreview || "/placeholder.svg"}
                         alt="Preview"
@@ -130,6 +135,14 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
                       >
                         <X className="h-4 w-4" />
                       </Button>
+                      <div className="text-center w-full">
+                        {
+                          validateWeight(
+                            file?.size ? file.size : 0,
+                            5 * 1024 * 1024,
+                          ).formattedSize
+                        }
+                      </div>
                     </div>
                   ) : (
                     <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
@@ -154,6 +167,7 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
                                   const file = event.target.files?.[0];
                                   onChange(file);
                                   if (file) {
+                                    setFile(file);
                                     setPhotoPreview(URL.createObjectURL(file));
                                   } else {
                                     setPhotoPreview("/placeholder.svg");
@@ -187,7 +201,6 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
                       </FormItem>
                     )}
                   />
-
                   <FormField
                     control={form.control}
                     name="nombres"
@@ -218,68 +231,9 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
                   />
                   <FormField
                     control={form.control}
-                    name="sexoid"
-                    render={({ field }) => (
-                      <FormItem className=" ">
-                        <FormLabel>Sexo *</FormLabel>
-                        <Select
-                          onValueChange={(values) => {
-                            field.onChange(Number.parseInt(values));
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full truncate">
-                              <SelectValue
-                                placeholder={"Seleccione un Genero"}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="1">Masculino</SelectItem>
-                            <SelectItem value="2">Femenino</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="estadoCivil"
-                    render={({ field }) => (
-                      <FormItem className=" ">
-                        <FormLabel>Estado Civil </FormLabel>
-                        <Select
-                          onValueChange={(values) => {
-                            field.onChange(Number.parseInt(values));
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full truncate">
-                              <SelectValue
-                                placeholder={"Seleccione Un Estado Civil"}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {maritalStatus.data.map((status, i) => (
-                              <SelectItem key={i} value={`${status.id}`}>
-                                {status.estadoCivil}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
                     name="fecha_nacimiento"
                     render={({ field }) => (
-                      <FormItem className="flex flex-col  grow shrink basis-40">
+                      <FormItem className="flex flex-col  grow shrink basis-40 ">
                         <FormLabel> Fecha de Nacimiento *</FormLabel>
                         <Popover>
                           <PopoverTrigger asChild>
@@ -319,49 +273,63 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
                   />
                   <FormField
                     control={form.control}
-                    name="fechaingresoorganismo"
+                    name="sexoid"
                     render={({ field }) => (
-                      <FormItem className="flex flex-col  grow shrink basis-40">
-                        <FormLabel> Fecha de Ingreso al Organismo *</FormLabel>
-                        <Popover>
-                          <PopoverTrigger asChild>
-                            <FormControl>
-                              <Button
-                                variant={"outline"}
-                                className="font-light"
-                              >
-                                {field.value ? (
-                                  format(field.value, "yyyy-MM-dd")
-                                ) : (
-                                  <span>Selecciona una fecha</span>
-                                )}
-                                <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                              </Button>
-                            </FormControl>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              selected={
-                                field.value ? new Date(field.value) : undefined
-                              }
-                              mode="single"
-                              onSelect={(date) => field.onChange(date)}
-                              disabled={(date: Date) =>
-                                date > new Date() ||
-                                date < new Date("1900-01-01")
-                              }
-                              captionLayout="dropdown"
-                            />
-                          </PopoverContent>
-                        </Popover>
-
+                      <FormItem className=" ">
+                        <FormLabel>Sexo *</FormLabel>
+                        <Select
+                          onValueChange={(values) => {
+                            field.onChange(Number.parseInt(values));
+                          }}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full truncate">
+                              <SelectValue
+                                placeholder={"Seleccione un Genero"}
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="1">Masculino</SelectItem>
+                            <SelectItem value="2">Femenino</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="estadoCivil"
+                    render={({ field }) => (
+                      <FormItem className="col-span-2 ">
+                        <FormLabel>Estado Civil </FormLabel>
+                        <Select
+                          onValueChange={(values) => {
+                            field.onChange(Number.parseInt(values));
+                          }}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full truncate">
+                              <SelectValue
+                                placeholder={"Seleccione Un Estado Civil"}
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {maritalStatus.data.map((status, i) => (
+                              <SelectItem key={i} value={`${status.id}`}>
+                                {status.estadoCivil}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
               </div>
-
               <div className="flex gap-3 justify-end pt-4">
                 <Button className="w-full">Siguiente</Button>
               </div>
