@@ -262,7 +262,7 @@ class CodigosCreateSerializer(serializers.ModelSerializer):
         ]
 
         for field in fk_fields:
-            if data.get(field) == 0 or data.get(field) == "0":
+            if data.get(field) == 0 :
                 data[field] = None  
 
         
