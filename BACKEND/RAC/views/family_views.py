@@ -100,7 +100,13 @@ def  listar_familiares(request, cedula_empleado):
 @api_view(['POST'])
 def registrar_familiares_masivo(request):
 
-    serializer = FamilyCreateSerializer(data=request.data, many=True)
+    datos_sucios = request.data
+    datos_filtrados = [
+        item for item in datos_sucios 
+        if isinstance(item, dict) and 'cedulaFamiliar' in item
+    ]
+
+    serializer = FamilyCreateSerializer(data=datos_filtrados, many=True)
     
     if serializer.is_valid():
         try:

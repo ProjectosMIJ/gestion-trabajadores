@@ -11,9 +11,10 @@ class Parentesco(models.Model):
     class Meta:
         managed = True
         verbose_name = "Parentesco"
+        db_table = 'Parentesco'
         verbose_name_plural = "Parentescos"
-        app_label = 'RAC'
-
+        
+        
     def __str__(self):
         return self.descripcion_parentesco
 
@@ -46,4 +47,4 @@ class Employeefamily(models.Model):
         managed = True
         verbose_name = "Employeefamily"
         verbose_name_plural = "Employeefamilys"
-        app_label = 'RAC'
+        
