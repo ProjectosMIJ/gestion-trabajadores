@@ -2,13 +2,16 @@
 
 import { z } from "zod";
 import { schemaCreateDependency } from "../schema/schemaCreateDependency";
-import { ApiResponse } from "@/app/types/types";
+import {
+  ApiResponse,
+  DireccionGeneral,
+  DireccionLinea,
+} from "@/app/types/types";
 
 export async function CreateDependencyAction(
-  values: z.infer<typeof schemaCreateDependency>
+  values: z.infer<typeof schemaCreateDependency>,
 ) {
   try {
-    console.log(values);
     const { success, error } = schemaCreateDependency.safeParse(values);
     if (!success) {
       return {
@@ -27,53 +30,69 @@ export async function CreateDependencyAction(
           Codigo: values.Codigo,
           direccion_general: values.direccion_general,
         }),
-      }
+      },
     );
-    const getDirectionGeneral: ApiResponse<{
-      id: number;
-      Codigo: string;
-      direcction_general: string;
-    }> = await responseDirectionGeneral.json();
-    if (values.activeCoordination) {
-      const responseDirectionLinea = await fetch(
-        `${process.env.NEXT_PUBLIC_DJANGO_API_URL}register-direccionLinea/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            Codigo: values.direction_line?.Codigo,
-            direccion_linea: values.direction_line?.direccion_linea,
-            direccionGeneral: getDirectionGeneral.data.id,
-          }),
-        }
-      );
-      const getDirectionLine: ApiResponse<{
-        id: number;
-        Codigo: string;
-        direccion_linea: string;
-      }> = await responseDirectionLinea.json();
-      if (values.activeCoordination) {
-        await fetch(
-          `${process.env.NEXT_PUBLIC_DJANGO_API_URL}register-Coordinacion/`,
+    if (!values.activeCoordination && !values.activeDirectionLine) {
+      return {
+        success: true,
+        message: "Direccion General Creada Exitosamente",
+      };
+    }
+    const getDirectionGeneral: ApiResponse<DireccionGeneral> =
+      await responseDirectionGeneral.json();
+    if (responseDirectionGeneral.ok) {
+      if (values.direction_line) {
+        const responseDirectionLinea = await fetch(
+          `${process.env.NEXT_PUBLIC_DJANGO_API_URL}register-direccionLinea/`,
           {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              Codigo: values.coordination?.Codigo,
-              direccion_linea: values.coordination?.coordinacion,
-              direccionLinea: getDirectionLine.data.id,
+              Codigo: values.direction_line?.Codigo,
+              direccion_linea: values.direction_line?.direccion_linea,
+              direccionGeneral: getDirectionGeneral.data.id,
             }),
-          }
+          },
         );
+        const getDirectionLine: ApiResponse<DireccionLinea> =
+          await responseDirectionLinea.json();
+        if (values.activeDirectionLine && !values.activeCoordination) {
+          return {
+            success: true,
+            message:
+              "Direccion General Y Direccion De Linea Creada Exitosamente",
+          };
+        }
+        if (responseDirectionLinea.ok) {
+          if (values.activeCoordination && values.activeDirectionLine) {
+            await fetch(
+              `${process.env.NEXT_PUBLIC_DJANGO_API_URL}register-Coordinacion/`,
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  Codigo: values.coordination?.Codigo,
+                  coordinacion: values.coordination?.coordinacion,
+                  direccionLinea: getDirectionLine.data.id,
+                }),
+              },
+            );
+            return {
+              success: true,
+              message: "Direccion De Dependencia Creada Exitosamente",
+            };
+          }
+        }
       }
     }
+
     return {
-      success: true,
-      message: "Creado Exitosamente",
+      success: false,
+      message: "Error Al Crear Direccion",
     };
   } catch {
     return {

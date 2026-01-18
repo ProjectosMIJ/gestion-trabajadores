@@ -123,6 +123,7 @@ export default function FormBackground({ onSubmit, defaultValues }: Props) {
                 <Button
                   id="clean"
                   variant={"outline"}
+                  type="button"
                   className="bg-red-500 border-2 border-red-600/25 hover:bg-red-600/90 cursor-pointer"
                   onClick={() => {
                     remove(
@@ -149,6 +150,7 @@ export default function FormBackground({ onSubmit, defaultValues }: Props) {
                 <Button
                   id="add"
                   variant={"outline"}
+                  type="button"
                   className="bg-green-500 border-2 border-green-600/25 hover:bg-green-600/90 cursor-pointer"
                   onClick={() => {
                     append({

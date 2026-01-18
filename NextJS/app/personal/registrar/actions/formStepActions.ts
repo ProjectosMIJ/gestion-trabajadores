@@ -32,7 +32,6 @@ export async function registerEmployeeSteps(
       perfil_fisico,
       perfil_salud,
       sexoid,
-      usuario_id,
       antecedentes,
       familys,
     } = data;
@@ -50,16 +49,16 @@ export async function registerEmployeeSteps(
       perfil_fisico,
       perfil_salud,
       sexoid,
-      usuario_id,
+      usuario_id: 5,
       antecedentes,
     };
     const payloadFamily = {
-      familys,
-      usuario_id: 5,
-      employeecedula: cedulaidentidad,
+      familys: familys?.map((familiar) => ({
+        ...familiar,
+        usuario_id: 5,
+        employeecedula: cedulaidentidad, // Aquí insertas la cédula
+      })),
     };
-    console.log("empleado", payloadEmployee);
-    console.log("familiar", payloadFamily);
 
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_DJANGO_API_URL}employees_register/`,
@@ -77,15 +76,13 @@ export async function registerEmployeeSteps(
     );
     if (response.ok) {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_DJANGO_API_URL}Employeefamily/`,
+        `${process.env.NEXT_PUBLIC_DJANGO_API_URL}Employeefamily/masivo/`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            ...payloadFamily,
-          }),
+          body: JSON.stringify(payloadFamily.familys),
         },
       );
       return {

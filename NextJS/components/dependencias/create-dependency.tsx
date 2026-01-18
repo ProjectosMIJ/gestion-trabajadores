@@ -87,20 +87,23 @@ export default function CreateDependency() {
                 />
               </div>
               <div className="flex flex-row gap-2 items-center justify-end">
-                <Switch
-                  onCheckedChange={(boolean) => {
-                    setActiveDirectionLine(boolean);
-                    form.setValue("activeDirectionLine", boolean);
-                  }}
-                  id="direction_line"
+                <FormField
+                  control={form.control}
+                  name="activeDirectionLine"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row">
+                      <FormLabel>
+                        ¿Desea Asignarle una Direccion De Linea A La Direccion
+                        General?
+                      </FormLabel>
+                      <FormControl>
+                        <Switch onCheckedChange={field.onChange} />
+                      </FormControl>
+                    </FormItem>
+                  )}
                 />
-                <Label htmlFor="direction_line">
-                  {" "}
-                  ¿Desea Crear Asignarle una Direccion De Linea A La Direccion
-                  General?
-                </Label>
               </div>
-              {activeDirectionLine && (
+              {form.watch("activeDirectionLine") && (
                 <>
                   <div className="grid grid-cols-2  place-content-stretch place-items-start gap-3 w-full ">
                     <FormField
@@ -131,22 +134,25 @@ export default function CreateDependency() {
                     />
                   </div>
                   <div className="flex flex-row gap-2 items-center justify-end">
-                    <Switch
-                      onCheckedChange={(boolean) => {
-                        setActiveCoodination(boolean);
-                        form.setValue("activeDirectionLine", boolean);
-                      }}
-                      id="coordination"
+                    <FormField
+                      control={form.control}
+                      name="activeCoordination"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row">
+                          <FormLabel>
+                            ¿Desea Asignarle una Coordinacion A La Direccion De
+                            Linea?
+                          </FormLabel>
+                          <FormControl>
+                            <Switch onCheckedChange={field.onChange} />
+                          </FormControl>
+                        </FormItem>
+                      )}
                     />
-                    <Label htmlFor="coordination">
-                      {" "}
-                      ¿Desea Crear Asignarle una Coordinacion A La Direccion De
-                      Linea?
-                    </Label>
                   </div>
                 </>
               )}
-              {activeCoodination && (
+              {form.watch("activeCoordination") && (
                 <>
                   <div className="grid grid-cols-2  place-content-stretch place-items-start gap-3 w-full ">
                     <FormField
