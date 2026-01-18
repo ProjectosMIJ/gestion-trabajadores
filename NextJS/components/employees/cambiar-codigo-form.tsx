@@ -55,7 +55,7 @@ import { formatDate } from "date-fns";
 import { Textarea } from "../ui/textarea";
 export function ChangeCodeForm() {
   const [searchEmployee, setSearchEmployee] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const [isLoading, setIsloading] = useState<boolean>(false);
   const [selecteCodes, setSelecteCodes] = useState<Code[]>([]);
@@ -90,7 +90,7 @@ export function ChangeCodeForm() {
       status: "",
       message: "",
       data: [],
-    }
+    },
   );
   const [message, setMessage] = useState<string>("");
   useEffect(() => {
@@ -157,8 +157,6 @@ export function ChangeCodeForm() {
       setSelecteCodes([]);
 
       const code = await getCodeByDirectionLine(selecteIdDirectionLine);
-      console.log(code);
-
       if (Array.isArray(code.data)) setSelecteCodes(code.data);
       setIsloading(false);
     } catch {
@@ -221,7 +219,7 @@ export function ChangeCodeForm() {
               </Button>
             </div>
           </div>
-          {employee && !Array.isArray(employee) && (
+          {employee && !Array.isArray(employee.data) && (
             <div className="space-y-5">
               Buscar El Codigo
               <div className={"flex flex-col gap-2 jus"}>
@@ -298,7 +296,7 @@ export function ChangeCodeForm() {
               </div>
             </div>
           )}
-          {employee && !Array.isArray(employee) && (
+          {employee && !Array.isArray(employee.data) && (
             <div>
               <Form {...form}>
                 <form
@@ -344,7 +342,7 @@ export function ChangeCodeForm() {
                                               .cargo
                                           }
                                         </SelectItem>
-                                      )
+                                      ),
                                     )}
                                   </SelectContent>
                                 </Select>
@@ -421,7 +419,7 @@ export function ChangeCodeForm() {
                                 Direccion General:{" "}
                                 {
                                   selecteCodes.find(
-                                    (v) => v.id === selectedCode
+                                    (v) => v.id === selectedCode,
                                   )?.DireccionGeneral.direccion_general
                                 }
                               </p>
@@ -431,7 +429,7 @@ export function ChangeCodeForm() {
                                 {selecteCodes.find((v) => v.id === selectedCode)
                                   ?.DireccionLinea?.direccion_linea
                                   ? selecteCodes.find(
-                                      (v) => v.id === selectedCode
+                                      (v) => v.id === selectedCode,
                                     )?.DireccionLinea?.direccion_linea
                                   : "N/A"}
                               </p>
@@ -441,7 +439,7 @@ export function ChangeCodeForm() {
                                 {selecteCodes.find((v) => v.id === selectedCode)
                                   ?.Coordinacion?.coordinacion
                                   ? selecteCodes.find(
-                                      (v) => v.id === selectedCode
+                                      (v) => v.id === selectedCode,
                                     )?.Coordinacion?.coordinacion
                                   : "N/A"}
                               </p>
@@ -450,7 +448,7 @@ export function ChangeCodeForm() {
                                 {selecteCodes.find((v) => v.id === selectedCode)
                                   ?.OrganismoAdscrito
                                   ? selecteCodes.find(
-                                      (v) => v.id === selectedCode
+                                      (v) => v.id === selectedCode,
                                     )?.OrganismoAdscrito
                                   : "N/A"}
                               </p>
@@ -459,7 +457,7 @@ export function ChangeCodeForm() {
                                 {selecteCodes.find((v) => v.id === selectedCode)
                                   ?.grado?.grado
                                   ? selecteCodes.find(
-                                      (v) => v.id === selectedCode
+                                      (v) => v.id === selectedCode,
                                     )?.grado?.grado
                                   : "N/A"}
                               </p>
@@ -467,7 +465,7 @@ export function ChangeCodeForm() {
                                 Cargo:{" "}
                                 {
                                   selecteCodes.find(
-                                    (v) => v.id === selectedCode
+                                    (v) => v.id === selectedCode,
                                   )?.denominacioncargo.cargo
                                 }
                               </p>
@@ -475,7 +473,7 @@ export function ChangeCodeForm() {
                                 Cargo Especifico:{" "}
                                 {
                                   selecteCodes.find(
-                                    (v) => v.id === selectedCode
+                                    (v) => v.id === selectedCode,
                                   )?.denominacioncargoespecifico.cargo
                                 }
                               </p>
@@ -483,7 +481,7 @@ export function ChangeCodeForm() {
                                 Estatus:{" "}
                                 {
                                   selecteCodes.find(
-                                    (v) => v.id === selectedCode
+                                    (v) => v.id === selectedCode,
                                   )?.estatusid.estatus
                                 }
                               </p>
@@ -491,7 +489,7 @@ export function ChangeCodeForm() {
                                 Tipo De Nomina:{" "}
                                 {
                                   selecteCodes.find(
-                                    (v) => v.id === selectedCode
+                                    (v) => v.id === selectedCode,
                                   )?.tiponomina.nomina
                                 }
                               </p>
@@ -515,29 +513,15 @@ export function ChangeCodeForm() {
           {employee && (
             <div
               className={` ${
-                !Array.isArray(employee) &&
+                !Array.isArray(employee.data) &&
                 "border-2 border-blue-400/45 bg-blue-200/40"
               }  rounded-sm p-2 `}
             >
-              {employee.data ? (
+              {!Array.isArray(employee.data) ? (
                 <>
                   <p>Nombres: {employee.data.nombres}</p>
                   <p>Apellidos: {employee.data.apellidos}</p>
                   <p>Cedula: {employee.data.cedulaidentidad}</p>
-
-                  {/* <p>
-                    Ultima Fecha De Actualizacion:{" "}
-                    {formatDate(
-                      employee.data.fecha_actualizacion,
-                      "dd/mm/yyyy"
-                    )}
-                  </p> */}
-
-                  <p>
-                    Ubicacion Geografia: {employee.data.estado.estado},{" "}
-                    {employee.data.municipio.municipio},{" "}
-                    {employee.data.parroquia.parroquia}
-                  </p>
                 </>
               ) : (
                 <p>

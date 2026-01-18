@@ -76,7 +76,7 @@ export function CodigoCatalogEspecialForm({
   onSuccess,
 }: CodigoCatalogFormProps) {
   const [searchEmployee, setSearchEmployee] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const [cargoEspecifico, setCargoEspecifico] = useState<ApiResponse<Cargo[]>>({
     status: "",
@@ -118,7 +118,7 @@ export function CodigoCatalogEspecialForm({
       status: "",
       message: "",
       data: [],
-    }
+    },
   );
   const [organismoAds, setOrganismoAds] = useState<
     ApiResponse<OrganismosAds[]>
@@ -568,12 +568,6 @@ export function CodigoCatalogEspecialForm({
                     <p>Apellidos: {employee.apellidos}</p>
                     <p>Cedula: {employee.cedulaidentidad}</p>
                     <p>Estado Civil: {employee.estadoCivil.estadoCivil}</p>
-                    <p>
-                      Ubicacion Geografia: {employee.estado.estado},{" "}
-                      {employee.municipio.municipio},{" "}
-                      {employee.parroquia.parroquia}
-                    </p>
-                    <p>Direccion Exacta: {employee.direccion_exacta}</p>
                   </>
                 ) : (
                   <p>

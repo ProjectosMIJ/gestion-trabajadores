@@ -87,8 +87,9 @@ DATABASES = {
            
             "NAME":"SIGEP",
             "USER": "postgres",
-            "PASSWORD": "admin",
+            "PASSWORD": "3054=HitM",
             "PORT": "5432",
+            
     }
 }
 

@@ -57,7 +57,7 @@ import { Switch } from "../ui/switch";
 import GestionAction from "@/app/personal/cambiar-pasivo/actions/gestion-persona-action";
 export function PasivoForm() {
   const [searchEmployee, setSearchEmployee] = useState<string | undefined>(
-    undefined
+    undefined,
   );
 
   const [employee, setEmployee] = useState<EmployeeInfo | []>();
@@ -288,13 +288,6 @@ export function PasivoForm() {
                   <p>Nombres: {employee.nombres}</p>
                   <p>Apellidos: {employee.apellidos}</p>
                   <p>Cedula: {employee.cedulaidentidad}</p>
-                  <p>Estado Civil: {employee.estadoCivil.estadoCivil}</p>
-                  <p>
-                    Ubicacion Geografia: {employee.estado.estado},{" "}
-                    {employee.municipio.municipio},{" "}
-                    {employee.parroquia.parroquia}
-                  </p>
-                  <p>Direccion Exacta: {employee.direccion_exacta}</p>
                 </>
               ) : (
                 <p>
