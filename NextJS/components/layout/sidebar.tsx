@@ -21,6 +21,8 @@ import {
   List,
   User,
   ListCheck,
+  MoveDownRight,
+  ArrowRightFromLine,
 } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -53,7 +55,28 @@ export function Sidebar() {
       ],
     },
 
-    { icon: SignpostBig, label: "Dependencias", href: "/dependencias" },
+    {
+      icon: SignpostBig,
+      label: "Dependencias",
+      href: "#",
+      subMenu: [
+        {
+          label: "Crear Dependencia",
+          href: "/dependencias/crear-dependencia",
+          icon: ArrowRightFromLine,
+        },
+        {
+          label: "Crear Direcciones",
+          href: "/dependencias/crear-dependencia-direccion",
+          icon: MoveDownRight,
+        },
+        {
+          label: "Listado de Codigo",
+          href: "/dependencias/listado-dependencia",
+          icon: List,
+        },
+      ],
+    },
 
     {
       icon: Badge,

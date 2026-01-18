@@ -18,8 +18,8 @@ import { toast } from "sonner";
 import { Input } from "../ui/input";
 import { useEffect, useState, useTransition } from "react";
 import { Button } from "../ui/button";
-import { schemaCreateDependency } from "@/app/dependencias/schema/schemaCreateDependency";
-import { CreateDependencyAction } from "@/app/dependencias/actions/create-dependencys";
+import { schemaCreateDependency } from "@/app/dependencias/crear-dependencia/schema/schemaCreateDependency";
+import { CreateDependencyAction } from "@/app/dependencias/crear-dependencia/actions/create-dependencys";
 export default function CreateDependency() {
   const [isPending, startTransition] = useTransition();
   const [activeDirectionLine, setActiveDirectionLine] =
