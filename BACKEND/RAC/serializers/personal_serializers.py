@@ -193,23 +193,7 @@ class TipoNominaGeneralSerializer(serializers.ModelSerializer):
             'requiere_codig'
             
         ]
-     
-class CoordinacionesSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Coordinaciones
-        fields = [
-            'id',
-            'Codigo',
-            'coordinacion',
-            'direccionLinea'
-        ]   
         
-class DireccionLineasSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DireccionLinea
-        fields = '__all__' 
-    
-   
 class DireccionGeneralSerializer(serializers.ModelSerializer):
     class Meta:
         model = DireccionGeneral

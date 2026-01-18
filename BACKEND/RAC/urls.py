@@ -43,16 +43,6 @@ urlpatterns = [
 #    actualizacion de coordinacion
     path('Coordinaciones/<int:id>/', views.Actualizar_Coordinacion, name= "actualizar-coordinacion "),
     
-    path('direccionlinea/',views.Direccion_linea, name='direccion-linea'),
-    path('Coordinaciones/', views.coordinaciones, name='coordinaciones'),
-    # direccion general 
-    path('listar-DireccionGeneral/', views.listar_DireecionGeneral, name='lista las direcciones de linea'),
-    
-    # direcciones de linea 
-    path('listar-DireccionLinea/<int:direccionGeneral>/',views.direccion_lineal, name='lista las direcciones generales'),
-    
-    #  Coordinaciones
-    path('listar-Coordinacion/<int:direccionLinea>/', views.listar_Coordinaciones, name='lista de las coordinaciones'),
 # ------------------
 # Gestion del codigo
 # -------------------   
@@ -148,7 +138,14 @@ urlpatterns = [
     path('listar-nomina-especial/', views.listar_tipo_nominaEspeciales, name='lista de tipos de nominas solo CS Y HP'),
 
     
+    # direccion general 
+    path('listar-DireccionGeneral/', views.listar_DireecionGeneral, name='lista las direcciones de linea'),
     
+    # direcciones de linea 
+    path('listar-DireccionLinea/<int:direccionGeneral>/',views.direccion_lineal, name='lista las direcciones generales'),
+    
+    #  Coordinaciones
+    path('listar-Coordinacion/<int:direccionLinea>/', views.listar_Coordinaciones, name='lista de las coordinaciones'),
      
      
     #  estatus de gestion (BLOQUEADO, SUSPENDIDO,ACTIVO)
