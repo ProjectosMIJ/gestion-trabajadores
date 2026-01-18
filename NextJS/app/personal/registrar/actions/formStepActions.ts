@@ -55,16 +55,52 @@ export async function registerEmployeeSteps(
     };
     const payloadFamily = {
       familys,
+      usuario_id: 5,
+      employeecedula: cedulaidentidad,
     };
-    console.log("datos empleados", payloadEmployee);
-    console.log("datos familiares", payloadFamily);
+    console.log("empleado", payloadEmployee);
+    console.log("familiar", payloadFamily);
 
-    // const response = await fetch(`${process.env.NEXT_PUBLIC_DJANGO_API_URL}/`, {
-    //   method: "POST",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //   },
-    //   body: JSON.stringify({ ...data, profile: file?.name }),
-    // });
-  } catch {}
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_DJANGO_API_URL}employees_register/`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...payloadEmployee,
+          profile: file?.name,
+          usuario_id: 5,
+        }),
+      },
+    );
+    if (response.ok) {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_DJANGO_API_URL}Employeefamily/`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...payloadFamily,
+          }),
+        },
+      );
+      return {
+        success: true,
+        message: "Empleado Registrado Exitosamente",
+      };
+    }
+    return {
+      success: false,
+      message: "Ocurrio Un Error Al Registrar El Empleado",
+    };
+  } catch {
+    return {
+      success: false,
+      message: "Ocurrio Un Error ",
+    };
+  }
 }

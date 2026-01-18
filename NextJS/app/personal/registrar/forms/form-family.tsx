@@ -1090,11 +1090,11 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                               </h2>
                               {patologyGroupList.map((patologys, index) => (
                                 <>
-                                  <h2 className="p-2">
+                                  <h2 className="p-2 text-sm">
                                     * {patologys.categoria.toUpperCase()}
                                   </h2>
                                   {patologys.datos.map((patologyItem) => (
-                                    <div className="flex flex-col justify-start gap-2">
+                                    <div className="flex flex-col justify-start gap-2 ">
                                       <FormField
                                         control={form.control}
                                         name={`familys.${index}.perfil_salud_familiar.patologiaCronica`}
@@ -1105,7 +1105,7 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                                             ? field.value
                                             : [];
                                           return (
-                                            <FormItem className="flex flex-row items-center space-x-3">
+                                            <FormItem className="flex flex-row items-center space-y-2">
                                               <FormControl>
                                                 <Checkbox
                                                   className="border-black cursor-pointer"
@@ -1153,11 +1153,11 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                               </h2>
                               {disabilityGroupList.map((disability, index) => (
                                 <>
-                                  <h2 className="p-2">
+                                  <h2 className="p-2 text-sm">
                                     * {disability.categoria.toUpperCase()}
                                   </h2>
                                   {disability.datos.map((disabilityItem, i) => (
-                                    <div className="flex flex-col justify-start gap-2">
+                                    <div className="flex flex-col justify-start gap-2 ">
                                       <FormField
                                         control={form.control}
                                         name={`familys.${index}.perfil_salud_familiar.discapacidad`}
@@ -1168,7 +1168,7 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                                             ? field.value
                                             : [];
                                           return (
-                                            <FormItem className="flex flex-row">
+                                            <FormItem className="flex flex-row space-y-2">
                                               <FormLabel className="order-2 text-gray-500 cursor-pointer">
                                                 {disabilityItem.discapacidad}
                                               </FormLabel>
@@ -1236,7 +1236,6 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                 })}
               </div>
             </fieldset>
-            {JSON.stringify(form.formState.errors)}
             <Button className="w-full cursor-pointer">
               {" "}
               Registrar Trabajador

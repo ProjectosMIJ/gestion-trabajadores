@@ -180,6 +180,8 @@ const schema: SchemaFormity<Values> = [
 ];
 export default function MultiStepForm() {
   const [isPending, startTransition] = useTransition();
+  const [message, setMessage] = useState("");
+
   const [output, setOutput] = useState<
     | (BasicInfoType &
         AcademyType &
@@ -192,7 +194,14 @@ export default function MultiStepForm() {
   >(null);
   const onReturn = useCallback<OnReturn<Values>>((output) => {
     startTransition(async () => {
-      await registerEmployeeSteps(output);
+      const message = await registerEmployeeSteps(output);
+      if (message.success) {
+        setMessage(message.message);
+        toast(message.message);
+      } else {
+        setMessage(message.message);
+        toast(message.message);
+      }
     });
   }, []);
   if (isPending) {

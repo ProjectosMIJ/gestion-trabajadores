@@ -170,16 +170,16 @@ export default function FormHealth({ onSubmit, defaultValues }: Props) {
                     </FormItem>
                   )}
                 />
-                <ScrollArea className="grid grid-cols-2 h-60 gap-4 p-4 border rounded-md">
+                <ScrollArea className="grid grid-cols-2 h-60 overflow-auto gap-4 p-4 border rounded-md">
                   <div>
-                    <h2 className="text-2xl">Patologias (Opcional)</h2>
+                    <h2 className="font-bold">Patologias (Opcional)</h2>
                     {patologyGroupList.map((patologys, index) => (
                       <>
-                        <h2 className="p-2">
+                        <h2 className="p-2 text-sm">
                           * {patologys.categoria.toUpperCase()}
                         </h2>
                         {patologys.datos.map((patologyItem) => (
-                          <div className="flex flex-col justify-start gap-2">
+                          <div className="flex flex-col justify-start gap-2 ">
                             <FormField
                               control={form.control}
                               name="perfil_salud.patologiaCronica"
@@ -188,7 +188,7 @@ export default function FormHealth({ onSubmit, defaultValues }: Props) {
                                   ? field.value
                                   : [];
                                 return (
-                                  <FormItem className="flex flex-row items-center space-x-3">
+                                  <FormItem className="flex flex-row items-center space-y-2">
                                     <FormControl>
                                       <Checkbox
                                         className="border-black"
@@ -226,14 +226,14 @@ export default function FormHealth({ onSubmit, defaultValues }: Props) {
                     orientation="vertical"
                   />
                   <div>
-                    <h2 className="text-2xl"> Dispacidades (Opcional)</h2>
+                    <h2 className="font-bold"> Dispacidades (Opcional)</h2>
                     {disabilityGroupList.map((disability, index) => (
                       <>
-                        <h2 className="p-2">
+                        <h2 className="p-2 text-sm">
                           * {disability.categoria.toUpperCase()}
                         </h2>
                         {disability.datos.map((disabilityItem, i) => (
-                          <div className="flex flex-col justify-start gap-2">
+                          <div className="flex flex-col justify-start gap-2 ">
                             <FormField
                               control={form.control}
                               name={`perfil_salud.discapacidad`}
@@ -242,7 +242,7 @@ export default function FormHealth({ onSubmit, defaultValues }: Props) {
                                   ? field.value
                                   : [];
                                 return (
-                                  <FormItem className="flex flex-row">
+                                  <FormItem className="flex flex-row space-y-2">
                                     <FormLabel className="order-2">
                                       {disabilityItem.discapacidad}
                                     </FormLabel>
