@@ -11,7 +11,6 @@ class Parentesco(models.Model):
     class Meta:
         managed = True
         verbose_name = "Parentesco"
-        db_table = 'Parentesco'
         verbose_name_plural = "Parentescos"
         
         
