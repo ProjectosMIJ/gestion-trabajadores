@@ -6,7 +6,7 @@ import { ApiResponse } from "@/app/types/types";
 
 export async function createCodeAction(
   values: z.infer<typeof schemaCode>,
-  usuario_id: number
+  usuario_id: number,
 ) {
   try {
     const { success, error } = schemaCode.safeParse(values);
@@ -18,7 +18,6 @@ export async function createCodeAction(
       };
     }
     const payload = { ...values, usuario_id };
-    console.log(payload);
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_DJANGO_API_URL}empleados-codigo/`,
       {
@@ -27,18 +26,17 @@ export async function createCodeAction(
           "Content-Type": "application/json",
         },
         body: JSON.stringify({ ...payload }),
-      }
+      },
     );
-    const message: ApiResponse<string> = await response.json();
     if (!response.ok) {
       return {
-        success: true,
-        message: "Codigo Registrado Exitosamente",
+        success: false,
+        message: "Error Al Crear El Codigo",
       };
     }
     return {
       success: true,
-      message: "Error Al Crear El Codigo",
+      message: "Codigo Registrado Exitosamente",
     };
   } catch {
     return {

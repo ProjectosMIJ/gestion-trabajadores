@@ -13,7 +13,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`font- antialiased`}>
         {children}
-        <Toaster />
+        <Toaster position="top-right" />
       </body>
     </html>
   );

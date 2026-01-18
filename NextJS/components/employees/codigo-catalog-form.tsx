@@ -67,6 +67,7 @@ interface CodigoCatalogFormProps {
 }
 
 export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
+  const [sendData, setSendData] = useState(false);
   const [cargoEspecifico, setCargoEspecifico] = useState<ApiResponse<Cargo[]>>({
     status: "",
     message: "",
@@ -107,7 +108,7 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
       status: "",
       message: "",
       data: [],
-    }
+    },
   );
   const [activeDirectionLine, setActiveDirectionLine] =
     useState<boolean>(false);
@@ -154,8 +155,12 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
   }, []);
   useEffect(() => {
     if (!activeDirectionLine) form.setValue("DireccionLinea", 0);
-    if (!activeCoordination) form.setValue("Coordinacion", 0);
-  }, [activeCoordination, activeDirectionLine]);
+  }, [activeDirectionLine]);
+  useEffect(() => {
+    if (!activeCoordination || !activeDirectionLine)
+      form.setValue("Coordinacion", 0);
+  }, [activeCoordination]);
+
   const form = useForm({
     resolver: zodResolver(schemaCode),
     defaultValues: {
@@ -182,276 +187,109 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
       try {
         const response = await createCodeAction(data, 5);
         if (response.success) {
-          // form.reset({
-          //   codigo: "",
-          //   Coordinacion: 0,
-          //   denominacioncargoespecificoid: 0,
-          //   denominacioncargoid: 0,
-          //   DireccionGeneral: 0,
-          //   DireccionLinea: 0,
-          //   gradoid: 0,
-          //   tiponominaid: 0,
-          // });
+          form.reset({
+            codigo: "",
+            Coordinacion: 0,
+            denominacioncargoespecificoid: 0,
+            denominacioncargoid: 0,
+            DireccionGeneral: 0,
+            DireccionLinea: 0,
+            gradoid: 0,
+            tiponominaid: 0,
+          });
           toast.success(response.message);
           onSuccess?.(true);
         } else {
           toast.error(response.message);
         }
-      } catch (error) {
-        console.log(error);
+      } catch {
+        toast.error("Ocurrio Un Error Al Enviar La informacion");
+      } finally {
+        setSendData(false);
       }
     });
   }
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Registrar Código de Posición</CardTitle>
-        <CardDescription>
-          Ingrese los datos del nuevo código y sus atributos asociados
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="space-y-2 grid grid-cols-2 items-center gap-6 place-content-center">
-              <FormField
-                control={form.control}
-                name="codigo"
-                render={({ field }) => (
-                  <FormItem className="col-span-2">
-                    <FormLabel>Codigo</FormLabel>
-                    <FormControl>
-                      <Input placeholder="000" {...field} />
-                    </FormControl>
-
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="denominacioncargoespecificoid"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Denominacion De Cargo Especifico</FormLabel>
-                    <Select
-                      onValueChange={(values) => {
-                        field.onChange(Number.parseInt(values));
-                      }}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full truncate">
-                          <SelectValue
-                            placeholder={
-                              "Seleccione una Denominacion De Cargo Especifico"
-                            }
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {cargoEspecifico.data.map((cargo, i) => (
-                          <SelectItem key={i} value={`${cargo.id}`}>
-                            {cargo.cargo}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="denominacioncargoid"
-                render={({ field }) => (
-                  <FormItem className=" ">
-                    <FormLabel>Denominacion De Cargo</FormLabel>
-                    <Select
-                      onValueChange={(values) => {
-                        field.onChange(Number.parseInt(values));
-                      }}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full truncate">
-                          <SelectValue
-                            placeholder={"Seleccione una Denominacion De Cargo"}
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {cargo.data.map((cargo, i) => (
-                          <SelectItem key={i} value={`${cargo.id}`}>
-                            {cargo.cargo}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="tiponominaid"
-                render={({ field }) => (
-                  <FormItem className=" ">
-                    <FormLabel>Tipo de Nomina</FormLabel>
-                    <Select
-                      onValueChange={(values) => {
-                        field.onChange(Number.parseInt(values));
-                      }}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full truncate">
-                          <SelectValue
-                            placeholder={"Seleccione un Tipo de Nomina"}
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {nomina.data.map((nomina, i) => (
-                          <SelectItem key={i} value={`${nomina.id}`}>
-                            {nomina.nomina}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="gradoid"
-                render={({ field }) => (
-                  <FormItem className=" ">
-                    <FormLabel>Grado</FormLabel>
-                    <Select
-                      onValueChange={(values) => {
-                        field.onChange(Number.parseInt(values));
-                      }}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full truncate">
-                          <SelectValue placeholder={"Seleccione un Grado"} />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {grado.data.map((grado, i) => (
-                          <SelectItem key={i} value={`${grado.id}`}>
-                            {grado.grado}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="DireccionGeneral"
-                render={({ field }) => (
-                  <FormItem
-                    className={`${!activeDirectionLine ? "col-span-2" : ""}`}
-                  >
-                    <FormLabel>Dirección General</FormLabel>
-                    <Select
-                      onValueChange={(values) => {
-                        field.onChange(Number.parseInt(values));
-                        getByDirectionLine(values);
-                      }}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full truncate">
-                          <SelectValue
-                            placeholder={"Seleccione una Dirección General"}
-                          />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {directionGeneral.data.map((general, i) => (
-                          <SelectItem
-                            key={i}
-                            value={`${general.id}`}
-                            onClick={() =>
-                              getByDirectionLine(general.id.toString())
-                            }
-                          >
-                            {general.Codigo}-{general.direccion_general}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormDescription>
-                      <div className="flex flex-row items-center text-left gap-2 justify-center">
-                        ¿Desea Agregarle Una Dirección De Linea?
-                        <Switch onCheckedChange={setActiveDirectionLine} />
-                      </div>
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              {activeDirectionLine && (
-                <>
+    <>
+      {isPending ? (
+        <Card>
+          <CardContent>
+            <div className="relative w-60 h-60 m-auto flex items-center justify-center">
+              <div className="absolute inset-2 rounded-full border-b-2 border-blue-500 animate-spin"></div>
+              <div className="absolute inset-7 rounded-full border-t-2 border-red-500 animate-spin direction-[reverse] animation-duration-[0.8s]"></div>
+              <div className="text-lg text-gray-500 animate-pulse">
+                Ejecutando Operacion
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Registrar Código de Posición</CardTitle>
+            <CardDescription>
+              Ingrese los datos del nuevo código y sus atributos asociados
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Form {...form}>
+              <form
+                onSubmit={form.handleSubmit(onSubmit)}
+                className="space-y-6"
+              >
+                <div className="space-y-2 grid grid-cols-2 items-center gap-6 place-content-center">
                   <FormField
                     control={form.control}
-                    name="DireccionLinea"
+                    name="codigo"
+                    render={({ field }) => (
+                      <FormItem className="col-span-2">
+                        <FormLabel>Codigo</FormLabel>
+                        <FormControl>
+                          <Input placeholder="000" {...field} />
+                        </FormControl>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="denominacioncargoespecificoid"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Dirección De Linea</FormLabel>
+                        <FormLabel>Denominacion De Cargo Especifico</FormLabel>
                         <Select
                           onValueChange={(values) => {
                             field.onChange(Number.parseInt(values));
-                            getByCoordination(values);
                           }}
                         >
                           <FormControl>
                             <SelectTrigger className="w-full truncate">
                               <SelectValue
                                 placeholder={
-                                  "Seleccione una Dirección De Linea"
+                                  "Seleccione una Denominacion De Cargo Especifico"
                                 }
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {directionLine.data.map((line, i) => (
-                              <SelectItem
-                                key={i}
-                                value={`${line.id}`}
-                                onClick={() =>
-                                  getByCoordination(line.id.toString())
-                                }
-                              >
-                                {line.Codigo}-{line.direccion_linea}
+                            {cargoEspecifico.data.map((cargo, i) => (
+                              <SelectItem key={i} value={`${cargo.id}`}>
+                                {cargo.cargo}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormDescription>
-                          <div className="flex flex-row items-center text-left justify-center gap-2">
-                            ¿Desea Agregarle Una Coordinación?
-                            <Switch onCheckedChange={setActiveCoordination} />
-                          </div>
-                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                </>
-              )}
-              {activeCoordination && (
-                <>
                   <FormField
                     control={form.control}
-                    name="Coordinacion"
+                    name="denominacioncargoid"
                     render={({ field }) => (
-                      <FormItem className="col-span-2">
-                        <FormLabel>Coordinacion</FormLabel>
+                      <FormItem className=" ">
+                        <FormLabel>Denominacion De Cargo</FormLabel>
                         <Select
                           onValueChange={(values) => {
                             field.onChange(Number.parseInt(values));
@@ -460,43 +298,238 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
                           <FormControl>
                             <SelectTrigger className="w-full truncate">
                               <SelectValue
-                                placeholder={"Seleccione una Coordinación"}
+                                placeholder={
+                                  "Seleccione una Denominacion De Cargo"
+                                }
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {coordination.data.map((coord, i) => (
-                              <SelectItem key={i} value={`${coord.id}`}>
-                                {coord.Codigo}-{coord.coordinacion}
+                            {cargo.data.map((cargo, i) => (
+                              <SelectItem key={i} value={`${cargo.id}`}>
+                                {cargo.cargo}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
-
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                </>
-              )}
-            </div>
 
-            {/* Buttons */}
-            <div className="flex gap-3 justify-end">
-              <Button type="submit" disabled={isPending} className="w-full">
-                {isPending ? (
-                  <>
-                    <Spinner />
-                    Creando Nuevo Codigo...
-                  </>
-                ) : (
-                  "Crear Nuevo Codigo"
-                )}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </CardContent>
-    </Card>
+                  <FormField
+                    control={form.control}
+                    name="tiponominaid"
+                    render={({ field }) => (
+                      <FormItem className=" ">
+                        <FormLabel>Tipo de Nomina</FormLabel>
+                        <Select
+                          onValueChange={(values) => {
+                            field.onChange(Number.parseInt(values));
+                          }}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full truncate">
+                              <SelectValue
+                                placeholder={"Seleccione un Tipo de Nomina"}
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {nomina.data.map((nomina, i) => (
+                              <SelectItem key={i} value={`${nomina.id}`}>
+                                {nomina.nomina}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="gradoid"
+                    render={({ field }) => (
+                      <FormItem className=" ">
+                        <FormLabel>Grado</FormLabel>
+                        <Select
+                          onValueChange={(values) => {
+                            field.onChange(Number.parseInt(values));
+                          }}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full truncate">
+                              <SelectValue
+                                placeholder={"Seleccione un Grado"}
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {grado.data.map((grado, i) => (
+                              <SelectItem key={i} value={`${grado.id}`}>
+                                {grado.grado}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="DireccionGeneral"
+                    render={({ field }) => (
+                      <FormItem
+                        className={`${!activeDirectionLine ? "col-span-2" : ""}`}
+                      >
+                        <FormLabel>Dirección General</FormLabel>
+                        <Select
+                          onValueChange={(values) => {
+                            field.onChange(Number.parseInt(values));
+                            getByDirectionLine(values);
+                          }}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full truncate">
+                              <SelectValue
+                                placeholder={"Seleccione una Dirección General"}
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {directionGeneral.data.map((general, i) => (
+                              <SelectItem
+                                key={i}
+                                value={`${general.id}`}
+                                onClick={() =>
+                                  getByDirectionLine(general.id.toString())
+                                }
+                              >
+                                {general.Codigo}-{general.direccion_general}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          <div className="flex flex-row items-center text-left gap-2 justify-center">
+                            ¿Desea Agregarle Una Dirección De Linea?
+                            <Switch onCheckedChange={setActiveDirectionLine} />
+                          </div>
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  {activeDirectionLine && directionLine.data.length > 0 && (
+                    <>
+                      <FormField
+                        control={form.control}
+                        name="DireccionLinea"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Dirección De Linea</FormLabel>
+                            <Select
+                              onValueChange={(values) => {
+                                field.onChange(Number.parseInt(values));
+                                getByCoordination(values);
+                              }}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="w-full truncate">
+                                  <SelectValue
+                                    placeholder={
+                                      "Seleccione una Dirección De Linea"
+                                    }
+                                  />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {directionLine.data.map((line, i) => (
+                                  <SelectItem
+                                    key={i}
+                                    value={`${line.id}`}
+                                    onClick={() =>
+                                      getByCoordination(line.id.toString())
+                                    }
+                                  >
+                                    {line.Codigo}-{line.direccion_linea}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormDescription>
+                              <div className="flex flex-row items-center text-left justify-center gap-2">
+                                ¿Desea Agregarle Una Coordinación?
+                                <Switch
+                                  onCheckedChange={setActiveCoordination}
+                                />
+                              </div>
+                            </FormDescription>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      {activeCoordination && coordination.data.length > 0 && (
+                        <>
+                          <FormField
+                            control={form.control}
+                            name="Coordinacion"
+                            render={({ field }) => (
+                              <FormItem className="col-span-2">
+                                <FormLabel>Coordinacion</FormLabel>
+                                <Select
+                                  onValueChange={(values) => {
+                                    field.onChange(Number.parseInt(values));
+                                  }}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger className="w-full truncate">
+                                      <SelectValue
+                                        placeholder={
+                                          "Seleccione una Coordinación"
+                                        }
+                                      />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {coordination.data.map((coord, i) => (
+                                      <SelectItem key={i} value={`${coord.id}`}>
+                                        {coord.Codigo}-{coord.coordinacion}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </>
+                      )}
+                    </>
+                  )}
+                </div>
+
+                <div className="flex gap-3 justify-end">
+                  <Button type="submit" disabled={isPending} className="w-full">
+                    {isPending ? (
+                      <>
+                        <Spinner />
+                        Creando Nuevo Codigo...
+                      </>
+                    ) : (
+                      "Crear Nuevo Codigo"
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </CardContent>
+        </Card>
+      )}
+    </>
   );
 }

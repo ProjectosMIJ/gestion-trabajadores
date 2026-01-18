@@ -32,7 +32,6 @@ export default function AsignarCodigoPage() {
               </p>
             </div>
             <CodigoCatalogForm />
-            <CodeListPage />
           </div>
         </main>
       </div>
