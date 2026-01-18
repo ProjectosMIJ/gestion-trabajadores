@@ -1325,7 +1325,7 @@ def listar_tipo_nominaEspeciales(request):
 
 
 @extend_schema(
-    tags=["Recursos Humanos - Datos para Cargo"],
+    tags=["Recursos Humanos - Dependencia"],
     summary="Listar Direcciones Generales",
     description="Devuelve una lista de todas las Direcciones Generales disponibles.",
     responses=DireccionGeneralSerializer
@@ -1348,7 +1348,7 @@ def listar_DireecionGeneral(request):
         }, status=status.HTTP_400_BAD_REQUEST)
         
 @extend_schema(
-    tags=["Recursos Humanos - Datos para Cargo"],
+    tags=["Recursos Humanos -  Datos para Cargo"],
     summary="Listar Direcciones de Linea",
     description="Devuelve una lista de todos los tipos de Direcciones de Linea disponibles.",
     responses=DireccionLineaSerializer
@@ -1374,8 +1374,56 @@ def direccion_lineal(request, direccionGeneral):
         "data": serializer.data
     }, status=status.HTTP_200_OK)
     
+    
 @extend_schema(
-    tags=["Recursos Humanos - Datos para Cargo"],
+    tags=["Recursos Humanos - Dependencia"],
+    summary="Listar Direcciones de linea",
+    description="Devuelve una lista de todas las Direcciones de linea disponibles.",
+    responses=DireccionLineasSerializer
+)
+@api_view(['GET'])
+def Direccion_linea(request):
+    try:
+      queryset = DireccionLinea.objects.all()
+      serializer = DireccionLineasSerializer(queryset, many=True)
+      return Response({
+        "status": "Ok",
+        "message": "Direcciones de Linea listados correctamente",
+        "data": serializer.data
+      }, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({
+            'status': 'Error',
+            'message': str(e),
+            "data": []
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+        
+@extend_schema(
+    tags=["Recursos Humanos - Dependencia"],
+    summary="Listar Coordinaciones",
+    description="Devuelve una lista de todas las Coordinaciones disponibles.",
+    responses=CoordinacionesSerializer
+)
+@api_view(['GET'])
+def coordinaciones(request):
+    try:
+      queryset = Coordinaciones.objects.all()
+      serializer = CoordinacionesSerializer(queryset, many=True)
+      return Response({
+        "status": "Ok",
+        "message": "Coordinaciones listadas correctamente",
+        "data": serializer.data
+      }, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({
+            'status': 'Error',
+            'message': str(e),
+            "data": []
+        }, status=status.HTTP_400_BAD_REQUEST)
+@extend_schema(
+    tags=["Recursos Humanos -  Datos para Cargo"],
     summary="Listar Coordinaciones",
     description="Devuelve una lista de todos los tipos de Coordinaciones disponibles.",
     responses=CoordinacionSerializer
