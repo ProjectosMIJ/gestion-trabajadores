@@ -21,15 +21,14 @@ from ..serializers.personal_serializers import (
     SexoSerializer
 
 )
-
-
 class FamilyCreateSerializer(serializers.ModelSerializer):
     cedulaFamiliar = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     usuario_id = serializers.IntegerField(write_only=True)
     orden_hijo = serializers.IntegerField(write_only=True, required=False, allow_null=True)
-    perfil_salud = PerfilSaludSerializer(required=False)
-    perfil_fisico = PerfilFisicoSerializer(required=False)
-    formacion_academica = FormacionAcademicaSerializer(required=False)
+
+    perfil_salud_familiar = PerfilSaludSerializer(required=False)
+    perfil_fisico_familiar = PerfilFisicoSerializer(required=False)
+    formacion_academica_familiar = FormacionAcademicaSerializer(required=False)
 
     class Meta:
         model = Employeefamily
@@ -37,13 +36,12 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
             'employeecedula', 'cedulaFamiliar', 'primer_nombre', 'segundo_nombre',
             'primer_apellido', 'segundo_apellido', 'parentesco', 'fechanacimiento',
             'sexo', 'estadoCivil', 'observaciones', 'usuario_id', 'mismo_ente',
-            'heredero', 'perfil_salud', 'perfil_fisico', 'formacion_academica',
-            'orden_hijo'
+            'heredero', 'perfil_salud_familiar', 'perfil_fisico_familiar', 
+            'formacion_academica_familiar', 'orden_hijo'
         ]
 
     def to_internal_value(self, data):
         data = data.copy() if hasattr(data, 'copy') else data
-        
         
         for campo in ['primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido']:
             if data.get(campo):
@@ -60,7 +58,8 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
             return dictionary
         
         data = limp_ceros(data)
-        for obj_key in ['perfil_salud', 'perfil_fisico', 'formacion_academica']:
+        
+        for obj_key in ['perfil_salud_familiar', 'perfil_fisico_familiar', 'formacion_academica_familiar']:
             if obj_key in data and isinstance(data[obj_key], dict):
                 data[obj_key] = limp_ceros(data[obj_key])
 
@@ -71,6 +70,7 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
         return super().to_internal_value(data)
 
     def validate(self, data):
+
         cedula_fam = data.get('cedulaFamiliar')
         parentesco_obj = data.get('parentesco')
         fecha_nac = data.get('fechanacimiento')
@@ -82,12 +82,10 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
                 nombre_p = str(parentesco_obj.descripcion_parentesco).upper().strip()
                 if nombre_p == "HIJO (A)":
                     today = date.today()
-                    edad = today.year - fecha_nac.year - (
-                        (today.month, today.day) < (fecha_nac.month, fecha_nac.day)
-                    )
+                    edad = today.year - fecha_nac.year - ((today.month, today.day) < (fecha_nac.month, fecha_nac.day))
+                    
                     if edad < 9:
                         cedula_trabajador = str(empleado.cedulaidentidad)
-                        
                         if orden_manual is not None:
                             numero_final = orden_manual
                         else:
@@ -98,18 +96,12 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
                             numero_final = hijos_con_escolar + 1
                         
                         nueva_cedula = f"{cedula_trabajador}-{numero_final}"
-
-                        check_exists = Employeefamily.objects.filter(
-                            employeecedula=empleado,
-                            cedulaFamiliar=nueva_cedula
-                        )
+                        check_exists = Employeefamily.objects.filter(employeecedula=empleado, cedulaFamiliar=nueva_cedula)
                         if self.instance:
                             check_exists = check_exists.exclude(pk=self.instance.pk)
                         
                         if check_exists.exists():
-                            raise serializers.ValidationError({
-                                "El trabajador ya tiene un hijo registrado con el orden ingresado"
-                            })
+                            raise serializers.ValidationError({"cedulaFamiliar": "El trabajador ya tiene un hijo registrado con el orden ingresado"})
                         
                         data['cedulaFamiliar'] = nueva_cedula
 
@@ -119,36 +111,37 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
             if self.instance:
                 queryset = queryset.exclude(pk=self.instance.pk)
             if queryset.exists():
-                raise serializers.ValidationError({ "Este trabajador ya posee un familiar registrado como heredero"})
+                raise serializers.ValidationError({"heredero": "Este trabajador ya posee un familiar registrado como heredero"})
         
         return data
 
     def create(self, validated_data):
         validated_data.pop('orden_hijo', None)
         id_usuario = validated_data.pop('usuario_id')
-        salud_data = validated_data.pop('perfil_salud', None)
-        fisico_data = validated_data.pop('perfil_fisico', None)
-        academico_data = validated_data.pop('formacion_academica', None)
+
+        salud_data = validated_data.pop('perfil_salud_familiar', None)
+        fisico_data = validated_data.pop('perfil_fisico_familiar', None)
+        academico_data = validated_data.pop('formacion_academica_familiar', None)
         
         try:
             usuario_obj = User.objects.get(pk=id_usuario)
-        except User.DoesNotExist:
-            raise serializers.ValidationError({ "El usuario no existe"})
-            
-        try:
             instance = Employeefamily.objects.create(**validated_data)
             instance._history_user = usuario_obj 
             instance.save()
+
             if salud_data:
                 patologias = salud_data.pop('patologiaCronica', [])
                 discapacidades = salud_data.pop('discapacidad', [])
                 s_obj = perfil_salud.objects.create(familiar_id=instance, **salud_data)
                 if patologias: s_obj.patologiaCronica.set(patologias)
                 if discapacidades: s_obj.discapacidad.set(discapacidades)
+            
             if fisico_data:
                 perfil_fisico.objects.create(familiar_id=instance, **fisico_data)
+            
             if academico_data:
                 formacion_academica.objects.create(familiar_id=instance, **academico_data)
+                
             return instance
         except Exception as e:
             raise serializers.ValidationError(f"Error al guardar: {str(e)}")
@@ -156,9 +149,10 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         validated_data.pop('orden_hijo', None)
         id_usuario = validated_data.pop('usuario_id', None)
-        salud_data = validated_data.pop('perfil_salud', None)
-        fisico_data = validated_data.pop('perfil_fisico', None)
-        academico_data = validated_data.pop('formacion_academica', None)
+
+        salud_data = validated_data.pop('perfil_salud_familiar', None)
+        fisico_data = validated_data.pop('perfil_fisico_familiar', None)
+        academico_data = validated_data.pop('formacion_academica_familiar', None)
         
         if id_usuario:
             try:
@@ -177,10 +171,13 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
             s_obj, _ = perfil_salud.objects.update_or_create(familiar_id=instance, defaults=salud_data)
             if patologias is not None: s_obj.patologiaCronica.set(patologias)
             if discapacidades is not None: s_obj.discapacidad.set(discapacidades)
+            
         if fisico_data:
             perfil_fisico.objects.update_or_create(familiar_id=instance, defaults=fisico_data)
+            
         if academico_data:
             formacion_academica.objects.update_or_create(familiar_id=instance, defaults=academico_data)
+            
         return instance
 class ParentescoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -194,9 +191,10 @@ class FamilyListSerializer(serializers.ModelSerializer):
     sexo = SexoSerializer(read_only=True)
     estadoCivil = EstadoCivilSerializer(read_only=True)
     
-    perfil_salud = serializers.SerializerMethodField()
-    perfil_fisico = serializers.SerializerMethodField()
-    formacion_info = serializers.SerializerMethodField()
+
+    perfil_salud_familiar = serializers.SerializerMethodField()
+    perfil_fisico_familiar = serializers.SerializerMethodField()
+    formacion_academica_familiar = serializers.SerializerMethodField()
 
     class Meta:
         model = Employeefamily
@@ -213,15 +211,15 @@ class FamilyListSerializer(serializers.ModelSerializer):
             'estadoCivil', 
             'mismo_ente', 
             'heredero', 
-            'perfil_salud', 
-            'perfil_fisico', 
-            'formacion_info',
+            'perfil_salud_familiar',      
+            'perfil_fisico_familiar',     
+            'formacion_academica_familiar',
             'observaciones', 
             'createdat', 
             'updatedat'
         ]
 
-    def get_perfil_salud(self, obj):
+    def get_perfil_salud_familiar(self, obj):
         salud = obj.perfil_salud_set.first()
         if not salud: return None
         return {
@@ -230,7 +228,7 @@ class FamilyListSerializer(serializers.ModelSerializer):
             "patologiaCronica": PatologiasSerializer(salud.patologiaCronica, many=True).data if salud.patologiaCronica else []
         }
 
-    def get_perfil_fisico(self, obj):
+    def get_perfil_fisico_familiar(self, obj):
         fisico = obj.perfil_fisico_set.first()
         if not fisico: return None
         return {
@@ -239,7 +237,7 @@ class FamilyListSerializer(serializers.ModelSerializer):
             "tallaZapatos": Talla_ZapatosSerializer(fisico.tallaZapatos).data if fisico.tallaZapatos else ""
         }
 
-    def get_formacion_info(self, obj):
+    def get_formacion_academica_familiar(self, obj):
         formacion = obj.formacion_academica_set.first()
         if not formacion: return None
         return {
@@ -252,6 +250,7 @@ class FamilyListSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
+
         for key, value in representation.items():
             if value is None:
                 representation[key] = ''

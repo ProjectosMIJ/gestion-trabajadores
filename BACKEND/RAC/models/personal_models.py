@@ -240,8 +240,8 @@ class perfil_salud(models.Model):
     empleado_id = models.ForeignKey('Employee', models.DO_NOTHING, db_column='empleadoId', null=True, blank=True)
     familiar_id = models.ForeignKey(Employeefamily, models.DO_NOTHING, db_column='familiarId', null=True, blank=True)
     grupoSanguineo = models.ForeignKey('GrupoSanguineo', models.DO_NOTHING, db_column='grupoSanguineoId', blank=True, null=True)
-    patologiaCronica = models.ManyToManyField(patologias_Cronicas, db_column='patologiaCronicaId', blank=True)
-    discapacidad = models.ForeignKey(Discapacidades, models.DO_NOTHING, db_column='discapacidadId', blank=True, null=True)
+    patologiaCronica = models.ManyToManyField(patologias_Cronicas, blank=True)
+    discapacidad = models.ManyToManyField(Discapacidades, blank=True)
     
     class Meta:
         managed = True
