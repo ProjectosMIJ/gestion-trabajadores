@@ -296,16 +296,9 @@ class Employee(models.Model):
     fecha_nacimiento = models.DateField(db_column='fechaNacimiento', blank=True, null=True)
     profile = models.TextField(blank=True, null=True)
     fechaingresoorganismo = models.DateField(db_column='fechaIngresoOrganismo', blank=True, null=True)
-    
     n_contrato = models.TextField(null=True, max_length=50)
-    
     sexoid = models.ForeignKey('Sexo', models.DO_NOTHING, db_column='sexoId')
-    
     estadoCivil = models.ForeignKey(estado_civil, models.DO_NOTHING, db_column='estadoCivilId', blank=True, null=True)
-    
-    
-    
-    
     historial  = HistoricalRecords(user_model=cuenta)
     fecha_actualizacion = models.DateTimeField(auto_now=True) 
     

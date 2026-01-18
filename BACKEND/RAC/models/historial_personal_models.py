@@ -2,6 +2,8 @@ from django.db import models
 from .personal_models import *
 from USER.models.user_models import cuenta
 
+
+
 class EmployeeMovementHistory(models.Model):
    
     TIPO_MOVIMIENTO_CHOICES = [
@@ -38,7 +40,6 @@ class EmployeeMovementHistory(models.Model):
     class Meta:
         db_table = 'EmployeeMovementHistory'
         ordering = ['-fecha_movimiento']
-        app_label = 'RAC'
         
     
 class EmployeeEgresado(models.Model):
@@ -69,4 +70,3 @@ class EmployeeEgresado(models.Model):
         managed = True
         db_table = 'EmployeeEgresado'
         ordering = ['-fecha_egreso']
-        app_label = 'RAC'
