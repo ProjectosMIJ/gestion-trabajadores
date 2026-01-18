@@ -184,6 +184,10 @@ export interface Municipality {
   id: number;
   municipio: string;
 }
+export interface Parish {
+  id: number;
+  parroquia: string;
+}
 
 export interface EmployeeData {
   id: number;
