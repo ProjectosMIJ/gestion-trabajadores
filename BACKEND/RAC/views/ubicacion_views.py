@@ -40,12 +40,9 @@ def get_municipios(request, estadoid):
             "status": "Error",
             "message": "Estado no encontrado"
         }, status=status.HTTP_404_NOT_FOUND)
-
-
     municipios = Municipio.objects.filter(estadoid=estadoid)
     serializer = MunicipioSerializer(municipios, many=True)
     return Response({
-   
         "status": "Ok",
         "message": f"Municipios del estado {estado.estado}",
         "data": serializer.data
@@ -60,22 +57,16 @@ def get_municipios(request, estadoid):
 )
 @api_view(['GET'])
 def get_parroquias(request, municipioid):
-
     try:
-      
         municipio = Municipio.objects.get(pk=municipioid)
     except Municipio.DoesNotExist:
         return Response({
-            
             "status": "Error",
             "message": "Municipio no encontrado"
         }, status=status.HTTP_404_NOT_FOUND)
-
-   
     parroquias = Parroquia.objects.filter(municipioid=municipioid)
     serializer = ParroquiaSerializer(parroquias, many=True)
     return Response({
-        
         "status": "Ok",
         "message": f"Parroquias del municipio {municipio.municipio}",
         "data": serializer.data

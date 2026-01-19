@@ -17,7 +17,6 @@ from drf_spectacular.utils import extend_schema
     summary="Registrar datos personales de empleadoa",
     description="Permite registrar los datos personales del empleado",
     request=EmployeeSerializer,
-   
 )
 @api_view(['POST'])
 def register_employee(request):
@@ -48,9 +47,8 @@ def register_employee(request):
 @extend_schema(
     tags=["Gestion de Empleado"],
     summary="Editar un empleado",
-    description="Actualiza los datos de un empleado existente identificado por su id.",
-    request=EmployeeSerializer,
-   
+    description="Actualiza los datos de un empleado existente identificado por su id",
+    request=EmployeeSerializer, 
 ) 
 @api_view(['PATCH'])
 def editar_empleado(request, id):
@@ -82,17 +80,13 @@ def editar_empleado(request, id):
 @extend_schema(
     tags=["Gestion de Empleado"],
     summary="Buscar empleado por cédula",
-    description="Devuelve los datos de un empleado identificado por su cédula.",
+    description="Devuelve los datos de un empleado identificado por su cédula",
     request=EmployeeListarDataSerializer,
 )
 @api_view(['GET'])
 def listar_empleadosData(request,cedulaidentidad):
     try:
-   
-        
-        empleado = Employee.objects.filter(
-            cedulaidentidad=cedulaidentidad).get()
-        
+        empleado = Employee.objects.filter(cedulaidentidad=cedulaidentidad).get()
         serializers = EmployeeListarDataSerializer(empleado)
         return Response({
             'status':'OK',
@@ -183,8 +177,6 @@ def editar_codigo(request, id):
 @api_view(['GET'])
 def Codigos_generales(request):
     try:
-        
-        
         codigos = AsigTrabajo.objects.filter(
             Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO
         )

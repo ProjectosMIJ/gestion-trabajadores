@@ -267,7 +267,7 @@ def reporte_movimientos(request):
         return Response(
             {
                 'status': 'Error',
-                'message': 'Error interno del servidor', 
+                'message': 'Error de datos', 
             }, 
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            status=status.HTTP_400_BAD_REQUEST
         )

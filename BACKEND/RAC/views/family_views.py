@@ -12,17 +12,13 @@ from drf_spectacular.utils import extend_schema
 @extend_schema(
     tags=["Familiares de Empleados"],
     summary="Registrar un nuevo familiar",
-    description=(
-        "Crea un nuevo registro en la carga familiar"
-    ),
+    description="Crea un nuevo registro en la carga familiar",
     request=FamilyCreateSerializer,
-
 )
 @api_view(['POST'])
 def registrar_familiar(request):
 
     serializer = FamilyCreateSerializer(data=request.data)
-    
     if serializer.is_valid():
         try:
             with transaction.atomic():
@@ -38,7 +34,6 @@ def registrar_familiar(request):
                         "parentesco": familiar.parentesco.descripcion_parentesco 
                     }
                 }, status=status.HTTP_201_CREATED)
-                
         except Exception as e:
             return Response({
                 "status": "Error",
@@ -59,7 +54,6 @@ def registrar_familiar(request):
     summary="Listar carga familiar detallada",
     description="Obtiene todos los familiares de un empleado por la cedula del trabajador",
     request=FamilyListSerializer,
-
 )
 @api_view(['GET'])
 def  listar_familiares(request, cedula_empleado):
@@ -73,9 +67,7 @@ def  listar_familiares(request, cedula_empleado):
         familiares = Employeefamily.objects.filter(
              employeecedula=cedula_empleado
         )
-
         serializer = FamilyListSerializer(familiares, many=True)
-        
         return Response({
             "status": "Ok",
             "data": serializer.data
@@ -86,28 +78,20 @@ def  listar_familiares(request, cedula_empleado):
             "status": "Error",
             "message": f"Error al recuperar carga familiar: {str(e)}",
             "data": []
-        
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
     
 @extend_schema(
     tags=["Familiares de Empleados"],
     summary="Registro masivo de familiares",
     description="Registra múltiples familiares enviando una lista de objetos.",
     request=FamilyCreateSerializer(many=True),
-  
-
 )
 @api_view(['POST'])
 def registrar_familiares_masivo(request):
 
     datos_sucios = request.data
-    datos_filtrados = [
-        item for item in datos_sucios 
-        if isinstance(item, dict) and 'cedulaFamiliar' in item
-    ]
-
+    datos_filtrados = [ item for item in datos_sucios if isinstance(item, dict) and 'cedulaFamiliar' in item ]
     serializer = FamilyCreateSerializer(data=datos_filtrados, many=True)
-    
     if serializer.is_valid():
         try:
             with transaction.atomic():
@@ -141,12 +125,13 @@ def registrar_familiares_masivo(request):
         "errors": serializer.errors,
     }, status=status.HTTP_400_BAD_REQUEST)
      
+     
+     
 @extend_schema(
     tags=["Familiares de Empleados"],
     summary="Listar patentescos",
     description="Devuelve una lista de todos los parentescosa disponibles.",
     responses=ParentescoSerializer,
-  
 )
 @api_view(['GET'])
 def listar_parentesco(request):

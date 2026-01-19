@@ -2,9 +2,11 @@ from rest_framework import serializers
 
 from django.db import transaction
 
+from django.utils import timezone
+
 from ..models.historial_personal_models import EmployeeEgresado,EmployeeMovementHistory
 
-from ..models.personal_models import DireccionLinea, Tiponomina, Estatus, AsigTrabajo, Tipo_personal
+from ..models.personal_models import DireccionLinea, Tiponomina, Estatus, AsigTrabajo, Tipo_personal, antecedentes_servicio
 
 from USER.models.user_models import cuenta as User
 
@@ -58,20 +60,20 @@ class MovimintoCargoSerializer(serializers.Serializer):
         except Estatus.DoesNotExist:
             raise serializers.ValidationError("Error de datos de estatus")
 
-        # 1. Liberar puesto actual
+        # LIBERAR CARGO ACTUAL
         instance.employee = None
         instance.estatusid = estatus_vacante
         instance._history_user = usuario
         instance.save()
 
-        # 2. Ocupar puesto nuevo
+        # OCUPAR NUEVO PUESTO
         puesto_nuevo.employee = empleado
         puesto_nuevo.estatusid = estatus_activo
         puesto_nuevo._history_user = usuario
         puesto_nuevo.observaciones = motivo
         puesto_nuevo.save()
 
-        # 3. Historial
+        #REGISTRO EN EL HISTORIAL
         registrar_historial_movimiento(
             empleado=empleado,
             puesto=puesto_nuevo, 
