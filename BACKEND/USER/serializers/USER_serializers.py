@@ -107,104 +107,80 @@ class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
     password2 = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
     departament = serializers.CharField(write_only=True, required=False)
-    # id_especialidad_medico = serializers.IntegerField(required=False, allow_null=True)  # medicoSM no existe
     
     class Meta:
         model = cuenta
-     
-        fields = ['cedula', 'password', 'password2', 'departament', 'email', 'phone', 'status']  # , 'id_especialidad_medico']  # medicoSM no existe
+        fields = ['cedula', 'password', 'password2', 'departament', 'email', 'phone', 'status']
         extra_kwargs = {
             'status': {'required': False, 'default': 'basic'},
             'departament': {'required': False},
-            'id_especialidad_medico': {'required': False, 'allow_null': True}
         }
 
     def validate_cedula(self, value):
-        # Validar que se proporcione una cédula
+        """
+        Valida que la cédula exista exclusivamente en la tabla Employee (RAC).
+        """
         if value is None or str(value).strip() == "":
             raise serializers.ValidationError("La cédula es requerida.")
 
-        # Si ya es un objeto Employee, devolverlo directamente
+        # Si ya recibimos el objeto Employee por algún proceso previo
         if isinstance(value, Employee):
             return value
 
         cedula_str = str(value).strip()
 
-        # Intentar buscar en Employee
         try:
+            # Buscar únicamente en Employee
             empleado = Employee.objects.get(cedulaidentidad__iexact=cedula_str)
             return empleado
         except Employee.DoesNotExist:
-            # Si no está en Employee, intentar en Medico
-            try:
-                medico = Medico.objects.get(Cedula__iexact=cedula_str)
-                # Devolver la cédula como string para que el flujo siguiente la trate como valor simple
-                return medico.Cedula
-            except Medico.DoesNotExist:
-                raise serializers.ValidationError("La cédula no existe en el sistema RAC.")
+            raise serializers.ValidationError("La cédula no pertenece a un empleado registrado en el sistema RAC.")
 
     def validate(self, data):
-        print('DATA RECIBIDA EN REGISTER VALIDATE:', data)
-        empleado = data['cedula']
-        if data['password'] != data['password2']:
+        # 1. Validar coincidencia de contraseñas
+        if data.get('password') != data.get('password2'):
             raise serializers.ValidationError({"password": "Las contraseñas no coinciden."})
-        # Validar que no exista ya una cuenta con la misma cédula
-        cedula_str = empleado.cedulaidentidad if isinstance(empleado, Employee) else str(empleado)
-        if cuenta.objects.filter(cedula=cedula_str).exists():
-            raise serializers.ValidationError({"cedula": "Ya existe un usuario con esta cédula."})
 
+        # 2. Validar que no tenga ya una cuenta creada
+        empleado = data.get('cedula')
+        # Como validate_cedula devuelve un objeto Employee, usamos su atributo
+        cedula_str = empleado.cedulaidentidad 
+        
+        if cuenta.objects.filter(cedula=cedula_str).exists():
+            raise serializers.ValidationError({"cedula": "Este empleado ya posee una cuenta de usuario."})
+
+        # 3. Procesar el Departamento (String/ID -> Objeto)
         departament_value = data.pop('departament', None)
         if departament_value:
             try:
-                # Si es un número, buscar por id; si no, por nombre
                 if str(departament_value).isdigit():
                     data['departament'] = departaments.objects.get(id=int(departament_value))
                 else:
                     data['departament'] = departaments.objects.get(nombre=departament_value)
             except departaments.DoesNotExist:
-                raise serializers.ValidationError({"departament": "Departamento no encontrado"})
-        
-        # Validar y procesar id_especialidad_medico
-        # especialidad_id = data.get('id_especialidad_medico', None)
-        # if especialidad_id is not None:
-        #     try:
-        #         from medicoSM.models import Especialidad
-        #         especialidad = Especialidad.objects.get(id=especialidad_id)
-        #         data['id_especialidad_medico'] = especialidad
-        #     except Especialidad.DoesNotExist:
-        #         raise serializers.ValidationError({"id_especialidad_medico": "Especialidad no encontrada"})
+                raise serializers.ValidationError({"departament": "El departamento especificado no existe."})
         
         return data
 
     def create(self, validated_data):
-        try:
-            password = validated_data.pop('password')
-            validated_data.pop('password2', None)
-            validated_data.pop('user_id', None)  # Asegura que no se pase user_id manualmente
-            
-            empleado = validated_data['cedula']
-            if isinstance(empleado, Employee):
-                validated_data['cedula'] = empleado.cedulaidentidad
-                # Generar el username automáticamente con nombres y apellidos
-                print(f"Tipo de empleado: {type(empleado)}")
-                nombre_completo = f"{empleado.nombres.strip()} {empleado.apellidos.strip()}"
-                validated_data['username'] = nombre_completo
-            else:
-                validated_data['username'] = validated_data.get('username', '')
+        # Extraer datos que no van directo al modelo 'cuenta'
+        password = validated_data.pop('password')
+        validated_data.pop('password2', None)
+        
+        # 'cedula' aquí es el objeto Employee devuelto por validate_cedula
+        empleado = validated_data.pop('cedula')
+        
+        # Preparar los datos finales para la creación
+        validated_data['cedula'] = empleado.cedulaidentidad
+        # Generamos el username automáticamente desde los datos de RRHH
+        validated_data['username'] = f"{empleado.nombres.strip()} {empleado.apellidos.strip()}"
 
-            if 'status' not in validated_data:
-                validated_data['status'] = 'basic'
-            
-            # Crear la cuenta
-            user = cuenta.objects.create(**validated_data)
-            user.password = make_password(password)
-            user.save()
-            
-            return user
-        except KeyError as e:
-            raise serializers.ValidationError(f"Falta el campo requerido: {str(e)}")
-
-
+        # Crear y cifrar contraseña
+        user = cuenta.objects.create(**validated_data)
+        user.password = make_password(password)
+        user.save()
+        
+        return user
 
 
 
@@ -244,18 +220,11 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
     def get_nombre_apellido(self, obj):
         try:
-            empleado = Employee.objects.get(cedulaidentidad__iexact=str(obj.cedula)) or Medico.objects.get(Cedula__iexact=str(obj.cedula))
+            empleado = Employee.objects.get(cedulaidentidad__iexact=str(obj.cedula))
             return f"{empleado.nombres.strip()} {empleado.apellidos.strip()}"
         except Employee.DoesNotExist:
             return ""
     
-    def get_especialidad_descripcion(self, obj):
-        try:
-            if obj.id_especialidad_medico:
-                return obj.id_especialidad_medico.descripcion_especialidad
-            return None
-        except Exception as e:
-            return None
 
 class EmployeeSerializer(serializers.ModelSerializer):
     class Meta:

@@ -7,7 +7,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import api_view, permission_classes
 import logging
-
+from drf_spectacular.utils import extend_schema
 @api_view(['GET'])
 def get(request):
     try:
@@ -130,7 +130,6 @@ def register_view(request):
                 'success': True,
                 'user_id': user.user_id,
                 'username': user.username,
-                'id_especialidad_medico': user.id_especialidad_medico.id if user.id_especialidad_medico else None,
                 'message': 'Usuario registrado exitosamente'
             }, status=status.HTTP_201_CREATED)
         
