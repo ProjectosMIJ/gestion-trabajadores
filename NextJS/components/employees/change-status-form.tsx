@@ -56,7 +56,7 @@ import ChangeStatusAction from "@/app/personal/cambiar-estatus/actions/actions-c
 import { Textarea } from "../ui/textarea";
 export function ChangeStatusForm() {
   const [searchEmployee, setSearchEmployee] = useState<string | undefined>(
-    undefined
+    undefined,
   );
   const [isLoading, setIsloading] = useState<boolean>(false);
 
@@ -180,7 +180,7 @@ export function ChangeStatusForm() {
                                               .cargo
                                           }
                                         </SelectItem>
-                                      )
+                                      ),
                                     )}
                                   </SelectContent>
                                 </Select>
@@ -267,28 +267,18 @@ export function ChangeStatusForm() {
           {employee && (
             <div
               className={` ${
-                !Array.isArray(employee) &&
+                !Array.isArray(employee.data) &&
                 "border-2 border-blue-400/45 bg-blue-200/40"
               }  rounded-sm p-2 `}
             >
-              {employee ? (
+              {!Array.isArray(employee.data) ? (
                 <>
                   <p>Nombres: {employee.data.nombres}</p>
                   <p>Apellidos: {employee.data.apellidos}</p>
                   <p>Cedula: {employee.data.cedulaidentidad}</p>
-                  <p>
-                    Ubicacion Geografia: {employee.data.estado.estado},{" "}
-                    {employee.data.municipio.municipio},{" "}
-                    {employee.data.parroquia.parroquia}
-                  </p>
                 </>
               ) : (
-                <p>
-                  <span className="flex gap-4">
-                    Trabajador No Encontrado{" "}
-                    <CircleAlert className="text-red-500" />
-                  </span>
-                </p>
+                <></>
               )}
             </div>
           )}
