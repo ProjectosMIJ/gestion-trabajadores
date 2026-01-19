@@ -1,4 +1,6 @@
 from rest_framework import serializers
+
+from django.db import transaction
 from ..models.family_personal_models import Employeefamily, Parentesco
 from ..models.personal_models import *
 from USER.models.user_models import cuenta as User
@@ -68,9 +70,14 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
             data['fechanacimiento'] = value.split('T')[0]
             
         return super().to_internal_value(data)
-
+ 
+    def validate_usuario_id(self, value):
+        try:
+            return User.objects.get(pk=value)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("El usuario no existe")
+        
     def validate(self, data):
-
         cedula_fam = data.get('cedulaFamiliar')
         parentesco_obj = data.get('parentesco')
         fecha_nac = data.get('fechanacimiento')
@@ -89,11 +96,11 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
                         if orden_manual is not None:
                             numero_final = orden_manual
                         else:
-                            hijos_con_escolar = Employeefamily.objects.filter(
+                            hijo_menor = Employeefamily.objects.filter(
                                 employeecedula=empleado,
                                 cedulaFamiliar__startswith=f"{cedula_trabajador}-"
                             ).count()
-                            numero_final = hijos_con_escolar + 1
+                            numero_final = hijo_menor + 1
                         
                         nueva_cedula = f"{cedula_trabajador}-{numero_final}"
                         check_exists = Employeefamily.objects.filter(employeecedula=empleado, cedulaFamiliar=nueva_cedula)
@@ -101,7 +108,7 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
                             check_exists = check_exists.exclude(pk=self.instance.pk)
                         
                         if check_exists.exists():
-                            raise serializers.ValidationError({"cedulaFamiliar": "El trabajador ya tiene un hijo registrado con el orden ingresado"})
+                            raise serializers.ValidationError("El trabajador ya tiene un hijo registrado con el orden ingresado")
                         
                         data['cedulaFamiliar'] = nueva_cedula
 
@@ -111,7 +118,7 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
             if self.instance:
                 queryset = queryset.exclude(pk=self.instance.pk)
             if queryset.exists():
-                raise serializers.ValidationError({"heredero": "Este trabajador ya posee un familiar registrado como heredero"})
+                raise serializers.ValidationError( "Este trabajador ya posee un familiar registrado como heredero")
         
         return data
 
@@ -124,60 +131,58 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
         academico_data = validated_data.pop('formacion_academica_familiar', None)
         
         try:
-            usuario_obj = User.objects.get(pk=id_usuario)
-            instance = Employeefamily.objects.create(**validated_data)
-            instance._history_user = usuario_obj 
-            instance.save()
+            with transaction.atomic():
+                instance = Employeefamily.objects.create(**validated_data)
+                instance._history_user =id_usuario
+                instance.save()
 
-            if salud_data:
-                patologias = salud_data.pop('patologiaCronica', [])
-                discapacidades = salud_data.pop('discapacidad', [])
-                s_obj = perfil_salud.objects.create(familiar_id=instance, **salud_data)
-                if patologias: s_obj.patologiaCronica.set(patologias)
-                if discapacidades: s_obj.discapacidad.set(discapacidades)
-            
-            if fisico_data:
-                perfil_fisico.objects.create(familiar_id=instance, **fisico_data)
-            
-            if academico_data:
-                formacion_academica.objects.create(familiar_id=instance, **academico_data)
+                if salud_data:
+                    patologias = salud_data.pop('patologiaCronica', [])
+                    discapacidades = salud_data.pop('discapacidad', [])
+                    s_obj = perfil_salud.objects.create(familiar_id=instance, **salud_data)
+                    if patologias: s_obj.patologiaCronica.set(patologias)
+                    if discapacidades: s_obj.discapacidad.set(discapacidades)
                 
-            return instance
+                if fisico_data:
+                    perfil_fisico.objects.create(familiar_id=instance, **fisico_data)
+                
+                if academico_data:
+                    formacion_academica.objects.create(familiar_id=instance, **academico_data)
+                    
+                return instance
         except Exception as e:
-            raise serializers.ValidationError(f"Error al guardar: {str(e)}")
+            raise serializers.ValidationError(f"Error al guardar el registro familiar: {str(e)}")
 
     def update(self, instance, validated_data):
         validated_data.pop('orden_hijo', None)
-        id_usuario = validated_data.pop('usuario_id', None)
+        usuario = validated_data.pop('usuario_id', None)
 
         salud_data = validated_data.pop('perfil_salud_familiar', None)
         fisico_data = validated_data.pop('perfil_fisico_familiar', None)
         academico_data = validated_data.pop('formacion_academica_familiar', None)
         
-        if id_usuario:
-            try:
-                usuario_obj = User.objects.get(pk=id_usuario)
-                instance._history_user = usuario_obj
-            except User.DoesNotExist:
-                pass
+        if usuario:
+            instance._history_user = usuario
 
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
+        with transaction.atomic():
+            # Actualizar instancia principal
+            for attr, value in validated_data.items():
+                setattr(instance, attr, value)
+            instance.save()
 
-        if salud_data:
-            patologias = salud_data.pop('patologiaCronica', None)
-            discapacidades = salud_data.pop('discapacidad', None)
-            s_obj, _ = perfil_salud.objects.update_or_create(familiar_id=instance, defaults=salud_data)
-            if patologias is not None: s_obj.patologiaCronica.set(patologias)
-            if discapacidades is not None: s_obj.discapacidad.set(discapacidades)
-            
-        if fisico_data:
-            perfil_fisico.objects.update_or_create(familiar_id=instance, defaults=fisico_data)
-            
-        if academico_data:
-            formacion_academica.objects.update_or_create(familiar_id=instance, defaults=academico_data)
-            
+            if salud_data:
+                patologias = salud_data.pop('patologiaCronica', None)
+                discapacidades = salud_data.pop('discapacidad', None)
+                s_obj, _ = perfil_salud.objects.update_or_create(familiar_id=instance, defaults=salud_data)
+                if patologias is not None: s_obj.patologiaCronica.set(patologias)
+                if discapacidades is not None: s_obj.discapacidad.set(discapacidades)
+                
+            if fisico_data:
+                perfil_fisico.objects.update_or_create(familiar_id=instance, defaults=fisico_data)
+                
+            if academico_data:
+                formacion_academica.objects.update_or_create(familiar_id=instance, defaults=academico_data)
+                
         return instance
 class ParentescoSerializer(serializers.ModelSerializer):
     class Meta:
