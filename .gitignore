@@ -25,3 +25,4 @@ wheels/
 # Django
 */migrations/
 !*/migrations/__init__.py
+node_modules
