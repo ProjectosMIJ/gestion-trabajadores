@@ -1,3 +1,4 @@
+"use server";
 import z from "zod";
 import { schemaPasivo } from "../schema/schemaPasivo";
 import { auth } from "#/auth";
