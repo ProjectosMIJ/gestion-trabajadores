@@ -55,10 +55,10 @@ const departments: Department[] = [
     alt: "Sección de seguridad y privacidad.",
   },
   {
-    id: "employees",
-    name: "Departamento de Recursos Humanos",
+    id: "oac",
+    name: "Gestión de Trabajadores",
     imageSrc: "/images/departments/datos.jpg",
-    href: "/departments/hr",
+    href: "/dashboard/gestion-trabajadores",
     color: "bg-green-500",
     alt: "Human Resources Department",
   },

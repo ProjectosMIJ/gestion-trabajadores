@@ -90,7 +90,7 @@ const items = [
         icon: MoveDownRight,
       },
       {
-        title: "Listado de Codigo",
+        title: "Consultar Dependencias",
         url: "/dashboard/gestion-trabajadores/dependencias/listado-dependencia",
         icon: List,
       },
@@ -111,7 +111,7 @@ const items = [
         icon: BadgePlus,
       },
       {
-        title: "Listado de Codigo",
+        title: "Consultar Codigos",
         url: "/dashboard/gestion-trabajadores/personal/listado-codigo",
         icon: List,
       },
