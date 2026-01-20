@@ -38,7 +38,6 @@ export default {
             phone: userData.phone,
             email: userData.email,
             role: userData.status,
-            id_especialidad_medico: userData.id_especialidad_medico,
           };
         } catch {
           throw new Error("Authentication failed");
