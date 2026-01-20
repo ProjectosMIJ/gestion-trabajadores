@@ -1,0 +1,94 @@
+services:
+  postgres:
+    container_name: postgres-DB
+    image: postgres:16
+    networks:
+      postgres:
+        aliases:
+          - postgresdb
+    environment:
+      POSTGRES_PASSWORD: 3054=HitM
+      POSTGRES_DB: modulos
+      POSTGRES_USER: postgres
+    volumes:
+      - "C:/pgdata:/var/lib/postgresql/data"
+    ports:
+      - "5400:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d modulos"]
+      interval: 5s
+      timeout: 5s
+      retries: 9
+      start_period: 10s
+    restart: always
+
+  django:
+    container_name: django-App
+    build:
+      context: ./backend-OAC
+      dockerfile: Dockerfile
+    networks:
+      backend:
+        aliases:
+          - djangoapp
+      postgres:
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # command: python3 manage.py runserver 0.0.0.0:8000
+    restart: always
+  nestjs:
+    container_name: nestjs-App
+    build:
+      context: ./file-manager
+      dockerfile: Dockerfile
+    volumes:
+      - "C:/uploads:/app/NestFS/uploads"
+    networks:
+      file_manager:
+        aliases:
+          - file_managerapp
+    ports:
+      - "5000:5000"
+    command: npm run start:dev
+    restart: always
+  nextjs:
+    container_name: nextjs-App
+    build:
+      context: ./frontend-OAC
+      dockerfile: Dockerfile
+    env_file:
+      - ./frontend-OAC/.env
+    ports:
+      - "3000:3000"
+    networks:
+      backend:
+      file_manager:
+    depends_on:
+      - django
+      - nestjs
+    # command: pnpm run dev
+    restart: always
+  pgadmin4:
+    container_name: pgadmin4
+    image: dpage/pgadmin4
+    platform: linux/amd64
+    ports:
+      - "8080:80"
+    networks:
+      postgres:
+    environment:
+      PGADMIN_DEFAULT_EMAIL: moisesmachado@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: 3054=HitM
+    depends_on:
+      - postgres
+    restart: always
+networks:
+  backend:
+    driver: bridge
+  file_manager:
+    driver: bridge
+  postgres:
+    driver: bridge
