@@ -1,24 +1,85 @@
 from rest_framework import serializers
 from ..models.user_models import departaments, cuenta, permissions
 from django.contrib.auth.hashers import check_password, make_password
-from RAC.models import Employee
+from RAC.models import Employee, AsigTrabajo, Dependencias, DireccionGeneral, DireccionLinea, Coordinaciones
 from rest_framework.response import Response
 
 
 
+class DependenciaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dependencias
+        fields = ['id', 'dependencia']
+
+class DireccionGeneralSerializer(serializers.ModelSerializer):
+    dependencia = DependenciaSerializer(source='dependenciaId', read_only=True)
+    class Meta:
+        model = DireccionGeneral
+        fields = ['id', 'direccion_general', 'dependencia']
+
+class DireccionLineaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DireccionLinea
+        fields = ['id', 'direccion_linea']
+
+class CoordinacionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Coordinaciones
+        fields = ['id', 'coordinacion']
+
+
 class LoginSerializer(serializers.Serializer):
-    # Campos de entrada
     cedula = serializers.CharField(required=True)
     password = serializers.CharField(required=True, write_only=True)
     
-    # Campos de respuesta
+  
     user_id = serializers.IntegerField(read_only=True)
     username = serializers.CharField(read_only=True)
-    departament = serializers.IntegerField(read_only=True)
+    departament = serializers.CharField(read_only=True)
     email = serializers.EmailField(read_only=True)
     phone = serializers.CharField(read_only=True)
-    status = serializers.IntegerField(read_only=True)
-    # id_especialidad_medico = serializers.IntegerField(read_only=True, allow_null=True)  # medicoSM no existe
+    status = serializers.CharField(read_only=True)
+    direccion_general = serializers.SerializerMethodField()
+    direccion_linea = serializers.SerializerMethodField()
+    coordinacion = serializers.SerializerMethodField()
+    dependencia = serializers.SerializerMethodField()
+
+    def _get_asignacion(self, obj):
+        if not hasattr(self, '_cached_asig'):
+   
+      
+            user = obj.get('user')
+
+            self._cached_asig = AsigTrabajo.objects.filter(employee=user.cedula).select_related(
+                'DireccionGeneral', 'DireccionGeneral__dependenciaId',
+                'DireccionLinea', 'Coordinacion'
+            ).first()
+        return self._cached_asig
+
+    def get_direccion_general(self, obj):
+        asig = self._get_asignacion(obj)
+        if asig and asig.DireccionGeneral:
+            return {'id': asig.DireccionGeneral.id, 'nombre': asig.DireccionGeneral.direccion_general}
+        return None
+
+    def get_direccion_linea(self, obj):
+        asig = self._get_asignacion(obj)
+        if asig and asig.DireccionLinea:
+            return {'id': asig.DireccionLinea.id, 'nombre': asig.DireccionLinea.direccion_linea}
+        return None
+
+    def get_coordinacion(self, obj):
+        asig = self._get_asignacion(obj)
+        if asig and asig.Coordinacion:
+            return {'id': asig.Coordinacion.id, 'nombre': asig.Coordinacion.coordinacion}
+        return None
+
+    def get_dependencia(self, obj):
+        asig = self._get_asignacion(obj)
+        if asig and asig.DireccionGeneral and asig.DireccionGeneral.dependenciaId:
+            dep = asig.DireccionGeneral.dependenciaId
+            return {'id': dep.id, 'nombre': dep.dependencia}
+        return None
     
     def validate(self, data):
         cedula = data.get('cedula')
@@ -56,15 +117,16 @@ class LoginSerializer(serializers.Serializer):
         # Serializar cedula si es instancia de Employee
         
         if isinstance(user.cedula, Employee):
-            data['cedula'] = EmployeeSerializer(user.cedula)
+            data['cedula'] = EmployeeSerializer(user.cedula).data
         else:
             data['cedula'] = user.cedula
+            
         data['departament'] = user.departament.nombre if user.departament else None
         data['status'] = user.status
         data['email'] = user.email
         data['phone'] = user.phone
-        # data['id_especialidad_medico'] = user.id_especialidad_medico.id if user.id_especialidad_medico else None  # medicoSM no existe
-     
+        
+       
         data['user'] = user
         return data
 
@@ -188,7 +250,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
     departament_name = serializers.SerializerMethodField(read_only=True)
     cedula_str = serializers.SerializerMethodField(read_only=True)
     nombre_apellido = serializers.SerializerMethodField(read_only=True)
-    especialidad_descripcion = serializers.SerializerMethodField(read_only=True)
+
 
     class Meta:
         model = cuenta
@@ -202,10 +264,9 @@ class UserDetailSerializer(serializers.ModelSerializer):
             'status',
             'departament',
             'departament_name',
-            'id_especialidad_medico',
-            'especialidad_descripcion'
+
         ]
-        read_only_fields = ['departament_name', 'cedula_str', 'nombre_apellido', 'especialidad_descripcion']
+        read_only_fields = ['departament_name', 'cedula_str', 'nombre_apellido']
 
     def get_departament_name(self, obj):
         try:

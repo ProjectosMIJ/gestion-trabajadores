@@ -1,13 +1,13 @@
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework import status
-from ..serializers.USER_serializers import LoginSerializer, UserSerializer, CuentaSerializer,UserDetailSerializer,RegisterSerializer
+from ..serializers.USER_serializers import LoginSerializer, UserSerializer,UserDetailSerializer,RegisterSerializer
 from ..models.user_models import cuenta
 from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import api_view, permission_classes
 import logging
-from drf_spectacular.utils import extend_schema
+
 @api_view(['GET'])
 def get(request):
     try:
@@ -31,51 +31,26 @@ def get(request):
             'detail': str(e)  # En producción, remover o controlar este detalle
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-@api_view(['POST', 'GET'])
+@api_view(['POST'])
 @permission_classes([AllowAny])
 
 def login_view(request):
-    if request.method == 'GET':
-        return Response({'message': 'Use POST para iniciar sesión'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
     try:
         serializer = LoginSerializer(data=request.data)
         
         if serializer.is_valid():
-            # Obtener los datos validados del serializer
-            validated_data = serializer.validated_data
-            
-            # Extraer solo los campos específicos que necesitamos
-            user_data = {
-                'user_id': validated_data['user_id'],
-                'username': validated_data['username'],
-                'cedula': validated_data['cedula'],
-                'departament': validated_data['departament'],
-                'status': validated_data['status'],
-                'email': validated_data['email'],
-                'phone': validated_data['phone'],
-                'id_especialidad_medico': validated_data.get('id_especialidad_medico', None),
-                
-            }
-
-            # Retornar respuesta exitosa con datos del usuario
-            return Response({
-
-                **user_data
-            })
-        
-        # Retornar respuesta de error de validación
+            return Response(serializer.data, status=status.HTTP_200_OK)
         return Response(
             {'error': 'Credenciales inválidas'}, 
             status=status.HTTP_401_UNAUTHORIZED
         )
-        
     except Exception as e:
-        # Registrar el error pero no mostrar detalles al usuario
         logging.error(f"Error durante el inicio de sesión: {str(e)}")
         return Response(
             {'error': 'Error en el servidor al procesar la solicitud'}, 
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
+    
 
 @api_view(['GET', 'POST'])
 def user_detail(request, user_id):

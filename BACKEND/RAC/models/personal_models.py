@@ -73,7 +73,7 @@ class Dependencias(models.Model):
 
     class Meta:
         managed = True
-        db_table = 'Dependencia'
+        db_table = 'Dependencias'
         app_label = 'RAC'
 
 
