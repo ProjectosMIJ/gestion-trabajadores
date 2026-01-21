@@ -206,9 +206,10 @@ def Codigos_Vacantes(request):
     try:
    
         
+
         codigos = AsigTrabajo.objects.filter(
             Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO, estatusid__estatus__iexact=ESTATUS_VACANTE
-        ).exclude(tiponominaid__nomina__in=NOMINAS_EXCLUIDAS).select_related(
+        ).filter( tiponominaid__requiere_codig=False ).select_related(
             'Tipo_personal', 'estatusid', 'tiponominaid', 'employee'
         )
         
@@ -241,7 +242,7 @@ def Cargos_Vacantes_DireccionGeneral(request,direccioGenealid):
         
         codigos = AsigTrabajo.objects.filter(
             DireccionGeneral=direccioGenealid,Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO, estatusid__estatus__iexact=ESTATUS_VACANTE
-        ).exclude(tiponominaid__nomina__in=NOMINAS_EXCLUIDAS).select_related(
+        ).filter( tiponominaid__requiere_codig=False ).select_related(
             'Tipo_personal', 'estatusid', 'tiponominaid', 'employee'
         )
         
@@ -273,7 +274,7 @@ def Cargos_Vacantes_direccionLinea(request,direccioLineaId):
         
         codigos = AsigTrabajo.objects.filter(
             DireccionLinea=direccioLineaId,Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO, estatusid__estatus__iexact=ESTATUS_VACANTE
-        ).exclude(tiponominaid__nomina__in=NOMINAS_EXCLUIDAS).select_related(
+        ).filter( tiponominaid__requiere_codig=False ).select_related(
             'Tipo_personal', 'estatusid', 'tiponominaid', 'employee'
         )
         
@@ -304,10 +305,9 @@ def Cargos_Vacantes_coordinacion(request,cooridnacionoId):
         
         codigos = AsigTrabajo.objects.filter(
             Coordinacion=cooridnacionoId,Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO, estatusid__estatus__iexact=ESTATUS_VACANTE
-        ).exclude(tiponominaid__nomina__in=NOMINAS_EXCLUIDAS).select_related(
+        ).filter( tiponominaid__requiere_codig=False ).select_related(
             'Tipo_personal', 'estatusid', 'tiponominaid', 'employee'
         )
-        
         serializers = CodigosListerSerializer(codigos, many=True)
         return Response({
             'status':'OK',
@@ -1175,10 +1175,6 @@ def listar_grado(request):
             'message': str(e),
             "data": []
         }, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-
 
 
 

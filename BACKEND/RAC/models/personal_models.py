@@ -67,10 +67,21 @@ class Tiponomina(models.Model):
         app_label = 'RAC'
 
 
+class Dependencias(models.Model):
+    Codigo = models.CharField(max_length=20, unique=True)
+    dependencia = models.CharField(max_length=200, unique=True)
+
+    class Meta:
+        managed = True
+        db_table = 'Dependencia'
+        app_label = 'RAC'
+
 
 class DireccionGeneral(models.Model):
     Codigo = models.CharField(max_length=20, unique=True)
     direccion_general = models.CharField(max_length=200, unique=True)
+    dependenciaId = models.ForeignKey('Dependencias', models.DO_NOTHING,null=True, db_column='dependenciaId')
+
 
     class Meta:
         managed = True
