@@ -13,13 +13,6 @@ export interface Municipality {
   municipio: string;
   estadoid: number;
 }
-export interface Parish {
-  id: number;
-  municipioid: string;
-  parroquia: string;
-  estadoid: number;
-  municipio: string;
-}
 
 export type Cargo = {
   id: number;
@@ -184,10 +177,6 @@ export interface Municipality {
   id: number;
   municipio: string;
 }
-export interface Parish {
-  id: number;
-  parroquia: string;
-}
 
 export interface EmployeeData {
   id: number;
@@ -298,4 +287,8 @@ export interface Mencion {
 export interface ConditionDwelling {
   id: number;
   condicion: string;
+}
+export interface Parish {
+  id: number;
+  parroquia: string;
 }

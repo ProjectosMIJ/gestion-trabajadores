@@ -42,39 +42,13 @@ import {
 } from "../../../../../../components/ui/form";
 import { Input } from "../../../../../../components/ui/input";
 import { Label } from "../../../../../../components/ui/label";
+import useSWR from "swr";
 
 export default function FormCreateDirectionDependency() {
   const [isPending, startTransition] = useTransition();
   const [create, setCreate] = useState<string>("create-direction-line");
-  const [directionGeneral, setDirectionGeneral] = useState<
-    ApiResponse<DirectionGeneral[]>
-  >({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [directionLine, setDirectionLine] = useState<
-    ApiResponse<DirectionLine[]>
-  >({
-    status: "",
-    message: "",
-    data: [],
-  });
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const directionGeneral = await getDirectionGeneral();
-        if (Array.isArray(directionGeneral.data)) {
-          setDirectionGeneral(directionGeneral);
-        }
-      } catch {
-        toast.error("Error cargando datos");
-      }
-    };
-
-    loadData();
-  }, []);
+  const [selectionDirectionGeneralId, setSelectionDirectionGeneralId] =
+    useState<string>();
   const formDirection = useForm({
     resolver: zodResolver(schemaCreateDirectionLineDirection),
     defaultValues: {
@@ -92,10 +66,15 @@ export default function FormCreateDirectionDependency() {
     },
   });
 
-  const getByDirectionLine = async (id: string) => {
-    const directionLine = await getDirectionLine(id);
-    if (Array.isArray(directionLine.data)) setDirectionLine(directionLine);
-  };
+  const { data: directionGeneral, isLoading: isLoadingDirectionGeneral } =
+    useSWR("directionGeneral", async () => await getDirectionGeneral());
+
+  const { data: directionLine, isLoading: isLoadingDirectionLine } = useSWR(
+    selectionDirectionGeneralId
+      ? ["directionLine", selectionDirectionGeneralId]
+      : null,
+    async () => await getDirectionLine(selectionDirectionGeneralId!),
+  );
 
   const onSubmitDirection = (
     values: z.infer<typeof schemaCreateDirectionLineDirection>,
@@ -154,17 +133,19 @@ export default function FormCreateDirectionDependency() {
                     <Label>Direccion General</Label>
                     <Select
                       onValueChange={(value) => {
-                        getByDirectionLine(value);
+                        setSelectionDirectionGeneralId(value);
                         selectionDirectionGeneral(Number.parseInt(value));
                       }}
                     >
                       <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Seleccionar Direccion General" />
+                        <SelectValue
+                          placeholder={`${isLoadingDirectionGeneral ? "Cargando Direcciones Generales" : "Seleccionar Direccion General"}`}
+                        />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
                           <SelectLabel>Direcciones De Generales</SelectLabel>
-                          {directionGeneral.data.map((general, i) => (
+                          {directionGeneral?.data.map((general, i) => (
                             <SelectItem key={i} value={`${general.id}`}>
                               {general.Codigo}-{general.direccion_general}
                             </SelectItem>
@@ -183,12 +164,14 @@ export default function FormCreateDirectionDependency() {
                         }}
                       >
                         <SelectTrigger className="w-full">
-                          <SelectValue placeholder="Seleccionar Direccion De Linea" />
+                          <SelectValue
+                            placeholder={` ${isLoadingDirectionLine ? "Cargando Direcciones De Liena" : "Seleccionar Direccion De Linea"}`}
+                          />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
                             <SelectLabel>Direcciones De Linea</SelectLabel>
-                            {directionLine.data.map((line, i) => (
+                            {directionLine?.data.map((line, i) => (
                               <SelectItem key={i} value={`${line.id}`}>
                                 {line.Codigo}-{line.direccion_linea}
                               </SelectItem>

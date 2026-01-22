@@ -27,6 +27,7 @@ import {
   ReportStatus,
   ReportTypeNomina,
   ReportTypePerson,
+  Sex,
   ShirtSize,
   ShoesSize,
   States,
@@ -151,7 +152,7 @@ export const getStates = async (): Promise<ApiResponse<States[]>> => {
   return responseStates;
 };
 export const getMunicipalitys = async (
-  id: number,
+  id: string,
 ): Promise<ApiResponse<Municipality[]>> => {
   const responseMunicipalitys = await fetch(
     `${process.env.NEXT_PUBLIC_DJANGO_API_URL}direccion/municipios/${id}/`,
@@ -161,7 +162,7 @@ export const getMunicipalitys = async (
   return getMunicipalitys;
 };
 
-export const getParish = async (id: number): Promise<ApiResponse<Parish[]>> => {
+export const getParish = async (id: string): Promise<ApiResponse<Parish[]>> => {
   const responseParish = await fetch(
     `${process.env.NEXT_PUBLIC_DJANGO_API_URL}direccion/parroquias/${id}/`,
   );
@@ -414,4 +415,12 @@ export const getConditionDwelling = async (): Promise<
   const getDewlling: ApiResponse<ConditionDwelling[]> =
     await responseConditionDwelling.json();
   return getDewlling;
+};
+
+export const getSex = async (): Promise<ApiResponse<Sex[]>> => {
+  const responseSex = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}listar-sexo/`,
+  );
+  const getSex: ApiResponse<Sex[]> = await responseSex.json();
+  return getSex;
 };

@@ -1,10 +1,4 @@
 "use client";
-import { useForm } from "react-hook-form";
-import {
-  AcademyType,
-  schemaAcademy,
-} from "../schemas/schema-academic_training";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Card,
   CardAction,
@@ -22,13 +16,20 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { AcademyLevel, ApiResponse, Carrera, Mencion } from "@/app/types/types";
-import { useEffect, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import {
+  AcademyType,
+  schemaAcademy,
+} from "../schemas/schema-academic_training";
+
 import {
   getAcademyLevel,
   getCarrera,
   getMencion,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -36,55 +37,38 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { useState } from "react";
+import useSWR from "swr";
 
 type Props = {
   onSubmit: (values: AcademyType) => void;
   defaultValues: AcademyType;
 };
 export default function FormAcademyLevel({ onSubmit, defaultValues }: Props) {
-  const [academyLevel, setAcademyLevel] = useState<ApiResponse<AcademyLevel[]>>(
-    {
-      status: "",
-      message: "",
-      data: [],
-    },
-  );
-  const [carrera, setCarrera] = useState<ApiResponse<Carrera[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [mencion, setMencion] = useState<ApiResponse<Mencion[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
+  const [mencionId, setMencionId] = useState<string>();
   const [showMoreDetails, setShowMoreDetails] = useState(false);
   const form = useForm({
     resolver: zodResolver(schemaAcademy),
     defaultValues,
   });
-  useEffect(() => {
-    const loadData = async () => {
-      const [academyLevel, carrera] = await Promise.all([
-        getAcademyLevel(),
-        getCarrera(),
-      ]);
-      if (Array.isArray(academyLevel.data)) setAcademyLevel(academyLevel);
-      if (Array.isArray(carrera.data)) setCarrera(carrera);
-    };
-    loadData();
-  }, []);
+
+  const { data: academyLevel, isLoading: isLoadingAcademyLevel } = useSWR(
+    "academyLevel",
+    async () => await getAcademyLevel(),
+  );
+  const { data: carrera, isLoading: isLoadingCarrera } = useSWR(
+    "carrera",
+    async () => await getCarrera(),
+  );
+  const { data: mencion, isLoading: isLoadingMencion } = useSWR(
+    mencionId ? ["mencion", mencionId] : null,
+    async () => await getMencion(mencionId!),
+  );
   const onSubmitFormity = (values: AcademyType) => {
     onSubmit(values);
   };
-  const getMentions = async (id: string) => {
-    const responseMentions = await getMencion(id);
-    if (Array.isArray(responseMentions.data)) setMencion(responseMentions);
-  };
+
   return (
     <>
       <Card>
@@ -115,12 +99,12 @@ export default function FormAcademyLevel({ onSubmit, defaultValues }: Props) {
                         <FormControl>
                           <SelectTrigger className="w-full truncate">
                             <SelectValue
-                              placeholder={"Seleccione un Nivel Academico"}
+                              placeholder={` ${isLoadingAcademyLevel ? "Cargando Niveles Academicos" : "Seleccione un Nivel Academico"}`}
                             />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {academyLevel.data.map((nivel, i) => (
+                          {academyLevel?.data.map((nivel, i) => (
                             <SelectItem key={i} value={`${nivel.id}`}>
                               {nivel.nivelacademico}
                             </SelectItem>
@@ -181,18 +165,18 @@ export default function FormAcademyLevel({ onSubmit, defaultValues }: Props) {
                           <Select
                             onValueChange={(values) => {
                               field.onChange(Number.parseInt(values));
-                              getMentions(values);
+                              setMencionId(values);
                             }}
                           >
                             <FormControl>
                               <SelectTrigger className="w-full truncate">
                                 <SelectValue
-                                  placeholder={"Seleccione una carrera"}
+                                  placeholder={`${isLoadingCarrera ? "Cargando Carreras" : "Seleccione una carrera"}`}
                                 />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {carrera.data.map((carrera, i) => (
+                              {carrera?.data.map((carrera, i) => (
                                 <SelectItem key={i} value={`${carrera.id}`}>
                                   {carrera.nombre_carrera}
                                 </SelectItem>
@@ -217,14 +201,12 @@ export default function FormAcademyLevel({ onSubmit, defaultValues }: Props) {
                             <FormControl>
                               <SelectTrigger className="w-full truncate">
                                 <SelectValue
-                                  placeholder={
-                                    "Seleccione una mencion academica"
-                                  }
+                                  placeholder={`${isLoadingMencion ? "Cargando Menciones Academicas " : "Seleccione una mencion academica"}`}
                                 />
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {mencion.data.map((mencion, i) => (
+                              {mencion?.data.map((mencion, i) => (
                                 <SelectItem key={i} value={`${mencion.id}`}>
                                   {mencion.nombre_mencion}
                                 </SelectItem>

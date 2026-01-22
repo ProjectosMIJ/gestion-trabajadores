@@ -1,15 +1,18 @@
 "use client";
 
 import {
+  getPantsSize,
+  getShirtSize,
+  getShoesSize,
+} from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
+import { Button } from "@/components/ui/button";
+import {
   Card,
   CardAction,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Form,
   FormControl,
@@ -19,68 +22,42 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import {
-  PhysicalProfileType,
-  schemaPhysicalProfile,
-} from "../schemas/schema-physical_profile";
-import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import useSWR from "swr";
+import { z } from "zod";
 import {
-  getPantsSize,
-  getShirtSize,
-  getShoesSize,
-} from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import { useEffect, useState } from "react";
-import {
-  ApiResponse,
-  PantsSize,
-  ShirtSize,
-  ShoesSize,
-} from "@/app/types/types";
-import { Button } from "@/components/ui/button";
+  PhysicalProfileType,
+  schemaPhysicalProfile,
+} from "../schemas/schema-physical_profile";
 
 type Props = {
   onSubmit: (values: PhysicalProfileType) => void;
   defaultValues: PhysicalProfileType;
 };
 export default function FormPhysical({ onSubmit, defaultValues }: Props) {
-  const [shirtSize, setShirtSize] = useState<ApiResponse<ShirtSize[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [pantsSize, setPantsSize] = useState<ApiResponse<PantsSize[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [shoesSize, setShoesSize] = useState<ApiResponse<ShoesSize[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
   const form = useForm({
     resolver: zodResolver(schemaPhysicalProfile),
     defaultValues,
   });
-  useEffect(() => {
-    const loadData = async () => {
-      const [shirtSize, pantsSize, shoesSize] = await Promise.all([
-        getShirtSize(),
-        getPantsSize(),
-        getShoesSize(),
-      ]);
-
-      if (Array.isArray(shirtSize.data)) setShirtSize(shirtSize);
-      if (Array.isArray(pantsSize.data)) setPantsSize(pantsSize);
-      if (Array.isArray(shoesSize.data)) setShoesSize(shoesSize);
-    };
-    loadData();
-  }, []);
+  const { data: shirtSize, isLoading: isLoadingShirtSize } = useSWR(
+    "shirtSize",
+    async () => await getShirtSize(),
+  );
+  const { data: pantsSize, isLoading: isLoadingPantsSize } = useSWR(
+    "pantsSize",
+    async () => await getPantsSize(),
+  );
+  const { data: shoesSize, isLoading: isLoadingShoesSize } = useSWR(
+    "shoesSize",
+    async () => await getShoesSize(),
+  );
   const onSubmitFormity = (data: z.infer<typeof schemaPhysicalProfile>) => {
     onSubmit(data);
   };
@@ -112,12 +89,12 @@ export default function FormPhysical({ onSubmit, defaultValues }: Props) {
                     <FormControl>
                       <SelectTrigger className="w-full truncate">
                         <SelectValue
-                          placeholder={"Seleccione una Talla De Camisa"}
+                          placeholder={`${isLoadingShirtSize ? "Cargando Tallas De Camisa" : "Seleccione una Talla De Camisa"}`}
                         />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {shirtSize.data.map((shirt, i) => (
+                      {shirtSize?.data.map((shirt, i) => (
                         <SelectItem key={i} value={`${shirt.id}`}>
                           {shirt.talla}
                         </SelectItem>
@@ -142,12 +119,12 @@ export default function FormPhysical({ onSubmit, defaultValues }: Props) {
                     <FormControl>
                       <SelectTrigger className="w-full truncate">
                         <SelectValue
-                          placeholder={"Seleccione una Talla De Pantalón"}
+                          placeholder={`${isLoadingPantsSize ? "Cargando Tallas De Pantalones " : "Seleccione una Talla De Pantalón"}`}
                         />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {pantsSize.data.map((pants, i) => (
+                      {pantsSize?.data.map((pants, i) => (
                         <SelectItem key={i} value={`${pants.id}`}>
                           {pants.talla}
                         </SelectItem>
@@ -173,12 +150,12 @@ export default function FormPhysical({ onSubmit, defaultValues }: Props) {
                     <FormControl>
                       <SelectTrigger className="w-full truncate">
                         <SelectValue
-                          placeholder={"Seleccione una Talla de Zapatos"}
+                          placeholder={` ${isLoadingShoesSize ? "Cargando Tallas de Zapatos" : "Seleccione una Talla de Zapatos"}`}
                         />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {shoesSize.data.map((shoes, i) => (
+                      {shoesSize?.data.map((shoes, i) => (
                         <SelectItem key={i} value={`${shoes.id}`}>
                           {shoes.talla}
                         </SelectItem>

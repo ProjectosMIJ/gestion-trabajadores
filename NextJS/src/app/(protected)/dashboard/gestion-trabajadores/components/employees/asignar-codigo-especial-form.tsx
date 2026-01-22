@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlert, Search } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -57,6 +57,7 @@ import {
 } from "../../../../../../components/ui/form";
 import { Spinner } from "../../../../../../components/ui/spinner";
 import { Switch } from "../../../../../../components/ui/switch";
+import useSWR from "swr";
 
 interface CodigoCatalogFormProps {
   onSuccess?: (bool: boolean) => true | false;
@@ -68,55 +69,11 @@ export function CodigoCatalogEspecialForm({
   const [searchEmployee, setSearchEmployee] = useState<string | undefined>(
     undefined,
   );
-  const [cargoEspecifico, setCargoEspecifico] = useState<ApiResponse<Cargo[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [cargo, setCargo] = useState<ApiResponse<Cargo[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [nomina, setNomina] = useState<ApiResponse<Nomina[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
-
-  const [grado, setGrado] = useState<ApiResponse<Grado[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [directionGeneral, setDirectionGeneral] = useState<
-    ApiResponse<DirectionGeneral[]>
-  >({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [directionLine, setDirectionLine] = useState<
-    ApiResponse<DirectionLine[]>
-  >({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [coordination, setCoordination] = useState<ApiResponse<Coordination[]>>(
-    {
-      status: "",
-      message: "",
-      data: [],
-    },
-  );
-  const [organismoAds, setOrganismoAds] = useState<
-    ApiResponse<OrganismosAds[]>
-  >({
-    status: "",
-    message: "",
-    data: [],
-  });
+  const [selecteIdDirectionGeneral, setSelecteIdDirectionGeneral] =
+    useState<string>();
+  const [selecteIdDirectionLine, setSelecteIdDirectionLine] =
+    useState<string>();
+  const [selecteIdCoordination, setSelecteIdCoordination] = useState<string>();
   const [employee, setEmployee] = useState<EmployeeInfo | []>();
 
   const loadEmployee = async () => {
@@ -129,50 +86,7 @@ export function CodigoCatalogEspecialForm({
     useState<boolean>(false);
   const [activeCoordination, setActiveCoordination] = useState<boolean>(false);
   const [isPending, startTransition] = useTransition();
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [
-          denominacionCargoEspecifico,
-          denominacionCargo,
-          tipoNomina,
-          grado,
-          directionGeneral,
-          organismoAds,
-        ] = await Promise.all([
-          getCargoEspecifico(),
-          getCargo(),
-          getNominaEspecial(),
-          getGrado(),
-          getDirectionGeneral(),
-          getOrganismosAds(),
-        ]);
 
-        if (Array.isArray(denominacionCargoEspecifico.data)) {
-          setCargoEspecifico(denominacionCargoEspecifico);
-        }
-        if (Array.isArray(denominacionCargo.data)) {
-          setCargo(denominacionCargo);
-        }
-        if (Array.isArray(tipoNomina.data)) {
-          setNomina(tipoNomina);
-        }
-        if (Array.isArray(grado.data)) {
-          setGrado(grado);
-        }
-        if (Array.isArray(directionGeneral.data)) {
-          setDirectionGeneral(directionGeneral);
-        }
-        if (Array.isArray(organismoAds.data)) {
-          setOrganismoAds(organismoAds);
-        }
-      } catch {
-        toast.error("Error cargando datos:");
-      }
-    };
-
-    loadData();
-  });
   const validateDirectionLine = () => {
     if (!activeDirectionLine) form.setValue("DireccionLinea", 0);
   };
@@ -181,6 +95,38 @@ export function CodigoCatalogEspecialForm({
       form.setValue("Coordinacion", 0);
     }
   };
+
+  const { data: cargoEspecifico, isLoading: isLoadingCargoEspecifico } = useSWR(
+    "cargoEspecifico",
+    async () => await getCargoEspecifico(),
+  );
+  const { data: cargo, isLoading: isLoadingCargo } = useSWR("cargo", async () =>
+    getCargo(),
+  );
+  const { data: nomina, isLoading: isLoadingNomina } = useSWR(
+    "nomina",
+    async () => getNominaEspecial(),
+  );
+  const { data: directionGeneral, isLoading: isLoadingDirectionGeneral } =
+    useSWR("directionGeneral", async () => await getDirectionGeneral());
+  const { data: directionLine, isLoading: isLoadingDirectionLine } = useSWR(
+    selecteIdDirectionGeneral
+      ? ["directionLine", selecteIdDirectionGeneral]
+      : "",
+    async () => await getDirectionLine(selecteIdDirectionGeneral!),
+  );
+  const { data: coordination, isLoading: isLoadingCoordination } = useSWR(
+    selecteIdDirectionLine ? ["coordination", selecteIdDirectionLine] : null,
+    async () => await getCoordination(selecteIdDirectionLine!),
+  );
+  const { data: grado, isLoading: isLoadingGrado } = useSWR(
+    "grado",
+    async () => await getGrado(),
+  );
+  const { data: organismoAds, isLoading: isLoadingOrganismoAds } = useSWR(
+    "organismoAds",
+    async () => await getOrganismosAds(),
+  );
   const form = useForm({
     resolver: zodResolver(schemaCodeEspecial),
     defaultValues: {
@@ -195,14 +141,7 @@ export function CodigoCatalogEspecialForm({
       Coordinacion: 0,
     },
   });
-  const getByDirectionLine = async (id: string) => {
-    const directionLine = await getDirectionLine(id);
-    if (Array.isArray(directionLine.data)) setDirectionLine(directionLine);
-  };
-  const getByCoordination = async (id: string) => {
-    const coordination = await getCoordination(id);
-    if (Array.isArray(coordination.data)) setCoordination(coordination);
-  };
+
   async function onSubmit(data: z.infer<typeof schemaCodeEspecial>) {
     startTransition(async () => {
       try {
@@ -287,14 +226,12 @@ export function CodigoCatalogEspecialForm({
                       <FormControl>
                         <SelectTrigger className="w-full truncate">
                           <SelectValue
-                            placeholder={
-                              "Seleccione una Denominacion De Cargo Especifico"
-                            }
+                            placeholder={`${isLoadingCargoEspecifico ? "Cargando Cargos Especificos" : "Seleccione una Denominacion De Cargo Especifico"}`}
                           />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {cargoEspecifico.data.map((cargo, i) => (
+                        {cargoEspecifico?.data.map((cargo, i) => (
                           <SelectItem key={i} value={`${cargo.id}`}>
                             {cargo.cargo}
                           </SelectItem>
@@ -319,12 +256,12 @@ export function CodigoCatalogEspecialForm({
                       <FormControl>
                         <SelectTrigger className="w-full truncate">
                           <SelectValue
-                            placeholder={"Seleccione una Denominacion De Cargo"}
+                            placeholder={`${isLoadingCargo ? "Cargando Cargos" : "Seleccione una Denominacion De Cargo"}`}
                           />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {cargo.data.map((cargo, i) => (
+                        {cargo?.data.map((cargo, i) => (
                           <SelectItem key={i} value={`${cargo.id}`}>
                             {cargo.cargo}
                           </SelectItem>
@@ -350,12 +287,12 @@ export function CodigoCatalogEspecialForm({
                       <FormControl>
                         <SelectTrigger className="w-full truncate">
                           <SelectValue
-                            placeholder={"Seleccione un Tipo de Nomina"}
+                            placeholder={`${isLoadingNomina ? "Cargando Nominas" : "Seleccione un Tipo de Nomina"}`}
                           />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {nomina.data.map((nomina, i) => (
+                        {nomina?.data.map((nomina, i) => (
                           <SelectItem key={i} value={`${nomina.id}`}>
                             {nomina.nomina}
                           </SelectItem>
@@ -379,11 +316,13 @@ export function CodigoCatalogEspecialForm({
                     >
                       <FormControl>
                         <SelectTrigger className="w-full truncate">
-                          <SelectValue placeholder={"Seleccione un Grado"} />
+                          <SelectValue
+                            placeholder={`${isLoadingGrado ? "Cargando Grados" : "Seleccione un Grado"}`}
+                          />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {grado.data.map((grado, i) => (
+                        {grado?.data.map((grado, i) => (
                           <SelectItem key={i} value={`${grado.id}`}>
                             {grado.grado}
                           </SelectItem>
@@ -408,12 +347,12 @@ export function CodigoCatalogEspecialForm({
                       <FormControl>
                         <SelectTrigger className="w-full truncate">
                           <SelectValue
-                            placeholder={"Seleccione Un Organismo Adscrito"}
+                            placeholder={`${isLoadingGrado ? "Cargando Organismos Adscritos" : "Seleccione Un Organismo Adscrito"}`}
                           />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {organismoAds.data.map((org, i) => (
+                        {organismoAds?.data.map((org, i) => (
                           <SelectItem key={i} value={`${org.id}`}>
                             {org.id}-{org.Organismoadscrito}
                           </SelectItem>
@@ -436,25 +375,19 @@ export function CodigoCatalogEspecialForm({
                     <Select
                       onValueChange={(values) => {
                         field.onChange(Number.parseInt(values));
-                        getByDirectionLine(values);
+                        setSelecteIdDirectionLine(values);
                       }}
                     >
                       <FormControl>
                         <SelectTrigger className="w-full truncate">
                           <SelectValue
-                            placeholder={"Seleccione una Dirección General"}
+                            placeholder={`${isLoadingDirectionGeneral ? "Cargando Direccion Generales" : "Seleccione una Dirección General"}`}
                           />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {directionGeneral.data.map((general, i) => (
-                          <SelectItem
-                            key={i}
-                            value={`${general.id}`}
-                            onClick={() =>
-                              getByDirectionLine(general.id.toString())
-                            }
-                          >
+                        {directionGeneral?.data.map((general, i) => (
+                          <SelectItem key={i} value={`${general.id}`}>
                             {general.Codigo}-{general.direccion_general}
                           </SelectItem>
                         ))}
@@ -486,27 +419,19 @@ export function CodigoCatalogEspecialForm({
                         <Select
                           onValueChange={(values) => {
                             field.onChange(Number.parseInt(values));
-                            getByCoordination(values);
+                            setSelecteIdCoordination(values);
                           }}
                         >
                           <FormControl>
                             <SelectTrigger className="w-full truncate">
                               <SelectValue
-                                placeholder={
-                                  "Seleccione una Dirección De Linea"
-                                }
+                                placeholder={`${isLoadingDirectionLine ? "Cargando Direccioens De Linea" : "Seleccione una Dirección De Linea"}`}
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {directionLine.data.map((line, i) => (
-                              <SelectItem
-                                key={i}
-                                value={`${line.id}`}
-                                onClick={() =>
-                                  getByCoordination(line.id.toString())
-                                }
-                              >
+                            {directionLine?.data.map((line, i) => (
+                              <SelectItem key={i} value={`${line.id}`}>
                                 {line.Codigo}-{line.direccion_linea}
                               </SelectItem>
                             ))}
@@ -545,12 +470,12 @@ export function CodigoCatalogEspecialForm({
                           <FormControl>
                             <SelectTrigger className="w-full truncate">
                               <SelectValue
-                                placeholder={"Seleccione una Coordinación"}
+                                placeholder={`${isLoadingCoordination ? "Cargando Coordinaciones" : "Seleccione una Coordinación"}`}
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {coordination.data.map((coord, i) => (
+                            {coordination?.data.map((coord, i) => (
                               <SelectItem key={i} value={`${coord.id}`}>
                                 {coord.Codigo}-{coord.coordinacion}
                               </SelectItem>
