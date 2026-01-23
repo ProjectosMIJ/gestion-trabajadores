@@ -198,11 +198,20 @@ class TipoNominaGeneralSerializer(serializers.ModelSerializer):
             'requiere_codig'
             
         ]
-        
+     
+class DependenciaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Dependencias
+        fields = '__all__'   
 class DireccionGeneralSerializer(serializers.ModelSerializer):
+    dependencia = DependenciaSerializer(source='dependenciaId',read_only=True)
     class Meta:
         model = DireccionGeneral
-        fields = '__all__' 
+        fields = [
+            'id',
+            'direccion_general',
+            'dependencia'
+        ]
     
     def validate_direccion_general(self,value):
         value = value.upper()
@@ -369,6 +378,7 @@ class CodigosListerSerializer(serializers.ModelSerializer):
     grado = gradoSerializer(source = 'gradoid',read_only = True)
     tiponomina= TipoNominaSerializer(source = 'tiponominaid',read_only = True)
     OrganismoAdscrito = OrganismoAdscritoSerializer(source='OrganismoAdscritoid',read_only = True)
+    
     DireccionGeneral = DireccionGeneralSerializer(read_only = True)
     DireccionLinea = DireccionLineaSerializer(read_only = True)
     Coordinacion = CoordinacionSerializer(read_only = True)
@@ -393,15 +403,7 @@ class CodigosListerSerializer(serializers.ModelSerializer):
             'fecha_actualizacion',
         ]
         
-    def to_representation(self, instance):
-        
-        representation = super().to_representation(instance)
-        
-            
-        for key, value in representation.items():
-            if value is None:
-                representation[key] = ''
-        return representation
+
     
     
 # ....................
@@ -613,11 +615,11 @@ class EmployeeCargoSerializer(serializers.ModelSerializer):
         vivienda = obj.datos_vivienda_set.first()
         if not vivienda: return None
         return {
-            "estado": EstadoSerializer(vivienda.estado_id).data,
+            "estado": EstadoSerializer(vivienda.estado_id).data ,
             "municipio": MunicipioSerializer(vivienda.municipio_id).data,
             "parroquia": ParroquiaSerializer(vivienda.parroquia).data,
             "direccionExacta": vivienda.direccion_exacta,
-            "condicion": vivienda.condicion_vivienda_id.condicion if vivienda.condicion_vivienda_id else ""
+            "condicion": vivienda.condicion_vivienda_id.condicion if vivienda.condicion_vivienda_id else None
         }
 
     def get_perfil_salud(self, obj):
@@ -657,9 +659,7 @@ class EmployeeCargoSerializer(serializers.ModelSerializer):
         if asignaciones_data is not None and len(asignaciones_data) == 0:
             pass
            
-        for key, value in representation.items():
-            if value is None:
-                representation[key] = ''
+        
         
         return representation
 
@@ -693,18 +693,18 @@ class EmployeeListarDataSerializer(serializers.ModelSerializer):
         vivienda = obj.datos_vivienda_set.first()
         if not vivienda: return None
         return {
-            "estado": EstadoSerializer(vivienda.estado_id).data if vivienda.estado_id else "",
-            "municipio": MunicipioSerializer(vivienda.municipio_id).data if vivienda.municipio_id else "",
-            "parroquia": ParroquiaSerializer(vivienda.parroquia).data if vivienda.parroquia else "",
+            "estado": EstadoSerializer(vivienda.estado_id).data if vivienda.estado_id else None,
+            "municipio": MunicipioSerializer(vivienda.municipio_id).data if vivienda.municipio_id else None,
+            "parroquia": ParroquiaSerializer(vivienda.parroquia).data if vivienda.parroquia else None,
             "direccionExacta": vivienda.direccion_exacta,
-            "condicion": vivienda.condicion_vivienda_id.condicion if vivienda.condicion_vivienda_id else ""
+            "condicion": vivienda.condicion_vivienda_id.condicion if vivienda.condicion_vivienda_id else None
         }
 
     def get_perfil_salud(self, obj):
         salud = obj.perfil_salud_set.first()
         if not salud: return None
         return {
-            "grupoSanguineo": GrupoSanguineoSerializer(salud.grupoSanguineo).data if salud.grupoSanguineo else "",
+            "grupoSanguineo": GrupoSanguineoSerializer(salud.grupoSanguineo).data if salud.grupoSanguineo else None,
             "discapacidad": DiscapacidadSerializer(salud.discapacidad,many=True).data,
             "patologiasCronicas": PatologiasSerializer(salud.patologiaCronica, many=True).data
         }
@@ -713,28 +713,23 @@ class EmployeeListarDataSerializer(serializers.ModelSerializer):
         fisico = obj.perfil_fisico_set.first()
         if not fisico: return None
         return {
-            "tallaCamisa": TallaCamisaSerializer(fisico.tallaCamisa).data if fisico.tallaCamisa else "",
-            "tallaPantalon": Talla_PantalonSerializer(fisico.tallaPantalon).data if fisico.tallaPantalon else "",
-            "tallaZapatos": Talla_ZapatosSerializer(fisico.tallaZapatos).data if fisico.tallaZapatos else ""
+            "tallaCamisa": TallaCamisaSerializer(fisico.tallaCamisa).data if fisico.tallaCamisa else None,
+            "tallaPantalon": Talla_PantalonSerializer(fisico.tallaPantalon).data if fisico.tallaPantalon else None,
+            "tallaZapatos": Talla_ZapatosSerializer(fisico.tallaZapatos).data if fisico.tallaZapatos else None
         }
 
     def get_formacion_academica(self, obj):
         formacion = obj.formacion_academica_set.first()
         if not formacion: return None
         return {
-            "nivelAcademico": NivelAcademicoSerializer(formacion.nivel_Academico_id).data if formacion.nivel_Academico_id else "",
+            "nivelAcademico": NivelAcademicoSerializer(formacion.nivel_Academico_id).data if formacion.nivel_Academico_id else None,
             "institucion": formacion.institucion,
             "capacitacion": formacion.capacitacion,
-            "carrera": CarrerasSerializer(formacion.carrera_id).data if formacion.carrera_id else "",
-            "mencion": MencionSerializer(formacion.mencion_id).data if formacion.mencion_id else ""
+            "carrera": CarrerasSerializer(formacion.carrera_id).data if formacion.carrera_id else None,
+            "mencion": MencionSerializer(formacion.mencion_id).data if formacion.mencion_id else None
         }
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        for key, value in representation.items():
-            if value is None:
-                representation[key] = ''
-        return representation
+
 # # -------------------------------
 # serializer para asignar codigo 
 # -------------------------------
