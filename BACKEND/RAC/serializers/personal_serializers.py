@@ -599,6 +599,7 @@ class EmployeeCargoSerializer(serializers.ModelSerializer):
             'apellidos', 
             'profile',
             'fecha_nacimiento', 
+            'fechaingresoorganismo',
             'n_contrato', 
             'sexo', 
             'estadoCivil', 
