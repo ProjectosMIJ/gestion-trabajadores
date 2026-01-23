@@ -3,11 +3,12 @@
 import {
   getEmployeeInfo,
   getNominaPasivo,
+  getReasonLeaving,
   getStatusEmployee,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
 import GestionAction from "@/app/(protected)/dashboard/gestion-trabajadores/personal/cambiar-pasivo/actions/gestion-persona-action";
 import { schemaPasivo } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/cambiar-pasivo/schema/schemaPasivo";
-import { ApiResponse, EmployeeInfo, Nomina, Status } from "@/app/types/types";
+import { EmployeeInfo } from "@/app/types/types";
 import {
   Select,
   SelectContent,
@@ -17,9 +18,10 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlert, Search } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
+import useSWR from "swr";
 import z from "zod";
 import { Button } from "../../../../../../components/ui/button";
 import {
@@ -38,7 +40,6 @@ import {
 import { Input } from "../../../../../../components/ui/input";
 import { Label } from "../../../../../../components/ui/label";
 import { Switch } from "../../../../../../components/ui/switch";
-import { Textarea } from "../../../../../../components/ui/textarea";
 export function PasivoForm() {
   const [searchEmployee, setSearchEmployee] = useState<string | undefined>(
     undefined,
@@ -46,44 +47,26 @@ export function PasivoForm() {
 
   const [employee, setEmployee] = useState<EmployeeInfo | []>();
   const [isPending, startTransition] = useTransition();
-  const [statusEmployee, setStatusEmployee] = useState<ApiResponse<Status[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [nominaPasivo, setNominaPasivo] = useState<ApiResponse<Nomina[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [statusEmployee, nominaPasivo] = await Promise.all([
-          getStatusEmployee(),
-          getNominaPasivo(),
-        ]);
-        if (Array.isArray(statusEmployee.data)) {
-          setStatusEmployee(statusEmployee);
-        }
-        if (Array.isArray(nominaPasivo.data)) {
-          setNominaPasivo(nominaPasivo);
-        }
-      } catch (error) {
-        console.error("Error cargando datos:", error);
-      }
-    };
-
-    loadData();
-  }, []);
+  const { data: nominaPasivo, isLoading: isLoadingNominaPasivo } = useSWR(
+    "nominaPasivo",
+    async () => await getNominaPasivo(),
+  );
+  const { data: statusEmployee, isLoading: isLoadingStatusEmployee } = useSWR(
+    "statusEmployee",
+    async () => await getStatusEmployee(),
+  );
+  const { data: reasonLeaving, isLoading: isLoadingReasonLeaving } = useSWR(
+    "reasonLeaving",
+    async () => await getReasonLeaving(),
+  );
 
   const form = useForm({
     resolver: zodResolver(schemaPasivo),
     defaultValues: {
       estatus_id: 0,
       usuario_id: 0,
-      motivo: "",
+      motivo: 0,
       tiponominaid: 0,
       codigo_nuevo: "",
       liberar_activos: false,
@@ -115,7 +98,7 @@ export function PasivoForm() {
     name: "estatus_id",
   });
   const validatePeace =
-    estatusId === statusEmployee.data.find((v) => v.estatus === "PASIVO")?.id;
+    estatusId === statusEmployee?.data.find((v) => v.estatus === "PASIVO")?.id;
   return (
     <>
       <Card>
@@ -149,7 +132,7 @@ export function PasivoForm() {
                     name="estatus_id"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Listado De Codigos Disponibles</FormLabel>
+                        <FormLabel>Egresado/Pasivo</FormLabel>
                         <Select
                           onValueChange={(values) => {
                             field.onChange(Number.parseInt(values));
@@ -158,12 +141,12 @@ export function PasivoForm() {
                           <FormControl>
                             <SelectTrigger className="w-full truncate">
                               <SelectValue
-                                placeholder={"Seleccione Un Codigo"}
+                                placeholder={`${isLoadingStatusEmployee ? "Cargando Listado" : "Seleccione Un Item"}  `}
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {statusEmployee.data.map((status, i) => (
+                            {statusEmployee?.data.map((status, i) => (
                               <SelectItem key={i} value={`${status.id}`}>
                                 {status.estatus}
                               </SelectItem>
@@ -193,12 +176,12 @@ export function PasivoForm() {
                               <FormControl>
                                 <SelectTrigger className="w-full truncate">
                                   <SelectValue
-                                    placeholder={"Seleccione Una Nomina"}
+                                    placeholder={`${isLoadingNominaPasivo ? "Cargando Nominas" : "Seleccione Una Nomina"}`}
                                   />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {nominaPasivo.data.map((nomina, i) => (
+                                {nominaPasivo?.data.map((nomina, i) => (
                                   <SelectItem key={i} value={`${nomina.id}`}>
                                     {nomina.nomina}
                                   </SelectItem>
@@ -242,17 +225,28 @@ export function PasivoForm() {
                     name="motivo"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Motivo</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            id="observaciones"
-                            placeholder="Describa el motivo del cambio de código..."
-                            value={field.value}
-                            onChange={field.onChange}
-                            className="mt-1"
-                            rows={4}
-                          />
-                        </FormControl>
+                        <FormLabel>Motivo De Cambio De Cargo</FormLabel>
+                        <Select
+                          onValueChange={(values) => {
+                            field.onChange(Number.parseInt(values));
+                          }}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full truncate">
+                              <SelectValue
+                                placeholder={`${isLoadingReasonLeaving ? "Cargando Motivos De Cambio De Cargo" : "Seleccione Un Codigo"}`}
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {reasonLeaving?.data.map((reason, i) => (
+                              <SelectItem key={i} value={`${reason.id}`}>
+                                {reason.movimiento}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+
                         <FormMessage />
                       </FormItem>
                     )}

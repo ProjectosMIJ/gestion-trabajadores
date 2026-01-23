@@ -1,6 +1,34 @@
 "use client";
 
+import {
+  getCodeByCoordination,
+  getCodeByDirectionGeneral,
+  getCodeByDirectionLine,
+  getCoordination,
+  getDirectionGeneral,
+  getDirectionLine,
+  getEmployeeInfo,
+} from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
+import { AsignCode } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/asignar-codigo/actions/asign-code";
+import { schemaAsignCode } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/asignar-codigo/schema/schema-asign-code";
+import { ApiResponse, Code, EmployeeInfo } from "@/app/types/types";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { CircleAlert, Search } from "lucide-react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
+import useSWR from "swr";
+import z from "zod";
+import { Button } from "../../../../../../components/ui/button";
 import {
   Card,
   CardContent,
@@ -14,44 +42,9 @@ import {
   FormLabel,
   FormMessage,
 } from "../../../../../../components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { schemaAsignCode } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/asignar-codigo/schema/schema-asign-code";
 import { Input } from "../../../../../../components/ui/input";
 import { Label } from "../../../../../../components/ui/label";
-import { Button } from "../../../../../../components/ui/button";
-import { CircleAlert, Search } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
-import { toast } from "sonner";
-import {
-  getCodeByCoordination,
-  getCodeByDirectionGeneral,
-  getCodeByDirectionLine,
-  getCoordination,
-  getDirectionGeneral,
-  getDirectionLine,
-  getEmployeeInfo,
-} from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import {
-  ApiResponse,
-  Code,
-  Coordination,
-  DirectionGeneral,
-  DirectionLine,
-  EmployeeInfo,
-} from "@/app/types/types";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Spinner } from "../../../../../../components/ui/spinner";
-import z from "zod";
-import { AsignCode } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/asignar-codigo/actions/asign-code";
-import useSWR from "swr";
 export function AsigCode() {
   const [searchEmployee, setSearchEmployee] = useState<string | undefined>(
     undefined,
@@ -92,6 +85,18 @@ export function AsigCode() {
     const code = await getCodeByCoordination(id);
     setSelectedCode(code);
   };
+  const loadEmployee = async () => {
+    if (searchEmployee) {
+      const getEmployee = await getEmployeeInfo(searchEmployee);
+      setEmployee(getEmployee.data);
+    }
+  };
+
+  const validateEmployee = () => {
+    if (employee && !Array.isArray(employee)) {
+      form.setValue("employee", employee.cedulaidentidad);
+    }
+  };
 
   const form = useForm({
     resolver: zodResolver(schemaAsignCode),
@@ -100,12 +105,6 @@ export function AsigCode() {
       employee: "",
     },
   });
-  const loadEmployee = async () => {
-    if (searchEmployee) {
-      const getEmployee = await getEmployeeInfo(searchEmployee);
-      setEmployee(getEmployee.data);
-    }
-  };
 
   const onSubmit = (data: z.infer<typeof schemaAsignCode>) => {
     startTransition(async () => {
@@ -118,12 +117,6 @@ export function AsigCode() {
         toast.error(response.message);
       }
     });
-  };
-
-  const validateEmployee = () => {
-    if (employee && !Array.isArray(employee)) {
-      form.setValue("employee", employee.cedulaidentidad);
-    }
   };
   return (
     <>

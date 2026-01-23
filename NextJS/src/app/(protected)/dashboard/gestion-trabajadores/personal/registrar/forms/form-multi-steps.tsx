@@ -182,9 +182,9 @@ export default function MultiStepForm() {
     startTransition(async () => {
       const message = await registerEmployeeSteps(output);
       if (message.success) {
-        toast(message.message);
+        toast.success(message.message);
       } else {
-        toast(message.message);
+        toast.error(message.message);
       }
     });
   }, []);

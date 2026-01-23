@@ -52,97 +52,19 @@ import {
 } from "../../../../../../components/ui/form";
 import { Spinner } from "../../../../../../components/ui/spinner";
 import { Switch } from "../../../../../../components/ui/switch";
+import useSWR from "swr";
 
 interface CodigoCatalogFormProps {
   onSuccess?: (bool: boolean) => true | false;
 }
 
 export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
-  const [cargoEspecifico, setCargoEspecifico] = useState<ApiResponse<Cargo[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [cargo, setCargo] = useState<ApiResponse<Cargo[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [nomina, setNomina] = useState<ApiResponse<Nomina[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
-
-  const [grado, setGrado] = useState<ApiResponse<Grado[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [directionGeneral, setDirectionGeneral] = useState<
-    ApiResponse<DirectionGeneral[]>
-  >({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [directionLine, setDirectionLine] = useState<
-    ApiResponse<DirectionLine[]>
-  >({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [coordination, setCoordination] = useState<ApiResponse<Coordination[]>>(
-    {
-      status: "",
-      message: "",
-      data: [],
-    },
-  );
   const [activeDirectionLine, setActiveDirectionLine] =
     useState<boolean>(false);
   const [activeCoordination, setActiveCoordination] = useState<boolean>(false);
   const [isPending, startTransition] = useTransition();
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [
-          denominacionCargoEspecifico,
-          denominacionCargo,
-          tipoNomina,
-          grado,
-          directionGeneral,
-        ] = await Promise.all([
-          getCargoEspecifico(),
-          getCargo(),
-          getNomina(),
-          getGrado(),
-          getDirectionGeneral(),
-        ]);
-
-        if (Array.isArray(denominacionCargoEspecifico.data)) {
-          setCargoEspecifico(denominacionCargoEspecifico);
-        }
-        if (Array.isArray(denominacionCargo.data)) {
-          setCargo(denominacionCargo);
-        }
-        if (Array.isArray(tipoNomina.data)) {
-          setNomina(tipoNomina);
-        }
-        if (Array.isArray(grado.data)) {
-          setGrado(grado);
-        }
-        if (Array.isArray(directionGeneral.data)) {
-          setDirectionGeneral(directionGeneral);
-        }
-      } catch (error) {
-        console.error("Error cargando datos:", error);
-      }
-    };
-
-    loadData();
-  }, []);
+  const [directionGeneralId, setDirectionGeneralId] = useState<string>();
+  const [directionLinelId, setDirectionLineId] = useState<string>();
 
   const validateDirectionLine = () => {
     if (!activeDirectionLine) form.setValue("DireccionLinea", 0);
@@ -165,14 +87,32 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
       Coordinacion: 0,
     },
   });
-  const getByDirectionLine = async (id: string) => {
-    const directionLine = await getDirectionLine(id);
-    if (Array.isArray(directionLine.data)) setDirectionLine(directionLine);
-  };
-  const getByCoordination = async (id: string) => {
-    const coordination = await getCoordination(id);
-    if (Array.isArray(coordination.data)) setCoordination(coordination);
-  };
+  const { data: cargoEspecifico, isLoading: isLoadingCargoEspecifico } = useSWR(
+    "cargoEspecifico",
+    async () => await getCargoEspecifico(),
+  );
+  const { data: cargo, isLoading: isLoadingCargo } = useSWR(
+    "cargo",
+    async () => await getCargo(),
+  );
+  const { data: nomina, isLoading: isLoadingNomina } = useSWR(
+    "nomina",
+    async () => await getNomina(),
+  );
+  const { data: grado, isLoading: isLoadingGrado } = useSWR("grado", async () =>
+    getGrado(),
+  );
+  const { data: directionGeneral, isLoading: isLoadingDirectionGeneral } =
+    useSWR("directionGeneral", async () => await getDirectionGeneral());
+  const { data: directionLine, isLoading: isLoadingDirectionLine } = useSWR(
+    directionGeneralId ? ["directionLine", directionGeneralId] : null,
+    async () => await getDirectionLine(directionGeneralId!),
+  );
+  const { data: coordination, isLoading: isLoadingCoordination } = useSWR(
+    directionLinelId ? ["coordination", directionLinelId] : null,
+    async () => await getCoordination(directionGeneralId!),
+  );
+
   async function onSubmit(data: z.infer<typeof schemaCode>) {
     startTransition(async () => {
       try {
@@ -245,14 +185,12 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
                           <FormControl>
                             <SelectTrigger className="w-full truncate">
                               <SelectValue
-                                placeholder={
-                                  "Seleccione una Denominacion De Cargo Especifico"
-                                }
+                                placeholder={`${isLoadingCargoEspecifico ? "Cargando Cargos Especificos" : "Seleccione una Denominacion De Cargo Especifico"}`}
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {cargoEspecifico.data.map((cargo, i) => (
+                            {cargoEspecifico?.data.map((cargo, i) => (
                               <SelectItem key={i} value={`${cargo.id}`}>
                                 {cargo.cargo}
                               </SelectItem>
@@ -277,14 +215,12 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
                           <FormControl>
                             <SelectTrigger className="w-full truncate">
                               <SelectValue
-                                placeholder={
-                                  "Seleccione una Denominacion De Cargo"
-                                }
+                                placeholder={`${isLoadingCargo ? "Cargando Denominaciones De Cargo" : "Seleccione una Denominacion De Cargo"}`}
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {cargo.data.map((cargo, i) => (
+                            {cargo?.data.map((cargo, i) => (
                               <SelectItem key={i} value={`${cargo.id}`}>
                                 {cargo.cargo}
                               </SelectItem>
@@ -310,12 +246,12 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
                           <FormControl>
                             <SelectTrigger className="w-full truncate">
                               <SelectValue
-                                placeholder={"Seleccione un Tipo de Nomina"}
+                                placeholder={`${isLoadingNomina ? "Cargando Nominas" : "Seleccione un Tipo de Nomina"}`}
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {nomina.data.map((nomina, i) => (
+                            {nomina?.data.map((nomina, i) => (
                               <SelectItem key={i} value={`${nomina.id}`}>
                                 {nomina.nomina}
                               </SelectItem>
@@ -340,12 +276,12 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
                           <FormControl>
                             <SelectTrigger className="w-full truncate">
                               <SelectValue
-                                placeholder={"Seleccione un Grado"}
+                                placeholder={`${isLoadingGrado ? "Cargando Grados" : "Seleccione un Grado"}`}
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {grado.data.map((grado, i) => (
+                            {grado?.data.map((grado, i) => (
                               <SelectItem key={i} value={`${grado.id}`}>
                                 {grado.grado}
                               </SelectItem>
@@ -368,25 +304,19 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
                         <Select
                           onValueChange={(values) => {
                             field.onChange(Number.parseInt(values));
-                            getByDirectionLine(values);
+                            setDirectionGeneralId(values);
                           }}
                         >
                           <FormControl>
                             <SelectTrigger className="w-full truncate">
                               <SelectValue
-                                placeholder={"Seleccione una Dirección General"}
+                                placeholder={`${isLoadingDirectionGeneral ? "Cargando Direcciones Generales" : "Seleccione una Dirección General"}`}
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {directionGeneral.data.map((general, i) => (
-                              <SelectItem
-                                key={i}
-                                value={`${general.id}`}
-                                onClick={() =>
-                                  getByDirectionLine(general.id.toString())
-                                }
-                              >
+                            {directionGeneral?.data.map((general, i) => (
+                              <SelectItem key={i} value={`${general.id}`}>
                                 {general.Codigo}-{general.direccion_general}
                               </SelectItem>
                             ))}
@@ -407,7 +337,7 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
                       </FormItem>
                     )}
                   />
-                  {activeDirectionLine && directionLine.data.length > 0 && (
+                  {activeDirectionLine && directionLine?.data?.length! > 0 && (
                     <>
                       <FormField
                         control={form.control}
@@ -418,27 +348,19 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
                             <Select
                               onValueChange={(values) => {
                                 field.onChange(Number.parseInt(values));
-                                getByCoordination(values);
+                                setDirectionLineId(values);
                               }}
                             >
                               <FormControl>
                                 <SelectTrigger className="w-full truncate">
                                   <SelectValue
-                                    placeholder={
-                                      "Seleccione una Dirección De Linea"
-                                    }
+                                    placeholder={`${isLoadingDirectionLine ? "Cargando Direcciones De Linea" : "Seleccione una Dirección De Linea"}`}
                                   />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {directionLine.data.map((line, i) => (
-                                  <SelectItem
-                                    key={i}
-                                    value={`${line.id}`}
-                                    onClick={() =>
-                                      getByCoordination(line.id.toString())
-                                    }
-                                  >
+                                {directionLine?.data.map((line, i) => (
+                                  <SelectItem key={i} value={`${line.id}`}>
                                     {line.Codigo}-{line.direccion_linea}
                                   </SelectItem>
                                 ))}
@@ -459,7 +381,7 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
                           </FormItem>
                         )}
                       />
-                      {activeCoordination && coordination.data.length > 0 && (
+                      {activeCoordination && coordination?.data.length! > 0 && (
                         <>
                           <FormField
                             control={form.control}
@@ -475,14 +397,12 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
                                   <FormControl>
                                     <SelectTrigger className="w-full truncate">
                                       <SelectValue
-                                        placeholder={
-                                          "Seleccione una Coordinación"
-                                        }
+                                        placeholder={`${isLoadingCoordination ? "Cargando Coordinaciones" : "Seleccione una Coordinación"}`}
                                       />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    {coordination.data.map((coord, i) => (
+                                    {coordination?.data.map((coord, i) => (
                                       <SelectItem key={i} value={`${coord.id}`}>
                                         {coord.Codigo}-{coord.coordinacion}
                                       </SelectItem>

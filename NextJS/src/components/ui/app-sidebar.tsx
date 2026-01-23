@@ -46,7 +46,7 @@ const items = [
   {
     permission: {
       roleAccept: ["basic", "admin"],
-      departmentAccept: ["oac"],
+      departmentAccept: ["RAC"],
     },
     title: "Personal Trabajador",
     url: "#",
@@ -73,7 +73,7 @@ const items = [
   {
     permission: {
       roleAccept: ["basic", "admin"],
-      departmentAccept: ["oac"],
+      departmentAccept: ["RAC"],
     },
     title: "Dependencias",
     url: "#",
@@ -99,7 +99,7 @@ const items = [
   {
     permission: {
       roleAccept: ["basic", "admin"],
-      departmentAccept: ["oac"],
+      departmentAccept: ["RAC"],
     },
     title: "Gestion De Codigos",
     url: "#",
@@ -120,7 +120,7 @@ const items = [
   {
     permission: {
       roleAccept: ["basic", "admin"],
-      departmentAccept: ["oac"],
+      departmentAccept: ["RAC"],
     },
     title: "Movimientos",
     url: "#",

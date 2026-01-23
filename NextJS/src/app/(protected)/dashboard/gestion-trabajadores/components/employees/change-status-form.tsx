@@ -2,11 +2,12 @@
 
 import {
   getEmployeeById,
+  getInternalReason,
   getStatusNomina,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
 import ChangeStatusAction from "@/app/(protected)/dashboard/gestion-trabajadores/personal/cambiar-estatus/actions/actions-change-status";
 import { schemaStatusChange } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/cambiar-estatus/schema/schemaChangeStatus";
-import { ApiResponse, EmployeeData, Status } from "@/app/types/types";
+import { ApiResponse, EmployeeData } from "@/app/types/types";
 import {
   Select,
   SelectContent,
@@ -16,9 +17,10 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlert, Search } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import useSWR from "swr";
 import z from "zod";
 import { Button } from "../../../../../../components/ui/button";
 import {
@@ -37,43 +39,29 @@ import {
 import { Input } from "../../../../../../components/ui/input";
 import { Label } from "../../../../../../components/ui/label";
 import { Spinner } from "../../../../../../components/ui/spinner";
-import { Textarea } from "../../../../../../components/ui/textarea";
 export function ChangeStatusForm() {
   const [searchEmployee, setSearchEmployee] = useState<string | undefined>(
     undefined,
   );
   const [isLoading, setIsloading] = useState<boolean>(false);
 
-  const [employee, setEmployee] = useState<ApiResponse<EmployeeData>>();
   const [isPending, startTransition] = useTransition();
-  const [statusNomina, setStatusNomina] = useState<ApiResponse<Status[]>>({
-    data: [],
-    message: "",
-    status: "",
-  });
+  const [employee, setEmployee] = useState<ApiResponse<EmployeeData>>();
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const statusNomina = await getStatusNomina();
-
-        if (Array.isArray(statusNomina.data)) {
-          setStatusNomina(statusNomina);
-        }
-      } catch (error) {
-        console.error("Error cargando datos:", error);
-      }
-    };
-
-    loadData();
-  }, []);
-
+  const { data: statusNomina, isLoading: isLoadingStatusNomina } = useSWR(
+    "statusNomina",
+    async () => await getStatusNomina(),
+  );
+  const { data: internalReason, isLoading: isLoadingInternalReason } = useSWR(
+    "motionReason",
+    async () => await getInternalReason(),
+  );
   const form = useForm({
     resolver: zodResolver(schemaStatusChange),
     defaultValues: {
       estatus_id: 0,
       cargo: 0,
-      motivo: "",
+      motivo: 0,
     },
   });
   const loadEmployee = async () => {
@@ -98,7 +86,7 @@ export function ChangeStatusForm() {
         form.reset({
           cargo: 0,
           estatus_id: 0,
-          motivo: "",
+          motivo: 0,
         });
       } else {
         toast.error(response.message);
@@ -121,7 +109,12 @@ export function ChangeStatusForm() {
                 value={searchEmployee}
                 onChange={(e) => setSearchEmployee(e.target.value)}
               />
-              <Button type="button" variant={"outline"} onClick={loadEmployee}>
+              <Button
+                type="button"
+                variant={"outline"}
+                className="cursor-pointer"
+                onClick={loadEmployee}
+              >
                 <Search className="h-4 w-4" />
               </Button>
             </div>
@@ -193,12 +186,12 @@ export function ChangeStatusForm() {
                                   <FormControl>
                                     <SelectTrigger className="w-full truncate">
                                       <SelectValue
-                                        placeholder={"Seleccione Un Codigo"}
+                                        placeholder={`${isLoadingStatusNomina ? "Cargando Estatus De Codigos" : "Seleccione Un Codigo"}`}
                                       />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    {statusNomina.data.map((status, i) => (
+                                    {statusNomina?.data.map((status, i) => (
                                       <SelectItem
                                         key={i}
                                         value={`${status.id}`}
@@ -218,19 +211,31 @@ export function ChangeStatusForm() {
                             name="motivo"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>
-                                  Motivo del Cambio De Estatus
-                                </FormLabel>
-                                <FormControl>
-                                  <Textarea
-                                    id="observaciones"
-                                    placeholder="Describa el motivo del cambio de código..."
-                                    value={field.value}
-                                    onChange={field.onChange}
-                                    className="mt-1"
-                                    rows={4}
-                                  />
-                                </FormControl>
+                                <FormLabel>Motivo De Cambio De Cargo</FormLabel>
+                                <Select
+                                  onValueChange={(values) => {
+                                    field.onChange(Number.parseInt(values));
+                                  }}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger className="w-full truncate">
+                                      <SelectValue
+                                        placeholder={`${isLoadingInternalReason ? "Cargando Motivos De Cambio De Cargo" : "Seleccione Un Codigo"}`}
+                                      />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {internalReason?.data.map((reason, i) => (
+                                      <SelectItem
+                                        key={i}
+                                        value={`${reason.id}`}
+                                      >
+                                        {reason.movimiento}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+
                                 <FormMessage />
                               </FormItem>
                             )}

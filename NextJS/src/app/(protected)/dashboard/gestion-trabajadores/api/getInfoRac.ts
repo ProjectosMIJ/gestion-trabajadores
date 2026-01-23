@@ -17,6 +17,7 @@ import {
   Grado,
   MaritalStatusType,
   Mencion,
+  Motion,
   Municipality,
   Nomina,
   OrganismosAds,
@@ -423,4 +424,26 @@ export const getSex = async (): Promise<ApiResponse<Sex[]>> => {
   );
   const getSex: ApiResponse<Sex[]> = await responseSex.json();
   return getSex;
+};
+
+export const getReasonLeaving = async (): Promise<ApiResponse<Motion[]>> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}motivos/egreso/`,
+  );
+  const getResponse: ApiResponse<Motion[]> = await response.json();
+  return getResponse;
+};
+export const getInternalReason = async (): Promise<ApiResponse<Motion[]>> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}motivos/estatus/`,
+  );
+  const getResponse: ApiResponse<Motion[]> = await response.json();
+  return getResponse;
+};
+export const getMotionReason = async (): Promise<ApiResponse<Motion[]>> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}motivos/movimiento/`,
+  );
+  const getResponse: ApiResponse<Motion[]> = await response.json();
+  return getResponse;
 };
