@@ -343,3 +343,34 @@ def listar_motivos_internos(request):
             "message": f"Error al consultar los motivos internos: {str(e)}",
             "data": []
         }, status=status.HTTP_400_BAD_REQUEST)
+        
+   
+@extend_schema(
+    tags=["Movimientos de Personal"],
+    summary="Tipo de movimientos para cambiar estatus",
+    description="Permite listar los tipos de movimientos para cambiar estatus",
+    request=TipoMovimientoSerializer
+)        
+@api_view(['GET'])
+def listar_suspendido(request):
+
+    try:
+        motivos_nombres = [
+           "SUSPENDIDO POR TRAMITES ADMINISTRATIVOS"
+        ]
+        
+        queryset = Tipo_movimiento.objects.filter(movimiento__in=motivos_nombres).order_by('movimiento')
+        serializer = TipoMovimientoSerializer(queryset, many=True)
+        
+        return Response({
+            "status": "Ok",
+            "message": "Motivos para cambiar estatus listados correctamente",
+            "data": serializer.data
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            "status": "Error",
+            "message": f"Error al consultar los motivos : {str(e)}",
+            "data": []
+        }, status=status.HTTP_400_BAD_REQUEST)

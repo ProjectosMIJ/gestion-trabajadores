@@ -155,7 +155,8 @@ urlpatterns = [
     path('historyEmployee/Estatus/<int:cargo_id>/',views.gestionar_estatus_puesto, name='gestion-puestos'),
    
     path('motivos/egreso/', views.listar_motivos_egreso, name='api-motivos-egreso'),
-    path('motivos/internos/', views.listar_motivos_internos, name='api-motivos-internos'),
+    path('motivos/movimiento/', views.listar_motivos_internos, name='api-motivos-internos'),
+    path('motivos/estatus/', views.listar_suspendido, name='api-motivos-suspendido'),
 
 # ------------------
 # GESTION DE FAMILIARES
