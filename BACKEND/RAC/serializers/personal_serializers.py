@@ -615,40 +615,40 @@ class EmployeeCargoSerializer(serializers.ModelSerializer):
         vivienda = obj.datos_vivienda_set.first()
         if not vivienda: return None
         return {
-            "estado": EstadoSerializer(vivienda.estado_id).data,
-            "municipio": MunicipioSerializer(vivienda.municipio_id).data,
-            "parroquia": ParroquiaSerializer(vivienda.parroquia).data,
+            "estado": EstadoSerializer(vivienda.estado_id).data if vivienda.estado_id else None,
+            "municipio": MunicipioSerializer(vivienda.municipio_id).data if vivienda.municipio_id else None,
+            "parroquia": ParroquiaSerializer(vivienda.parroquia).data if vivienda.parroquia else None,
             "direccionExacta": vivienda.direccion_exacta,
-            "condicion": vivienda.condicion_vivienda_id.condicion if vivienda.condicion_vivienda_id else None
+            "condicion":CondicionViviendaSerializer(vivienda.condicion_vivienda_id).data if vivienda.condicion_vivienda_id else None
         }
 
     def get_perfil_salud(self, obj):
         salud = obj.perfil_salud_set.first()
         if not salud: return None
         return {
-            "grupoSanguineo": GrupoSanguineoSerializer(salud.grupoSanguineo).data,
-            "discapacidad": DiscapacidadSerializer(salud.discapacidad, many=True).data,
-            "patologiasCronicas": PatologiasSerializer(salud.patologiaCronica, many=True).data
+            "grupoSanguineo": GrupoSanguineoSerializer(salud.grupoSanguineo).data if salud.grupoSanguineo else None,
+            "discapacidad": DiscapacidadSerializer(salud.discapacidad, many=True).data if salud.discapacidad else None,
+            "patologiasCronicas": PatologiasSerializer(salud.patologiaCronica, many=True).data if salud.patologiaCronica else None
         }
 
     def get_perfil_fisico(self, obj):
         fisico = obj.perfil_fisico_set.first()
         if not fisico: return None
         return {
-            "tallaCamisa": TallaCamisaSerializer(fisico.tallaCamisa).data,
-            "tallaPantalon": Talla_PantalonSerializer(fisico.tallaPantalon).data,
-            "tallaZapatos": Talla_ZapatosSerializer(fisico.tallaZapatos).data
+            "tallaCamisa": TallaCamisaSerializer(fisico.tallaCamisa).data if fisico.tallaCamisa else None,
+            "tallaPantalon": Talla_PantalonSerializer(fisico.tallaPantalon).data if fisico.tallaPantalon else None,
+            "tallaZapatos": Talla_ZapatosSerializer(fisico.tallaZapatos).data if fisico.tallaZapatos else None
         }
 
     def get_formacion_academica(self, obj):
         formacion = obj.formacion_academica_set.first()
         if not formacion: return None
         return {
-            "nivelAcademico": NivelAcademicoSerializer(formacion.nivel_Academico_id).data,
-            "institucion": formacion.institucion,
-            "capacitacion": formacion.capacitacion,
-            "carrera": CarrerasSerializer(formacion.carrera_id).data ,
-            "mension": MencionSerializer(formacion.mencion_id).data
+            "nivelAcademico": NivelAcademicoSerializer(formacion.nivel_Academico_id).data if formacion.nivel_Academico_id else None,
+            "institucion": formacion.institucion if formacion.institucion else None,
+            "capacitacion": formacion.capacitacion if formacion.capacitacion else None,
+            "carrera": CarrerasSerializer(formacion.carrera_id).data if formacion.carrera_id else None,
+            "mension": MencionSerializer(formacion.mencion_id).data if formacion.mencion_id else None
             
         }
 
