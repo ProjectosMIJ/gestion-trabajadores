@@ -55,7 +55,7 @@ const departments: Department[] = [
     alt: "Sección de seguridad y privacidad.",
   },
   {
-    id: "oac",
+    id: "RAC",
     name: "Gestión de Trabajadores",
     imageSrc: "/images/departments/datos.jpg",
     href: "/dashboard/gestion-trabajadores",

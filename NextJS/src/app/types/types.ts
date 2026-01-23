@@ -292,3 +292,8 @@ export interface Parish {
   id: number;
   parroquia: string;
 }
+
+export interface Motion {
+  id: number;
+  movimiento: string;
+}
