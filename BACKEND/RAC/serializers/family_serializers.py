@@ -25,7 +25,7 @@ from ..serializers.personal_serializers import (
 )
 class FamilyCreateSerializer(serializers.ModelSerializer):
     cedulaFamiliar = serializers.CharField(required=False, allow_blank=True, allow_null=True)
-    usuario_id = serializers.IntegerField(write_only=True)
+    usuario_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     orden_hijo = serializers.IntegerField(write_only=True, required=False, allow_null=True)
 
     perfil_salud_familiar = PerfilSaludSerializer(required=False)
@@ -70,12 +70,6 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
             data['fechanacimiento'] = value.split('T')[0]
             
         return super().to_internal_value(data)
- 
-    def validate_usuario_id(self, value):
-        try:
-            return User.objects.get(pk=value)
-        except User.DoesNotExist:
-            raise serializers.ValidationError("El usuario no existe")
         
     def validate(self, data):
         cedula_fam = data.get('cedulaFamiliar')

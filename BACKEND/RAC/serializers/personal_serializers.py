@@ -246,7 +246,10 @@ class EstatusSerializer(serializers.ModelSerializer):
 # creacion y actualizacion de codigo 
 # -------------------------------------------------------------
 class CodigosCreateSerializer(serializers.ModelSerializer):
-    usuario_id = serializers.IntegerField(write_only=True)
+    usuario_id = usuario_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), 
+        write_only=True
+    )
     class Meta:
         model = AsigTrabajo
         exclude= ['employee','OrganismoAdscritoid','Tipo_personal','estatusid','observaciones']
@@ -271,12 +274,6 @@ class CodigosCreateSerializer(serializers.ModelSerializer):
                 'El registro de este tipo de nomina no es permitido'
             )
         return value
-    
-    def validate_usuario_id(self, value):
-        try:
-            return User.objects.get(pk=value)
-        except User.DoesNotExist:
-            raise serializers.ValidationError("El usuario no existe")
         
     def validate(self, attrs):
         try:
@@ -447,7 +444,10 @@ class AntecedentesServicioSerializer(serializers.ModelSerializer):
 
     
 class EmployeeSerializer(serializers.ModelSerializer):
-    usuario_id = serializers.IntegerField(write_only=True)
+    usuario_id = usuario_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), 
+        write_only=True
+    )
     datos_vivienda = DatosViviendaSerializer(required=False)
     perfil_salud = PerfilSaludSerializer(required=False)
     perfil_fisico = PerfilFisicoSerializer(required=False)
@@ -497,12 +497,6 @@ class EmployeeSerializer(serializers.ModelSerializer):
 
     def validate_nombres(self, value): return value.upper() if value else value
     def validate_apellidos(self, value): return value.upper() if value else value
-
-    def validate_usuario_id(self, value):
-        try:
-            return User.objects.get(pk=value)
-        except User.DoesNotExist:
-            raise serializers.ValidationError("El usuario no existe")
 
     def create(self, validated_data):
  
@@ -745,7 +739,10 @@ class EmployeeListarDataSerializer(serializers.ModelSerializer):
 # serializer para asignar codigo 
 # -------------------------------
 class AsigCargoSerializer(serializers.ModelSerializer):
-    usuario_id = serializers.IntegerField(write_only=True)
+    usuario_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), 
+        write_only=True
+    )
 
     class Meta:
         model = AsigTrabajo
@@ -755,12 +752,7 @@ class AsigCargoSerializer(serializers.ModelSerializer):
         ]
     
     
-    def validate_usuario_id(self, value):
-        try:
-            # Devolvemos el objeto User para usarlo luego
-            return User.objects.get(pk=value)
-        except User.DoesNotExist:
-            raise serializers.ValidationError("El usuario no existe")
+
         
     def validate(self, attrs):
 
@@ -806,7 +798,10 @@ class AsigCargoSerializer(serializers.ModelSerializer):
 # serializer para asignar codigo autogenerable
 # -------------------------------   
 class RegisterCargoEspecialSerializer(serializers.ModelSerializer):
-    usuario_id = serializers.IntegerField(write_only=True)
+    usuario_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), 
+        write_only=True
+    )
     class Meta: 
         model = AsigTrabajo
         exclude = ['Tipo_personal','estatusid', 'codigo','observaciones']
@@ -829,13 +824,6 @@ class RegisterCargoEspecialSerializer(serializers.ModelSerializer):
                 'El registro de este tipo de nomina no es permitido'
             )
         return value
-    
-    def validate_usuario_id(self, value):
-        try:
-            return User.objects.get(pk=value)
-        except User.DoesNotExist:
-            raise serializers.ValidationError("El usuario no existe")
-    
     
     def validate(self, attrs):
 
