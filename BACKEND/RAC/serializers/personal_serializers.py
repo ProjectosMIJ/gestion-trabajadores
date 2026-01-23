@@ -4,7 +4,7 @@ from rest_framework import serializers
 # importaciones de modelos y utilidades
 from django.db import transaction
 from ..models.personal_models import *
-
+from ..models.historial_personal_models import Tipo_movimiento
 #importacion de servicios
 from ..services.generacion_codigo import generador_codigos 
 
@@ -13,6 +13,11 @@ from ..services.constants import *
 from USER.models.user_models import cuenta as User
 
 from ..services.constants_historial import registrar_historial_movimiento
+from ..services.report_service import MAPA_REPORTES
+from django.db.models import F, Count
+from datetime import date, timedelta
+from django.apps import apps
+
 
 
 # -------------------------------------------------------------
@@ -779,12 +784,18 @@ class AsigCargoSerializer(serializers.ModelSerializer):
         instance._history_user = usuario
     
         instance.save()
+        
+        try:
+            motivo_ingreso = Tipo_movimiento.objects.get(movimiento__iexact="ASIGNACION DE CARGO")
+        except Tipo_movimiento.DoesNotExist:
+   
+            raise serializers.ValidationError("El motivo 'ASIGNACION DE CARGO' no existe en el sistema")
             #  REGISTRA EL MOVIMIENTO EN EL HISTORIAL 
         registrar_historial_movimiento(
                 empleado=instance.employee,
                 puesto=instance,
                 tipo_movimiento='INGRESO',
-                motivo="ASIGNACION DE CARGO",
+                motivo=motivo_ingreso,
                 usuario=usuario
         )
              
@@ -803,7 +814,7 @@ class RegisterCargoEspecialSerializer(serializers.ModelSerializer):
     def to_internal_value(self, data):
         data = data.copy() if hasattr(data, 'copy') else data.copy()
         
-        fk_fields = ['OrganismoAdscritoid', 'gradoid', 'Coordinacion', 'DireccionLinea']
+        fk_fields = ['OrganismoAdscritoid', 'gradoid', 'Coordinacion', 'DireccionLinea', 'DireccionGeneral']
 
         for field in fk_fields:
             if data.get(field) == 0:
@@ -872,12 +883,16 @@ class RegisterCargoEspecialSerializer(serializers.ModelSerializer):
                 instance._history_user = usuario_obj
                 instance.save() 
 
-               
+                try:
+                   motivo_ingreso = Tipo_movimiento.objects.get(movimiento__iexact="ASIGNACION DE CARGO")
+                except Tipo_movimiento.DoesNotExist:
+                  raise serializers.ValidationError("El motivo 'ASIGNACION DE CARGO' no existe en el sistema")
+              
                 registrar_historial_movimiento(
                     empleado=instance.employee, 
                     puesto=instance,
                     tipo_movimiento='INGRESO',
-                    motivo=f"REGISTRO INICIAL: {tipo_nomina_nombre}",
+                    motivo=motivo_ingreso,
                     usuario=usuario_obj
                 )
 
@@ -888,3 +903,50 @@ class RegisterCargoEspecialSerializer(serializers.ModelSerializer):
             )
          
 
+# class ReporteDinamicoSerializer(serializers.Serializer):
+#     TIPO_REPORTE_CHOICES = [
+#         ('conteo', 'Conteo de registros'),
+#         ('lista', 'Lista de valores'),
+#     ]
+#     tabla = serializers.CharField(max_length=100) # Ej: "Employee" o "AsigTrabajo"
+#     columna = serializers.CharField(max_length=100)
+#     tipo_reporte = serializers.ChoiceField(choices=TIPO_REPORTE_CHOICES)
+#     filtros = serializers.JSONField(required=False, default=dict)
+
+
+class ReporteDinamicoSerializer(serializers.Serializer):
+    categoria = serializers.ChoiceField(choices=[('empleados', 'Empleados'), ('familiares', 'Familiares')])
+    agrupar_por = serializers.CharField()
+    tipo_reporte = serializers.ChoiceField(choices=[('conteo', 'Conteo'), ('lista', 'Lista')])
+    filtros = serializers.JSONField(required=False, default=dict)
+
+    def ejecutar(self):
+
+        data = self.validated_data
+        config = MAPA_REPORTES[data['categoria']]
+
+        Model = apps.get_model('RAC', config['modelo'])
+ 
+        campo_db = config['campos_permitidos'].get(data['agrupar_por'])
+        if not campo_db:
+            raise serializers.ValidationError({"agrupar_por": "Campo no permitido."})
+        filtros_finales = {}
+        for clave, valor in data['filtros'].items():
+            if clave in config['filtros_permitidos']:
+                campo_filtro = config['filtros_permitidos'][clave]
+                
+                if clave == "edad_max":
+                    fecha_limite = date.today() - timedelta(days=int(valor) * 365.25)
+                    filtros_finales[campo_filtro] = fecha_limite
+                else:
+                    filtros_query = {campo_filtro: valor}
+                    filtros_finales.update(filtros_query)
+
+        queryset = Model.objects.filter(**filtros_finales)
+
+        if data['tipo_reporte'] == 'conteo':
+            return queryset.values(label=F(campo_db)).annotate(
+                total=Count(campo_db)
+            ).order_by('-total')
+        
+        return queryset.values(label=F(campo_db)).distinct()

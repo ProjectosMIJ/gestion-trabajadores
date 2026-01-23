@@ -4,9 +4,9 @@ from rest_framework import status,serializers
 from django.db.models.functions import  Extract, Concat
 from django.db.models import Count, Value, CharField
 
-from ..models.historial_personal_models import EmployeeMovementHistory, EmployeeEgresado
+from ..models.historial_personal_models import EmployeeMovementHistory, EmployeeEgresado, Tipo_movimiento
 from ..models.personal_models import Employee,AsigTrabajo
-from ..serializers.historial_personal_serializers import MovimintoCargoSerializer,GestionStatusSerializer,GestionEgreso_PasivoSerializer,EmployeeCargoHistorySerializer,PersonalEgresadoSerializer
+from ..serializers.historial_personal_serializers import MovimintoCargoSerializer,GestionStatusSerializer,GestionEgreso_PasivoSerializer,EmployeeCargoHistorySerializer,PersonalEgresadoSerializer, TipoMovimientoSerializer
 from drf_spectacular.utils import extend_schema
 
 
@@ -66,8 +66,6 @@ def cambiar_cargo(request, cargo_id):
     summary="Gestionar Estatus de cargo (Bloqueo/Suspensión/Activo)",
     description="Permite cambiar el estatus de un puesto activo a uno de los estatus permitidos",
     request=GestionStatusSerializer
-
-    
 )
 @api_view(['PATCH'])
 def gestionar_estatus_puesto(request, cargo_id):
@@ -154,7 +152,9 @@ def gestion_egreso_pasivo(request, cedulaidentidad):
     return Response({
         "status": "Error",
         "message": "La validación de los datos ha fallado",
-        "data":[]
+        "errors": serializer.errors,
+       
+        
     }, status=status.HTTP_400_BAD_REQUEST)
     
     
@@ -271,3 +271,75 @@ def reporte_movimientos(request):
             }, 
             status=status.HTTP_400_BAD_REQUEST
         )
+        
+        
+@extend_schema(
+    tags=["Movimientos de Personal"],
+    summary="Tipo de movimientos para gestionar egresos",
+    description="Permite listar los tipos de movimientos para gestionar egresos",
+    request=TipoMovimientoSerializer
+)    
+@api_view(['GET'])
+def listar_motivos_egreso(request):
+
+    try:
+        motivos_nombres = [
+            "DESPIDO DE OBRERO", "DESTITUCION", "RETIRO POR REDUCCION DE PERSONAL",
+            "PENSION DE INALIDEZ", "FALLECIMIENTO", "RENUNCIA",
+            "ABANDONO DE CARGO", "JUBILACION DE DERECHO",
+            "ANULACION DE MOVIMIENTO", "EGRESO POR TRANSFERENCIA"
+        ]
+        
+        queryset = Tipo_movimiento.objects.filter(movimiento__in=motivos_nombres).order_by('movimiento')
+        serializer = TipoMovimientoSerializer(queryset, many=True)
+        
+        return Response({
+            "status": "Ok",
+            "message": "Motivos de egreso listados correctamente",
+            "data": serializer.data
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            "status": "Error",
+            "message": f"Error al consultar los motivos de egreso: {str(e)}",
+            "data": []
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+        
+@extend_schema(
+    tags=["Movimientos de Personal"],
+    summary="Tipo de movimientos para gestionar movimientos",
+    description="Permite listar los tipos de movimientos para gestionar movimientos",
+    request=TipoMovimientoSerializer
+)       
+@api_view(['GET'])
+def listar_motivos_internos(request):
+
+    try:
+        motivos_nombres = [
+            "NOMBRAMIENTO DE LIBRE Y REMOCION",
+            "TRASLADO FISICO Y ADMINISTRATIVO A OTRA DEPENDENCIA",
+            "CLASIFICACION DE CARGO OBRERO",
+            "ASCENSO PERSONAL EMPLEADO",
+            "TRASLADO DE NOMINA",
+            "ENCARGADURIA EN CALIDAD DE COMISION DE SERVICIO",
+            "ENCARGADURIA INTERNA"
+        ]
+        
+        queryset = Tipo_movimiento.objects.filter(movimiento__in=motivos_nombres).order_by('movimiento')
+        serializer = TipoMovimientoSerializer(queryset, many=True)
+        
+        return Response({
+            "status": "Ok",
+            "message": "Motivos para realizar moviminetos listados correctamente",
+            "data": serializer.data
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            "status": "Error",
+            "message": f"Error al consultar los motivos internos: {str(e)}",
+            "data": []
+        }, status=status.HTTP_400_BAD_REQUEST)

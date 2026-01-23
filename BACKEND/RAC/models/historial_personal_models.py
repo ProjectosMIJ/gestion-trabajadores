@@ -4,6 +4,16 @@ from USER.models.user_models import cuenta
 
 
 
+
+
+class Tipo_movimiento(models.Model):
+    movimiento = models.CharField(max_length=100)
+    
+    class Meta:
+        managed = True
+        db_table = 'Tipo_movimiento'
+
+
 class EmployeeMovementHistory(models.Model):
    
     TIPO_MOVIMIENTO_CHOICES = [
@@ -33,7 +43,7 @@ class EmployeeMovementHistory(models.Model):
 
     # Datos del Movimiento
     tipo_movimiento = models.CharField(max_length=20, choices=TIPO_MOVIMIENTO_CHOICES)
-    motivo = models.TextField(blank=True, null=True)
+    motivo = models.ForeignKey(Tipo_movimiento, on_delete=models.PROTECT, null=True)
     fecha_movimiento = models.DateTimeField(auto_now_add=True)
     ejecutado_por = models.ForeignKey(cuenta, on_delete=models.PROTECT)
 
@@ -64,7 +74,8 @@ class EmployeeEgresado(models.Model):
     Coordinacion = models.ForeignKey(Coordinaciones, models.DO_NOTHING, db_column='coordinacionId', null=True)
     OrganismoAdscritoid = models.ForeignKey(OrganismoAdscrito, models.DO_NOTHING, db_column='organismoAdscritoId', null=True)
 
-    motivo_egreso = models.TextField(blank=True, null=True)
+    motivo_egreso = models.ForeignKey(Tipo_movimiento, models.DO_NOTHING, db_column='motivoEgresoId')
+
 
     class Meta:
         managed = True

@@ -191,12 +191,38 @@ class ParentescoSerializer(serializers.ModelSerializer):
 
 
 
+class PerfilSaludFamiliarSerializer(serializers.ModelSerializer):
+    grupoSanguineo = GrupoSanguineoSerializer(read_only=True)
+    discapacidad = DiscapacidadSerializer(many=True, read_only=True)
+    patologiaCronica = PatologiasSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = perfil_salud  
+        fields = ['grupoSanguineo', 'discapacidad', 'patologiaCronica']
+
+class PerfilFisicoFamiliarSerializer(serializers.ModelSerializer):
+    tallaCamisa = TallaCamisaSerializer(read_only=True)
+    tallaPantalon = Talla_PantalonSerializer(read_only=True)
+    tallaZapatos = Talla_ZapatosSerializer(read_only=True)
+
+    class Meta:
+        model = perfil_fisico
+        fields = ['tallaCamisa', 'tallaPantalon', 'tallaZapatos']
+
+class FormacionAcademicaFamiliarSerializer(serializers.ModelSerializer):
+    nivelAcademico = NivelAcademicoSerializer(source='nivel_Academico_id', read_only=True)
+    carrera = CarrerasSerializer(source='carrera_id', read_only=True)
+    mencion = MencionSerializer(source='mencion_id', read_only=True)
+
+    class Meta:
+        model = formacion_academica
+        fields = ['nivelAcademico', 'institucion', 'capacitacion', 'carrera', 'mencion']
+        
+    
 class FamilyListSerializer(serializers.ModelSerializer):
     parentesco = ParentescoSerializer(read_only=True)
     sexo = SexoSerializer(read_only=True)
     estadoCivil = EstadoCivilSerializer(read_only=True)
-    
-
     perfil_salud_familiar = serializers.SerializerMethodField()
     perfil_fisico_familiar = serializers.SerializerMethodField()
     formacion_academica_familiar = serializers.SerializerMethodField()
@@ -204,58 +230,28 @@ class FamilyListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employeefamily
         fields = [
-            'id', 
-            'cedulaFamiliar', 
-            'primer_nombre', 
-            'segundo_nombre', 
-            'primer_apellido', 
-            'segundo_apellido',
-            'parentesco', 
-            'fechanacimiento', 
-            'sexo', 
-            'estadoCivil', 
-            'mismo_ente', 
-            'heredero', 
-            'perfil_salud_familiar',      
-            'perfil_fisico_familiar',     
-            'formacion_academica_familiar',
-            'observaciones', 
-            'createdat', 
-            'updatedat'
+            'id', 'cedulaFamiliar', 'primer_nombre', 'segundo_nombre', 
+            'primer_apellido', 'segundo_apellido', 'parentesco', 
+            'fechanacimiento', 'sexo', 'estadoCivil', 'mismo_ente', 
+            'heredero', 'perfil_salud_familiar', 'perfil_fisico_familiar', 
+            'formacion_academica_familiar', 'observaciones', 
+            'createdat', 'updatedat'
         ]
 
     def get_perfil_salud_familiar(self, obj):
-        salud = obj.perfil_salud_set.first()
-        if not salud: return None
-        return {
-            "grupoSanguineo": GrupoSanguineoSerializer(salud.grupoSanguineo).data if salud.grupoSanguineo else "",
-            "discapacidad": DiscapacidadSerializer(salud.discapacidad, many=True).data if salud.discapacidad else [],
-            "patologiaCronica": PatologiasSerializer(salud.patologiaCronica, many=True).data if salud.patologiaCronica else []
-        }
+        instancia = obj.perfil_salud_set.first()
+        return PerfilSaludFamiliarSerializer(instancia).data if instancia else None
 
     def get_perfil_fisico_familiar(self, obj):
-        fisico = obj.perfil_fisico_set.first()
-        if not fisico: return None
-        return {
-            "tallaCamisa": TallaCamisaSerializer(fisico.tallaCamisa).data if fisico.tallaCamisa else "",
-            "tallaPantalon": Talla_PantalonSerializer(fisico.tallaPantalon).data if fisico.tallaPantalon else "",
-            "tallaZapatos": Talla_ZapatosSerializer(fisico.tallaZapatos).data if fisico.tallaZapatos else ""
-        }
+        instancia = obj.perfil_fisico_set.first()
+        return PerfilFisicoFamiliarSerializer(instancia).data if instancia else None
 
     def get_formacion_academica_familiar(self, obj):
-        formacion = obj.formacion_academica_set.first()
-        if not formacion: return None
-        return {
-            "nivelAcademico": NivelAcademicoSerializer(formacion.nivel_Academico_id).data if formacion.nivel_Academico_id else "",
-            "institucion": formacion.institucion or "",
-            "capacitacion": formacion.capacitacion or "",
-            "carrera": CarrerasSerializer(formacion.carrera_id).data if formacion.carrera_id else "",
-            "mencion": MencionSerializer(formacion.mencion_id).data if formacion.mencion_id else ""
-        }
+        instancia = obj.formacion_academica_set.first()
+        return FormacionAcademicaFamiliarSerializer(instancia).data if instancia else None
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-
         for key, value in representation.items():
             if value is None:
                 representation[key] = ''

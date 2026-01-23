@@ -20,6 +20,7 @@ class Denominacioncargo(models.Model):
         managed = True
         db_table = 'DenominacionCargo'
         app_label = 'RAC'
+        ordering = ['cargo']
 
 class Denominacioncargoespecifico(models.Model):
     cargo = models.TextField()
@@ -28,6 +29,7 @@ class Denominacioncargoespecifico(models.Model):
         managed = True
         db_table = 'DenominacionCargoEspecifico'
         app_label = 'RAC'
+        ordering = ['cargo']
         
  
 # organismos adscritos  
@@ -37,6 +39,7 @@ class OrganismoAdscrito(models.Model):
         managed = True
         app_label = 'RAC'
         db_table = 'OrganismoAdscrito'
+        ordering = ['Organismoadscrito']
         
 
 class NivelAcademico(models.Model):

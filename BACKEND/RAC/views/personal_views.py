@@ -1,11 +1,13 @@
 from rest_framework.decorators import api_view
 from rest_framework import viewsets, status,serializers
+from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db.models import Prefetch
 from ..serializers.personal_serializers import *
 from ..models.personal_models import *
 from ..models.ubicacion_models import *
 from ..services.constants import *
+from ..services.report_service import *
 from drf_spectacular.utils import extend_schema
 
 
@@ -1466,3 +1468,37 @@ def listar_estatus_Gestion(request):
 
 
 
+
+@extend_schema(
+    tags=["Reportes"],
+    summary="config de dReportes Dinamicos",
+    description="Devuelve una lista de todos los tipos de estatus  disponibles.",
+
+)
+class ReporteConfigView(APIView):
+    def get(self, request):
+
+        config = obtener_configuracion_reportes()
+    
+        return Response(config, status=status.HTTP_200_OK)
+@extend_schema(
+    tags=["Reportes"],
+    summary="Listar Reportes Dinamicos",
+    description="Devuelve una lista de todos los tipos de estatus  disponibles.",
+    responses=ReporteDinamicoSerializer
+)
+class ReporteGenericoView(APIView):
+    def post(self, request):
+        serializer = ReporteDinamicoSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            try:
+                # El serializer ahora tiene el control de la ejecución
+                resultados = serializer.ejecutar()
+                return Response(list(resultados), status=status.HTTP_200_OK)
+            except serializers.ValidationError as e:
+                return Response(e.detail, status=status.HTTP_400_BAD_REQUEST)
+            except Exception as e:
+                return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

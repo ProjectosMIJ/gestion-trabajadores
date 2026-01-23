@@ -153,7 +153,9 @@ urlpatterns = [
     path('historyEmployee/cargo-movimiento/<int:cargo_id>/', views.cambiar_cargo, name='cargo-movimiento'),
     path('historyEmployee/egreso/<str:cedulaidentidad>/', views.gestion_egreso_pasivo, name='empleado-egreso'),
     path('historyEmployee/Estatus/<int:cargo_id>/',views.gestionar_estatus_puesto, name='gestion-puestos'),
-
+   
+    path('motivos/egreso/', views.listar_motivos_egreso, name='api-motivos-egreso'),
+    path('motivos/internos/', views.listar_motivos_internos, name='api-motivos-internos'),
 
 # ------------------
 # GESTION DE FAMILIARES
@@ -169,7 +171,9 @@ urlpatterns = [
    
 #   reporte
     path('EmployeeMovementHistory/reporte/',views.reporte_movimientos, name='reporte-movimiento'),
+    
+    
    
-
-
+    path('reporte-config/', views.ReporteConfigView.as_view(), name='reporte_config'),
+    path('employee/reportes/', views.ReporteGenericoView.as_view(), name='reporte_generico',)
 ]

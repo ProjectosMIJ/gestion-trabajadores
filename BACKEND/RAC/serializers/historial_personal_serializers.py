@@ -4,7 +4,7 @@ from django.db import transaction
 
 from django.utils import timezone
 
-from ..models.historial_personal_models import EmployeeEgresado,EmployeeMovementHistory
+from ..models.historial_personal_models import EmployeeEgresado,EmployeeMovementHistory,Tipo_movimiento
 
 from ..models.personal_models import DireccionLinea, Tiponomina, Estatus, AsigTrabajo, Tipo_personal, antecedentes_servicio
 
@@ -20,32 +20,29 @@ from ..serializers import (DireccionGeneralSerializer,DireccionLineaSerializer,C
                            gradoSerializer,OrganismoAdscritoSerializer)
 
 
+
+class TipoMovimientoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Tipo_movimiento
+        fields = '__all__'
+
 class MovimintoCargoSerializer(serializers.Serializer):
-    nuevo_cargo_id = serializers.IntegerField(required=True)
-    usuario_id = serializers.IntegerField(required=True)
-    motivo = serializers.CharField(required=True)
+    nuevo_cargo_id = serializers.PrimaryKeyRelatedField(queryset=AsigTrabajo.objects.all())
+    usuario_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
+    motivo = serializers.PrimaryKeyRelatedField(queryset=Tipo_movimiento.objects.all())
 
     def validate_nuevo_cargo_id(self, value):
+     
         try:
             estatus_vacante = Estatus.objects.get(estatus__iexact=ESTATUS_VACANTE)
         except Estatus.DoesNotExist:
             raise serializers.ValidationError("No existe el estatus 'VACANTE'")
 
-        try:
-          
-            puesto_destino = AsigTrabajo.objects.get(pk=value)
-            if puesto_destino.estatusid != estatus_vacante:
-                raise serializers.ValidationError("El el cargo ya está ocupado.")
-            return puesto_destino 
-        except AsigTrabajo.DoesNotExist:
-            raise serializers.ValidationError("El cargo a asignar no es válido.")
-
-    def validate_usuario_id(self, value):
-        try:
-         
-            return User.objects.get(pk=value)
-        except User.DoesNotExist:
-            raise serializers.ValidationError("El usuario no existe")
+        if value.estatusid != estatus_vacante:
+            raise serializers.ValidationError("El cargo seleccionado ya está ocupado")
+        
+        return value
+ 
 
     @transaction.atomic
     def update(self, instance, validated_data):
@@ -70,7 +67,7 @@ class MovimintoCargoSerializer(serializers.Serializer):
         puesto_nuevo.employee = empleado
         puesto_nuevo.estatusid = estatus_activo
         puesto_nuevo._history_user = usuario
-        puesto_nuevo.observaciones = motivo
+        puesto_nuevo.observaciones = motivo.movimiento
         puesto_nuevo.save()
 
         #REGISTRO EN EL HISTORIAL
@@ -88,39 +85,35 @@ class MovimintoCargoSerializer(serializers.Serializer):
 
 # SERIALIZER BASE PARA LA GESTION DE LOS ESTATUS 
 class BaseActionInputSerializer(serializers.Serializer):
-    estatus_id = serializers.IntegerField(required=True)
-    usuario_id = serializers.IntegerField(required=True)
-
-    def validate_usuario_id(self, value):
-        try:
-            return User.objects.get(pk=value)
-        except User.DoesNotExist:
-            raise serializers.ValidationError("Usuario no encontrado.")
+    estatus_id = serializers.PrimaryKeyRelatedField(
+        queryset=Estatus.objects.all(),
+        source='estatus' 
+    )
+    usuario_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(),
+        source='usuario' 
+    )
 
 
 # SERILIZER PARA GESTIONAR CAMBIO DE ESTATUS 
 class GestionStatusSerializer(BaseActionInputSerializer):
-    motivo = serializers.CharField(required=True, max_length=255)
+    motivo = serializers.PrimaryKeyRelatedField(queryset=Tipo_movimiento.objects.all())
 
     def validate_estatus_id(self, value):
  
-        try:
-            estatus_obj = Estatus.objects.get(pk=value)
-            if estatus_obj.estatus.upper() not in ESTATUS_PERMITIDOS:
-                raise serializers.ValidationError("Gstion de estatus no permitido")
-            return estatus_obj
-        except Estatus.DoesNotExist:
-            raise serializers.ValidationError("El  estatus enviado no existe")
+        if value.estatus.upper() not in ESTATUS_PERMITIDOS:
+            raise serializers.ValidationError("Gestión de estatus no permitido")
+        return value
 
     @transaction.atomic
     def update(self, instance, validated_data):
-        nuevo_estatus = validated_data['estatus_id']
-        usuario = validated_data['usuario_id']
+        nuevo_estatus = validated_data['estatus'] 
+        usuario = validated_data['usuario']
         motivo = validated_data['motivo']
         empleado = instance.employee
 
         instance.estatusid = nuevo_estatus
-        instance.observaciones = motivo
+        instance.observaciones = motivo.movimiento
         instance._history_user = usuario
         instance.save()
 
@@ -128,7 +121,7 @@ class GestionStatusSerializer(BaseActionInputSerializer):
             empleado=empleado,
             puesto=instance,
             tipo_movimiento='CAMBIO DE ESTATUS',
-            motivo=f"CAMBIO DE ESTATUS: {motivo}",
+            motivo= motivo,
             usuario=usuario
         )
 
@@ -136,106 +129,108 @@ class GestionStatusSerializer(BaseActionInputSerializer):
 
 # SERIALIZER PARA GESTIONAR EGRESOS Y PERSONAL PASIVO 
 class GestionEgreso_PasivoSerializer(BaseActionInputSerializer):
-    motivo = serializers.CharField(required=True, max_length=255)
+    motivo = serializers.PrimaryKeyRelatedField(queryset=Tipo_movimiento.objects.all())
     tiponominaid = serializers.PrimaryKeyRelatedField(queryset=Tiponomina.objects.all(), required=False)
     codigo_nuevo = serializers.CharField(required=False, max_length=50)
     liberar_activos = serializers.BooleanField(required=False, default=False)
-
+    
     def validate(self, data):
         
-        try:
-            estatus_obj = Estatus.objects.get(pk=data['estatus_id'])
-            estatus_nombre = estatus_obj.estatus.upper()
-        except Estatus.DoesNotExist:
-            raise serializers.ValidationError({"El estatus no existe"})
+        estatus_obj = data['estatus']
+        estatus_nombre = estatus_obj.estatus.upper()
+      
 
         if estatus_nombre not in ESTATUS_PERMITIDOS_EGRESOS:
-            raise serializers.ValidationError({"Tipo de estatus no permitido"})
+            raise serializers.ValidationError("Tipo de estatus no permitido")
 
         if estatus_nombre == "PASIVO":
-            if not data.get('tiponominaid'):
-                raise serializers.ValidationError({"Es obligatorio para personal PASIVO"})
-            if not data.get('codigo_nuevo'):
-                raise serializers.ValidationError({ "Debe asignar un código al nuevo cargo pasivo"})
-            
-            if AsigTrabajo.objects.filter(codigo=data['codigo_nuevo']).exists():
-                raise serializers.ValidationError({"Este código de puesto ya está en uso"})
+            errores = {}
 
+            if not data.get('tiponominaid'):
+               errores['tiponominaid'] = "Es obligatorio asignar una nomina para personal PASIVO"
+        
+            if not data.get('codigo_nuevo'):
+                errores['codigo_nuevo'] = "Debe asignar un codigo al nuevo cargo pasivo"
+            elif AsigTrabajo.objects.filter(codigo=data['codigo_nuevo']).exists():
+                errores['codigo_nuevo'] = "Este codigo de puesto ya esta en uso"
+
+            if errores:
+               raise serializers.ValidationError(errores)
         return data
 
     @transaction.atomic
     
     def update(self, instance, validated_data):
         
-        usuario = validated_data['usuario_id']
-        estatus_obj = Estatus.objects.get(pk=validated_data['estatus_id'])
+        usuario = validated_data['usuario']
+        estatus_obj = validated_data['estatus']
         estatus_nombre = estatus_obj.estatus.upper()
-        obs_texto = validated_data.get('motivo', 'Sin observaciones registradas')
-        estatus_vacante = Estatus.objects.get(estatus__iexact=ESTATUS_VACANTE)
+        motivo = validated_data['motivo']
+      
+        try:
+            estatus_vacante = Estatus.objects.get(estatus__iexact=ESTATUS_VACANTE)
+        except Estatus.DoesNotExist:
+            raise serializers.ValidationError("Estatus VACANTE no configurado en el sistema")
+        
+        
       
         if estatus_nombre == "EGRESADO":
-            self._procesar_egreso_total(instance, obs_texto, usuario, estatus_vacante)
+            self._procesar_egreso_total(instance, motivo, usuario, estatus_vacante)
             return instance
 
         if estatus_nombre == "PASIVO":
-            try:
-                # BUSQUEDA DE LA DIRECCION DE LINEA
-                dl_admin = DireccionLinea.objects.get(direccion_linea__iexact="DIRECCION DE ADMINISTRACION DE PERSONAL")
-                # OBTENCION DE LA DIRECCION GENERAL 
-                dg_admin = dl_admin.direccionGeneral
-            except DireccionLinea.DoesNotExist:
-                raise serializers.ValidationError({
-                     "No se encontró la 'DIRECCION DE ADMINISTRACION DE PERSONAL'"
-                })
-            liberar = validated_data.get('liberar_activos', False)
-            
-            ultima_asig = AsigTrabajo.objects.filter(employee=instance).first()
-            if not ultima_asig:
-                raise serializers.ValidationError("El empleado no posee cargos registrados")
-
-            try:
-                estatus_activo = Estatus.objects.get(estatus__iexact="ACTIVO")
-            except Estatus.DoesNotExist:
-                raise serializers.ValidationError("No existe el estatus")
-            
-            if liberar:
-                msg_egreso = f"EGRESO  (PASO A PASIVO). {obs_texto}"
-                self._procesar_egreso_total(instance, msg_egreso, usuario, estatus_vacante)
-
-            try:
-                tipo_pasivo = Tipo_personal.objects.get(tipo_personal__iexact=PERSONAL_PASIVO)
-            except Tipo_personal.DoesNotExist:
-                raise serializers.ValidationError("No existe el tipo de personal PASIVO")
-            
-            # CREACION DE NUEVO CARGO PASIVO TRAS LA VALIDACION DE LOS DATOS 
-            nueva_asig= AsigTrabajo.objects.create(
-                employee=instance,
-                codigo=validated_data['codigo_nuevo'],
-                denominacioncargoid=ultima_asig.denominacioncargoid,
-                denominacioncargoespecificoid=ultima_asig.denominacioncargoespecificoid,
-                tiponominaid=validated_data['tiponominaid'],
-                estatusid=estatus_activo,
-                Tipo_personal=tipo_pasivo,
-                gradoid=ultima_asig.gradoid,
-                DireccionGeneral=dg_admin,
-                DireccionLinea=dl_admin,
-                Coordinacion=None,
-                OrganismoAdscritoid=ultima_asig.OrganismoAdscritoid,
-                observaciones=f"Cargo pasivo generado. {obs_texto}"
-            )
-            # RGISTRO EN EL HISTORICO 
-            nueva_asig._history_user = usuario
-            nueva_asig.save()
-            
-            registrar_historial_movimiento(
-                empleado=instance,
-                puesto=ultima_asig,
-                tipo_movimiento='CAMBIO_NOMINA',
-                motivo=f"PASA A ESTATUS PASIVO: {obs_texto}",
-                usuario=usuario
-            )
+            return self._procesar_pasivo(instance, validated_data, motivo, usuario, estatus_vacante)
 
         return instance
+    
+    def _procesar_pasivo(self, empleado, validated_data, motivo_obj, usuario, estatus_vacante):
+        try:
+            dl_admin = DireccionLinea.objects.get(direccion_linea__iexact="DIRECCION DE ADMINISTRACION DE PERSONAL")
+            dg_admin = dl_admin.direccionGeneral
+        except DireccionLinea.DoesNotExist:
+            raise serializers.ValidationError("DIRECCION DE ADMINISTRACION DE PERSONAL no encontrada")
+
+        ultima_asig = AsigTrabajo.objects.filter(employee=empleado).first()
+        if not ultima_asig:
+            raise serializers.ValidationError("El empleado no tiene cargos previos para realizar el pase a pasivo.")
+
+        if validated_data.get('liberar_activos', False):
+            self._procesar_egreso_total(empleado, motivo_obj, usuario, estatus_vacante)
+
+        try:
+            estatus_activo = Estatus.objects.get(estatus__iexact="ACTIVO")
+            tipo_pasivo = Tipo_personal.objects.get(tipo_personal__iexact=PERSONAL_PASIVO)
+        except (Estatus.DoesNotExist, Tipo_personal.DoesNotExist):
+            raise serializers.ValidationError(" Verifique estatus 'ACTIVO' y tipo personal 'PASIVO'")
+
+        nueva_asig = AsigTrabajo.objects.create(
+            employee=empleado,
+            codigo=validated_data['codigo_nuevo'],
+            denominacioncargoid=ultima_asig.denominacioncargoid,
+            denominacioncargoespecificoid=ultima_asig.denominacioncargoespecificoid,
+            tiponominaid=validated_data['tiponominaid'],
+            estatusid=estatus_activo,
+            Tipo_personal=tipo_pasivo,
+            gradoid=ultima_asig.gradoid,
+            DireccionGeneral=dg_admin,
+            DireccionLinea=dl_admin,
+            Coordinacion=None,
+            OrganismoAdscritoid=ultima_asig.OrganismoAdscritoid,
+            observaciones=f"Cargo pasivo generado. {motivo_obj.movimiento}"
+        )
+        
+        nueva_asig._history_user = usuario
+        nueva_asig.save()
+
+        # 4. Registro en el Histórico
+        registrar_historial_movimiento(
+            empleado=empleado,
+            puesto=ultima_asig,
+            tipo_movimiento='CAMBIO_NOMINA',
+            motivo=motivo_obj,
+            usuario=usuario
+        )
+        return empleado
     
 #    REGISTRO DE EGRESO 
     def _procesar_egreso_total(self, empleado, motivo, usuario, estatus_vacante):
@@ -248,11 +243,9 @@ class GestionEgreso_PasivoSerializer(BaseActionInputSerializer):
         fecha_hoy = timezone.now().date()
         asignaciones = AsigTrabajo.objects.filter(employee=empleado)
         
-        ultima_asig = asignaciones.first()
         antecedentes_servicio.objects.create(
             empleado_id=empleado,
-            institucion="Ministerio del Poder Popular para Relaciones Interiores, Justicia y Paz", 
-        
+            institucion="MPPRIJP", 
             fecha_ingreso=empleado.fechaingresoorganismo,
             fecha_egreso=fecha_hoy
         )
@@ -274,7 +267,6 @@ class GestionEgreso_PasivoSerializer(BaseActionInputSerializer):
                 motivo_egreso=motivo
             )
             
-            
             asig.estatusid = estatus_egresado
             # REGISTRO EN EL HISTORIAL 
             registrar_historial_movimiento(empleado, asig, 'EGRESO', motivo, usuario)
@@ -289,6 +281,7 @@ class PersonalEgresadoSerializer(serializers.ModelSerializer):
     denominacioncargo = denominacionCargoSerializer(source='denominacioncargoid',read_only= True)
     denominacioncargoespecifico = denominacionCargoEspecificoSerializer(source = 'denominacioncargoespecificoid', read_only = True)
     grado = gradoSerializer(source='gradoid', read_only = True)
+    Tipo_movimiento = TipoMovimientoSerializer(source='motivo_egreso', read_only = True)
     tiponomina = TipoNominaSerializer(source='tiponominaid', read_only = True)
     DireccionGeneral = DireccionGeneralSerializer( read_only = True)
     DireccionLinea = DireccionLineaSerializer( read_only = True)
@@ -311,7 +304,7 @@ class PersonalEgresadoSerializer(serializers.ModelSerializer):
                 'DireccionLinea',
                 'Coordinacion',
                 'OrganismoAdscrito',
-                'motivo_egreso',
+                'Tipo_movimiento',
                 'fecha_egreso'
                 
             ]
@@ -342,7 +335,7 @@ class EmployeeCargoHistorySerializer(serializers.ModelSerializer):
     new_grado = serializers.CharField(source='gradoid.grado', read_only=True)
     new_estatus = serializers.CharField(source='estatus.estatus', read_only=True)
 
-    motivo_movimiento = serializers.CharField(source='motivo', read_only=True)
+    motivo_movimiento = TipoMovimientoSerializer(source='motivo', read_only=True)
 
     # Declalarcion DE los campos "prev_" 
     prev_cargo_especifico = serializers.SerializerMethodField()
