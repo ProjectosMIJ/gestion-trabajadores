@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import {
   Card,
@@ -30,8 +30,10 @@ import {
 } from "@/components/ui/select";
 import { CalendarIcon, Contact, Upload, X } from "lucide-react";
 
-import { getMaritalstatus } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import { ApiResponse, MaritalStatusType } from "@/app/types/types";
+import {
+  getMaritalstatus,
+  getSex,
+} from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -42,32 +44,25 @@ import { validateWeight } from "@/constants/fileSize";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
+import useSWR from "swr";
 import { BasicInfoType, schemaBasicInfo } from "../schemas/schema-basic-info";
 type Props = {
   onSubmit: (values: BasicInfoType) => void;
   defaultValues: BasicInfoType;
 };
 export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
-  const [maritalStatus, setMaritalStatus] = useState<
-    ApiResponse<MaritalStatusType[]>
-  >({
-    status: "",
-    message: "",
-    data: [],
-  });
-
   const [photoPreview, setPhotoPreview] = useState<string | null | undefined>(
     null,
   );
   const [file, setFile] = useState<File | null>(null);
-  useEffect(() => {
-    const loadData = async () => {
-      const [maritalStatus] = await Promise.all([getMaritalstatus()]);
-
-      setMaritalStatus(maritalStatus);
-    };
-    loadData();
-  }, []);
+  const { data: maritalStatus, isLoading: isLoadingMaritalStatus } = useSWR(
+    "maritalStatus",
+    async () => await getMaritalstatus(),
+  );
+  const { data: sex, isLoading: isLoadingSex } = useSWR(
+    "sex",
+    async () => await getSex(),
+  );
   const form = useForm({
     resolver: zodResolver(schemaBasicInfo),
     defaultValues,
@@ -152,7 +147,7 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
                               <Input
                                 {...fieldProps}
                                 type="file"
-                                accept=".pdf,.png,.jpeg,.jpg"
+                                accept=".png,.jpeg,.jpg"
                                 className="hidden"
                                 onChange={(event) => {
                                   const file = event.target.files?.[0];
@@ -264,10 +259,10 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
                   />
                   <FormField
                     control={form.control}
-                    name="sexoid"
+                    name={`sexoid`}
                     render={({ field }) => (
-                      <FormItem className=" ">
-                        <FormLabel>Sexo *</FormLabel>
+                      <FormItem className=" cursor-pointer">
+                        <FormLabel className="cursor-pointer">Sexo *</FormLabel>
                         <Select
                           onValueChange={(values) => {
                             field.onChange(Number.parseInt(values));
@@ -276,13 +271,16 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
                           <FormControl>
                             <SelectTrigger className="w-full truncate">
                               <SelectValue
-                                placeholder={"Seleccione un Genero"}
+                                placeholder={`${isLoadingSex ? "Cargando Generos" : "Seleccione un Genero"}`}
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="1">Masculino</SelectItem>
-                            <SelectItem value="2">Femenino</SelectItem>
+                            {sex?.data.map((v, i) => (
+                              <SelectItem value={`${v.id}`} key={i}>
+                                {v.sexo}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -303,12 +301,12 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
                           <FormControl>
                             <SelectTrigger className="w-full truncate">
                               <SelectValue
-                                placeholder={"Seleccione Un Estado Civil"}
+                                placeholder={`${isLoadingMaritalStatus ? "Cargando Estado Civil" : "Seleccione Un Estado Civil"}`}
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {maritalStatus.data.map((status, i) => (
+                            {maritalStatus?.data.map((status, i) => (
                               <SelectItem key={i} value={`${status.id}`}>
                                 {status.estadoCivil}
                               </SelectItem>

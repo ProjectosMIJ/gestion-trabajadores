@@ -1,8 +1,12 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { DwellingType, schemaDwelling } from "../schemas/schema-dwelling";
-import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  getConditionDwelling,
+  getMunicipalitys,
+  getParish,
+  getStates,
+} from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardAction,
@@ -19,6 +23,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -26,89 +31,43 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useEffect, useState } from "react";
-import {
-  getConditionDwelling,
-  getStates,
-} from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import {
-  ApiResponse,
-  ConditionDwelling,
-  Municipality,
-  Parish,
-  States,
-} from "@/app/types/types";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import useSWR from "swr";
+import { DwellingType, schemaDwelling } from "../schemas/schema-dwelling";
 export type Props = {
   onSubmit: (values: DwellingType) => void;
   defaultValues: DwellingType;
 };
 
 export default function FormDwelling({ onSubmit, defaultValues }: Props) {
-  const [bool, setBool] = useState(false);
-  const [municipalitys, setMunicipalitys] = useState<
-    ApiResponse<Municipality[]>
-  >({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [parish, setParish] = useState<ApiResponse<Parish[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
-
-  const [states, setStates] = useState<ApiResponse<States[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [conditionDwelling, setConditionDwelling] = useState<
-    ApiResponse<ConditionDwelling[]>
-  >({
-    status: "",
-    message: "",
-    data: [],
-  });
-  useEffect(() => {
-    const loadData = async () => {
-      const [states, conditionDwelling] = await Promise.all([
-        getStates(),
-        getConditionDwelling(),
-      ]);
-
-      if (Array.isArray(states.data)) setStates(states);
-      if (Array.isArray(conditionDwelling.data))
-        setConditionDwelling(conditionDwelling);
-    };
-    loadData();
-  }, [bool]);
+  const [stateId, setStateId] = useState<string>();
+  const [municipalityId, setMunicipalityId] = useState<string>();
+  const { data: states, isLoading: isLoadingStatesStates } = useSWR(
+    "states",
+    async () => await getStates(),
+  );
+  const { data: municipalitys, isLoading: isLoadingStatesSMunicipalitys } =
+    useSWR(
+      stateId ? ["municipalitys", stateId] : null,
+      async () => await getMunicipalitys(stateId!),
+    );
+  const { data: parish, isLoading: isLoadingStatesParish } = useSWR(
+    municipalityId ? ["parish", municipalityId] : null,
+    async () => await getParish(municipalityId!),
+  );
+  const {
+    data: conditionDwelling,
+    isLoading: isLoadingStatesConditionDwelling,
+  } = useSWR("conditionDwelling", async () => await getConditionDwelling());
   const form = useForm({
     resolver: zodResolver(schemaDwelling),
     defaultValues,
   });
-  const getMunicipalitys = async (id: number) => {
-    const responseMunicipalitys = await fetch(
-      `${process.env.NEXT_PUBLIC_DJANGO_API_URL}direccion/municipios/${id}/`,
-    );
-    const getMunicipalitys = await responseMunicipalitys.json();
-    setMunicipalitys(getMunicipalitys);
-  };
-
-  const getParish = async (id: number) => {
-    const responseParish = await fetch(
-      `${process.env.NEXT_PUBLIC_DJANGO_API_URL}direccion/parroquias/${id}/`,
-    );
-    const getParish = await responseParish.json();
-    setParish(getParish);
-  };
   const onSubmitFormity = (values: DwellingType) => {
     onSubmit(values);
   };
-
   return (
     <>
       <Card>
@@ -134,21 +93,19 @@ export default function FormDwelling({ onSubmit, defaultValues }: Props) {
                       <Select
                         onValueChange={(value) => {
                           field.onChange(Number.parseInt(value));
-                          getMunicipalitys(Number.parseInt(value));
+                          setStateId(value);
                         }}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full truncate">
-                            <SelectValue placeholder={"Seleccione un Estado"} />
+                            <SelectValue
+                              placeholder={`${isLoadingStatesStates ? "Cargando Estados" : "Seleccione un Estado"}`}
+                            />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {states.data.map((state, i) => (
-                            <SelectItem
-                              key={i}
-                              value={`${state.id}`}
-                              onClick={() => getMunicipalitys(state.id)}
-                            >
+                          {states?.data.map((state, i) => (
+                            <SelectItem key={i} value={`${state.id}`}>
                               {state.estado}
                             </SelectItem>
                           ))}
@@ -170,18 +127,18 @@ export default function FormDwelling({ onSubmit, defaultValues }: Props) {
                       <Select
                         onValueChange={(value) => {
                           field.onChange(Number.parseInt(value));
-                          getParish(Number.parseInt(value));
+                          setMunicipalityId(value);
                         }}
                       >
                         <FormControl>
                           <SelectTrigger className="w-full truncate">
                             <SelectValue
-                              placeholder={"Seleccione un Municpio"}
+                              placeholder={`${isLoadingStatesSMunicipalitys ? "Cargando Municipios" : "Seleccione un Municpio"}`}
                             />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {municipalitys.data.map((municipality, i) => (
+                          {municipalitys?.data.map((municipality, i) => (
                             <SelectItem key={i} value={`${municipality.id}`}>
                               {municipality.municipio}
                             </SelectItem>
@@ -209,12 +166,12 @@ export default function FormDwelling({ onSubmit, defaultValues }: Props) {
                         <FormControl>
                           <SelectTrigger className="w-full truncate">
                             <SelectValue
-                              placeholder={"Seleccione una Parroquia"}
+                              placeholder={`${isLoadingStatesParish ? "Cargando Parroquias" : "Seleccione una Parroquia"}`}
                             />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {parish.data.map((parish, i) => (
+                          {parish?.data.map((parish, i) => (
                             <SelectItem key={i} value={`${parish.id}`}>
                               {parish.parroquia}
                             </SelectItem>
@@ -242,14 +199,12 @@ export default function FormDwelling({ onSubmit, defaultValues }: Props) {
                         <FormControl>
                           <SelectTrigger className="w-full truncate">
                             <SelectValue
-                              placeholder={
-                                "Seleccione una Condicion De Vivienda"
-                              }
+                              placeholder={`${isLoadingStatesConditionDwelling ? "Cargando Condiciones De Vivienda" : "Seleccione una Condicion De Vivienda"}`}
                             />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          {conditionDwelling.data.map(
+                          {conditionDwelling?.data.map(
                             (conditionDwelling, i) => (
                               <SelectItem
                                 key={i}
@@ -290,7 +245,6 @@ export default function FormDwelling({ onSubmit, defaultValues }: Props) {
           </div>
         </CardContent>
       </Card>
-      <Switch onCheckedChange={setBool} />
     </>
   );
 }

@@ -1,5 +1,4 @@
 "use client";
-import { Card, CardContent } from "../../../../../../components/ui/card";
 import {
   Table,
   TableBody,
@@ -9,8 +8,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Card, CardContent } from "../../../../../../components/ui/card";
 import { Label } from "../../../../../../components/ui/label";
 
+import {
+  getCoordination,
+  getDirectionGeneral,
+  getDirectionLine,
+} from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
+import { ApiResponse, Coordination } from "@/app/types/types";
 import {
   Select,
   SelectContent,
@@ -20,69 +26,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useEffect, useState } from "react";
-import {
-  ApiResponse,
-  Coordination,
-  DirectionGeneral,
-  DirectionLine,
-} from "@/app/types/types";
-import {
-  getCoordination,
-  getDirectionGeneral,
-  getDirectionLine,
-} from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import { toast } from "sonner";
+import { useState } from "react";
+import useSWR from "swr";
 export default function TableDependencys() {
-  const [coordination, setCoordination] = useState<ApiResponse<Coordination[]>>(
-    {
-      status: "",
-      message: "",
-      data: [],
-    },
+  const [directionGeneralId, setDirectionGeneralId] = useState<string | null>(
+    null,
   );
-  const [directionGeneral, setDirectionGeneral] = useState<
-    ApiResponse<DirectionGeneral[]>
-  >({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [directionLine, setDirectionLine] = useState<
-    ApiResponse<DirectionLine[]>
-  >({
-    status: "",
-    message: "",
-    data: [],
-  });
+  const [coordinationId, setCoordinationId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const directionGeneral = await getDirectionGeneral();
-        if (Array.isArray(directionGeneral.data)) {
-          setDirectionGeneral(directionGeneral);
-        }
-      } catch {
-        toast.error("Error cargando datos");
-      }
-    };
-    loadData();
-  }, []);
+  const { data: directionGeneral } = useSWR(
+    "directionGeneral",
+    async () => await getDirectionGeneral(),
+  );
 
-  const getByDirectionLine = async (id: string) => {
-    const directionLine = await getDirectionLine(id);
-    if (Array.isArray(directionLine.data)) setDirectionLine(directionLine);
-    setCoordination({
-      data: [],
-      message: "",
-      status: "",
-    });
-  };
-  const getByCoordination = async (id: string) => {
-    const coordination = await getCoordination(id);
-    if (Array.isArray(coordination.data)) setCoordination(coordination);
-  };
+  const { data: directionLine } = useSWR(
+    directionGeneralId ? ["directionLine", directionGeneralId] : null,
+    async () => await getDirectionLine(directionGeneralId!),
+  );
+  const { data: coordination } = useSWR(
+    coordinationId ? ["coordination", coordinationId] : null,
+    async () => await getCoordination(coordinationId!),
+  );
+
   return (
     <>
       <Card>
@@ -93,7 +58,7 @@ export default function TableDependencys() {
                 <Label>Direccion General</Label>
                 <Select
                   onValueChange={(value) => {
-                    getByDirectionLine(value);
+                    setDirectionGeneralId(value);
                   }}
                 >
                   <SelectTrigger className="w-full">
@@ -102,7 +67,7 @@ export default function TableDependencys() {
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Direcciones De Generales</SelectLabel>
-                      {directionGeneral.data.map((general, i) => (
+                      {directionGeneral?.data.map((general, i) => (
                         <SelectItem key={i} value={`${general.id}`}>
                           {general.Codigo}-{general.direccion_general}
                         </SelectItem>
@@ -120,16 +85,26 @@ export default function TableDependencys() {
 
                 <Select
                   onValueChange={(value) => {
-                    getByCoordination(value);
+                    setCoordinationId(value);
                   }}
                 >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Seleccionar Direccion De Linea" />
+                  <SelectTrigger
+                    className="w-full"
+                    disabled={
+                      directionLine?.data !== undefined &&
+                      directionLine!.data?.length > 0
+                        ? false
+                        : true
+                    }
+                  >
+                    <SelectValue
+                      placeholder={`${directionLine?.data !== undefined && directionLine!.data?.length > 0 ? "Seleccionar Direccion De Linea" : "No Posee Direcciones De Linea"}`}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Direcciones De Linea</SelectLabel>
-                      {directionLine.data.map((line, i) => (
+                      {directionLine?.data.map((line, i) => (
                         <SelectItem key={i} value={`${line.id}`}>
                           {line.Codigo}-{line.direccion_linea}
                         </SelectItem>
@@ -158,7 +133,7 @@ export default function TableDependencys() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {directionLine.data.map((direction, i) => (
+                  {directionLine?.data.map((direction, i) => (
                     <TableRow key={i}>
                       <TableCell className="font-medium">
                         {direction.Codigo}
@@ -185,7 +160,7 @@ export default function TableDependencys() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {coordination.data.map((coordination, i) => (
+                  {coordination?.data.map((coordination, i) => (
                     <TableRow key={i}>
                       <TableCell className="font-medium">
                         {coordination.Codigo}

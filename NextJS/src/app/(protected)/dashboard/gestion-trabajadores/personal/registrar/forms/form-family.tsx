@@ -47,6 +47,7 @@ import {
   getPantsSize,
   getParent,
   getPatologys,
+  getSex,
   getShirtSize,
   getShoesSize,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
@@ -79,6 +80,7 @@ import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Separator } from "@/components/ui/separator";
 
 import { Spinner } from "@/components/ui/spinner";
+import useSWR from "swr";
 
 type Props = {
   onSubmit: (values: FamilyEmployeeType) => void;
@@ -88,142 +90,67 @@ type Props = {
 export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
   const [expandedIndex, setExpandedIndex] = useState(0);
   const [down, setDown] = useState(false);
-  const [academyLevel, setAcademyLevel] = useState<ApiResponse<AcademyLevel[]>>(
-    {
-      status: "",
-      message: "",
-      data: [],
-    },
-  );
-  const [disability, setDisability] = useState<ApiResponse<DisabilitysType[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [shirtSize, setShirtSize] = useState<ApiResponse<ShirtSize[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [pantsSize, setPantsSize] = useState<ApiResponse<PantsSize[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [shoesSize, setShoesSize] = useState<ApiResponse<ShoesSize[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [bloodGroup, setBloodGroup] = useState<ApiResponse<BloodGroupType[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [patology, setPatology] = useState<ApiResponse<PatologysType[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [maritalStatus, setMaritalStatus] = useState<
-    ApiResponse<MaritalStatusType[]>
-  >({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [parent, setParent] = useState<ApiResponse<ParentType[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
+  const [mencionId, setMencionId] = useState<string>();
 
-  const [carrera, setCarrera] = useState<ApiResponse<Carrera[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [mencion, setMencion] = useState<ApiResponse<Mencion[]>>({
-    status: "",
-    message: "",
-    data: [],
-  });
   const [showMoreDetails, setShowMoreDetails] = useState(false);
   const [reload, setReload] = useState(false);
-
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [shirtSize, pantsSize, shoesSize, parent, carrera] =
-          await Promise.all([
-            getShirtSize(),
-            getPantsSize(),
-            getShoesSize(),
-            getParent(),
-            getCarrera(),
-          ]);
-
-        if (Array.isArray(shirtSize.data)) setShirtSize(shirtSize);
-        if (Array.isArray(pantsSize.data)) setPantsSize(pantsSize);
-        if (Array.isArray(shoesSize.data)) setShoesSize(shoesSize);
-        if (Array.isArray(parent.data)) setParent(parent);
-        if (Array.isArray(carrera.data)) setCarrera(carrera);
-      } catch {
-        setReload(false);
-      } finally {
-        setReload(false);
-      }
-    };
-    loadData();
-  }, [reload]);
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [academyLevel, bloodGroup, maritalStatus, disability, patology] =
-          await Promise.all([
-            getAcademyLevel(),
-            getBloodGroup(),
-
-            getMaritalstatus(),
-            getDisability(),
-
-            getPatologys(),
-          ]);
-        if (Array.isArray(patology.data)) setPatology(patology);
-        if (Array.isArray(academyLevel.data)) setAcademyLevel(academyLevel);
-        if (Array.isArray(bloodGroup.data)) setBloodGroup(bloodGroup);
-
-        if (Array.isArray(disability.data)) setDisability(disability);
-
-        setMaritalStatus(maritalStatus);
-      } catch {
-        setReload(false);
-      } finally {
-        setReload(false);
-      }
-    };
-    loadData();
-  }, [reload]);
-
+  const { data: academyLevel, isLoading: isLoadingAcademyLevel } = useSWR(
+    "academyLevel",
+    async () => await getAcademyLevel(),
+  );
+  const { data: carrera, isLoading: isLoadingCarrera } = useSWR(
+    "carrera",
+    async () => await getCarrera(),
+  );
+  const { data: mencion, isLoading: isLoadingMencion } = useSWR(
+    mencionId ? ["mencion", mencionId] : null,
+    async () => await getMencion(mencionId!),
+  );
+  const { data: maritalStatus, isLoading: isLoadingMaritalStatus } = useSWR(
+    "maritalStatus",
+    async () => await getMaritalstatus(),
+  );
   const form = useForm({
     defaultValues,
     resolver: zodResolver(schemaFamilyFormity),
     mode: "onSubmit",
   });
-  const getMentions = async (id: string) => {
-    const responseMentions = await getMencion(id);
-    if (Array.isArray(responseMentions.data)) setMencion(responseMentions);
-  };
-  const onSubmitFormity = (data: FamilyEmployeeType) => {
-    onSubmit(data);
-  };
-  const { append, remove, fields } = useFieldArray({
-    name: "familys",
-    control: form.control,
-  });
+  const { data: shirtSize, isLoading: isLoadingShirtSize } = useSWR(
+    "shirtSize",
+    async () => await getShirtSize(),
+  );
+  const { data: pantsSize, isLoading: isLoadingPantsSize } = useSWR(
+    "pantsSize",
+    async () => await getPantsSize(),
+  );
+  const { data: shoesSize, isLoading: isLoadingShoesSize } = useSWR(
+    "shoesSize",
+    async () => await getShoesSize(),
+  );
 
+  const { data: patology, isLoading: isLoadingPatology } = useSWR(
+    "patology",
+    async () => await getPatologys(),
+  );
+  const { data: bloodGroup, isLoading: isLoadingBloodGroup } = useSWR(
+    "blood",
+    async () => await getBloodGroup(),
+  );
+  const { data: disability, isLoading: isLoadingDisability } = useSWR(
+    "disability",
+    async () => await getDisability(),
+  );
+  const { data: parent, isLoading: isLoadingParen } = useSWR(
+    "parent",
+    async () => getParent(),
+  );
+
+  const { data: sex, isLoading: isLoadingSex } = useSWR(
+    "sex",
+    async () => await getSex(),
+  );
   const disabilityGroupList = useMemo(() => {
-    if (!disability.data) return [];
+    if (!disability?.data) return [];
 
     return disability.data.reduce(
       (acc, item) => {
@@ -238,10 +165,10 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
       },
       [] as { categoria: string; datos: DisabilitysType[] }[],
     );
-  }, [disability.data]);
+  }, [disability?.data]);
 
   const patologyGroupList = useMemo(() => {
-    if (!patology.data) return [];
+    if (!patology?.data) return [];
     return patology.data.reduce(
       (acc, item) => {
         const categoriaNombre = item.categoria.nombre_categoria;
@@ -255,7 +182,14 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
       },
       [] as { categoria: string; datos: PatologysType[] }[],
     );
-  }, [patology.data]);
+  }, [patology?.data]);
+  const onSubmitFormity = (data: FamilyEmployeeType) => {
+    onSubmit(data);
+  };
+  const { append, remove, fields } = useFieldArray({
+    name: "familys",
+    control: form.control,
+  });
   return (
     <Card>
       <CardHeader>
@@ -517,13 +451,16 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                                   <FormControl>
                                     <SelectTrigger className="w-full truncate">
                                       <SelectValue
-                                        placeholder={"Seleccione un Genero"}
+                                        placeholder={`${isLoadingSex ? "Cargando Generos" : "Seleccione un Genero"}`}
                                       />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    <SelectItem value="1">Masculino</SelectItem>
-                                    <SelectItem value="2">Femenino</SelectItem>
+                                    {sex?.data.map((v, i) => (
+                                      <SelectItem value={`${v.id}`} key={i}>
+                                        {v.sexo}
+                                      </SelectItem>
+                                    ))}
                                   </SelectContent>
                                 </Select>
                                 <FormMessage />
@@ -597,14 +534,12 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                                   <FormControl>
                                     <SelectTrigger className="w-full truncate">
                                       <SelectValue
-                                        placeholder={
-                                          "Seleccione Un Estado Civil"
-                                        }
+                                        placeholder={`${isLoadingMaritalStatus ? "Cargando Estado Civil" : "Seleccione Un Estado Civil"}`}
                                       />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    {maritalStatus.data.map((status, i) => (
+                                    {maritalStatus?.data.map((status, i) => (
                                       <SelectItem
                                         key={i}
                                         value={`${status.id}`}
@@ -644,7 +579,7 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    {parent.data.map((parent, i) => (
+                                    {parent?.data.map((parent, i) => (
                                       <SelectItem
                                         key={i}
                                         value={`${parent.id}`}
@@ -660,7 +595,7 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                           />
 
                           {form.watch(`familys.${index}.parentesco`) ==
-                            parent.data.find(
+                            parent?.data.find(
                               (v) => v.descripcion_parentesco === "HIJO (A)",
                             )?.id && (
                             <>
@@ -788,14 +723,12 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                                   <FormControl>
                                     <SelectTrigger className="w-full truncate">
                                       <SelectValue
-                                        placeholder={
-                                          "Seleccione un Nivel Academico"
-                                        }
+                                        placeholder={`${isLoadingAcademyLevel ? "Cargando Niveles Academicos" : "Seleccione un Nivel Academico"}`}
                                       />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    {academyLevel.data.map((nivel, i) => (
+                                    {academyLevel?.data.map((nivel, i) => (
                                       <SelectItem key={i} value={`${nivel.id}`}>
                                         {nivel.nivelacademico}
                                       </SelectItem>
@@ -868,20 +801,18 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                                     <Select
                                       onValueChange={(values) => {
                                         field.onChange(Number.parseInt(values));
-                                        getMentions(values);
+                                        setMencionId(values);
                                       }}
                                     >
                                       <FormControl>
                                         <SelectTrigger className="w-full truncate">
                                           <SelectValue
-                                            placeholder={
-                                              "Seleccione una carrera"
-                                            }
+                                            placeholder={`${isLoadingCarrera ? "Cargando Carreras" : "Seleccione una carrera"}`}
                                           />
                                         </SelectTrigger>
                                       </FormControl>
                                       <SelectContent>
-                                        {carrera.data.map((carrera, i) => (
+                                        {carrera?.data.map((carrera, i) => (
                                           <SelectItem
                                             key={i}
                                             value={`${carrera.id}`}
@@ -911,14 +842,12 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                                       <FormControl>
                                         <SelectTrigger className="w-full truncate">
                                           <SelectValue
-                                            placeholder={
-                                              "Seleccione una mencion academica"
-                                            }
+                                            placeholder={`${isLoadingMencion ? "Cargando Mencion Academica" : "Seleccione una mencion academica"}`}
                                           />
                                         </SelectTrigger>
                                       </FormControl>
                                       <SelectContent>
-                                        {mencion.data.map((mencion, i) => (
+                                        {mencion?.data.map((mencion, i) => (
                                           <SelectItem
                                             key={i}
                                             value={`${mencion.id}`}
@@ -954,14 +883,12 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                                   <FormControl>
                                     <SelectTrigger className="w-full truncate">
                                       <SelectValue
-                                        placeholder={
-                                          "Seleccione una Talla De Camisa"
-                                        }
+                                        placeholder={`${isLoadingShirtSize ? "Cargando tallas De Camisa" : "Seleccione una Talla De Camisa"}`}
                                       />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    {shirtSize.data.map((shirt, i) => (
+                                    {shirtSize?.data.map((shirt, i) => (
                                       <SelectItem key={i} value={`${shirt.id}`}>
                                         {shirt.talla}
                                       </SelectItem>
@@ -986,14 +913,12 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                                   <FormControl>
                                     <SelectTrigger className="w-full truncate">
                                       <SelectValue
-                                        placeholder={
-                                          "Seleccione una Talla De Pantalón"
-                                        }
+                                        placeholder={`${isLoadingPantsSize ? "Cargando tallas de pantalon" : "Seleccione una Talla De Pantalón"}`}
                                       />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    {pantsSize.data.map((pants, i) => (
+                                    {pantsSize?.data.map((pants, i) => (
                                       <SelectItem key={i} value={`${pants.id}`}>
                                         {pants.talla}
                                       </SelectItem>
@@ -1019,14 +944,12 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                                   <FormControl>
                                     <SelectTrigger className="w-full truncate">
                                       <SelectValue
-                                        placeholder={
-                                          "Seleccione una Talla de Zapatos"
-                                        }
+                                        placeholder={`${isLoadingShoesSize ? "Cargando Talla de Zapatos" : "Seleccione una Talla de Zapatos"}`}
                                       />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    {shoesSize.data.map((shoes, i) => (
+                                    {shoesSize?.data.map((shoes, i) => (
                                       <SelectItem key={i} value={`${shoes.id}`}>
                                         {shoes.talla}
                                       </SelectItem>
@@ -1058,14 +981,12 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                                   <FormControl>
                                     <SelectTrigger className="w-full truncate">
                                       <SelectValue
-                                        placeholder={
-                                          "Seleccione un Grupo Sanguineo"
-                                        }
+                                        placeholder={`${isLoadingBloodGroup ? "Cargando Grupos Sanguineo" : "Seleccione un Grupo Sanguineo"}`}
                                       />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    {bloodGroup.data.map((bloodGroup, i) => (
+                                    {bloodGroup?.data.map((bloodGroup, i) => (
                                       <SelectItem
                                         key={i}
                                         value={`${bloodGroup.id}`}
@@ -1086,7 +1007,7 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                                 Patologias (Opcional)
                               </h2>
                               {patologyGroupList.map((patologys, index) => (
-                                <>
+                                <div key={index}>
                                   <h2 className="p-2 text-sm">
                                     * {patologys.categoria.toUpperCase()}
                                   </h2>
@@ -1139,7 +1060,7 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                                       />
                                     </div>
                                   ))}
-                                </>
+                                </div>
                               ))}
                             </div>
                             <Separator

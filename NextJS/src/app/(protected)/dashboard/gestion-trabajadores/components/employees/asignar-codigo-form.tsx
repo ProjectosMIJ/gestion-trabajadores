@@ -51,58 +51,47 @@ import {
 import { Spinner } from "../../../../../../components/ui/spinner";
 import z from "zod";
 import { AsignCode } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/asignar-codigo/actions/asign-code";
+import useSWR from "swr";
 export function AsigCode() {
   const [searchEmployee, setSearchEmployee] = useState<string | undefined>(
     undefined,
   );
-  const [isLoading, setIsloading] = useState<boolean>(false);
-  const [selecteCodes, setSelecteCodes] = useState<Code[]>([]);
-  const [selectedCode, setSelectedCode] = useState<number>();
 
+  const [selectedCodeId, setSelectedCodeId] = useState<number>();
+  const [isLoading, setIsloading] = useState<boolean>(false);
+  const [selectedCode, setSelectedCode] = useState<ApiResponse<Code[]>>();
   const [selecteIdDirectionGeneral, setSelecteIdDirectionGeneral] =
     useState<string>();
-
   const [selecteIdDirectionLine, setSelecteIdDirectionLine] =
     useState<string>();
-
   const [selecteIdCoordination, setSelecteIdCoordination] = useState<string>();
-
   const [employee, setEmployee] = useState<EmployeeInfo | []>();
   const [isPending, startTransition] = useTransition();
-  const [directionGeneral, setDirectionGeneral] = useState<
-    ApiResponse<DirectionGeneral[]>
-  >({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [directionLine, setDirectionLine] = useState<
-    ApiResponse<DirectionLine[]>
-  >({
-    status: "",
-    message: "",
-    data: [],
-  });
-  const [coordination, setCoordination] = useState<ApiResponse<Coordination[]>>(
-    {
-      status: "",
-      message: "",
-      data: [],
-    },
+  const { data: directionGeneral, isLoading: isLoadingDirectionGeneral } =
+    useSWR("directionGeneral", async () => await getDirectionGeneral());
+  const { data: directionLine, isLoading: isLoadingDirectionLine } = useSWR(
+    selecteIdDirectionGeneral
+      ? ["directionLine", selecteIdDirectionGeneral]
+      : "",
+    async () => await getDirectionLine(selecteIdDirectionGeneral!),
+  );
+  const { data: coordination, isLoading: isLoadingCoordination } = useSWR(
+    selecteIdDirectionLine ? ["coordination", selecteIdDirectionLine] : null,
+    async () => await getCoordination(selecteIdDirectionLine!),
   );
 
-  const loadData = async () => {
-    try {
-      const directionGeneral = await getDirectionGeneral();
-
-      if (Array.isArray(directionGeneral.data)) {
-        setDirectionGeneral(directionGeneral);
-      }
-    } catch {
-      toast.error("Error cargando datos:");
-    }
+  const searchCodeByGeneral = async (id: string) => {
+    const code = await getCodeByDirectionGeneral(id);
+    setSelectedCode(code);
   };
-  loadData();
+  const searchCodeByLine = async (id: string) => {
+    const code = await getCodeByDirectionLine(id);
+    setSelectedCode(code);
+  };
+  const searchCodeByCoord = async (id: string) => {
+    const code = await getCodeByCoordination(id);
+    setSelectedCode(code);
+  };
 
   const form = useForm({
     resolver: zodResolver(schemaAsignCode),
@@ -117,72 +106,13 @@ export function AsigCode() {
       setEmployee(getEmployee.data);
     }
   };
-  const getByDirectionLine = async (id: string) => {
-    const directionLine = await getDirectionLine(id);
-    if (Array.isArray(directionLine.data)) setDirectionLine(directionLine);
-  };
-  const getByCoordination = async (id: string) => {
-    const coordination = await getCoordination(id);
-    if (Array.isArray(coordination.data)) setCoordination(coordination);
-  };
 
-  const searchCodeByDirectionGeneral = async () => {
-    if (!selecteIdDirectionGeneral) {
-      return;
-    }
-    try {
-      setIsloading(true);
-      setSelecteCodes([]);
-      const code = await getCodeByDirectionGeneral(selecteIdDirectionGeneral);
-      if (Array.isArray(code.data)) setSelecteCodes(code.data);
-      setIsloading(false);
-    } catch {
-      setIsloading(false);
-    } finally {
-      setIsloading(false);
-    }
-  };
-  const searchCodeByDirectionLine = async () => {
-    if (!selecteIdDirectionLine) {
-      return;
-    }
-    try {
-      setIsloading(true);
-      setSelecteCodes([]);
-
-      const code = await getCodeByDirectionLine(selecteIdDirectionLine);
-
-      if (Array.isArray(code.data)) setSelecteCodes(code.data);
-      setIsloading(false);
-    } catch {
-      setIsloading(false);
-    } finally {
-    }
-  };
-  const searchCodeByCoordination = async () => {
-    if (!selecteIdCoordination) {
-      return;
-    }
-    try {
-      setIsloading(true);
-      setSelecteCodes([]);
-
-      const code = await getCodeByCoordination(selecteIdCoordination);
-      if (Array.isArray(code.data)) setSelecteCodes(code.data);
-      setIsloading(false);
-    } catch {
-      setIsloading(false);
-    } finally {
-      setIsloading(false);
-    }
-  };
   const onSubmit = (data: z.infer<typeof schemaAsignCode>) => {
     startTransition(async () => {
       const response = await AsignCode(data);
       if (response.success) {
         toast.success(response.message);
         setEmployee([]);
-        setSelecteCodes([]);
         setSearchEmployee("");
       } else {
         toast.error(response.message);
@@ -228,17 +158,18 @@ export function AsigCode() {
               <div className={"flex flex-col gap-2 jus"}>
                 <Select
                   onValueChange={(value) => {
-                    getByDirectionLine(value);
                     setSelecteIdDirectionGeneral(value);
                   }}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Seleccionar Direccion General" />
+                    <SelectValue
+                      placeholder={`${isLoadingDirectionGeneral ? "Cargando Direccioens Generales" : "Seleccionar Direccion General"}`}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Direcciones De Generales</SelectLabel>
-                      {directionGeneral.data.map((general, i) => (
+                      {directionGeneral?.data.map((general, i) => (
                         <SelectItem key={i} value={`${general.id}`}>
                           {general.Codigo}-{general.direccion_general}
                         </SelectItem>
@@ -246,24 +177,30 @@ export function AsigCode() {
                     </SelectGroup>
                   </SelectContent>
                 </Select>
-                <Button onClick={searchCodeByDirectionGeneral}>
+                <Button
+                  className="cursor-pointer"
+                  onClick={() =>
+                    searchCodeByGeneral(selecteIdDirectionGeneral!)
+                  }
+                >
                   Buscar Codigo Por Direccion General
                 </Button>
               </div>
               <div className={"flex flex-col gap-2 jus"}>
                 <Select
                   onValueChange={(value) => {
-                    getByCoordination(value);
                     setSelecteIdDirectionLine(value);
                   }}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Seleccionar Direccion De Linea" />
+                    <SelectValue
+                      placeholder={` ${isLoadingDirectionLine ? "Cargando Direcciones de Linea" : "Seleccionar Direccion De Linea"}`}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Direcciones De Linea</SelectLabel>
-                      {directionLine.data.map((line, i) => (
+                      {directionLine?.data.map((line, i) => (
                         <SelectItem key={i} value={`${line.id}`}>
                           {line.Codigo}-{line.direccion_linea}
                         </SelectItem>
@@ -271,7 +208,10 @@ export function AsigCode() {
                     </SelectGroup>
                   </SelectContent>
                 </Select>
-                <Button onClick={searchCodeByDirectionLine}>
+                <Button
+                  className="cursor-pointer"
+                  onClick={() => searchCodeByLine(selecteIdDirectionLine!)}
+                >
                   Buscar Codigo Por Direccion De Linea
                 </Button>
               </div>
@@ -280,22 +220,27 @@ export function AsigCode() {
                   onValueChange={(value) => setSelecteIdCoordination(value)}
                 >
                   <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Seleccionar Coordinacion" />
+                    <SelectValue
+                      placeholder={`${isLoadingCoordination ? "Cargando Coordinaciones" : "Seleccionar Coordinacion"} `}
+                    />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
                       <SelectLabel>Coordinaciones</SelectLabel>
-                      {coordination.data.map((coord, i) => (
+                      {coordination?.data.map((coord, i) => (
                         <SelectItem key={i} value={`${coord.id}`}>
                           {coord.Codigo}-{coord.coordinacion}
                         </SelectItem>
                       ))}
                     </SelectGroup>
                   </SelectContent>
+                  <Button
+                    className="cursor-pointer"
+                    onClick={() => searchCodeByCoord(selecteIdCoordination!)}
+                  >
+                    Buscar Codigo Por Coordinacion
+                  </Button>
                 </Select>
-                <Button onClick={searchCodeByCoordination}>
-                  Buscar Codigo Por Coordinacion
-                </Button>
               </div>
             </div>
           )}
@@ -303,7 +248,7 @@ export function AsigCode() {
             <div>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)}>
-                  {selecteCodes && (
+                  {selectedCode && (
                     <>
                       {!isLoading ? (
                         <>
@@ -318,7 +263,7 @@ export function AsigCode() {
                                 <Select
                                   onValueChange={(values) => {
                                     field.onChange(Number.parseInt(values));
-                                    setSelectedCode(Number.parseInt(values));
+                                    setSelectedCodeId(Number.parseInt(values));
                                   }}
                                 >
                                   <FormControl>
@@ -329,14 +274,8 @@ export function AsigCode() {
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    {selecteCodes.map((codes, i) => (
-                                      <SelectItem
-                                        key={i}
-                                        value={`${codes.id}`}
-                                        onClick={() =>
-                                          getByCoordination(codes.id.toString())
-                                        }
-                                      >
+                                    {selectedCode.data.map((codes, i) => (
+                                      <SelectItem key={i} value={`${codes.id}`}>
                                         {codes.codigo}
                                       </SelectItem>
                                     ))}
@@ -347,83 +286,89 @@ export function AsigCode() {
                               </FormItem>
                             )}
                           />
-                          {selecteCodes.find((v) => v.id === selectedCode) && (
+                          {selectedCode.data.find(
+                            (v) => v.id === selectedCodeId,
+                          ) && (
                             <div className="rounded-sm border-2 border-b-emerald-400-400/45 bg-emerald-200/40 p-2 mt-4">
                               <p>
                                 Direccion General:{" "}
                                 {
-                                  selecteCodes.find(
-                                    (v) => v.id === selectedCode,
+                                  selectedCode.data.find(
+                                    (v) => v.id === selectedCodeId,
                                   )?.DireccionGeneral.direccion_general
                                 }
                               </p>
                               <p>
                                 {" "}
                                 Direccion De Linea:{" "}
-                                {selecteCodes.find((v) => v.id === selectedCode)
-                                  ?.DireccionLinea?.direccion_linea
-                                  ? selecteCodes.find(
-                                      (v) => v.id === selectedCode,
+                                {selectedCode.data.find(
+                                  (v) => v.id === selectedCodeId,
+                                )?.DireccionLinea?.direccion_linea
+                                  ? selectedCode.data.find(
+                                      (v) => v.id === selectedCodeId,
                                     )?.DireccionLinea?.direccion_linea
                                   : "N/A"}
                               </p>
                               <p>
                                 {" "}
                                 Coordinacion:{" "}
-                                {selecteCodes.find((v) => v.id === selectedCode)
-                                  ?.Coordinacion?.coordinacion
-                                  ? selecteCodes.find(
-                                      (v) => v.id === selectedCode,
+                                {selectedCode.data.find(
+                                  (v) => v.id === selectedCodeId,
+                                )?.Coordinacion?.coordinacion
+                                  ? selectedCode.data.find(
+                                      (v) => v.id === selectedCodeId,
                                     )?.Coordinacion?.coordinacion
                                   : "N/A"}
                               </p>
                               <p>
                                 Organismo Adscrito:{" "}
-                                {selecteCodes.find((v) => v.id === selectedCode)
-                                  ?.OrganismoAdscrito
-                                  ? selecteCodes.find(
-                                      (v) => v.id === selectedCode,
+                                {selectedCode.data.find(
+                                  (v) => v.id === selectedCodeId,
+                                )?.OrganismoAdscrito
+                                  ? selectedCode.data.find(
+                                      (v) => v.id === selectedCodeId,
                                     )?.OrganismoAdscrito
                                   : "N/A"}
                               </p>
                               <p>
                                 Grado:{" "}
-                                {selecteCodes.find((v) => v.id === selectedCode)
-                                  ?.grado?.grado
-                                  ? selecteCodes.find(
-                                      (v) => v.id === selectedCode,
+                                {selectedCode.data.find(
+                                  (v) => v.id === selectedCodeId,
+                                )?.grado?.grado
+                                  ? selectedCode.data.find(
+                                      (v) => v.id === selectedCodeId,
                                     )?.grado?.grado
                                   : "N/A"}
                               </p>
                               <p>
                                 Cargo:{" "}
                                 {
-                                  selecteCodes.find(
-                                    (v) => v.id === selectedCode,
+                                  selectedCode.data.find(
+                                    (v) => v.id === selectedCodeId,
                                   )?.denominacioncargo.cargo
                                 }
                               </p>
                               <p>
                                 Cargo Especifico:{" "}
                                 {
-                                  selecteCodes.find(
-                                    (v) => v.id === selectedCode,
+                                  selectedCode.data.find(
+                                    (v) => v.id === selectedCodeId,
                                   )?.denominacioncargoespecifico.cargo
                                 }
                               </p>
                               <p>
                                 Estatus:{" "}
                                 {
-                                  selecteCodes.find(
-                                    (v) => v.id === selectedCode,
+                                  selectedCode.data.find(
+                                    (v) => v.id === selectedCodeId,
                                   )?.estatusid.estatus
                                 }
                               </p>
                               <p>
                                 Tipo De Nomina:{" "}
                                 {
-                                  selecteCodes.find(
-                                    (v) => v.id === selectedCode,
+                                  selectedCode.data.find(
+                                    (v) => v.id === selectedCodeId,
                                   )?.tiponomina.nomina
                                 }
                               </p>
@@ -436,7 +381,10 @@ export function AsigCode() {
                           Cargando...
                         </Spinner>
                       )}
-                      <Button className="w-full mt-2" disabled={isPending}>
+                      <Button
+                        className="w-full mt-2 cursor-pointer"
+                        disabled={isPending}
+                      >
                         {isPending ? "Asignando Codigo" : "Asignar Codigo"}
                       </Button>
                     </>
