@@ -746,53 +746,51 @@ class AsigCargoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = AsigTrabajo
-        fields = [
-            'employee',
-            'usuario_id'
-        ]
-    
-    
+        fields = ['employee', 'usuario_id']
 
-        
     def validate(self, attrs):
-
         try:
-            attrs['estatusid'] = Estatus.objects.get(estatus__iexact=ESTATUS_ACTIVO)
+            # Asegúrate de que ESTATUS_ACTIVO esté definido o usa el string directamente
+            attrs['estatusid'] = Estatus.objects.get(estatus__iexact='ACTIVO')
         except Estatus.DoesNotExist:
-            raise serializers.ValidationError(
-                "El estatus ACTIVO no existe"
-            )
-        
+            raise serializers.ValidationError("El estatus ACTIVO no existe")
         return attrs
-    
+
     def update(self, instance, validated_data):
-     
+        # 1. Extraemos los datos necesarios
         usuario = validated_data.pop('usuario_id')
         estatus_activo = validated_data.pop('estatusid')
-    
-        instance.employee = validated_data.get('employee', instance.employee)
-        instance.estatusid = estatus_activo
+        # Obtenemos el nuevo empleado del validated_data (si viene) o el actual
+        nuevo_empleado = validated_data.get('employee', instance.employee)
 
+        # 2. Validación preventiva: si no hay empleado, no podemos seguir
+        if not nuevo_empleado:
+            raise serializers.ValidationError(
+                {"employee": "Se requiere un empleado para realizar esta asignación."}
+            )
+
+        # 3. Actualizamos y guardamos la instancia de AsigTrabajo
+        instance.employee = nuevo_empleado
+        instance.estatusid = estatus_activo
         instance._history_user = usuario
-    
         instance.save()
         
+        # 4. Intentamos registrar el historial
         try:
             motivo_ingreso = Tipo_movimiento.objects.get(movimiento__iexact="ASIGNACION DE CARGO")
-        except Tipo_movimiento.DoesNotExist:
-   
-            raise serializers.ValidationError("El motivo 'ASIGNACION DE CARGO' no existe en el sistema")
-            #  REGISTRA EL MOVIMIENTO EN EL HISTORIAL 
-        registrar_historial_movimiento(
-                empleado=instance.employee,
+            
+            # PASAMOS 'nuevo_empleado' directamente para asegurar que no sea NULL
+            registrar_historial_movimiento(
+                empleado=nuevo_empleado,
                 puesto=instance,
                 tipo_movimiento='INGRESO',
                 motivo=motivo_ingreso,
                 usuario=usuario
-        )
-             
-        return instance
+            )
+        except Tipo_movimiento.DoesNotExist:
+            raise serializers.ValidationError("El motivo 'ASIGNACION DE CARGO' no existe")
 
+        return instance
 
 # -------------------------------
 # serializer para asignar codigo autogenerable
@@ -802,82 +800,78 @@ class RegisterCargoEspecialSerializer(serializers.ModelSerializer):
         queryset=User.objects.all(), 
         write_only=True
     )
+
     class Meta: 
         model = AsigTrabajo
-        exclude = ['Tipo_personal','estatusid', 'codigo','observaciones']
-        
+        exclude = ['Tipo_personal', 'estatusid', 'codigo', 'observaciones']
+
     def to_internal_value(self, data):
-        data = data.copy() if hasattr(data, 'copy') else data.copy()
-        
-        fk_fields = ['OrganismoAdscritoid', 'gradoid', 'Coordinacion', 'DireccionLinea', 'DireccionGeneral']
-
+        # Corrección: data.copy() solo una vez
+        data = data.copy() if hasattr(data, 'copy') else data
+        fk_fields = ['OrganismoAdscrituitid', 'gradoid', 'Coordinacion', 'DireccionLinea', 'DireccionGeneral']
         for field in fk_fields:
-            if data.get(field) == 0:
+            if data.get(field) == 0 or data.get(field) == "0":
                 data[field] = None
-            
         return super().to_internal_value(data)
-    
-        # validacion para el tipo de nomina 
-    def validate_tiponominaid(self,value):
-        if not value.requiere_codig:
-            raise serializers.ValidationError(
-                'El registro de este tipo de nomina no es permitido'
-            )
-        return value
-    
-    def validate(self, attrs):
 
+    def validate_tiponominaid(self, value):
+        if not value.requiere_codig:
+            raise serializers.ValidationError('El registro de este tipo de nomina no es permitido')
+        return value
+
+    def validate(self, attrs):
+        # 1. Obtención de objetos necesarios
         try:
             attrs['estatus_obj'] = Estatus.objects.get(estatus__iexact=ESTATUS_ACTIVO)
-        except Estatus.DoesNotExist:
-            raise serializers.ValidationError("El estatus ACTIVO no existe")
-
-        try:
             attrs['personal_obj'] = Tipo_personal.objects.get(tipo_personal__iexact=PERSONAL_ACTIVO)
-        except Tipo_personal.DoesNotExist:
-            raise serializers.ValidationError("El tipo de personal ACTIVO no existe")
-        
+        except (Estatus.DoesNotExist, Tipo_personal.DoesNotExist) as e:
+            raise serializers.ValidationError(f"Error de configuración: {str(e)}")
+
+        # 2. Generación de código
         tipo_nomina = attrs.get('tiponominaid')
         if not tipo_nomina or not tipo_nomina.nomina:
-            raise serializers.ValidationError("El tipo de nomina no tiene una descripcion valida")
+            raise serializers.ValidationError("El tipo de nomina no es válida")
 
         nombre_nomina = tipo_nomina.nomina.upper()
         palabras_ignorar = ['DE', 'LA', 'EL', 'Y', 'LOS', 'LAS', 'EN', 'PARA']
         palabras = [word for word in nombre_nomina.split() if word not in palabras_ignorar]
         
-        if not palabras:
-            raise serializers.ValidationError("No se pudo generar un prefijo desde el nombre de la nomina.")
-
-        prefix = "".join([word[0] for word in palabras]) + "_"
-
+        prefix = "".join([word[0] for word in palabras]) + "_" if palabras else "GEN_"
         attrs['codigo_generado'] = generador_codigos(prefix)
 
         return attrs 
-    
-    def create(self,validated_data):
+
+    def create(self, validated_data):
+        # Extraer datos que no van directo al modelo AsigTrabajo
         usuario_obj = validated_data.pop('usuario_id')
         estatus_obj = validated_data.pop('estatus_obj')
         personal_obj = validated_data.pop('personal_obj')
         codigo_generado = validated_data.pop('codigo_generado')
-        tipo_nomina_nombre = validated_data.get('tiponominaid').nomina
+        
+        # El empleado es obligatorio para el historial
+        empleado_obj = validated_data.get('employee')
+        if not empleado_obj:
+            raise serializers.ValidationError({"employee": "Debe asignar un empleado para registrar el historial."})
 
         try:
             with transaction.atomic():
-                validated_data['estatusid'] = estatus_obj
-                validated_data['Tipo_personal'] = personal_obj
-                validated_data['codigo'] = codigo_generado
-
+                # Preparar instancia
                 instance = AsigTrabajo(**validated_data)
+                instance.estatusid = estatus_obj
+                instance.Tipo_personal = personal_obj
+                instance.codigo = codigo_generado
                 instance._history_user = usuario_obj
                 instance.save() 
 
+                # Buscar motivo
                 try:
-                   motivo_ingreso = Tipo_movimiento.objects.get(movimiento__iexact="ASIGNACION DE CARGO")
+                    motivo_ingreso = Tipo_movimiento.objects.get(movimiento__iexact="ASIGNACION DE CARGO")
                 except Tipo_movimiento.DoesNotExist:
-                  raise serializers.ValidationError("El motivo 'ASIGNACION DE CARGO' no existe en el sistema")
-              
+                    raise ValueError("El motivo 'ASIGNACION DE CARGO' no existe")
+
+                # Registrar Historial usando el objeto empleado_obj validado
                 registrar_historial_movimiento(
-                    empleado=instance.employee, 
+                    empleado=empleado_obj, 
                     puesto=instance,
                     tipo_movimiento='INGRESO',
                     motivo=motivo_ingreso,
@@ -886,11 +880,10 @@ class RegisterCargoEspecialSerializer(serializers.ModelSerializer):
 
                 return instance
 
-        except Exception:
-            raise serializers.ValidationError( "No se pudo completar el registro"
-            )
-         
-
+        except Exception as e:
+            # Importante: Esto te permite ver en consola qué falló realmente durante el desarrollo
+            print(f"DEBUG: Error en create: {str(e)}")
+            raise serializers.ValidationError(f"No se pudo completar el registro: {str(e)}")
 # class ReporteDinamicoSerializer(serializers.Serializer):
 #     TIPO_REPORTE_CHOICES = [
 #         ('conteo', 'Conteo de registros'),
