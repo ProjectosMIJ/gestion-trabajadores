@@ -615,7 +615,7 @@ class EmployeeCargoSerializer(serializers.ModelSerializer):
         vivienda = obj.datos_vivienda_set.first()
         if not vivienda: return None
         return {
-            "estado": EstadoSerializer(vivienda.estado_id).data ,
+            "estado": EstadoSerializer(vivienda.estado_id).data,
             "municipio": MunicipioSerializer(vivienda.municipio_id).data,
             "parroquia": ParroquiaSerializer(vivienda.parroquia).data,
             "direccionExacta": vivienda.direccion_exacta,
