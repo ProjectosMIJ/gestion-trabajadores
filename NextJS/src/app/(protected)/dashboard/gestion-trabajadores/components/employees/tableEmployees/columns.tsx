@@ -1,0 +1,463 @@
+"use client";
+import { Background, EmployeeData } from "@/app/types/types";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Ambulance,
+  ClipboardCheck,
+  ContactRound,
+  GraduationCap,
+  House,
+  Shirt,
+} from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
+import { ColumnDef } from "@tanstack/react-table";
+import { MoreHorizontal } from "lucide-react";
+import { DataTableColumnHeader } from "./data-table-column-header";
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import {
+  SheetContentUI,
+  SheetHeaderUI,
+  SheetTitleUI,
+  SheetTriggerUI,
+  SheetUI,
+} from "@/components/ui/SheetUI";
+export const columns: ColumnDef<EmployeeData>[] = [
+  {
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomePageRowsSelected() && "indeterminate")
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label="Select all"
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label="Select row"
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
+
+  {
+    accessorKey: "cedulaidentidad",
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Cedula" />
+    ),
+  },
+  {
+    accessorKey: "nombres",
+    header: "Nombres",
+  },
+  {
+    accessorKey: "apellidos",
+    header: "Apellidos",
+  },
+  {
+    accessorKey: "sex",
+    header: "Sexo",
+  },
+  {
+    accessorKey: "fecha_nacimiento",
+    header: "fecha_nacimiento",
+  },
+  {
+    accessorKey: "n_contrato",
+    header: "Número De Ingreso",
+  },
+  {
+    accessorKey: "fechaingresoorganismo",
+    header: "Fecha De Ingreso Al Organismo",
+  },
+
+  {
+    accessorKey: "actions",
+    header: "Acciones",
+    cell: ({ row }) => {
+      const employee = row.original;
+
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Open menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+            <DropdownMenuItem
+              onClick={() =>
+                navigator.clipboard.writeText(employee.cedulaidentidad)
+              }
+            >
+              Copiar Cedula De Identidad
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuLabel>Extras</DropdownMenuLabel>
+
+            <DropdownMenuItem asChild>
+              <SheetUI>
+                <SheetTriggerUI
+                  className={` w-full bg-blue-900 p-2 rounded-sm text-white`}
+                >
+                  Ver Detalles
+                </SheetTriggerUI>
+                <SheetContentUI className="w-400">
+                  <ScrollArea className="h-screen">
+                    <SheetHeaderUI>
+                      <SheetTitleUI>
+                        Informacion Detallada Del Trabajador
+                      </SheetTitleUI>
+                    </SheetHeaderUI>
+                    <div className="flex flex-col m-auto justify-between h-full w-full gap-2">
+                      <div className="w-60 h-60 m-auto rounded-sm flex flex-col">
+                        <img
+                          src="/bg.png"
+                          className="rounded-sm object-cover w-full h-full"
+                        />
+                        <h2 className="w-full m-auto font-bold text-center">
+                          {employee.nombres} {employee.apellidos}
+                        </h2>
+                      </div>
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex flex-row items-center gap-3">
+                            {employee.asignaciones.length > 1
+                              ? "Detalles De Cargos Asignados"
+                              : "Detalles Del Cargo"}{" "}
+                            <ContactRound />
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <ScrollArea className="h-64">
+                            <div className="flex flex-col gap-2">
+                              {employee.asignaciones.map((v, i) => (
+                                <div
+                                  className="grid grid-cols-2 place-content-center"
+                                  key={i}
+                                >
+                                  <div>Codigo:</div>
+                                  <div>{v.codigo}</div>
+                                  <div>Cargo:</div>
+                                  <div>{v.denominacioncargo.cargo}</div>
+                                  <div>Cargo Especifico:</div>
+                                  <div>
+                                    {v.denominacioncargoespecifico.cargo}
+                                  </div>
+                                  <div>Tipo De Nomina:</div>
+                                  <div>{v.tiponomina.nomina}</div>
+                                  <div>Direccion General:</div>
+                                  <div>
+                                    {v.DireccionGeneral
+                                      ? v.DireccionGeneral.direccion_general
+                                      : "N/A"}
+                                  </div>
+                                  <div>Direccion De Linea:</div>
+                                  <div>
+                                    {v.DireccionLinea
+                                      ? v.DireccionLinea?.direccion_linea
+                                      : "N/A"}
+                                  </div>
+                                  <div>Coordinacion</div>
+                                  <div>
+                                    {v.Coordinacion
+                                      ? v.Coordinacion?.coordinacion
+                                      : "N/A"}
+                                  </div>
+                                  <div>Grado</div>
+                                  <div>{v.grado ? v.grado.grado : "N/A"}</div>
+                                  <div>Organismo Adscrito</div>
+                                  <div>
+                                    {v.OrganismoAdscrito
+                                      ? v.OrganismoAdscrito.Organismoadscrito
+                                      : "N/A"}
+                                  </div>
+                                  <Separator
+                                    className="w-full h-5 bg-slate-500 col-span-2"
+                                    orientation="horizontal"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </ScrollArea>
+                        </CardContent>
+                      </Card>
+                      {employee.antecedentes.length > 0 && (
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="flex flex-row items-center gap-3">
+                              Antecedentes <ClipboardCheck />
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <Table>
+                              <TableCaption>
+                                Lista De Antecedentes En La APN.
+                              </TableCaption>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead className="w-[100px]">
+                                    Fecha De ingreso
+                                  </TableHead>
+                                  <TableHead>Fecha De Egreso</TableHead>
+                                  <TableHead className="text-left">
+                                    Intitucion/Ente
+                                  </TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {(() => {
+                                  let totalYears = 0;
+                                  employee.antecedentes.map((v: Background) => {
+                                    if (!v.fecha_ingreso || !v.fecha_egreso)
+                                      return;
+
+                                    const start = new Date(v.fecha_ingreso);
+                                    const end = new Date(v.fecha_egreso);
+                                    const years =
+                                      (end.getTime() - start.getTime()) /
+                                      (1000 * 60 * 60 * 24 * 365);
+                                    totalYears += years;
+                                  });
+                                  return (
+                                    <>
+                                      {employee.antecedentes.map((v, i) => (
+                                        <TableRow key={i}>
+                                          <TableCell className="font-medium">
+                                            {v.fecha_ingreso}
+                                          </TableCell>
+                                          <TableCell>
+                                            {v.fecha_egreso}
+                                          </TableCell>
+                                          <TableCell>{v.institucion}</TableCell>
+                                        </TableRow>
+                                      ))}
+                                      <TableRow>
+                                        <TableCell
+                                          colSpan={3}
+                                          className="text-right font-bold"
+                                        >
+                                          Total años: {Math.round(totalYears)}
+                                        </TableCell>
+                                      </TableRow>
+                                    </>
+                                  );
+                                })()}
+                              </TableBody>
+                            </Table>
+                          </CardContent>
+                        </Card>
+                      )}
+
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex flex-row items-center gap-3">
+                            Datos De Vivienda <House />
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-2 place-content-center">
+                            <div>Estado:</div>
+                            <div>{employee.datos_vivienda.estado.estado}</div>
+                            <div>Municipio:</div>
+                            <div>
+                              {employee.datos_vivienda.municipio.municipio}
+                            </div>
+                            <div>Parroquia:</div>
+                            <div>
+                              {employee.datos_vivienda.parroquia.parroquia}
+                            </div>
+                            <div>Condicion De Vivienda:</div>
+                            <div>
+                              {employee.datos_vivienda.condicion.condicion}
+                            </div>
+                            <div>Direccion De Habitación:</div>
+                            <div>{employee.datos_vivienda.direccionExacta}</div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex flex-row items-center gap-3">
+                            Formaciones Academicas <GraduationCap />
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-2 place-content-center">
+                            <div>Nivel Academico:</div>
+                            <div>
+                              {employee.formacion_academica.nivelAcademico
+                                ? employee.formacion_academica.nivelAcademico
+                                    .nivelacademico
+                                : "N/A"}
+                            </div>
+                            <div>Carrera:</div>
+                            <div>
+                              {employee.formacion_academica.nivelAcademico
+                                ? employee.formacion_academica.carrera
+                                    ?.nombre_carrera
+                                : "N/A"}
+                            </div>
+                            <div>Mención:</div>
+                            <div>
+                              {employee.formacion_academica.nivelAcademico
+                                ? employee.formacion_academica.mension
+                                    ?.nombre_mencion
+                                : "N/A"}
+                            </div>
+                            <div>Institucion:</div>
+                            <div>
+                              {employee.formacion_academica.nivelAcademico
+                                ? employee.formacion_academica.institucion
+                                : "N/A"}
+                            </div>
+
+                            <div>Capacitación</div>
+                            <div>
+                              {employee.formacion_academica.capacitacion}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex flex-row items-center gap-3">
+                            Informacion De Vestimenta <Shirt />
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-2 place-content-center">
+                            <div>Talla De Camisa:</div>
+                            <div>
+                              {employee.perfil_fisico.tallaCamisa
+                                ? employee.perfil_fisico.tallaCamisa.talla
+                                : "N/A"}
+                            </div>
+                            <div>Talla de Pantalon:</div>
+                            <div>
+                              <div>
+                                {employee.perfil_fisico.tallaPantalon
+                                  ? employee.perfil_fisico.tallaPantalon.talla
+                                  : "N/A"}
+                              </div>
+                            </div>
+                            <div>Talla De Calzado:</div>
+                            <div>
+                              <div>
+                                {employee.perfil_fisico.tallaZapatos
+                                  ? employee.perfil_fisico.tallaZapatos.talla
+                                  : "N/A"}
+                              </div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="flex flex-row items-center gap-3">
+                            Informacion De Salud
+                            <Ambulance />
+                          </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-2 place-content-center">
+                            <div>Tipo De Sangre:</div>
+                            <div>
+                              {employee.perfil_salud.grupoSanguineo
+                                ? employee.perfil_salud.grupoSanguineo
+                                    .GrupoSanguineo
+                                : "N/A"}
+                            </div>
+                            {employee.perfil_salud.patologiasCronicas.length >
+                              0 && (
+                              <Table className="col-span-2">
+                                <TableCaption>
+                                  Lista De Patologias Del Trabajador
+                                </TableCaption>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead>Categoria</TableHead>
+                                    <TableHead>Patologia</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {employee.perfil_salud.patologiasCronicas.map(
+                                    (v, i) => (
+                                      <TableRow key={i}>
+                                        <TableCell className="font-medium">
+                                          {v.categoria.nombre_categoria}
+                                        </TableCell>
+                                        <TableCell>{v.patologia}</TableCell>
+                                      </TableRow>
+                                    ),
+                                  )}
+                                </TableBody>
+                              </Table>
+                            )}
+                            {employee.perfil_salud.discapacidad.length > 0 && (
+                              <Table className="col-span-2">
+                                <TableCaption>
+                                  Lista De Discapcidades Del Trabajador
+                                </TableCaption>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead>Categoria</TableHead>
+                                    <TableHead>Discapacidad</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {employee.perfil_salud.discapacidad.map(
+                                    (v, i) => (
+                                      <TableRow key={i}>
+                                        <TableCell className="font-medium">
+                                          {v.categoria.nombre_categoria}
+                                        </TableCell>
+                                        <TableCell>{v.discapacidad}</TableCell>
+                                      </TableRow>
+                                    ),
+                                  )}
+                                </TableBody>
+                              </Table>
+                            )}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </ScrollArea>
+                </SheetContentUI>
+              </SheetUI>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
+    },
+  },
+];

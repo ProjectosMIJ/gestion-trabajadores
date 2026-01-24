@@ -5,8 +5,24 @@ export interface ApiResponse<T> {
 }
 
 export type AcademyLevel = {
-  id: number;
-  nivelacademico: string;
+  nivelAcademico: {
+    id: number;
+    nivelacademico: string;
+  } | null;
+  institucion: string;
+  capacitacion: string;
+  carrera: {
+    id: number;
+    nombre_carrera: string;
+  } | null;
+  mension: {
+    id: number;
+    nombre_mencion: string;
+    carrera: {
+      id: number;
+      nombre_carrera: string;
+    };
+  } | null;
 };
 export interface Municipality {
   id: number;
@@ -160,8 +176,12 @@ export interface Coordination {
 
 export interface DireccionGeneral {
   id: number;
-  Codigo: string;
   direccion_general: string;
+  dependencia: {
+    id: number;
+    Codigo: string;
+    dependencia: string;
+  };
 }
 export interface DireccionLinea {
   id: number;
@@ -177,32 +197,69 @@ export interface Municipality {
   id: number;
   municipio: string;
 }
+export interface DewllingInfo {
+  estado: States;
+  municipio: Municipality;
+  parroquia: Parish;
+  direccionExacta: string;
+  condicion: {
+    id: number;
+    condicion: string;
+  };
+}
+export interface HealthProfile {
+  grupoSanguineo: {
+    id: number;
+    GrupoSanguineo: string;
+  } | null;
+  discapacidad: {
+    id: number;
+    discapacidad: string;
+    categoria: {
+      id: number;
+      nombre_categoria: string;
+    };
+  }[];
+  patologiasCronicas: {
+    id: number;
+    patologia: string;
+    categoria: {
+      id: number;
+      nombre_categoria: string;
+    };
+  }[];
+}
+
+export interface Background {
+  id: number;
+  institucion: string | null;
+  fecha_ingreso: string | null;
+  fecha_egreso: string | null;
+  fecha_actualizacion: string | null;
+}
+export interface PhysicalProfile {
+  tallaCamisa: ShirtSize | null;
+  tallaPantalon: PantsSize | null;
+  tallaZapatos: ShoesSize | null;
+}
 
 export interface EmployeeData {
   id: number;
   cedulaidentidad: string;
   nombres: string;
   apellidos: string;
-  sexo: Sex;
-  nivelAcademico: AcademyLevel;
-  estado: States;
-  municipio: Municipality;
-  parroquia: Parish;
-  direccion_exacta: string;
-  fecha_nacimiento: string;
-  fechaingresoorganismo: string;
-  fechaingresoapn: string;
-  fecha_actualizacion: string;
-  n_contrato: string;
   profile: string;
-  vivienda: boolean;
+  fecha_nacimiento: string;
+  n_contrato: string;
+  sexo: Sex;
   estadoCivil: StatusCivil;
-  grupoSanguineo: BloodGroupType | null;
-  patologiasCronicas: PatologysType[] | [];
-  discapacidad: DisabilitysType | null;
-  tallaCamisa: ShirtSize | null;
-  tallaPantalon: PantsSize | null;
-  tallaZapatos: ShoesSize | null;
+  datos_vivienda: DewllingInfo;
+  perfil_salud: HealthProfile;
+  perfil_fisico: PhysicalProfile;
+  formacion_academica: AcademyLevel;
+  antecedentes: Background[];
+  fechaingresoorganismo: string;
+  fecha_actualizacion: string;
   asignaciones: [
     {
       id: number;
@@ -211,8 +268,8 @@ export interface EmployeeData {
       denominacioncargoespecifico: Cargo;
       grado: Grado;
       tiponomina: Nomina;
-      OrganismoAdscrito: OrganismosAds;
-      DireccionGeneral: DireccionGeneral;
+      OrganismoAdscrito: OrganismosAds | null;
+      DireccionGeneral: DireccionGeneral | null;
       DireccionLinea: DireccionLinea | null;
       Coordinacion: Coordinacion | null;
       estatusid: Status;
@@ -234,26 +291,17 @@ export interface EmployeeInfo {
   cedulaidentidad: string;
   nombres: string;
   apellidos: string;
-  sexo: Sex;
-  nivelAcademico: AcademyLevel;
-  estado: States;
-  municipio: Municipality;
-  parroquia: Parish;
-  direccion_exacta: string;
-  fecha_nacimiento: string;
-  fechaingresoorganismo: string;
-  fechaingresoapn: string;
-  fecha_actualizacion: string;
-  n_contrato: string;
   profile: string;
-  vivienda: boolean;
+  fecha_nacimiento: string;
+  n_contrato: string;
+  sexo: Sex;
   estadoCivil: StatusCivil;
-  grupoSanguineo: BloodGroupType | null;
-  patologiasCronicas: PatologysType[] | [];
-  discapacidad: DisabilitysType | null;
-  tallaCamisa: ShirtSize | null;
-  tallaPantalon: PantsSize | null;
-  tallaZapatos: ShoesSize | null;
+  datos_vivienda: DewllingInfo;
+  perfil_salud: HealthProfile;
+  perfil_fisico: PhysicalProfile;
+  formacion_academica: AcademyLevel;
+  antecedentes: Background[];
+  fecha_actualizacion: string;
 }
 export interface Code {
   id: number;

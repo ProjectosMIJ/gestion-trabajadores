@@ -109,7 +109,7 @@ export function EmployeeDetailDrawer({
               <div>
                 <p className="text-sm text-muted-foreground">Nivel Academico</p>
                 <p className="font-semibold text-foreground">
-                  {employee.nivelAcademico.nivelacademico}
+                  {/* {employee.nivelAcademico.nivelacademico} */}
                 </p>
               </div>
             </CardContent>
@@ -123,19 +123,19 @@ export function EmployeeDetailDrawer({
               <div>
                 <p className="text-sm text-muted-foreground">Estado</p>
                 <p className="font-semibold text-foreground">
-                  {employee.estado.estado || "N/A"}
+                  {/* {employee.estado.estado || "N/A"} */}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Municipio</p>
                 <p className="font-semibold text-foreground">
-                  {employee.municipio.municipio || "N/A"}
+                  {/* {employee.municipio.municipio || "N/A"} */}
                 </p>
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Parroquia</p>
                 <p className="font-semibold text-foreground">
-                  {employee.parroquia.parroquia || "N/A"}
+                  {/* {employee.parroquia.parroquia || "N/A"} */}
                 </p>
               </div>
 
@@ -144,7 +144,7 @@ export function EmployeeDetailDrawer({
                   Dirección Detallada
                 </p>
                 <p className="font-semibold text-foreground">
-                  {employee.direccion_exacta || "N/A"}
+                  {/* {employee.direccion_exacta || "N/A"} */}
                 </p>
               </div>
             </CardContent>
@@ -177,7 +177,7 @@ export function EmployeeDetailDrawer({
                   <div>
                     <p className="text-sm text-muted-foreground">Grado</p>
                     <p className="font-semibold text-foreground">
-                      {asignacion.grado.grado || "N/A"}
+                      {/* {asignacion.grado.grado || "N/A"} */}
                     </p>
                   </div>
                   <div>
@@ -193,7 +193,7 @@ export function EmployeeDetailDrawer({
                       Direccion General
                     </p>
                     <p className="font-semibold text-foreground">
-                      {asignacion.DireccionGeneral.direccion_general || "N/A"}
+                      {/* {asignacion.DireccionGeneral.direccion_general || "N/A"} */}
                     </p>
                   </div>
                   <div>
@@ -258,9 +258,9 @@ export function EmployeeDetailDrawer({
                   Fecha de Ingreso al APN
                 </p>
                 <p className="font-semibold text-foreground">
-                  {new Date(employee.fechaingresoapn).toLocaleDateString(
-                    "es-ES",
-                  )}
+                  {/* {new Date(employee.fechaingresoapn).toLocaleDateString( */}
+                  {/* "es-ES",
+                  )} */}
                 </p>
               </div>
             </CardContent>

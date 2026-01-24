@@ -190,6 +190,16 @@ export const getEmployeeById = async (
   const getEmployee: ApiResponse<EmployeeData> = await responseEmployee.json();
   return getEmployee;
 };
+export const getEmployeeData = async (): Promise<
+  ApiResponse<EmployeeData[]>
+> => {
+  const responseEmployee = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}Employee/cargos/`,
+  );
+  const getEmployee: ApiResponse<EmployeeData[]> =
+    await responseEmployee.json();
+  return getEmployee;
+};
 
 export const getHistoryMoveEmploye = async (
   id: string,
