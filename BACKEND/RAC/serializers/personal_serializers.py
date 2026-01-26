@@ -13,9 +13,7 @@ from ..services.constants import *
 from USER.models.user_models import cuenta as User
 
 from ..services.constants_historial import registrar_historial_movimiento
-from ..services.report_service import MAPA_REPORTES
-from django.db.models import F, Count
-from datetime import date, timedelta
+
 from django.apps import apps
 
 
@@ -891,39 +889,4 @@ class RegisterCargoEspecialSerializer(serializers.ModelSerializer):
 #     filtros = serializers.JSONField(required=False, default=dict)
 
 
-class ReporteDinamicoSerializer(serializers.Serializer):
-    categoria = serializers.ChoiceField(choices=[('empleados', 'Empleados'), ('familiares', 'Familiares')])
-    agrupar_por = serializers.CharField()
-    tipo_reporte = serializers.ChoiceField(choices=[('conteo', 'Conteo'), ('lista', 'Lista')])
-    filtros = serializers.JSONField(required=False, default=dict)
-
-    def ejecutar(self):
-
-        data = self.validated_data
-        config = MAPA_REPORTES[data['categoria']]
-
-        Model = apps.get_model('RAC', config['modelo'])
- 
-        campo_db = config['campos_permitidos'].get(data['agrupar_por'])
-        if not campo_db:
-            raise serializers.ValidationError({"agrupar_por": "Campo no permitido."})
-        filtros_finales = {}
-        for clave, valor in data['filtros'].items():
-            if clave in config['filtros_permitidos']:
-                campo_filtro = config['filtros_permitidos'][clave]
-                
-                if clave == "edad_max":
-                    fecha_limite = date.today() - timedelta(days=int(valor) * 365.25)
-                    filtros_finales[campo_filtro] = fecha_limite
-                else:
-                    filtros_query = {campo_filtro: valor}
-                    filtros_finales.update(filtros_query)
-
-        queryset = Model.objects.filter(**filtros_finales)
-
-        if data['tipo_reporte'] == 'conteo':
-            return queryset.values(label=F(campo_db)).annotate(
-                total=Count(campo_db)
-            ).order_by('-total')
-        
-        return queryset.values(label=F(campo_db)).distinct()
+    

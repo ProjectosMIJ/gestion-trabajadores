@@ -309,14 +309,7 @@ class PersonalEgresadoSerializer(serializers.ModelSerializer):
                 
             ]
     
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        
-            
-        for key, value in representation.items():
-            if value is None:
-                representation[key] = ''
-        return representation
+ 
     
     
     
@@ -368,27 +361,27 @@ class EmployeeCargoHistorySerializer(serializers.ModelSerializer):
     # METODOS PARA OBTENER LOS DATOS DEL REGISTRO ANTERIOR
     def get_prev_cargo_especifico(self, obj):
         prev = self.get_previous_record(obj)
-        return prev.denominacioncargoespecifico.cargo if prev else ""
+        return prev.denominacioncargoespecifico.cargo if prev else None
 
     def get_prev_cargo_general(self, obj):
         prev = self.get_previous_record(obj)
-        return prev.denominacioncargo.cargo if prev else ""
+        return prev.denominacioncargo.cargo if prev else None
 
     def get_prev_nomina(self, obj):
         prev = self.get_previous_record(obj)
-        return prev.tiponomina.nomina if prev else ""
+        return prev.tiponomina.nomina if prev else None
 
     def get_prev_grado(self, obj):
         prev = self.get_previous_record(obj)
-        return prev.gradoid.grado if (prev and prev.gradoid) else ""
+        return prev.gradoid.grado if (prev and prev.gradoid) else None
 
     def get_prev_estatus(self, obj):
         prev = self.get_previous_record(obj)
-        return prev.estatus.estatus if prev else ""
+        return prev.estatus.estatus if prev else None
 
     def get_prev_tipo_personal(self, obj):
         prev = self.get_previous_record(obj)
-        return prev.tipo_personal.tipo_personal if prev else ""
+        return prev.tipo_personal.tipo_personal if prev else None
 
     def to_representation(self, instance):
 
@@ -398,5 +391,5 @@ class EmployeeCargoHistorySerializer(serializers.ModelSerializer):
         ret = super().to_representation(instance)
         for key, value in ret.items():
             if value is None:
-                ret[key] = ""
+                ret[key] = None
         return ret

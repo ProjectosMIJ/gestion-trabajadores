@@ -1,13 +1,12 @@
-
 MAPA_REPORTES = {
     "empleados": {
         "modelo": "Employee",
         "campos_permitidos": {
             "dependencia": "assignments__DireccionGeneral__dependenciaId__dependencia",
-            "direcciongeneral": "assignments__DireccionGeneral__direccion_general",
+            "direccion_general": "assignments__DireccionGeneral__direccion_general",
             "cod_direccion": "assignments__DireccionGeneral__Codigo",
-            "direccionlinea": "assignments__DireccionLinea__direccion_linea",
-            "coordinaciones": "assignments__Coordinacion__coordinacion",
+            "direccion_linea": "assignments__DireccionLinea__direccion_linea",
+            "coordinacion": "assignments__Coordinacion__coordinacion",
             "sexo": "sexoid__sexo",
             "estado_civil": "estadoCivil__estadoCivil",
             "talla_camisa": "perfil_fisico__tallaCamisa__talla",
@@ -19,37 +18,71 @@ MAPA_REPORTES = {
             "nivel_academico": "formacion_academica__nivel_Academico_id__nivelacademico",
             "carrera": "formacion_academica__carrera_id__nombre_carrera",
             "tipo_nomina": "assignments__tiponominaid__nomina",
+            "estatus": "assignments__estatusid__estatus",
         },
         "filtros_permitidos": {
             "dependencia_id": "assignments__DireccionGeneral__dependenciaId",
-            "direcciongeneral_id": "assignments__DireccionGeneral",
+            "direccion_general_id": "assignments__DireccionGeneral",
+            "direccion_linea_id": "assignments__DireccionLinea",
+            "coordinacion_id": "assignments__Coordinacion",
             "sexo_id": "sexoid",
             "discapacidad_id": "perfil_salud__discapacidad",
             "patologia_id": "perfil_salud__patologiaCronica",
             "nomina_id": "assignments__tiponominaid",
+            "grado_id": "assignments__gradoid",
+            "cargo_id": "assignments__denominacioncargoid",
+            "estatus_id": "assignments__estatusid",
+            "tipo_personal": "assignments__Tipo_personal__tipo_personal",
         }
     },
     "familiares": {
-        "modelo": "Employeefamily",
+        "modelo": "Employee",
         "campos_permitidos": {
-            "parentesco": "parentesco__descripcion_parentesco",
-            "sexo": "sexo__sexo",
-            "discapacidades": "perfil_salud__discapacidad__discapacidad",
-            "patologias": "perfil_salud__patologiaCronica__patologia",
-            "dependencia_titular": "employeecedula__assignments__DireccionGeneral__dependenciaId__dependencia",
+            # Acceso inverso: del empleado a sus familiares
+            "parentesco": "carga_familiar__parentesco__descripcion_parentesco",
+            "sexo": "carga_familiar__sexo__sexo",
+            "discapacidades": "carga_familiar__perfil_salud_set__discapacidad__discapacidad",
+            "patologias": "carga_familiar__perfil_salud_set__patologiaCronica__patologia",
+            # Acceso directo: campos del mismo empleado
+            "dependencia_titular": "assignments__DireccionGeneral__dependenciaId__dependencia",
         },
         "filtros_permitidos": {
-            "parentesco_id": "parentesco",
-            "sexo_id": "sexo",
-            "edad_max": "fechanacimiento__gte",
-            "discapacidad_id": "perfil_salud__discapacidad",
-            "patologia_id": "perfil_salud__patologiaCronica",
-            "dependencia_id": "employeecedula__assignments__DireccionGeneral__dependenciaId",
+            "parentesco_id": "carga_familiar__parentesco",
+            "sexo_id": "carga_familiar__sexo",
+            "edad_max": "carga_familiar__fechanacimiento__gte", 
+            "discapacidad_id": "carga_familiar__perfil_salud_set__discapacidad",
+            "patologia_id": "carga_familiar__perfil_salud_set__patologiaCronica",
+            "dependencia_id": "assignments__DireccionGeneral__dependenciaId",
+        }
+    },
+    "egresados": {
+        "modelo": "EmployeeEgresado",
+        "campos_permitidos": {
+            "motivo": "motivo_egreso__movimiento",
+            "direccion_general": "DireccionGeneral__direccion_general",
+            "direccion_linea": "DireccionLinea__direccion_linea",
+            "coordinacion": "Coordinacion__coordinacion",
+            "cargo": "denominacioncargoid__cargo", # Corregido de denominacioncargo a cargo
+            "cargo_especifico": "denominacioncargoespecificoid__cargo", # Corregido a cargo
+            "grado": "gradoid__grado",
+            "nomina": "tiponominaid__nomina",
+            "organismo": "OrganismoAdscritoid__Organismoadscrito", # Corregido segun modelo
+        },
+        "filtros_permitidos": {
+            "motivo_id": "motivo_egreso",
+            "cargo_id": "denominacioncargoid",
+            "cargo_especifico_id": "denominacioncargoespecificoid",
+            "grado_id": "gradoid",
+            "nomina_id": "tiponominaid",
+            "direccion_general_id": "DireccionGeneral",
+            "direccion_linea_id": "DireccionLinea",
+            "coordinacion_id": "Coordinacion",
+            "organismo_id": "OrganismoAdscritoid",
+            "fecha_egreso_inicio": "fecha_egreso__gte",
+            "fecha_egreso_fin": "fecha_egreso__lte",
         }
     }
 }
-
-
 def obtener_configuracion_reportes():
     config_frontend = {}
     for cat_nombre, cat_data in MAPA_REPORTES.items():

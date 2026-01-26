@@ -19,7 +19,7 @@ class Parentesco(models.Model):
 
 class Employeefamily(models.Model):
     id = models.AutoField(primary_key=True)
-    employeecedula = models.ForeignKey('RAC.Employee', models.DO_NOTHING, db_column='employeeCedula',to_field='cedulaidentidad')
+    employeecedula = models.ForeignKey('RAC.Employee', models.DO_NOTHING, db_column='employeeCedula',related_name='carga_familiar',to_field='cedulaidentidad')
     cedulaFamiliar = models.CharField(db_column='cedulaFamiliar', blank=True, null=True)
     primer_nombre = models.CharField(max_length=150) 
     segundo_nombre = models.CharField(null=True, blank=True, max_length=150)  

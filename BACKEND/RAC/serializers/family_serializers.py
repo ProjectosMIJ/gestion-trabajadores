@@ -244,9 +244,3 @@ class FamilyListSerializer(serializers.ModelSerializer):
         instancia = obj.formacion_academica_set.first()
         return FormacionAcademicaFamiliarSerializer(instancia).data if instancia else None
 
-    def to_representation(self, instance):
-        representation = super().to_representation(instance)
-        for key, value in representation.items():
-            if value is None:
-                representation[key] = ''
-        return representation
