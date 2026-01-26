@@ -84,16 +84,22 @@ MAPA_REPORTES = {
             "direccion_linea_id": "DireccionLinea",
             "coordinacion_id": "Coordinacion",
             "organismo_id": "OrganismoAdscritoid",
-            "fecha_egreso_inicio": "fecha_egreso__gte",
-            "fecha_egreso_fin": "fecha_egreso__lte",
+            "fecha_egreso_Desde": "fecha_egreso__gte",
+            "fecha_egreso_Hasta": "fecha_egreso__lte",
         }
     }
 }
-def obtener_configuracion_reportes():
-    config_frontend = {}
-    for cat_nombre, cat_data in MAPA_REPORTES.items():
-        config_frontend[cat_nombre] = {
-            "agrupaciones": list(cat_data["campos_permitidos"].keys()),
-            "filtros": list(cat_data["filtros_permitidos"].keys())
-        }
-    return config_frontend
+
+
+
+def get_config_by_category(category):
+    cat_data = MAPA_REPORTES.get(category)
+    if not cat_data:
+        return None
+    return {
+        "agrupaciones": list(cat_data["campos_permitidos"].keys()),
+        "filtros": list(cat_data["filtros_permitidos"].keys())
+    }
+
+def get_report_types_config():
+    return {"conteo", "lista"}

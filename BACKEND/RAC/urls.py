@@ -178,6 +178,11 @@ urlpatterns = [
     
     
    
-    path('reporte-config/', views.ReporteConfigView.as_view(), name='reporte_config'),
-    path('employee/reportes/', views.generate_dynamic_report, name='reporte_generico'),
+   
+    # path('reportes/categias/', views.ReportCategoryListView.as_view(), name='reportes_categorias'),
+    path('employee/reportes/config/', views.EmployeeReportConfigView.as_view(), name='configuraciones_empleados'),
+    path('family/reportes/config/', views.FamilyReportConfigView.as_view(), name='configuraciones_familiares'),
+    path('graduate/reportes/config/', views.GraduateReportConfigView.as_view(), name='configuraciones_egresados'),
+    path('reportes/tipos/', views.ReportTypesConfigView.as_view(), name='tipos_reporte'),
+    path('reportes/', views.generate_dynamic_report, name='reporte_generico'),
 ]

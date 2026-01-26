@@ -101,10 +101,19 @@ class ReporteDinamicoSerializer(serializers.Serializer):
         filtros_limpios = {}
         for k, v in filtros_raw.items():
             if k in permitidos and v not in [None, ""]:
-                if k == "edad_max":
-                    filtros_limpios[permitidos[k]] = date.today() - timedelta(days=int(v) * 365.25)
-                else:
-                    filtros_limpios[permitidos[k]] = v
+              campo_db = permitidos[k]
+            
+            if k == "edad_max":
+                filtros_limpios[campo_db] = date.today() - timedelta(days=int(v) * 365.25)
+            
+            elif campo_db.endswith('__lte'):
+                try:
+                    filtros_limpios[campo_db] = f"{v} 23:59:59"
+                except:
+                    filtros_limpios[campo_db] = v
+            
+            else:
+                filtros_limpios[campo_db] = v
         return filtros_limpios
 
     def _obtener_data_detallada(self, queryset, categoria, filtros_finales):
