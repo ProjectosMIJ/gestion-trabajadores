@@ -1,42 +1,3 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  FamilyEmployeeType,
-  schemaFamilyFormity,
-} from "../schemas/schema-family_employee";
-import { useFieldArray, useForm } from "react-hook-form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import {
-  BookAIcon,
-  CalendarIcon,
-  ChevronDown,
-  ChevronUp,
-  Contact,
-  Database,
-  HeartPulse,
-  Loader2Icon,
-  Plus,
-  Shirt,
-  Trash,
-} from "lucide-react";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import {
   getAcademyLevel,
   getBloodGroup,
@@ -51,33 +12,59 @@ import {
   getShirtSize,
   getShoesSize,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
+import { DisabilitysType, PatologysType } from "@/app/types/types";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
-  AcademyLevel,
-  ApiResponse,
-  BloodGroupType,
-  Carrera,
-  DisabilitysType,
-  MaritalStatusType,
-  Mencion,
-  PantsSize,
-  ParentType,
-  PatologysType,
-  ShirtSize,
-  ShoesSize,
-} from "@/app/types/types";
-import { useEffect, useMemo, useState } from "react";
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { formatDate } from "date-fns";
-import { Calendar } from "@/components/ui/calendar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
-import { Separator } from "@/components/ui/separator";
+import { formatDate } from "date-fns";
+import {
+  BookAIcon,
+  CalendarIcon,
+  ChevronDown,
+  ChevronUp,
+  Contact,
+  Database,
+  HeartPulse,
+  Loader2Icon,
+  Plus,
+  Shirt,
+  Trash,
+} from "lucide-react";
+import { useMemo, useState } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
+import {
+  FamilyEmployeeType,
+  schemaFamilyFormity,
+} from "../schemas/schema-family_employee";
 
 import { Spinner } from "@/components/ui/spinner";
 import useSWR from "swr";

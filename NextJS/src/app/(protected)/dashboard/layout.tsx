@@ -1,4 +1,3 @@
-import { Header } from "./gestion-trabajadores/components/layout/header";
 import { Toaster } from "@/components/ui/sonner";
 import { SessionProvider } from "next-auth/react";
 import {
@@ -15,8 +14,6 @@ export default function ProtectedLayout({
 }>) {
   return (
     <SessionProvider>
-      <Header />
-
       <main className="flex flex-col justify-center items-center m-auto">
         <Toaster
           closeButton

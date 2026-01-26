@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { LogOut } from "lucide-react";
 import { signOut } from "next-auth/react";
 
 export function SignOut() {
@@ -8,9 +9,8 @@ export function SignOut() {
     <Button
       variant={"destructive"}
       onClick={() => signOut({ redirectTo: "/login" })}
-      className="mt-5"
     >
-      Cerrar Sesión
+      <LogOut />
     </Button>
   );
 }
