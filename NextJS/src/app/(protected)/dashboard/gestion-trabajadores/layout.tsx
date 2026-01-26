@@ -1,6 +1,11 @@
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { AppSidebarEmployees } from "../../../../components/ui/app-sidebar";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 import { SessionProvider } from "next-auth/react";
+import { AppSidebarEmployees } from "../../../../components/ui/app-sidebar";
+import { HeaderLayout } from "./components/layout/header";
 export default function ProtectedLayout({
   children,
 }: Readonly<{
@@ -10,8 +15,15 @@ export default function ProtectedLayout({
     <SessionProvider>
       <SidebarProvider>
         <AppSidebarEmployees />
-        <SidebarTrigger />
-        <main className="sm:w-11/12 lg:w-11/12 ">{children}</main>
+        <SidebarInset className="bg-transparent">
+          <HeaderLayout
+            title="Gestion de Trabajadores - RAC"
+            subtitle="Gestiona Y Visualiza La Informacion De Los Empleados"
+          >
+            <SidebarTrigger className="text-black-600   scale-110" />
+          </HeaderLayout>
+          <main className="flex-1 w-full">{children}</main>
+        </SidebarInset>
       </SidebarProvider>
     </SessionProvider>
   );

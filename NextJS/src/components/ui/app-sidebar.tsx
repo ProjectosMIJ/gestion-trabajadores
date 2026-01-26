@@ -21,7 +21,6 @@ import {
   UserPlus,
 } from "lucide-react";
 
-import { SignOut } from "@/components/signout-button";
 import {
   Sidebar,
   SidebarContent,
@@ -243,8 +242,6 @@ export function AppSidebarEmployees() {
                   )}
                 </SidebarMenuItem>
               ))}
-              {/* el boton no me lio los estilos asi que le pise este div unicamente para que agarre el espacio de separacion */}
-              <SignOut />
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>

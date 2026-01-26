@@ -5,6 +5,10 @@ export interface ApiResponse<T> {
 }
 
 export type AcademyLevel = {
+  id: number;
+  nivelacademico: string;
+};
+export type AcademyLevelEmpleeData = {
   nivelAcademico: {
     id: number;
     nivelacademico: string;
@@ -256,7 +260,7 @@ export interface EmployeeData {
   datos_vivienda: DewllingInfo;
   perfil_salud: HealthProfile;
   perfil_fisico: PhysicalProfile;
-  formacion_academica: AcademyLevel;
+  formacion_academica: AcademyLevelEmpleeData;
   antecedentes: Background[];
   fechaingresoorganismo: string;
   fecha_actualizacion: string;
