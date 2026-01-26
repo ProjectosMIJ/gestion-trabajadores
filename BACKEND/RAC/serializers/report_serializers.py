@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.apps import apps
-from .personal_serializers import CodigosListerSerializer
+from .personal_serializers import ListerCodigosSerializer
 
 from ..services.report_service import *
 from django.db.models import F, Count, Prefetch
@@ -8,7 +8,7 @@ from datetime import date, timedelta
 from RAC.models.personal_models import Employee
 from  .family_serializers import  FamilyListSerializer
 from .historial_personal_serializers import PersonalEgresadoSerializer
-
+from RAC.services.constants import ESTATUS_ACTIVO
 
 
 
@@ -23,39 +23,42 @@ class ReporteFamiliarAgrupadoSerializer(serializers.ModelSerializer):
         model = apps.get_model('RAC', 'Employee')
         fields = ['cedula_empleado', 'nombre_empleado', 'cargo', 'tipo_nomina', 'familiares']
 
+    def _get_active_assignment(self, obj):
+        assignments = obj.assignments.all()
+        return assignments[0] if assignments else None
+
     def get_nombre_empleado(self, obj):
         return f"{obj.nombres} {obj.apellidos}"
 
     def get_cargo(self, obj):
-        asig = obj.assignments.first()
-        return asig.denominacioncargoid.cargo if asig and asig.denominacioncargoid else "SIN CARGO"
+        asig = self._get_active_assignment(obj)
+        if asig and hasattr(asig, 'denominacioncargoid') and asig.denominacioncargoid:
+            return asig.denominacioncargoid.cargo
+        return "SIN CARGO"
 
     def get_tipo_nomina(self, obj):
-        asig = obj.assignments.first()
-        return asig.tiponominaid.nomina if asig and asig.tiponominaid else "SIN NÓMINA"
+        asig = self._get_active_assignment(obj)
+        if asig and hasattr(asig, 'tiponominaid') and asig.tiponominaid:
+            return asig.tiponominaid.nomina
+        return "SIN NÓMINA"
 
     def get_familiares(self, obj):
-        from .family_serializers import FamilyListSerializer
         return FamilyListSerializer(obj.carga_familiar.all(), many=True).data
-    
-    
+
 class EmployeeReporteSerializer(serializers.ModelSerializer):
-    asignaciones = CodigosListerSerializer(source='assignments', many=True, read_only=True)
+    def get_asignaciones(self, obj):
+        return ListerCodigosSerializer(obj.assignments.all(), many=True).data
+
+    asignaciones = serializers.SerializerMethodField()
     sexo = serializers.ReadOnlyField(source='sexoid.sexo')
     estado_civil = serializers.ReadOnlyField(source='estadoCivil.estadoCivil')
 
     class Meta:
         model = apps.get_model('RAC', 'Employee')
         fields = [
-            'id',
-            'cedulaidentidad',
-            'nombres', 
-            'apellidos',
-            'sexo',
-            'estado_civil', 
-            'asignaciones', 
-            'fecha_actualizacion']
-        
+            'id', 'cedulaidentidad', 'nombres', 'apellidos', 
+            'sexo', 'estado_civil', 'asignaciones', 'fecha_actualizacion'
+        ]
 class ReporteDinamicoSerializer(serializers.Serializer):
     CATEGORIAS = [('empleados', 'Empleados'), ('egresados', 'Egresados'), ('familiares', 'Familiares')]
     
@@ -65,31 +68,35 @@ class ReporteDinamicoSerializer(serializers.Serializer):
     filtros = serializers.JSONField(required=False, default=dict)
 
     def validate(self, data):
-        
         config = MAPA_REPORTES.get(data['categoria'])
-        
         if not config or data['agrupar_por'] not in config['campos_permitidos']:
-            raise serializers.ValidationError({"agrupar_por": "Parámetro de agrupación no válido."})
+            raise serializers.ValidationError( "Parámetro de agrupación no válido")
         return data
 
     def ejecutar(self):
-
         data = self.validated_data
         config = MAPA_REPORTES[data['categoria']]
-        
-        model_target = 'Employee' if data['categoria'] == 'familiares' else config['modelo']
-        Model = apps.get_model('RAC', model_target)
+        Model = apps.get_model('RAC', config['modelo'])
         campo_db = config['campos_permitidos'][data['agrupar_por']]
 
         filtros_finales = self._procesar_filtros(data['filtros'], config['filtros_permitidos'])
-        queryset = Model.objects.filter(**filtros_finales).distinct()
+        queryset = Model.objects.filter(**filtros_finales)
+
+        if data['categoria'] in ['familiares', 'empleados']:
+            queryset = queryset.filter(assignments__estatusid__estatus=ESTATUS_ACTIVO)
+
+        queryset = queryset.distinct()
 
         if data['tipo_reporte'] == 'conteo':
-            return list(queryset.values(label=F(campo_db)).annotate(
-                total=Count('pk', distinct=True)
-            ).order_by('-total'))
+            return self._ejecutar_conteo(queryset, campo_db, data['categoria'])
 
         return self._obtener_data_detallada(queryset, data['categoria'], filtros_finales)
+
+    def _ejecutar_conteo(self, queryset, campo_db, categoria):
+        target_count = 'carga_familiar' if categoria == 'familiares' else 'pk'
+        return list(queryset.values(label=F(campo_db)).annotate(
+            total=Count(target_count, distinct=True)
+        ).filter(label__isnull=False).order_by('-total'))
 
     def _procesar_filtros(self, filtros_raw, permitidos):
         filtros_limpios = {}
@@ -103,42 +110,60 @@ class ReporteDinamicoSerializer(serializers.Serializer):
 
     def _obtener_data_detallada(self, queryset, categoria, filtros_finales):
         if categoria == 'empleados':
-            queryset = queryset.filter(assignments__isnull=False).prefetch_related(
-                'sexoid', 'estadoCivil', 'assignments__denominacioncargoid',
-                'assignments__tiponominaid', 'assignments__DireccionGeneral', 'assignments__estatusid'
-            )
-            return EmployeeReporteSerializer(queryset, many=True).data
+            return self._preparar_lista_empleados(queryset)
             
-        elif categoria == 'egresados':
+        if categoria == 'egresados':
             queryset = queryset.select_related(
                 'motivo_egreso', 'denominacioncargoid', 'denominacioncargoespecificoid',
                 'gradoid', 'tiponominaid', 'DireccionGeneral', 'DireccionLinea'
             )
             return PersonalEgresadoSerializer(queryset, many=True).data
             
-        elif categoria == 'familiares':
-            
-            fecha_corte = filtros_finales.get('carga_familiar__fechanacimiento__gte')
+        if categoria == 'familiares':
+            return self._preparar_lista_familiares(queryset, filtros_finales)
 
-            familiares_qs = apps.get_model('RAC', 'Employeefamily').objects.select_related(
-                'parentesco', 'sexo', 'estadoCivil'
-            ).prefetch_related(
-                'perfil_salud_set', 'perfil_fisico_set', 'formacion_academica_set'
-            )
+        raise serializers.ValidationError("Categoria no implementada")
 
-            if fecha_corte:
-                familiares_qs = familiares_qs.filter(fechanacimiento__gte=fecha_corte)
-
-            queryset = queryset.filter(carga_familiar__isnull=False).prefetch_related(
-                'assignments__denominacioncargoid',
-                'assignments__tiponominaid',
-                Prefetch(
-                    'carga_familiar',
-                    queryset=familiares_qs
+    def _preparar_lista_empleados(self, queryset):
+        AsigModel = apps.get_model('RAC', 'AsigTrabajo')
+        
+        queryset = queryset.prefetch_related(
+            'sexoid', 'estadoCivil',
+            Prefetch(
+                'assignments',
+                queryset=AsigModel.objects.filter(
+                    estatusid__estatus=ESTATUS_ACTIVO
+                ).select_related(
+                    'denominacioncargoid', 'tiponominaid', 
+                    'DireccionGeneral', 'DireccionLinea', 'Coordinacion', 'estatusid'
                 )
             )
+        )
+        return EmployeeReporteSerializer(queryset, many=True).data
 
-            data_serializada = ReporteFamiliarAgrupadoSerializer(queryset, many=True).data
-            return [emp for emp in data_serializada if emp['familiares']]
+    def _preparar_lista_familiares(self, queryset, filtros_finales):
+        fecha_corte = filtros_finales.get('carga_familiar__fechanacimiento__gte')
+        FamilyModel = apps.get_model('RAC', 'Employeefamily')
+        AsigModel = apps.get_model('RAC', 'AsigTrabajo')
 
-        raise serializers.ValidationError("Categoría no soportada")
+        familiares_qs = FamilyModel.objects.select_related(
+            'parentesco', 'sexo', 'estadoCivil'
+        ).prefetch_related(
+            'perfil_salud_set', 'perfil_fisico_set', 'formacion_academica_set'
+        )
+
+        if fecha_corte:
+            familiares_qs = familiares_qs.filter(fechanacimiento__gte=fecha_corte)
+
+        queryset = queryset.filter(carga_familiar__isnull=False).prefetch_related(
+            Prefetch(
+                'assignments', 
+                queryset=AsigModel.objects.filter(
+                    estatusid__estatus=ESTATUS_ACTIVO
+                ).select_related('denominacioncargoid', 'tiponominaid', 'DireccionGeneral')
+            ),
+            Prefetch('carga_familiar', queryset=familiares_qs)
+        )
+
+        data_serializada = ReporteFamiliarAgrupadoSerializer(queryset, many=True).data
+        return [emp for emp in data_serializada if emp.get('familiares')]

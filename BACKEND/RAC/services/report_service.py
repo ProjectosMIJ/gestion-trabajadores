@@ -36,23 +36,29 @@ MAPA_REPORTES = {
         }
     },
     "familiares": {
-        "modelo": "Employee",
+       "modelo": "Employee",
         "campos_permitidos": {
-            # Acceso inverso: del empleado a sus familiares
             "parentesco": "carga_familiar__parentesco__descripcion_parentesco",
             "sexo": "carga_familiar__sexo__sexo",
+            "estado_civil": "carga_familiar__estadoCivil__estadoCivil",
+            "talla_camisa": "carga_familiar__perfil_fisico_set__tallaCamisa__talla",
+            "grupo_sanguineo": "carga_familiar__perfil_salud_set__grupoSanguineo__GrupoSanguineo",
             "discapacidades": "carga_familiar__perfil_salud_set__discapacidad__discapacidad",
             "patologias": "carga_familiar__perfil_salud_set__patologiaCronica__patologia",
-            # Acceso directo: campos del mismo empleado
-            "dependencia_titular": "assignments__DireccionGeneral__dependenciaId__dependencia",
+            "tipo_nomina": "assignments__tiponominaid__nomina",
+            "dependencia": "assignments__DireccionGeneral__dependenciaId__dependencia",
+            "direccion_general": "assignments__DireccionGeneral__direccion_general",
+            "direccion_linea": "assignments__DireccionLinea__direccion_linea",
+            "coordinacion": "assignments__Coordinacion__coordinacion",
         },
         "filtros_permitidos": {
             "parentesco_id": "carga_familiar__parentesco",
             "sexo_id": "carga_familiar__sexo",
             "edad_max": "carga_familiar__fechanacimiento__gte", 
-            "discapacidad_id": "carga_familiar__perfil_salud_set__discapacidad",
-            "patologia_id": "carga_familiar__perfil_salud_set__patologiaCronica",
-            "dependencia_id": "assignments__DireccionGeneral__dependenciaId",
+            "nomina_id": "assignments__tiponominaid",
+            "direccion_general_id": "assignments__DireccionGeneral",
+            "direccion_linea_id": "assignments__DireccionLinea",
+            "coordinacion_id": "assignments__Coordinacion",
         }
     },
     "egresados": {
@@ -62,11 +68,11 @@ MAPA_REPORTES = {
             "direccion_general": "DireccionGeneral__direccion_general",
             "direccion_linea": "DireccionLinea__direccion_linea",
             "coordinacion": "Coordinacion__coordinacion",
-            "cargo": "denominacioncargoid__cargo", # Corregido de denominacioncargo a cargo
-            "cargo_especifico": "denominacioncargoespecificoid__cargo", # Corregido a cargo
+            "cargo": "denominacioncargoid__cargo",
+            "cargo_especifico": "denominacioncargoespecificoid__cargo",
             "grado": "gradoid__grado",
-            "nomina": "tiponominaid__nomina",
-            "organismo": "OrganismoAdscritoid__Organismoadscrito", # Corregido segun modelo
+            "tipo_nomina": "tiponominaid__nomina",
+            "organismo": "OrganismoAdscritoid__Organismoadscrito", 
         },
         "filtros_permitidos": {
             "motivo_id": "motivo_egreso",

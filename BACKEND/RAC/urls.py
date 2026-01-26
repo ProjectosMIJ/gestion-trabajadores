@@ -9,11 +9,11 @@ urlpatterns = [
     
     
     # crear empleado (datos personales)
-    path('employees_register/',views.register_employee, name='employee-register'),
+    path('employees_register/',views.create_employee, name='employee-register'),
     # actulizacion de datos personales
-    path('Employee/<int:id>/', views.editar_empleado, name='actualizar-empleado'),
+    path('Employee/<int:id>/', views.update_employee, name='actualizar-empleado'),
     # solo sus datos personales 
-    path('listar-data-empleados/<str:cedulaidentidad>/', views.listar_empleadosData, name='listar-data-empleados'),
+    path('listar-data-empleados/<str:cedulaidentidad>/', views.retrieve_employee, name='listar-data-empleados'),
     
     
     
@@ -22,27 +22,27 @@ urlpatterns = [
     # --------------------
     
      # grupo sanguineo
-    path('listar-grupoSanguineos/', views.listar_GrupoSanguineo, name='listar-grupoSanguineo'),
-    path('categorias-patologias/', views.categorias_Patologias, name='listar-categorias-patologias '),
-    path('Patologias/', views.Patologias, name='listar-patologias'),
-    path('categorias-discapacidad/', views.Categorias_Discapacidades, name='listar-categorias-discapacidades'),
-    path('Discapacidades/', views.discapacidades, name='listar-discapacidades'),
+    path('listar-grupoSanguineos/', views.list_blood_types, name='listar-grupoSanguineo'),
+    path('categorias-patologias/', views.list_pathology_categories, name='listar-categorias-patologias '),
+    path('Patologias/', views.list_chronic_pathologies, name='listar-patologias'),
+    path('categorias-discapacidad/', views.list_disability_categories, name='listar-categorias-discapacidades'),
+    path('Discapacidades/', views.list_disabilities, name='listar-discapacidades'),
     
     # --------------------
     # DATOS DE VESTIMENTA
     # --------------------
 
-    path('listar-tallasCamisas/', views.listar_TallasCamisas, name='listar tallas de camisa'),
-    path('listar-tallaPantalones/',views.listar_TallasPantalones, name='listar tallas de pantalones'),
-    path('listar-tallaZapatos/', views.listar_TallasZapatos, name='listar tallas de Zapatos'),
+    path('listar-tallasCamisas/', views.list_shirt_sizes, name='listar tallas de camisa'),
+    path('listar-tallaPantalones/',views.list_pant_sizes, name='listar tallas de pantalones'),
+    path('listar-tallaZapatos/', views.list_shoe_sizes, name='listar tallas de Zapatos'),
     
     
     # --------------------
     # DATOS DE ACADEMICOS
     # --------------------
-    path('listar-nivel-academico/', views.listar_nivelAcademico, name='listar-nivel-academico'),
-    path('Menciones/<int:carrera_id>/', views.Menciones_carreras, name='listar-menciones'),
-    path('carreras/', views.Carreras, name='listar-carreras'),
+    path('listar-nivel-academico/', views.list_academic_levels, name='listar-nivel-academico'),
+    path('Menciones/<int:carrera_id>/', views.list_career_specializations, name='listar-menciones'),
+    path('carreras/', views.list_careers, name='listar-carreras'),
     
     
     # --------------------
@@ -53,91 +53,93 @@ urlpatterns = [
     path('direccion/estados/', views.get_estados, name='estados'),    
     path('direccion/municipios/<int:estadoid>/', views.get_municipios, name='municipios_por_estado'),
     path('direccion/parroquias/<int:municipioid>/', views.get_parroquias, name='parroquias'),
-    path('condicion_vivienda/', views.CondicionVivienda, name='listar-condiciones-vivienda'),
+    path('condicion_vivienda/', views.list_housing_conditions, name='listar-condiciones-vivienda'),
     
     
      # --------------------
     # DATOS PERFIL
     # --------------------
-    path('listar-sexo/',views.listar_sexo, name='listar-sexo'),
-    path('listar-estadoCivil/',views.listar_EstadoCivil, name='listar-estadoCivil'),
+    path('listar-sexo/',views.list_genders, name='listar-sexo'),
+    path('listar-estadoCivil/',views.list_marital_statuses, name='listar-estadoCivil'),
     
   
    # --------------------
     # DEPENDENCIAS
     # --------------------
-    
-        #  LISTAR
-    path('listar-DireccionGeneral/', views.listar_DireecionGeneral, name='lista las direcciones de linea'),
-    path('listar-DireccionLinea/<int:direccionGeneral>/',views.direccion_lineal, name='lista las direcciones generales'),
-    path('listar-Coordinacion/<int:direccionLinea>/', views.listar_Coordinaciones, name='lista de las coordinaciones'),
+
      
        #  CREACION 
-    path('register-direccionGeneral/', views.register_DireccionGeneral, name= "registro-direccion-general"),
-    path('register-direccionLinea/', views.register_DireccionLinea, name= "registro-direccion-linea"),  
-    path('register-Coordinacion/', views.register_Coordinacion, name= "registro-coordinacion"), 
+    path('register-direccionGeneral/', views.create_general_directorate, name= "registro-direccion-general"),
+    path('register-direccionLinea/', views.create_line_directorate, name= "registro-direccion-linea"),  
+    path('register-Coordinacion/', views.create_coordination, name= "registro-coordinacion"), 
     
        #  ACTUALIZACION
-    path('DireccionGeneral/<int:id>/',views.Actualizar_DireccionGeneral, name= "actualizar-direccion-general"),
-    path('DireccionLinea/<int:id>/', views.Actualizar_DireccionLinea, name= "actualizar-direccion-linea "),
-    path('Coordinaciones/<int:id>/', views.Actualizar_Coordinacion, name= "actualizar-coordinacion "),
+    # path('DireccionGeneral/<int:id>/',views.Actualizar_DireccionGeneral, name= "actualizar-direccion-general"),
+    # path('DireccionLinea/<int:id>/', views.Actualizar_DireccionLinea, name= "actualizar-direccion-linea "),
+    # path('Coordinaciones/<int:id>/', views.Actualizar_Coordinacion, name= "actualizar-coordinacion "),
+        
+        #  LISTAR
+    path('listar-DireccionGeneral/', views.list_general_directorates, name='lista las direcciones de linea'),
+    path('listar-DireccionLinea/<int:direccionGeneral>/',views.list_line_directorates_by_general, name='lista las direcciones generales'),
+    path('listar-Coordinacion/<int:direccionLinea>/', views.list_coordinations_by_line, name='lista de las coordinaciones'),
       
 # ------------------
 # Gestion del codigo
 # -------------------   
    
-    path('empleados-codigo/', views.register_codigo, name='registrar-codigo'),
+    path('empleados-codigo/', views.create_position, name='registrar-codigo'),
       # editar codigo
-    path('codigos/<int:id>/', views.editar_codigo, name='codigos-edit'),
+    path('codigos/<int:id>/', views.update_position, name='codigos-edit'),
 #     # listar codigo  tanto activos como vacantes
-    path('codigos_lister/', views.Codigos_generales, name='lista de codigos generales'),
+    path('codigos_lister/', views.list_general_work_codes, name='lista de codigos generales'),
 #     # lista unicamente los codigos vacantes
-    path('listar-codigos/', views.Codigos_Vacantes, name='lista de codigos vacantes'),
-    path('cargo_DreccionGeneral/<int:direccioGenealid>/', views.Cargos_Vacantes_DireccionGeneral, name='lista cargos por las direcciones generales '),
-    path('cargo_DreccionLinea/<int:direccioLineaId>/', views.Cargos_Vacantes_direccionLinea, name='lista cargos por las direcciones de linea'),
-    path('cargo_coordinacion/<int:cooridnacionoId>/', views.Cargos_Vacantes_coordinacion, name='lista  cargos por las coordinaciones'),
+    path('listar-codigos/', views.list_vacant_work_codes, name='lista de codigos vacantes'),
+    path('cargo_DreccionGeneral/<int:direccioGenealid>/', views.list_vacant_codes_by_general_directorate, name='lista cargos por las direcciones generales '),
+    path('cargo_DreccionLinea/<int:direccioLineaId>/', views.list_vacant_codes_by_line_directorate, name='lista cargos por las direcciones de linea'),
+    path('cargo_coordinacion/<int:cooridnacionoId>/', views.list_vacant_codes_by_coordination, name='lista  cargos por las coordinaciones'),
 
 
 # ------------------
 # ASIGNACION DE CARGO
 # -------------------
 
-    path('asignar_codigo/<int:id>/', views.asignar_cargo, name='asignacion-cargo'),
+    path('asignar_codigo/<int:id>/', views.assign_employee, name='asignacion-cargo'),
     # asignar codigo especial (tipos de nomina que requieren que el codigo sea autogenerable)
-    path('asignacion_CodigoEspecia/',views.Cargo_Especial, name='asignacion-cargo-especial'),
+    path('asignacion_CodigoEspecia/',views.assign_employee_special, name='asignacion-cargo-especial'),
     # listar empleados con su cargo
-    path('Employee/cargos/', views.listar_empleados, name='empleados-listar'),
-      # D
-    path('empleados/', views.EmployeeViewSet.as_view({'get': 'list'}), name='empleado-list-create'),
+    path('Employee/cargos/', views.list_employees_active, name='empleados-listar'),
+    #   # D
+    # path('empleados/', views.list_employees_active, name='empleado-list-create'),
 #     # BUSCA EMPLEADOS POR CEDULA 
-    path('empleados-cedula/<str:cedulaidentidad>/', views.listar_empleadosCedula, name='empleado-por-cedula'),
-    # D
-    path('empleados/<str:cedulaidentidad>/', views.EmployeeViewSet.as_view({'get': 'retrieve'}), name='empleado-detail'),
+    path('empleados-cedula/<str:cedulaidentidad>/', views.get_employee_by_id, name='empleado-por-cedula'),
+    # # D
+    # path('empleados/<str:cedulaidentidad>/', views.get_employee_by_id, name='empleado-detail'),
     
 # ------------------
 # DATOS PARA EL CARGO 
 # -------------------
 
     # denominacion de cargo 
-    path('listar-denominacion-cargo/', views.listar_denominacion_cargo, name='lista de denominacion de cargo'),
-    path('listar-denominacion-cargo-especifico/', views.listar_denominacion_cargo_especifico, name='listar-denominacion-cargo-especifico'), 
-    path('listar-grado/', views.listar_grado, name='lista de grados'), 
-    path('listar-nomina-general/', views.listar_nominaGeneral, name='lista de tipos de nominas generales'),
-    path('listar-nominaPasivo/', views.listar_tipo_nomina_pasivos, name='lista de tipos de nominas para personal pasivo'),
-    path('listar-tipo-nomina/', views.listar_tipo_nomina, name='lista de tipos de nominas sin CS Y HP'),
+    path('listar-denominacion-cargo/', views.list_position_denominations, name='lista de denominacion de cargo'),
+    path('listar-denominacion-cargo-especifico/', views.list_specific_position_denominations, name='listar-denominacion-cargo-especifico'),
+     
+    path('listar-grado/', views.list_job_grades, name='lista de grados'), 
+    path('nomina/general/', views.list_payroll_types, name='lista de tipos de nominas generales'),
+    path('listar-nominaPasivo/', views.list_retired_payroll_types, name='lista de tipos de nominas para personal pasivo'),
+    path('listar-tipo-nomina/', views.list_active_payroll_types, name='lista de tipos de nominas sin CS Y HP'),
     # tipo de nominas con asignacion de codigo autogenerables (CS y HP)
-    path('listar-nomina-especial/', views.listar_tipo_nominaEspeciales, name='lista de tipos de nominas solo CS Y HP'),
+    path('listar-nomina-especial/', views.list_special_payroll_types, name='lista de tipos de nominas solo CS Y HP'),
     
     #  estatus de gestion (BLOQUEADO, SUSPENDIDO,ACTIVO)
-    path('estatus-gestion/',  views.listar_estatus_Gestion, name='lista de estatus para la gestion de cambio de estatus'),
+    path('estatus-gestion/',  views.list_management_statuses, name='lista de estatus para la gestion de cambio de estatus'),
    #  estatus de egreso (EGRESADO, PASIVO)
-    path('estatus/',  views.listar_estatus_Egresos, name='lista de estatus para egresar'),
+    path('estatus/',  views.list_exit_statuses, name='lista de estatus para egresar'),
 
 # ---------------
 # ORGANISMOS ADSCRITOS 
 # ------------------- 
-   path('OrganismoAdscrito/',views.register_organismoAdscrito, name= "registro-organismo-Adscrito"),
-   path('organismos-adscritos/', views.Organismo_adscrito, name='lista de organismos adscritos'),
+   path('OrganismoAdscrito/',views.create_subsidiary_organism, name= "registro-organismo-Adscrito"),
+   path('organismos-adscritos/', views.list_subsidiary_organisms, name='lista de organismos adscritos'),
     
   
 # ------------------
@@ -154,6 +156,7 @@ urlpatterns = [
     path('historyEmployee/egreso/<str:cedulaidentidad>/', views.gestion_egreso_pasivo, name='empleado-egreso'),
     path('historyEmployee/Estatus/<int:cargo_id>/',views.gestionar_estatus_puesto, name='gestion-puestos'),
    
+       
     path('motivos/egreso/', views.listar_motivos_egreso, name='api-motivos-egreso'),
     path('motivos/movimiento/', views.listar_motivos_internos, name='api-motivos-internos'),
     path('motivos/estatus/', views.listar_suspendido, name='api-motivos-suspendido'),
@@ -176,5 +179,5 @@ urlpatterns = [
     
    
     path('reporte-config/', views.ReporteConfigView.as_view(), name='reporte_config'),
-    path('employee/reportes/', views.ReporteGenericoView.as_view(), name='reporte_generico',)
+    path('employee/reportes/', views.generate_dynamic_report, name='reporte_generico'),
 ]

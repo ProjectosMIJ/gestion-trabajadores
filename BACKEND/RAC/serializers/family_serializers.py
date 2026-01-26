@@ -13,8 +13,8 @@ from ..serializers.personal_serializers import (
     DiscapacidadSerializer,
     PatologiasSerializer,
     TallaCamisaSerializer,
-    Talla_PantalonSerializer,
-    Talla_ZapatosSerializer,
+    TallaPantalonSerializer,
+    TallaZapatosSerializer,
     PerfilSaludSerializer,
     PerfilFisicoSerializer,
     NivelAcademicoSerializer,
@@ -196,8 +196,8 @@ class PerfilSaludFamiliarSerializer(serializers.ModelSerializer):
 
 class PerfilFisicoFamiliarSerializer(serializers.ModelSerializer):
     tallaCamisa = TallaCamisaSerializer(read_only=True)
-    tallaPantalon = Talla_PantalonSerializer(read_only=True)
-    tallaZapatos = Talla_ZapatosSerializer(read_only=True)
+    tallaPantalon = TallaPantalonSerializer(read_only=True)
+    tallaZapatos = TallaZapatosSerializer(read_only=True)
 
     class Meta:
         model = perfil_fisico
@@ -244,3 +244,4 @@ class FamilyListSerializer(serializers.ModelSerializer):
         instancia = obj.formacion_academica_set.first()
         return FormacionAcademicaFamiliarSerializer(instancia).data if instancia else None
 
+   

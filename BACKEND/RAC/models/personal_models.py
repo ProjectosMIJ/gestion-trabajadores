@@ -15,7 +15,7 @@ from simple_history.models import HistoricalRecords
 
 # cargos 
 class Denominacioncargo(models.Model):
-    cargo = models.TextField()
+    cargo = models.CharField(max_length=200, unique=True)
     class Meta:
         managed = True
         db_table = 'DenominacionCargo'
@@ -23,7 +23,7 @@ class Denominacioncargo(models.Model):
         ordering = ['cargo']
 
 class Denominacioncargoespecifico(models.Model):
-    cargo = models.TextField()
+    cargo = models.CharField(max_length=200)
 
     class Meta:
         managed = True
@@ -34,7 +34,7 @@ class Denominacioncargoespecifico(models.Model):
  
 # organismos adscritos  
 class OrganismoAdscrito(models.Model):
-     Organismoadscrito = models.TextField(db_column='organismoAdscrito')
+     Organismoadscrito = models.CharField(max_length=50, unique=True,db_column='organismoAdscrito')
      class Meta:
         managed = True
         app_label = 'RAC'
@@ -43,7 +43,7 @@ class OrganismoAdscrito(models.Model):
         
 
 class NivelAcademico(models.Model):
-    nivelacademico = models.TextField(db_column='nivelAcademico') 
+    nivelacademico = models.CharField(max_length=50, unique=True,db_column='nivelAcademico')
 
     class Meta:
         managed = True
@@ -52,7 +52,7 @@ class NivelAcademico(models.Model):
         
 
 class Grado(models.Model):
-    grado = models.TextField()
+    grado = models.CharField(max_length=50, unique=True)
 
     class Meta:
         managed = True
@@ -61,9 +61,9 @@ class Grado(models.Model):
 
 
 class Tiponomina(models.Model):
-    nomina = models.TextField()
+    nomina = models.CharField(max_length=50, unique=True)
     requiere_codig = models.BooleanField(db_column='requiereCodig',default=False)
-
+    es_activo = models.BooleanField(default=True)
     class Meta:
         managed = True
         db_table = 'TipoNomina'
@@ -83,7 +83,7 @@ class Dependencias(models.Model):
 class DireccionGeneral(models.Model):
     Codigo = models.CharField(max_length=20, unique=True)
     direccion_general = models.CharField(max_length=200, unique=True)
-    dependenciaId = models.ForeignKey('Dependencias', models.DO_NOTHING,null=True, db_column='dependenciaId')
+    dependenciaId = models.ForeignKey('Dependencias', models.DO_NOTHING,null=True, default=1, db_column='dependenciaId')
 
 
     class Meta:
@@ -113,7 +113,7 @@ class Coordinaciones(models.Model):
 
 
 class Estatus(models.Model):
-    estatus = models.TextField()
+    estatus = models.CharField(max_length=50, unique=True)
 
     class Meta:
         managed = True
@@ -126,7 +126,7 @@ class Tipo_personal(models.Model):
         ('ACTIVO', 'ACTIVO'),
         ('PASIVO', 'PASIVO'),  
     ]
-    tipo_personal = models.TextField(db_column='tipoPersonal',choices=TipoChoices) 
+    tipo_personal = models.CharField(db_column='tipoPersonal',choices=TipoChoices,  unique=True) 
 
     class Meta:
         managed = True
@@ -136,7 +136,7 @@ class Tipo_personal(models.Model):
 # datos personales 
 
 class Sexo(models.Model):
-    sexo = models.TextField()
+    sexo = models.CharField(max_length=50, unique=True)
 
     class Meta:
         managed = True

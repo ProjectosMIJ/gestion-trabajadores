@@ -1,6 +1,7 @@
 
 from rest_framework import  status,serializers
 from rest_framework.response import Response
+from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from drf_spectacular.utils import extend_schema
 
@@ -28,16 +29,25 @@ class ReporteConfigView(APIView):
         request=ReporteDinamicoSerializer,
         responses={200: serializers.ListField()}
 )
-class ReporteGenericoView(APIView):
-    def post(self, request):
-        serializer = ReporteDinamicoSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        
+@api_view(['POST'])
+def generate_dynamic_report(request):
+    serializer = ReporteDinamicoSerializer(data=request.data)
+    
+    if serializer.is_valid():
         try:
             resultados = serializer.ejecutar()
-            return Response(resultados, status=status.HTTP_200_OK)
+            return Response({
+                "status": "Ok",
+                "message": "Reporte generado correctamente",
+                "data": resultados
+            }, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response(
-                {"error": "Error al procesar el reporte.", "detalle": str(e)},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            return Response({
+                'status': "Error",
+                'message': str(e),
+            }, status=status.HTTP_400_BAD_REQUEST)
+    else:
+        return Response({
+            'status': "Error",
+            'message': serializer.errors,
+        }, status=status.HTTP_400_BAD_REQUEST)

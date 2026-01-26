@@ -387,9 +387,4 @@ class EmployeeCargoHistorySerializer(serializers.ModelSerializer):
 
         if hasattr(self, '_prev_record_cache'):
             del self._prev_record_cache
-            
-        ret = super().to_representation(instance)
-        for key, value in ret.items():
-            if value is None:
-                ret[key] = None
-        return ret
+ 
