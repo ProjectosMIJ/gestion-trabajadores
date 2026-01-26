@@ -44,7 +44,6 @@ class ReporteFamiliarAgrupadoSerializer(serializers.ModelSerializer):
 
     def get_familiares(self, obj):
         return FamilyListSerializer(obj.carga_familiar.all(), many=True).data
-
 class EmployeeReporteSerializer(serializers.ModelSerializer):
     def get_asignaciones(self, obj):
         return ListerCodigosSerializer(obj.assignments.all(), many=True).data
@@ -70,7 +69,7 @@ class ReporteDinamicoSerializer(serializers.Serializer):
     def validate(self, data):
         config = MAPA_REPORTES.get(data['categoria'])
         if not config or data['agrupar_por'] not in config['campos_permitidos']:
-            raise serializers.ValidationError( "Parámetro de agrupación no válido")
+            raise serializers.ValidationError("Parámetro de agrupación no válido")
         return data
 
     def ejecutar(self):
@@ -126,7 +125,6 @@ class ReporteDinamicoSerializer(serializers.Serializer):
 
     def _preparar_lista_empleados(self, queryset):
         AsigModel = apps.get_model('RAC', 'AsigTrabajo')
-        
         queryset = queryset.prefetch_related(
             'sexoid', 'estadoCivil',
             Prefetch(
@@ -142,18 +140,20 @@ class ReporteDinamicoSerializer(serializers.Serializer):
         return EmployeeReporteSerializer(queryset, many=True).data
 
     def _preparar_lista_familiares(self, queryset, filtros_finales):
-        fecha_corte = filtros_finales.get('carga_familiar__fechanacimiento__gte')
+        filtros_parientes = {}
+        for clave, valor in filtros_finales.items():
+            if clave.startswith('carga_familiar__'):
+                nueva_clave = clave.replace('carga_familiar__', '')
+                filtros_parientes[nueva_clave] = valor
+
         FamilyModel = apps.get_model('RAC', 'Employeefamily')
         AsigModel = apps.get_model('RAC', 'AsigTrabajo')
 
         familiares_qs = FamilyModel.objects.select_related(
             'parentesco', 'sexo', 'estadoCivil'
-        ).prefetch_related(
+        ).filter(**filtros_parientes).prefetch_related(
             'perfil_salud_set', 'perfil_fisico_set', 'formacion_academica_set'
         )
-
-        if fecha_corte:
-            familiares_qs = familiares_qs.filter(fechanacimiento__gte=fecha_corte)
 
         queryset = queryset.filter(carga_familiar__isnull=False).prefetch_related(
             Prefetch(
