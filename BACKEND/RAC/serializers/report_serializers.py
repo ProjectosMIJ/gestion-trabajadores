@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.apps import apps
 from .personal_serializers import ListerCodigosSerializer
-
+from django.db.models.functions import ExtractDay
 from ..services.report_service import *
 from django.db.models import F, Count, Prefetch
 from datetime import date, timedelta
@@ -55,9 +55,11 @@ class EmployeeReporteSerializer(serializers.ModelSerializer):
     class Meta:
         model = apps.get_model('RAC', 'Employee')
         fields = [
-            'id', 'cedulaidentidad', 'nombres', 'apellidos', 
+            'id', 'cedulaidentidad', 'nombres', 'apellidos', 'fecha_nacimiento', 'fechaingresoorganismo',
+            'n_contrato',
             'sexo', 'estado_civil', 'asignaciones', 'fecha_actualizacion'
         ]
+
 class ReporteDinamicoSerializer(serializers.Serializer):
     CATEGORIAS = [('empleados', 'Empleados'), ('egresados', 'Egresados'), ('familiares', 'Familiares')]
     
@@ -78,8 +80,16 @@ class ReporteDinamicoSerializer(serializers.Serializer):
         Model = apps.get_model('RAC', config['modelo'])
         campo_db = config['campos_permitidos'][data['agrupar_por']]
 
+        queryset = Model.objects.all()
+
+        if data['categoria'] == 'empleados':
+            hoy = date.today()
+            queryset = queryset.annotate(
+                edad_trabajador=ExtractDay(hoy - F('fecha_nacimiento')) / 365.25
+            )
+
         filtros_finales = self._procesar_filtros(data['filtros'], config['filtros_permitidos'])
-        queryset = Model.objects.filter(**filtros_finales)
+        queryset = queryset.filter(**filtros_finales)
 
         if data['categoria'] in ['familiares', 'empleados']:
             queryset = queryset.filter(assignments__estatusid__estatus=ESTATUS_ACTIVO)
@@ -101,19 +111,28 @@ class ReporteDinamicoSerializer(serializers.Serializer):
         filtros_limpios = {}
         for k, v in filtros_raw.items():
             if k in permitidos and v not in [None, ""]:
-              campo_db = permitidos[k]
-            
-            if k == "edad_max":
-                filtros_limpios[campo_db] = date.today() - timedelta(days=int(v) * 365.25)
-            
-            elif campo_db.endswith('__lte'):
-                try:
-                    filtros_limpios[campo_db] = f"{v} 23:59:59"
-                except:
+                campo_db = permitidos[k]
+                
+                if any(x in k for x in ["edad_min", "edad_max", "apn_min", "apn_max"]):
+                    try:
+                        filtros_limpios[campo_db] = float(v)
+                    except ValueError:
+                        continue
+                
+                elif k == "edad_max" and "fechanacimiento" in campo_db:
+                    filtros_limpios[campo_db] = date.today() - timedelta(days=int(v) * 365.25)
+                
+                elif campo_db.endswith('__lte'):
+                    try:
+                        if isinstance(v, str) and len(v) == 10:
+                            filtros_limpios[campo_db] = f"{v} 23:59:59"
+                        else:
+                            filtros_limpios[campo_db] = v
+                    except:
+                        filtros_limpios[campo_db] = v
+                
+                else:
                     filtros_limpios[campo_db] = v
-            
-            else:
-                filtros_limpios[campo_db] = v
         return filtros_limpios
 
     def _obtener_data_detallada(self, queryset, categoria, filtros_finales):
@@ -135,7 +154,7 @@ class ReporteDinamicoSerializer(serializers.Serializer):
     def _preparar_lista_empleados(self, queryset):
         AsigModel = apps.get_model('RAC', 'AsigTrabajo')
         queryset = queryset.prefetch_related(
-            'sexoid', 'estadoCivil',
+            'sexoid', 'estadoCivil', 'datos_vivienda_set',
             Prefetch(
                 'assignments',
                 queryset=AsigModel.objects.filter(

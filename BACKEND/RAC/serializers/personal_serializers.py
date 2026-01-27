@@ -247,15 +247,27 @@ class CleanZerosMixin:
         return super().to_internal_value(data_limpia)
 # PERFIL / DATOS 
 class DatosViviendaSerializer(serializers.ModelSerializer):
-    estado = EstadoSerializer(source='estado_id', read_only=True)
-    municipio = MunicipioSerializer(source='municipio_id', read_only=True)
-    parroquia = ParroquiaSerializer( read_only=True)
-    condicion = CondicionViviendaSerializer(source='condicion_vivienda_id', read_only=True) #
+    estado_data = EstadoSerializer(source='estado_id', read_only=True)
+    municipio_data = MunicipioSerializer(source='municipio_id', read_only=True)
+    parroquia_data = ParroquiaSerializer(source='parroquia', read_only=True)
+    condicion_data = CondicionViviendaSerializer(source='condicion_vivienda_id', read_only=True)
+
+    # Escritura (POST/PUT)
+    # Usamos los nombres reales de los campos en el modelo
+    estado_id = serializers.PrimaryKeyRelatedField(queryset=direccion_models.Estado.objects.all(), write_only=True)
+    municipio_id = serializers.PrimaryKeyRelatedField(queryset=direccion_models.Municipio.objects.all(), write_only=True)
+    parroquia = serializers.PrimaryKeyRelatedField(queryset=direccion_models.Parroquia.objects.all(), write_only=True)
+    condicion_vivienda_id = serializers.PrimaryKeyRelatedField(queryset=condicion_vivienda.objects.all(), write_only=True)
+    
     direccionExacta = serializers.CharField(source='direccion_exacta')
 
     class Meta:
         model = datos_vivienda
-        fields = ['id', 'estado', 'municipio', 'parroquia', 'direccionExacta', 'condicion']
+        fields = [
+            'id', 'direccionExacta', 
+            'estado_data', 'municipio_data', 'parroquia_data', 'condicion_data', # Para ver
+            'estado_id', 'municipio_id', 'parroquia', 'condicion_vivienda_id'     # Para guardar
+        ]
         
 class PerfilSaludSerializer(serializers.ModelSerializer):
     grupoSanguineo = GrupoSanguineoSerializer( read_only=True)
@@ -582,7 +594,8 @@ class ListerCodigosSerializer(serializers.ModelSerializer):
 # serializers para asignar cargo
 # -------------------------------------------------------------         
 class EmployeeAssignmentSerializer(serializers.ModelSerializer):
-    employee = serializers.PrimaryKeyRelatedField(
+    employee = serializers.SlugRelatedField(
+        slug_field='cedulaidentidad',
         queryset=Employee.objects.all(),
         required=True,
         error_messages={

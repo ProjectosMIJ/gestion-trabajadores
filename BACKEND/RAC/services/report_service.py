@@ -17,8 +17,18 @@ MAPA_REPORTES = {
             "patologias": "perfil_salud__patologiaCronica__patologia",
             "nivel_academico": "formacion_academica__nivel_Academico_id__nivelacademico",
             "carrera": "formacion_academica__carrera_id__nombre_carrera",
+            "mencion": "formacion_academica__mencion_id__mencion",
+            "cargo": "assignments__denominacioncargoid",
+            "cargo_especifico": "assignments__denominacioncargoespecificoid",
+            "grado": "assignments__gradoid",
             "tipo_nomina": "assignments__tiponominaid__nomina",
             "estatus": "assignments__estatusid__estatus",
+            "años_apn": "total_anos_apn",
+            "edad": "edad_trabajador",
+            "region": "datos_vivienda_set__estado_id__Region__region",
+            "estado": "datos_vivienda_set__estado_id__estado",
+            "municipio": "datos_vivienda_set__municipio_id__municipio",
+            "condicion_vivienda": "datos_vivienda_set__condicion_vivienda_id__condicion",
         },
         "filtros_permitidos": {
             "dependencia_id": "assignments__DireccionGeneral__dependenciaId",
@@ -33,6 +43,13 @@ MAPA_REPORTES = {
             "cargo_id": "assignments__denominacioncargoid",
             "estatus_id": "assignments__estatusid",
             "tipo_personal": "assignments__Tipo_personal__tipo_personal",
+            "apn_min": "total_anos_apn__gte",
+            "apn_max": "total_anos_apn__lte",
+            "edad_min": "edad_trabajador__gte",
+            "edad_max": "edad_trabajador__lte",
+            "region_id": "datos_vivienda_set__estado_id__Region",
+            "estado_id": "datos_vivienda_set__estado_id",
+            "municipio_id": "datos_vivienda_set__municipio_id",
         }
     },
     "familiares": {
@@ -89,8 +106,6 @@ MAPA_REPORTES = {
         }
     }
 }
-
-
 
 def get_config_by_category(category):
     cat_data = MAPA_REPORTES.get(category)
