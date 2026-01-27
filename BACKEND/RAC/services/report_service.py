@@ -36,6 +36,7 @@ MAPA_REPORTES = {
             "coordinacion_id": "assignments__Coordinacion",
             "sexo_id": "sexoid",
             "discapacidad_id": "perfil_salud__discapacidad",
+            "grupo_sanguineo_id": "perfil_salud__grupoSanguineo",
             "patologia_id": "perfil_salud__patologiaCronica",
             "nomina_id": "assignments__tiponominaid",
             "grado_id": "assignments__gradoid",
