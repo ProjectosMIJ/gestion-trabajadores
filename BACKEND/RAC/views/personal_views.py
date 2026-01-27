@@ -1007,6 +1007,34 @@ def list_disabilities(request):
         
         
 # DEPENDENCIAS
+
+@extend_schema(
+    tags=["Recursos Humanos - Datos para Cargo"],
+    summary="Listar Dependencias",
+    description="Devuelve una lista de todas las Dependencias disponibles.",
+    responses=DependenciaSerializer
+)
+@api_view(['GET'])
+def list_dependencies(request):
+    try:
+        queryset = Dependencias.objects.all()
+        serializer = DependenciaSerializer(queryset, many=True)
+        
+        return Response({
+            'status': "success",
+            'message': "Dependencias listadas correctamente",
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            'status': "error",
+            'message': "No se pudo recuperar la lista de Dependencias",
+            'data': []
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+
+
 @extend_schema(
     tags=["Recursos Humanos - Datos para Cargo"],
     summary="Listar Direcciones Generales",

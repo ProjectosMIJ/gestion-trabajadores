@@ -80,6 +80,7 @@ urlpatterns = [
     # path('Coordinaciones/<int:id>/', views.Actualizar_Coordinacion, name= "actualizar-coordinacion "),
         
         #  LISTAR
+    path('dependencias/', views.list_dependencies, name='lista de dependencias'),
     path('listar-DireccionGeneral/', views.list_general_directorates, name='lista las direcciones de linea'),
     path('listar-DireccionLinea/<int:general_id>/',views.list_line_directorates_by_general, name='lista las direcciones generales'),
     path('listar-Coordinacion/<int:line_id>/', views.list_coordinations_by_line, name='lista de las coordinaciones'),
