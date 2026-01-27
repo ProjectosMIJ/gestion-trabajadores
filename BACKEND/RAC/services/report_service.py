@@ -58,6 +58,7 @@ MAPA_REPORTES = {
             "region_id": "datos_vivienda__estado_id__Region",
             "estado_id": "datos_vivienda__estado_id",
             "municipio_id": "datos_vivienda__municipio_id",
+            "parroquia_id": "datos_vivienda__parroquia_id",
             "condicion_vivienda_id": "datos_vivienda__condicion_vivienda_id"
         }
     },

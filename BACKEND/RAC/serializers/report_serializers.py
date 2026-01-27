@@ -4,7 +4,7 @@ from django.apps import apps
 from RAC.models.personal_models import Employee
 from django.db.models import Count, F, Prefetch
 from RAC.services.report_service import MAPA_REPORTES
-from .personal_serializers import EmployeeDetailSerializer
+from .personal_serializers import EmployeeDetailSerializer, denominacionCargoSerializer, denominacionCargoEspecificoSerializer, TipoNominaSerializer
 
 from datetime import date, timedelta
 
@@ -17,13 +17,14 @@ from RAC.services.constants import ESTATUS_ACTIVO
 class ReporteFamiliarAgrupadoSerializer(serializers.ModelSerializer):
     cedula_empleado = serializers.CharField(source='cedulaidentidad')
     nombre_empleado = serializers.SerializerMethodField()
-    cargo = serializers.SerializerMethodField()
+    denominacion_cargo = serializers.SerializerMethodField()
+    denominacion_cargo_especifico = serializers.SerializerMethodField()
     tipo_nomina = serializers.SerializerMethodField()
     familiares = serializers.SerializerMethodField()
 
     class Meta:
         model = Employee
-        fields = ['cedula_empleado', 'nombre_empleado', 'cargo', 'tipo_nomina', 'familiares']
+        fields = ['cedula_empleado', 'nombre_empleado', 'denominacion_cargo','denominacion_cargo_especifico', 'tipo_nomina', 'familiares']
 
     def _get_active_assignment(self, obj):
         assignments = obj.assignments.all()
@@ -32,16 +33,22 @@ class ReporteFamiliarAgrupadoSerializer(serializers.ModelSerializer):
     def get_nombre_empleado(self, obj):
         return f"{obj.nombres} {obj.apellidos}"
 
-    def get_cargo(self, obj):
+    def get_denominacion_cargo(self, obj):
         asig = self._get_active_assignment(obj)
-        if asig and hasattr(asig, 'denominacioncargoid') and asig.denominacioncargoid:
-            return asig.denominacioncargoid.cargo
+        if asig and getattr(asig, 'denominacioncargoid', None):
+            return denominacionCargoSerializer(asig.denominacioncargoid).data
         return "SIN CARGO"
+    
+    def get_denominacion_cargo_especifico(self, obj):
+        asig = self._get_active_assignment(obj)
+        if asig and getattr(asig, 'denominacioncargoespecificoid', None):
+            return denominacionCargoEspecificoSerializer(asig.denominacioncargoespecificoid).data
+        return "SIN CARGO ESPECIFICO"
 
     def get_tipo_nomina(self, obj):
         asig = self._get_active_assignment(obj)
-        if asig and hasattr(asig, 'tiponominaid') and asig.tiponominaid:
-            return asig.tiponominaid.nomina
+        if asig and getattr(asig, 'tiponominaid', None):
+            return TipoNominaSerializer(asig.tiponominaid).data
         return "SIN NÓMINA"
 
     def get_familiares(self, obj):
