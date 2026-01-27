@@ -50,10 +50,10 @@ urlpatterns = [
     # UBICACION DEL VIVIENDA
     # --------------------
      #path para la ubicacion del personal
-
-    path('direccion/estados/', views.get_estados, name='estados'),    
-    path('direccion/municipios/<int:estadoid>/', views.get_municipios, name='municipios_por_estado'),
-    path('direccion/parroquias/<int:municipioid>/', views.get_parroquias, name='parroquias'),
+   path('direccion/regiones/', views.list_region, name='regiones'),
+    path('direccion/estados/', views.list_estados, name='estados'),    
+    path('direccion/municipios/<int:estadoid>/', views.list_municipios, name='municipios_por_estado'),
+    path('direccion/parroquias/<int:municipioid>/', views.list_parroquias, name='parroquias'),
     path('condicion_vivienda/', views.list_housing_conditions, name='listar-condiciones-vivienda'),
     
     

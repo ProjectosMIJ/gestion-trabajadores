@@ -54,6 +54,7 @@ class ReporteFamiliarAgrupadoSerializer(serializers.ModelSerializer):
     def get_familiares(self, obj):
         return FamilyListSerializer(obj.carga_familiar.all(), many=True).data
 
+
 class ReporteDinamicoSerializer(serializers.Serializer):
     CATEGORIAS = [('empleados', 'Empleados'), ('egresados', 'Egresados'), ('familiares', 'Familiares')]
     
@@ -98,40 +99,44 @@ class ReporteDinamicoSerializer(serializers.Serializer):
     def _procesar_filtros(self, filtros_raw, permitidos):
         filtros_limpios = {}
         hoy = date.today()
+        valores_nulos = [None, "", 0, "0", "undefined", "null"]
 
         for k, v in filtros_raw.items():
-            if k in permitidos and v not in [None, ""]:
-                campo_db = permitidos[k]
+            if k in permitidos and v not in valores_nulos:
+                campo_db_filtro = permitidos[k]
                 
+                v_final = v
+                if isinstance(v, str) and 'T' in v:
+                    v_final = v.split('T')[0]
+
                 if k == "edad_max":
                     try:
-                        fecha_limite = hoy.replace(year=hoy.year - int(v) - 1) + timedelta(days=1)
+                        fecha_limite = hoy.replace(year=hoy.year - int(v_final) - 1) + timedelta(days=1)
                         filtros_limpios['fecha_nacimiento__gte'] = fecha_limite
-                    except ValueError: continue
+                    except (ValueError, TypeError): continue
                 
                 elif k == "edad_min":
                     try:
-                        fecha_limite = hoy.replace(year=hoy.year - int(v))
+                        fecha_limite = hoy.replace(year=hoy.year - int(v_final))
                         filtros_limpios['fecha_nacimiento__lte'] = fecha_limite
-                    except ValueError: continue
+                    except (ValueError, TypeError): continue
 
                 elif any(x in k for x in ["apn_min", "apn_max"]):
                     try:
-                        filtros_limpios[campo_db] = float(v)
-                    except ValueError: continue
+                        filtros_limpios[campo_db_filtro] = float(v_final)
+                    except (ValueError, TypeError): continue
                 
-                elif campo_db.endswith('__lte'):
-                    if any(word in campo_db for word in ['ingreso', 'nacimiento']):
-                        filtros_limpios[campo_db] = v
+                elif campo_db_filtro.endswith('__lte'):
+                    if any(word in campo_db_filtro for word in ['ingreso', 'nacimiento', 'egreso']):
+                        if isinstance(v_final, str) and len(v_final) == 10:
+                            filtros_limpios[campo_db_filtro] = v_final
+                        
                     else:
-                        if isinstance(v, str) and len(v) == 10:
-                            filtros_limpios[campo_db] = f"{v} 23:59:59"
-                        else:
-                            filtros_limpios[campo_db] = v
+                        filtros_limpios[campo_db_filtro] = v_final
                 
                 else:
-                    filtros_limpios[campo_db] = v
-                    
+                    filtros_limpios[campo_db_filtro] = v_final
+                        
         return filtros_limpios
 
     def _obtener_data_detallada(self, queryset, categoria, filtros_finales):

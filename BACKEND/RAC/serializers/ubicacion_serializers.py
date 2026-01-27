@@ -1,6 +1,13 @@
 from rest_framework import serializers
-from ..models.ubicacion_models import Estado, Municipio, Parroquia
+from ..models.ubicacion_models import  *
 
+
+
+class RegionSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Region
+        fields = ['id', 'region']
+    
 
 class EstadoSerializer(serializers.ModelSerializer):
     class Meta:

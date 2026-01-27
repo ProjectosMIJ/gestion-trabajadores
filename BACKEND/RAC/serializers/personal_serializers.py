@@ -245,15 +245,14 @@ class CleanZerosMixin:
 class DatosViviendaSerializer(serializers.ModelSerializer):
     estado_id = serializers.PrimaryKeyRelatedField(queryset=direccion_models.Estado.objects.all(), write_only=True)
     municipio_id = serializers.PrimaryKeyRelatedField(queryset=direccion_models.Municipio.objects.all(), write_only=True)
-    parroquia = serializers.PrimaryKeyRelatedField(queryset=direccion_models.Parroquia.objects.all()) # Este se queda igual
+    parroquia = serializers.PrimaryKeyRelatedField(queryset=direccion_models.Parroquia.objects.all()) 
     condicion_vivienda_id = serializers.PrimaryKeyRelatedField(queryset=condicion_vivienda.objects.all(), write_only=True)
     
-    direccionExacta = serializers.CharField(source='direccion_exacta')
 
     class Meta:
         model = datos_vivienda
         fields = [
-            'id', 'direccionExacta', 'parroquia',
+            'id', 'direccion_exacta', 'parroquia',
             'estado_id', 'municipio_id', 'condicion_vivienda_id'    
         ]
 

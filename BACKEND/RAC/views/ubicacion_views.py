@@ -2,18 +2,35 @@ from rest_framework.decorators import api_view
 from rest_framework import  status, serializers
 from rest_framework.response import Response
 from drf_spectacular.utils import extend_schema
-from ..models.ubicacion_models import Estado, Municipio, Parroquia
-from ..serializers.ubicacion_serializers import EstadoSerializer, MunicipioSerializer, ParroquiaSerializer
+from ..models.ubicacion_models import *
+from ..serializers.ubicacion_serializers import *
+
 
 
 @extend_schema(
     tags=["Recursos Humanos - Datos Vivienda"],
-    summary="Listar Parroquias por Municipio",
+    summary="Listar regiones",
     description="Devuelve una lista de parroquias para un municipio específico.",
     responses=ParroquiaSerializer,
 )
 @api_view(['GET'])
-def get_estados(request):
+def list_region(request):
+    regiones = Region.objects.all()
+    serializer = RegionSerializers(regiones, many=True)
+    return Response({
+        "status": "Ok",
+        "message": "Regiones listadas",
+        "data": serializer.data,},
+         status=status.HTTP_200_OK)
+    
+    
+@extend_schema(
+    tags=["Recursos Humanos - Datos Vivienda"],
+    summary="Listar estados",
+    responses=EstadoSerializer,
+)
+@api_view(['GET'])
+def list_estados(request):
     estados = Estado.objects.all()
     serializer = EstadoSerializer(estados, many=True)
     return Response({
@@ -29,7 +46,7 @@ def get_estados(request):
     responses=MunicipioSerializer,
     )
 @api_view(['GET'])
-def get_municipios(request, estadoid):
+def list_municipios(request, estadoid):
 
     try:
         
@@ -56,7 +73,7 @@ def get_municipios(request, estadoid):
     responses=ParroquiaSerializer,
 )
 @api_view(['GET'])
-def get_parroquias(request, municipioid):
+def list_parroquias(request, municipioid):
     try:
         municipio = Municipio.objects.get(pk=municipioid)
     except Municipio.DoesNotExist:

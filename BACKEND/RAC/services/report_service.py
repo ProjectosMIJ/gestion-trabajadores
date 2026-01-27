@@ -59,7 +59,8 @@ MAPA_REPORTES = {
             "estado_id": "datos_vivienda__estado_id",
             "municipio_id": "datos_vivienda__municipio_id",
             "parroquia_id": "datos_vivienda__parroquia_id",
-            "condicion_vivienda_id": "datos_vivienda__condicion_vivienda_id"
+            "condicion_vivienda_id": "datos_vivienda__condicion_vivienda_id",
+            
         }
     },
     "familiares": {
@@ -82,12 +83,21 @@ MAPA_REPORTES = {
         },
         "filtros_permitidos": {
             "parentesco_id": "carga_familiar__parentesco",
-            "sexo_id": "carga_familiar__sexo",
-            "edad_max": "carga_familiar__fechanacimiento__gte", 
+            "patologias_id": "carga_familiar__perfil_salud__patologiaCronica",
+            "grupo_sanguineo_id": "carga_familiar__perfil_salud__grupoSanguineo",
+            "discapacidades_id": "carga_familiar__perfil_salud__discapacidad",
+            "sexo_familiar_id": "carga_familiar__sexo",
+            "estado_civil_id": "carga_familiar__estadoCivil",
+            "sexo_empleado_id": "sexoid",
+             "edad_empleado_min": "edad_trabajador__lte",
+            "edad_empleado_max": "edad_trabajador__gte",
+            "edad_familiar_min": "carga_familiar__fechanacimiento__lte",
+            "edad_familiar_max": "carga_familiar__fechanacimiento__gte", 
             "nomina_id": "assignments__tiponominaid",
             "direccion_general_id": "assignments__DireccionGeneral",
             "direccion_linea_id": "assignments__DireccionLinea",
             "coordinacion_id": "assignments__Coordinacion",
+            
         }
     },
     "egresados": {
