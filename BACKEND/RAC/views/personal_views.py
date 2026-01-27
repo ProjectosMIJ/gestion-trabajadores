@@ -1,3 +1,4 @@
+
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.decorators import api_view
@@ -86,11 +87,23 @@ def retrieve_employee(request, cedulaidentidad):
         empleado = Employee.objects.select_related(
             'sexoid', 'estadoCivil'
         ).prefetch_related(
-            'datos_vivienda_set',
-            'perfil_salud_set',
+           'datos_vivienda_set__estado_id',
+            'datos_vivienda_set__municipio_id',
+            'datos_vivienda_set__parroquia',
+            'datos_vivienda_set__condicion_vivienda_id',
+            
+            'perfil_salud_set__grupoSanguineo',
+            'perfil_salud_set__discapacidad',
+            'perfil_salud_set__patologiaCronica',
+            
+            'formacion_academica_set__nivel_Academico_id',
+            'formacion_academica_set__carrera_id',
+            'formacion_academica_set__mencion_id',
+            
             'perfil_fisico_set',
-            'formacion_academica_set',
-            'antecedentes_servicio_set'
+            'antecedentes_servicio_set',
+            'assignments__denominacioncargoid',
+            'assignments__estatusid'
         ).get(cedulaidentidad=cedulaidentidad)
 
         serializer = EmployeeListSerializer(empleado)

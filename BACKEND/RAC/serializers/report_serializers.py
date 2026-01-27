@@ -1,11 +1,13 @@
 from rest_framework import serializers
 from django.apps import apps
-from .personal_serializers import ListerCodigosSerializer
-from django.db.models.functions import ExtractDay
-from ..services.report_service import *
-from django.db.models import F, Count, Prefetch
-from datetime import date, timedelta
+
 from RAC.models.personal_models import Employee
+from django.db.models import Count, F, Prefetch
+from RAC.services.report_service import MAPA_REPORTES
+from .personal_serializers import EmployeeDetailSerializer
+
+from datetime import date, timedelta
+
 from  .family_serializers import  FamilyListSerializer
 from .historial_personal_serializers import PersonalEgresadoSerializer
 from RAC.services.constants import ESTATUS_ACTIVO
@@ -20,7 +22,7 @@ class ReporteFamiliarAgrupadoSerializer(serializers.ModelSerializer):
     familiares = serializers.SerializerMethodField()
 
     class Meta:
-        model = apps.get_model('RAC', 'Employee')
+        model = Employee
         fields = ['cedula_empleado', 'nombre_empleado', 'cargo', 'tipo_nomina', 'familiares']
 
     def _get_active_assignment(self, obj):
@@ -44,21 +46,6 @@ class ReporteFamiliarAgrupadoSerializer(serializers.ModelSerializer):
 
     def get_familiares(self, obj):
         return FamilyListSerializer(obj.carga_familiar.all(), many=True).data
-class EmployeeReporteSerializer(serializers.ModelSerializer):
-    def get_asignaciones(self, obj):
-        return ListerCodigosSerializer(obj.assignments.all(), many=True).data
-
-    asignaciones = serializers.SerializerMethodField()
-    sexo = serializers.ReadOnlyField(source='sexoid.sexo')
-    estado_civil = serializers.ReadOnlyField(source='estadoCivil.estadoCivil')
-
-    class Meta:
-        model = apps.get_model('RAC', 'Employee')
-        fields = [
-            'id', 'cedulaidentidad', 'nombres', 'apellidos', 'fecha_nacimiento', 'fechaingresoorganismo',
-            'n_contrato',
-            'sexo', 'estado_civil', 'asignaciones', 'fecha_actualizacion'
-        ]
 
 class ReporteDinamicoSerializer(serializers.Serializer):
     CATEGORIAS = [('empleados', 'Empleados'), ('egresados', 'Egresados'), ('familiares', 'Familiares')]
@@ -82,19 +69,13 @@ class ReporteDinamicoSerializer(serializers.Serializer):
 
         queryset = Model.objects.all()
 
-        if data['categoria'] == 'empleados':
-            hoy = date.today()
-            queryset = queryset.annotate(
-                edad_trabajador=ExtractDay(hoy - F('fecha_nacimiento')) / 365.25
-            )
-
         filtros_finales = self._procesar_filtros(data['filtros'], config['filtros_permitidos'])
         queryset = queryset.filter(**filtros_finales)
 
         if data['categoria'] in ['familiares', 'empleados']:
             queryset = queryset.filter(assignments__estatusid__estatus=ESTATUS_ACTIVO)
 
-        queryset = queryset.distinct()
+        queryset = queryset.filter(**{f"{campo_db}__isnull": False}).distinct()
 
         if data['tipo_reporte'] == 'conteo':
             return self._ejecutar_conteo(queryset, campo_db, data['categoria'])
@@ -105,34 +86,45 @@ class ReporteDinamicoSerializer(serializers.Serializer):
         target_count = 'carga_familiar' if categoria == 'familiares' else 'pk'
         return list(queryset.values(label=F(campo_db)).annotate(
             total=Count(target_count, distinct=True)
-        ).filter(label__isnull=False).order_by('-total'))
+        ).order_by('-total'))
 
     def _procesar_filtros(self, filtros_raw, permitidos):
         filtros_limpios = {}
+        hoy = date.today()
+
         for k, v in filtros_raw.items():
             if k in permitidos and v not in [None, ""]:
                 campo_db = permitidos[k]
                 
-                if any(x in k for x in ["edad_min", "edad_max", "apn_min", "apn_max"]):
+                if k == "edad_max":
+                    try:
+                        fecha_limite = hoy.replace(year=hoy.year - int(v) - 1) + timedelta(days=1)
+                        filtros_limpios['fecha_nacimiento__gte'] = fecha_limite
+                    except ValueError: continue
+                
+                elif k == "edad_min":
+                    try:
+                        fecha_limite = hoy.replace(year=hoy.year - int(v))
+                        filtros_limpios['fecha_nacimiento__lte'] = fecha_limite
+                    except ValueError: continue
+
+                elif any(x in k for x in ["apn_min", "apn_max"]):
                     try:
                         filtros_limpios[campo_db] = float(v)
-                    except ValueError:
-                        continue
-                
-                elif k == "edad_max" and "fechanacimiento" in campo_db:
-                    filtros_limpios[campo_db] = date.today() - timedelta(days=int(v) * 365.25)
+                    except ValueError: continue
                 
                 elif campo_db.endswith('__lte'):
-                    try:
+                    if any(word in campo_db for word in ['ingreso', 'nacimiento']):
+                        filtros_limpios[campo_db] = v
+                    else:
                         if isinstance(v, str) and len(v) == 10:
                             filtros_limpios[campo_db] = f"{v} 23:59:59"
                         else:
                             filtros_limpios[campo_db] = v
-                    except:
-                        filtros_limpios[campo_db] = v
                 
                 else:
                     filtros_limpios[campo_db] = v
+                    
         return filtros_limpios
 
     def _obtener_data_detallada(self, queryset, categoria, filtros_finales):
@@ -152,20 +144,18 @@ class ReporteDinamicoSerializer(serializers.Serializer):
         raise serializers.ValidationError("Categoria no implementada")
 
     def _preparar_lista_empleados(self, queryset):
-        AsigModel = apps.get_model('RAC', 'AsigTrabajo')
-        queryset = queryset.prefetch_related(
-            'sexoid', 'estadoCivil', 'datos_vivienda_set',
-            Prefetch(
-                'assignments',
-                queryset=AsigModel.objects.filter(
-                    estatusid__estatus=ESTATUS_ACTIVO
-                ).select_related(
-                    'denominacioncargoid', 'tiponominaid', 
-                    'DireccionGeneral', 'DireccionLinea', 'Coordinacion', 'estatusid'
-                )
-            )
+        queryset = queryset.select_related('sexoid', 'estadoCivil').prefetch_related(
+            'datos_vivienda_set',     
+            'perfil_salud_set',
+            'perfil_fisico_set',
+            'formacion_academica_set',
+            'antecedentes_servicio_set',
+            'assignments__denominacioncargoid',
+            'assignments__DireccionGeneral',
+            'assignments__DireccionLinea',
+            'assignments__estatusid'
         )
-        return EmployeeReporteSerializer(queryset, many=True).data
+        return EmployeeDetailSerializer(queryset, many=True).data
 
     def _preparar_lista_familiares(self, queryset, filtros_finales):
         filtros_parientes = {}

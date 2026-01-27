@@ -1,4 +1,5 @@
-#importaciones de rest framework
+
+    #importaciones de rest framework
 from rest_framework import serializers
 
 # importaciones de modelos y utilidades
@@ -13,11 +14,6 @@ from ..services.constants import *
 from USER.models.user_models import cuenta as User
 
 from ..services.constants_historial import registrar_historial_movimiento
-from ..services.report_service import MAPA_REPORTES
-from dateutil.relativedelta import relativedelta
-from django.db.models import F, Count
-from datetime import date
-from django.apps import apps
 
 
 # -------------------------------------------------------------
@@ -247,13 +243,11 @@ class CleanZerosMixin:
         return super().to_internal_value(data_limpia)
 # PERFIL / DATOS 
 class DatosViviendaSerializer(serializers.ModelSerializer):
-    estado_data = EstadoSerializer(source='estado_id', read_only=True)
-    municipio_data = MunicipioSerializer(source='municipio_id', read_only=True)
-    parroquia_data = ParroquiaSerializer(source='parroquia', read_only=True)
-    condicion_data = CondicionViviendaSerializer(source='condicion_vivienda_id', read_only=True)
+    estado = EstadoSerializer(source='estado_id', read_only=True)
+    municipio = MunicipioSerializer(source='municipio_id', read_only=True)
+    parroquia = ParroquiaSerializer(source='parroquia', read_only=True)
+    condicion = CondicionViviendaSerializer(source='condicion_vivienda_id', read_only=True)
 
-    # Escritura (POST/PUT)
-    # Usamos los nombres reales de los campos en el modelo
     estado_id = serializers.PrimaryKeyRelatedField(queryset=direccion_models.Estado.objects.all(), write_only=True)
     municipio_id = serializers.PrimaryKeyRelatedField(queryset=direccion_models.Municipio.objects.all(), write_only=True)
     parroquia = serializers.PrimaryKeyRelatedField(queryset=direccion_models.Parroquia.objects.all(), write_only=True)
@@ -265,36 +259,93 @@ class DatosViviendaSerializer(serializers.ModelSerializer):
         model = datos_vivienda
         fields = [
             'id', 'direccionExacta', 
-            'estado_data', 'municipio_data', 'parroquia_data', 'condicion_data', # Para ver
-            'estado_id', 'municipio_id', 'parroquia', 'condicion_vivienda_id'     # Para guardar
+            'estado', 'municipio', 'parroquia', 'condicion', 
+            'estado_id', 'municipio_id', 'parroquia', 'condicion_vivienda_id'    
         ]
         
 class PerfilSaludSerializer(serializers.ModelSerializer):
-    grupoSanguineo = GrupoSanguineoSerializer( read_only=True)
-    discapacidad = DiscapacidadSerializer(many=True, read_only=True)
-    patologiasCronicas = PatologiasSerializer(source='patologiaCronica', many=True, read_only=True)
 
     class Meta:
         model = perfil_salud
-        fields = ['id', 'grupoSanguineo', 'discapacidad', 'patologiasCronicas']
+        exclude = ['empleado_id','familiar_id']
+        
+    def to_representation(self, instance):
+
+        ret = super().to_representation(instance)
+
+        if instance.grupoSanguineo:
+            ret['grupoSanguineo'] = {
+                "id": instance.grupoSanguineo.id,
+                "grupoSanguineo": instance.grupoSanguineo.GrupoSanguineo
+            }
+
+        ret['discapacidad'] = [
+            {"id": d.id, "discapacidad": d.discapacidad} 
+            for d in instance.discapacidad.all()
+        ]
+
+        ret['patologiaCronica'] = [
+            {"id": p.id, "patologia": p.patologia} 
+            for p in instance.patologiaCronica.all()
+        ]
+
+        return ret
         
 class PerfilFisicoSerializer(serializers.ModelSerializer):
-    tallaCamisa = TallaCamisaSerializer(read_only=True)
-    tallaPantalon = TallaPantalonSerializer(read_only=True)
-    tallaZapatos = TallaZapatosSerializer(read_only=True)
 
     class Meta:
         model = perfil_fisico
-        fields = ['id', 'tallaCamisa', 'tallaPantalon', 'tallaZapatos']
+        exclude = ['empleado_id','familiar_id']
+        
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        
+        if instance.tallaCamisa:
+            ret['tallaCamisa'] = {
+                "id": instance.tallaCamisa.id,
+                "talla": instance.tallaCamisa.talla
+            }
+        if instance.tallaPantalon:
+            ret['tallaPantalon'] = {
+                "id": instance.tallaPantalon.id,
+                "talla": instance.tallaPantalon.talla
+            }
+        
+        if instance.tallaZapatos:
+            ret['tallaZapatos'] = {
+                "id": instance.tallaZapatos.id,
+                "talla": instance.tallaZapatos.talla
+            }
+        return ret
+        
 
 class FormacionAcademicaSerializer(serializers.ModelSerializer):
     nivelAcademico = NivelAcademicoSerializer(source='nivel_Academico_id', read_only=True)
     carrera = CarrerasSerializer(source='carrera_id', read_only=True)
     mencion = MencionSerializer(source='mencion_id', read_only=True)
+    nivel_Academico_id = serializers.PrimaryKeyRelatedField(
+        queryset=NivelAcademico.objects.all(), 
+        write_only=True, required=False, allow_null=True
+    )
+    carrera_id = serializers.PrimaryKeyRelatedField(
+        queryset=carreras.objects.all(), 
+        write_only=True, required=False, allow_null=True
+    )
+    mencion_id = serializers.PrimaryKeyRelatedField(
+        queryset=Menciones.objects.all(), 
+        write_only=True, required=False, allow_null=True
+    )
 
     class Meta:
         model = formacion_academica
-        fields = ['id', 'nivelAcademico', 'institucion', 'capacitacion', 'carrera', 'mencion']
+        fields = [
+            'id', 'institucion', 'capacitacion',
+            'nivelAcademico', 'carrera', 'mencion',      
+            'nivel_Academico_id', 'carrera_id', 'mencion_id'
+        ]
+
+    
+        
      
 class AntecedentesServicioSerializer(serializers.ModelSerializer):
     fecha_ingreso = ISODateField(required=False, allow_null=True)
@@ -465,10 +516,21 @@ class EmployeeListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
         fields = [
-            'id', 'cedulaidentidad', 'nombres', 'apellidos', 'profile',
-            'fecha_nacimiento', 'fechaingresoorganismo', 'n_contrato', 
-            'sexo', 'estadoCivil', 'datos_vivienda', 'perfil_salud', 
-            'perfil_fisico', 'formacion_academica', 'antecedentes',
+            'id', 
+            'cedulaidentidad', 
+            'nombres', 
+            'apellidos',
+            'profile',
+            'fecha_nacimiento',
+            'fechaingresoorganismo',
+            'n_contrato', 
+            'sexo', 
+            'estadoCivil',
+            'datos_vivienda',
+            'perfil_salud', 
+            'perfil_fisico', 
+            'formacion_academica', 
+            'antecedentes',
             'fecha_actualizacion'
         ]
         
@@ -677,7 +739,6 @@ class SpecialPositionAutoCreateSerializer(CleanZerosMixin, serializers.ModelSeri
         except (Estatus.DoesNotExist, Tipo_personal.DoesNotExist, Tipo_movimiento.DoesNotExist) as e:
             raise serializers.ValidationError(f"Error de configuración: {str(e)}")
 
-        # 2. Lógica de generación de Prefijo y Código
         tipo_nomina = attrs.get('tiponominaid')
         nombre_nomina = tipo_nomina.nomina.upper()
 
@@ -725,11 +786,11 @@ class EmployeeDetailSerializer(serializers.ModelSerializer):
 
     sexo = SexoSerializer(source='sexoid', read_only=True)
     estadoCivil = EstadoCivilSerializer(read_only=True)
-    datos_vivienda = DatosViviendaSerializer(source='vivienda_data', read_only=True)
-    perfil_salud = PerfilSaludSerializer(source='salud_data', read_only=True)
-    perfil_fisico = PerfilFisicoSerializer(source='fisico_data', read_only=True)
-    formacion_academica = FormacionAcademicaSerializer(source='academica_data', read_only=True)
- 
+    datos_vivienda = serializers.SerializerMethodField()
+    perfil_salud = serializers.SerializerMethodField()
+    perfil_fisico = serializers.SerializerMethodField()
+    formacion_academica = serializers.SerializerMethodField()
+    anos_apn = serializers.IntegerField(source='total_anos_apn', read_only=True)
     antecedentes = AntecedentesServicioSerializer(
         source='antecedentes_servicio_set', many=True,read_only=True)
 
@@ -738,11 +799,38 @@ class EmployeeDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Employee
         fields = [
-            'id', 'cedulaidentidad', 'nombres', 'apellidos', 'profile',
-            'fecha_nacimiento', 'n_contrato', 'sexo', 'estadoCivil', 
-            'datos_vivienda', 'perfil_salud', 'perfil_fisico', 
-            'formacion_academica', 'antecedentes', 'fecha_actualizacion', 
+            'id', 
+            'cedulaidentidad', 
+            'nombres',
+            'apellidos', 
+            'profile',
+            'fecha_nacimiento',
+            'fechaingresoorganismo',
+            'n_contrato', 
+            'sexo',
+            'estadoCivil', 
+            'datos_vivienda', 
+            'perfil_salud',
+            'perfil_fisico', 
+            'formacion_academica',
+            'antecedentes',
+            'anos_apn', 
+            'fecha_actualizacion', 
             'asignaciones'
         ]
     
+    def get_datos_vivienda(self, obj):
+        vivienda = obj.datos_vivienda_set.first()
+        return DatosViviendaSerializer(vivienda).data if vivienda else None
 
+    def get_perfil_salud(self, obj):
+        salud = obj.perfil_salud_set.first()
+        return PerfilSaludSerializer(salud).data if salud else None
+
+    def get_perfil_fisico(self, obj):
+        fisico = obj.perfil_fisico_set.first()
+        return PerfilFisicoSerializer(fisico).data if fisico else None
+
+    def get_formacion_academica(self, obj):
+        academica = obj.formacion_academica_set.first()
+        return FormacionAcademicaSerializer(academica).data if academica else None

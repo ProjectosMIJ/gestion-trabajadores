@@ -310,10 +310,11 @@ class Employee(models.Model):
     fecha_nacimiento = models.DateField(db_column='fechaNacimiento', blank=True, null=True)
     profile = models.TextField(blank=True, null=True)
     fechaingresoorganismo = models.DateField(db_column='fechaIngresoOrganismo', blank=True, null=True)
+    total_anos_apn = models.DecimalField(db_column='total_anos_apn',max_digits=5,decimal_places=2,default=0.00,editable=False)
     n_contrato = models.TextField(null=True, max_length=50)
     sexoid = models.ForeignKey('Sexo', models.DO_NOTHING, db_column='sexoId')
     estadoCivil = models.ForeignKey(estado_civil, models.DO_NOTHING, db_column='estadoCivilId', blank=True, null=True)
-    historial  = HistoricalRecords(user_model=cuenta)
+    historial  = HistoricalRecords(user_model=cuenta,excluded_fields=['total_anos_apn'])
     fecha_actualizacion = models.DateTimeField(auto_now=True) 
     
     @property
