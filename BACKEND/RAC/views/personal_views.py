@@ -397,7 +397,7 @@ def list_employees_active(request):
      request=EmployeeDetailSerializer,
 ) 
 @api_view(['GET'])
-def get_employee_by_id(request, cedula):
+def get_employee_by_id(request, cedulaidentidad):
 
     try:
         filtro_asignaciones = AsigTrabajo.objects.filter(
@@ -405,7 +405,7 @@ def get_employee_by_id(request, cedula):
         )
 
         empleado = Employee.objects.filter(
-            cedulaidentidad=cedula,
+            cedulaidentidad=cedulaidentidad,
             assignments__Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO
         ).prefetch_related(
             Prefetch('assignments', queryset=filtro_asignaciones)

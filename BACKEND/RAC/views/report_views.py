@@ -3,7 +3,7 @@ from rest_framework import  status,serializers
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
-from drf_spectacular.utils import extend_schema
+from drf_spectacular.utils import extend_schema,OpenApiExample
 
 from ..serializers.report_serializers import *
 from ..services.report_service import *
@@ -113,7 +113,23 @@ class ReportTypesConfigView(APIView):
         summary="Generar Reporte Dinámico",
         description="Genera estadísticas o listados detallados de empleados, familiares o egresados.",
         request=ReporteDinamicoSerializer,
-        responses={200: serializers.ListField()}
+        responses={200: serializers.ListField()},
+        examples=[
+        OpenApiExample(
+            'Ejemplo de Conteo de Familiares',
+            summary='Reporte de conteo agrupado por nómina',
+            description='Filtra familiares por sexo y los cuenta según el tipo de nómina del titular.',
+            value={
+                "categoria": "familiares",
+                "agrupar_por": "tipo_nomina",
+                "tipo_reporte": "conteo",
+                "filtros": {
+                    "sexo_id": 1
+                }
+            },
+            request_only=True, 
+        ),
+    ]
 )
 @api_view(['POST'])
 def generate_dynamic_report(request):
