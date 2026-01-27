@@ -243,14 +243,9 @@ class CleanZerosMixin:
         return super().to_internal_value(data_limpia)
 # PERFIL / DATOS 
 class DatosViviendaSerializer(serializers.ModelSerializer):
-    estado = EstadoSerializer(source='estado_id', read_only=True)
-    municipio = MunicipioSerializer(source='municipio_id', read_only=True)
-    parroquia = ParroquiaSerializer(source='parroquia', read_only=True)
-    condicion = CondicionViviendaSerializer(source='condicion_vivienda_id', read_only=True)
-
     estado_id = serializers.PrimaryKeyRelatedField(queryset=direccion_models.Estado.objects.all(), write_only=True)
     municipio_id = serializers.PrimaryKeyRelatedField(queryset=direccion_models.Municipio.objects.all(), write_only=True)
-    parroquia = serializers.PrimaryKeyRelatedField(queryset=direccion_models.Parroquia.objects.all(), write_only=True)
+    parroquia = serializers.PrimaryKeyRelatedField(queryset=direccion_models.Parroquia.objects.all()) # Este se queda igual
     condicion_vivienda_id = serializers.PrimaryKeyRelatedField(queryset=condicion_vivienda.objects.all(), write_only=True)
     
     direccionExacta = serializers.CharField(source='direccion_exacta')
@@ -258,10 +253,19 @@ class DatosViviendaSerializer(serializers.ModelSerializer):
     class Meta:
         model = datos_vivienda
         fields = [
-            'id', 'direccionExacta', 
-            'estado', 'municipio', 'parroquia', 'condicion', 
-            'estado_id', 'municipio_id', 'parroquia', 'condicion_vivienda_id'    
+            'id', 'direccionExacta', 'parroquia',
+            'estado_id', 'municipio_id', 'condicion_vivienda_id'    
         ]
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        
+        ret['parroquia'] = ParroquiaSerializer(instance.parroquia).data
+        ret['estado'] = EstadoSerializer(instance.estado_id).data
+        ret['municipio'] = MunicipioSerializer(instance.municipio_id).data
+        ret['condicion'] = CondicionViviendaSerializer(instance.condicion_vivienda_id).data
+        
+        return ret
         
 class PerfilSaludSerializer(serializers.ModelSerializer):
 
@@ -280,16 +284,33 @@ class PerfilSaludSerializer(serializers.ModelSerializer):
             }
 
         ret['discapacidad'] = [
-            {"id": d.id, "discapacidad": d.discapacidad} 
+            {
+                "id": d.id, 
+                "discapacidad": d.discapacidad,
+                "categoria": {
+                    "id": d.categoria_id.id,
+                    "nombre_categoria": d.categoria_id.nombre_categoria
+                }
+            } 
             for d in instance.discapacidad.all()
         ]
-
-        ret['patologiaCronica'] = [
-            {"id": p.id, "patologia": p.patologia} 
+        
+        ret['patologiasCronicas'] = [
+            {
+                "id": p.id, 
+                "patologia": p.patologia,
+                "categoria": {
+                    "id": p.categoria_id.id,
+                    "nombre_categoria": p.categoria_id.nombre_categoria
+                }
+            } 
             for p in instance.patologiaCronica.all()
         ]
 
+        ret.pop('patologiaCronica', None)
+
         return ret
+
         
 class PerfilFisicoSerializer(serializers.ModelSerializer):
 

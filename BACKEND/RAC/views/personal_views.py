@@ -1172,6 +1172,7 @@ def list_specific_position_denominations(request):
     description="Devuelve una lista de todos los grados disponibles.",
     responses=gradoSerializer
 )
+@api_view(['GET'])
 def list_job_grades(request):
     try:
         queryset = Grado.objects.all()

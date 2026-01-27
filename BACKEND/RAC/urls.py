@@ -81,8 +81,8 @@ urlpatterns = [
         
         #  LISTAR
     path('listar-DireccionGeneral/', views.list_general_directorates, name='lista las direcciones de linea'),
-    path('listar-DireccionLinea/<int:direccionGeneral>/',views.list_line_directorates_by_general, name='lista las direcciones generales'),
-    path('listar-Coordinacion/<int:direccionLinea>/', views.list_coordinations_by_line, name='lista de las coordinaciones'),
+    path('listar-DireccionLinea/<int:general_id>/',views.list_line_directorates_by_general, name='lista las direcciones generales'),
+    path('listar-Coordinacion/<int:line_id>/', views.list_coordinations_by_line, name='lista de las coordinaciones'),
       
 # ------------------
 # Gestion del codigo
@@ -95,9 +95,9 @@ urlpatterns = [
     path('codigos_lister/', views.list_general_work_codes, name='lista de codigos generales'),
 #     # lista unicamente los codigos vacantes
     path('listar-codigos/', views.list_vacant_work_codes, name='lista de codigos vacantes'),
-    path('cargo_DreccionGeneral/<int:direccioGenealid>/', views.list_vacant_codes_by_general_directorate, name='lista cargos por las direcciones generales '),
-    path('cargo_DreccionLinea/<int:direccioLineaId>/', views.list_vacant_codes_by_line_directorate, name='lista cargos por las direcciones de linea'),
-    path('cargo_coordinacion/<int:cooridnacionoId>/', views.list_vacant_codes_by_coordination, name='lista  cargos por las coordinaciones'),
+    path('cargo_DreccionGeneral/<int:general_id>/', views.list_vacant_codes_by_general_directorate, name='lista cargos por las direcciones generales '),
+    path('cargo_DreccionLinea/<int:general_id>/', views.list_vacant_codes_by_line_directorate, name='lista cargos por las direcciones de linea'),
+    path('cargo_coordinacion/<int:coordination_id>/', views.list_vacant_codes_by_coordination, name='lista  cargos por las coordinaciones'),
 
 
 # ------------------
