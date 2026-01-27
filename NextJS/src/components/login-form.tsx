@@ -18,6 +18,7 @@ import { useState, useTransition } from "react";
 import { Input } from "@/components/ui/input";
 import { loginAction } from "#/actions/auth-actions";
 import { useRouter } from "next/navigation";
+import Loading from "@/app/(protected)/dashboard/gestion-trabajadores/components/loading/loading";
 export function LoginForm({
   className,
   ...props
@@ -36,7 +37,6 @@ export function LoginForm({
     setError(null);
     startTransition(async () => {
       const response = await loginAction(values);
-      console.log(response);
       if (response?.error) {
         setError(response.error);
       } else {
@@ -45,15 +45,22 @@ export function LoginForm({
     });
   }
   return (
-    <>
-      <Form {...form}>
+    <Form {...form}>
+      {isPending ? (
+        <Loading
+          className="bg-transparent border-none text-white shadow-none"
+          promiseMessage="Validando Credenciales"
+        />
+      ) : (
         <form
           className={cn("flex flex-col gap-6 ", className)}
           {...props}
           onSubmit={form.handleSubmit(onSubmit)}
         >
           <div className="flex flex-col items-center gap-2 text-center">
-            <h1 className="text-2xl font-bold">Inicia Sesion con tu cuenta</h1>
+            <h1 className="text-2xl font-bold">
+              Inicia Sesión Con Tus Credenciales
+            </h1>
           </div>
           <div className="grid gap-6 ">
             <div className="grid gap-3">
@@ -110,7 +117,7 @@ export function LoginForm({
             </Button>
           </div>
         </form>
-      </Form>
-    </>
+      )}
+    </Form>
   );
 }

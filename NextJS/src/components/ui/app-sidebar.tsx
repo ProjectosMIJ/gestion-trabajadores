@@ -11,11 +11,14 @@ import {
   ChevronDown,
   ChevronRight,
   ContactRound,
+  DoorOpen,
   FileChartLine,
   Home,
+  IdCard,
   List,
   ListCheck,
   MoveDownRight,
+  NotebookTabs,
   SignpostBig,
   User,
   UserPlus,
@@ -24,6 +27,7 @@ import {
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -35,6 +39,7 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { Skeleton } from "./skeleton";
 
 const items = [
   {
@@ -153,32 +158,54 @@ const items = [
     ],
   },
 
-  { icon: BarChart3, title: "Reportes", url: "/reportes" },
+  {
+    icon: BarChart3,
+    title: "Reportes",
+    url: "#",
+    subMenu: [
+      {
+        title: "Consultar Empleados",
+        url: "/dashboard/gestion-trabajadores/reportes/empleados",
+        icon: IdCard,
+      },
+      {
+        title: "Consultar Familiares",
+        url: "/dashboard/gestion-trabajadores/reportes/familiares",
+        icon: NotebookTabs,
+      },
+
+      {
+        title: "Consultar Egresados",
+        url: "/dashboard/gestion-trabajadores/reportes/egresados",
+        icon: DoorOpen,
+      },
+    ],
+  },
 ];
 
 export function AppSidebarEmployees() {
-  const { data: session, status, update } = useSession();
-
   const [openSubmenu, setOpenSubmenu] = useState<string | null>(null);
   const toggleSubmenu = (title: string) => {
     setOpenSubmenu(openSubmenu === title ? null : title);
   };
+  const { data: session } = useSession();
+
   const filteredItems = items.filter((item) => {
     if (!item.permission) return true;
 
     const hasRolePermission = item.permission.roleAccept.includes(
-      session?.user?.role || "",
+      session?.user.role || "",
     );
 
     const hasDepartmentPermission = item.permission.departmentAccept.includes(
-      session?.user?.department || "",
+      session?.user.department || "",
     );
 
     return hasRolePermission && hasDepartmentPermission;
   });
   return (
     <Sidebar>
-      <SidebarContent>
+      <SidebarContent className="flex flex-col justify-between">
         <SidebarGroup>
           <SidebarGroupLabel className="w-full h-fit">
             <Image
@@ -190,61 +217,100 @@ export function AppSidebarEmployees() {
             />
           </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
-              {filteredItems.map((item) => (
-                <SidebarMenuItem key={item.title} className={"mt-5"}>
-                  {item.subMenu ? (
-                    <>
-                      <SidebarMenuButton
-                        onClick={() => toggleSubmenu(item.title)}
-                        className="text-sm h-fit"
-                      >
-                        <div className="flex items-center justify-between w-full">
-                          <div className="flex items-center  ">
-                            <item.icon className="h-[16px]" />
-                            <span className="ml-2 text-sm">{item.title}</span>
+            {!session ? (
+              <>
+                {Array.from({ length: 5 }).map((_, index) => (
+                  <SidebarMenuItem key={index}>
+                    <Skeleton className="w-full p-2 bg-gray-200 animate-pulse mt-3" />
+                  </SidebarMenuItem>
+                ))}
+              </>
+            ) : (
+              <SidebarMenu>
+                {filteredItems.map((item) => (
+                  <SidebarMenuItem key={item.title} className={"mt-5"}>
+                    {item.subMenu ? (
+                      <>
+                        <SidebarMenuButton
+                          onClick={() => toggleSubmenu(item.title)}
+                          className="text-sm h-fit"
+                        >
+                          <div className="flex items-center justify-between w-full">
+                            <div className="flex items-center  ">
+                              <item.icon className="h-[16px]" />
+                              <span className="ml-2 text-sm">{item.title}</span>
+                            </div>
+                            {openSubmenu === item.title ? (
+                              <ChevronDown size={20} />
+                            ) : (
+                              <ChevronRight size={20} />
+                            )}
                           </div>
-                          {openSubmenu === item.title ? (
-                            <ChevronDown size={20} />
-                          ) : (
-                            <ChevronRight size={20} />
-                          )}
-                        </div>
-                      </SidebarMenuButton>
-                      {openSubmenu === item.title && (
-                        <div className="pl-8 py-1 space-y-1 text-sm">
-                          {item.subMenu.map((subItem) => (
-                            <SidebarMenuButton
-                              key={subItem.title}
-                              asChild
-                              className="mt-2 text-sm"
-                            >
-                              <Link href={subItem.url} className="text-sm">
-                                <subItem.icon className="h-[32px]" />
+                        </SidebarMenuButton>
+                        {openSubmenu === item.title && (
+                          <div className="pl-8 py-1 space-y-1 text-sm">
+                            {item.subMenu.map((subItem) => (
+                              <SidebarMenuButton
+                                key={subItem.title}
+                                asChild
+                                className="mt-2 text-sm"
+                              >
+                                <Link href={subItem.url} className="text-sm">
+                                  <subItem.icon className="h-[32px]" />
 
-                                {subItem.title}
-                              </Link>
-                            </SidebarMenuButton>
-                          ))}
-                        </div>
-                      )}
-                    </>
-                  ) : (
-                    <SidebarMenuButton asChild>
-                      <Link
-                        href={item.url}
-                        className="flex items-center text-sm"
-                      >
-                        <item.icon className="h-[32px]" />
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                  )}
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
+                                  {subItem.title}
+                                </Link>
+                              </SidebarMenuButton>
+                            ))}
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <SidebarMenuButton asChild>
+                        <Link
+                          href={item.url}
+                          className="flex items-center text-sm"
+                        >
+                          <item.icon className="h-[32px]" />
+                          <span>{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    )}
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            )}
           </SidebarGroupContent>
         </SidebarGroup>
+        <SidebarFooter>
+          {!session ? (
+            <div className="p-2 border-b-3 rounded-2xl flex flex-col gap-2">
+              <div className="flex flex-col gap-2">
+                <Skeleton className="w-full p-2 bg-gray-200 animate-pulse" />
+                <Skeleton className="w-full p-2 bg-gray-200 animate-pulse" />
+              </div>
+              <div className="flex flex-col gap-2">
+                <Skeleton className="w-full p-2 bg-gray-200 animate-pulse" />
+                <Skeleton className="w-full p-2 bg-gray-200 animate-pulse" />
+              </div>
+            </div>
+          ) : (
+            <div className="p-2 border-b-3 rounded-2xl ">
+              <div className="flex flex-col">
+                <h1 className="font-semibold">{session.user.name}</h1>
+                <h2 className="text-sm text-gray-400 font-bold">
+                  C.I: {session.user.cedula}
+                </h2>
+              </div>
+              <div className="flex flex-col">
+                <h2 className="font-semibold">Rol: {session.user.role}</h2>
+                <h1 className="text-sm text-gray-400 font-bold">
+                  Departamento: {session.user.department}
+                </h1>
+              </div>
+            </div>
+          )}
+        </SidebarFooter>
       </SidebarContent>
     </Sidebar>
   );

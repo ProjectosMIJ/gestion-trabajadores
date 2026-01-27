@@ -216,22 +216,26 @@ export interface HealthProfile {
     id: number;
     GrupoSanguineo: string;
   } | null;
-  discapacidad: {
-    id: number;
-    discapacidad: string;
-    categoria: {
-      id: number;
-      nombre_categoria: string;
-    };
-  }[];
-  patologiasCronicas: {
-    id: number;
-    patologia: string;
-    categoria: {
-      id: number;
-      nombre_categoria: string;
-    };
-  }[];
+  discapacidad:
+    | {
+        id: number;
+        discapacidad: string;
+        categoria: {
+          id: number;
+          nombre_categoria: string;
+        };
+      }[]
+    | null;
+  patologiasCronicas:
+    | {
+        id: number;
+        patologia: string;
+        categoria: {
+          id: number;
+          nombre_categoria: string;
+        };
+      }[]
+    | null;
 }
 
 export interface Background {
@@ -248,6 +252,7 @@ export interface PhysicalProfile {
 }
 
 export interface EmployeeData {
+  anos_apn: number;
   id: number;
   cedulaidentidad: string;
   nombres: string;
@@ -302,7 +307,7 @@ export interface EmployeeInfo {
   estadoCivil: StatusCivil;
   datos_vivienda: DewllingInfo;
   perfil_salud: HealthProfile;
-  perfil_fisico: PhysicalProfile;
+  perfil_fisico: PhysicalProfile | null;
   formacion_academica: AcademyLevel;
   antecedentes: Background[];
   fecha_actualizacion: string;
@@ -348,4 +353,25 @@ export interface Parish {
 export interface Motion {
   id: number;
   movimiento: string;
+}
+
+export interface ReportConfig {
+  agrupaciones: string[];
+  filtros: string[];
+}
+export interface Dependency {
+  id: number;
+  Codigo: String;
+  dependencia: string;
+}
+
+export interface NominaGeneral {
+  id: number;
+  nomina: string;
+  requiere_codig: boolean;
+  es_activo: boolean;
+}
+export interface Region {
+  id: number;
+  region: string;
 }

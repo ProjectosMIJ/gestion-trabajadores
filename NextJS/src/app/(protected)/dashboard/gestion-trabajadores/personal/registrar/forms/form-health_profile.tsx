@@ -1,26 +1,18 @@
 import {
+  getBloodGroup,
+  getDisability,
+  getPatologys,
+} from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
+import { DisabilitysType, PatologysType } from "@/app/types/types";
+import { Button } from "@/components/ui/button";
+import {
   Card,
   CardAction,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  HealthType,
-  schemaHealthProfile,
-} from "../schemas/schema-health_profile";
-import { useEffect, useMemo, useState } from "react";
-import {
-  ApiResponse,
-  BloodGroupType,
-  DisabilitysType,
-  PatologysType,
-} from "@/app/types/types";
-import {
-  getBloodGroup,
-  getDisability,
-  getPatologys,
-} from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Form,
   FormControl,
@@ -29,8 +21,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   Select,
   SelectContent,
@@ -38,13 +28,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Checkbox } from "@/components/ui/checkbox";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { ScrollArea } from "@radix-ui/react-scroll-area";
+import { useMemo } from "react";
+import { useForm } from "react-hook-form";
 import useSWR from "swr";
 import Loading from "../../../components/loading/loading";
+import {
+  HealthType,
+  schemaHealthProfile,
+} from "../schemas/schema-health_profile";
 
 type Props = {
   onSubmit: (values: HealthType) => void;
@@ -52,7 +46,6 @@ type Props = {
 };
 
 export default function FormHealth({ onSubmit, defaultValues }: Props) {
-  const [receiver, setReceiver] = useState<boolean>(false);
   const form = useForm({
     resolver: zodResolver(schemaHealthProfile),
     defaultValues,
@@ -73,8 +66,8 @@ export default function FormHealth({ onSubmit, defaultValues }: Props) {
     onSubmit(values);
   };
   const disabilityGroupList = useMemo(() => {
-    if (!disability?.data) return [];
-
+    const data = disability?.data; // Extrae aquí
+    if (!data) return [];
     return disability.data.reduce(
       (acc, item) => {
         const categoriaNombre = item.categoria.nombre_categoria;
@@ -88,10 +81,11 @@ export default function FormHealth({ onSubmit, defaultValues }: Props) {
       },
       [] as { categoria: string; datos: DisabilitysType[] }[],
     );
-  }, [disability?.data]);
+  }, [disability]);
 
   const patologyGroupList = useMemo(() => {
-    if (!patology?.data) return [];
+    const data = patology?.data;
+    if (!data) return [];
     return patology.data.reduce(
       (acc, item) => {
         const categoriaNombre = item.categoria.nombre_categoria;
@@ -105,7 +99,7 @@ export default function FormHealth({ onSubmit, defaultValues }: Props) {
       },
       [] as { categoria: string; datos: PatologysType[] }[],
     );
-  }, [patology?.data]);
+  }, [patology]);
   return (
     <>
       <Card>
@@ -279,7 +273,6 @@ export default function FormHealth({ onSubmit, defaultValues }: Props) {
           </div>
         </CardContent>
       </Card>
-      <Switch onCheckedChange={setReceiver} />
     </>
   );
 }
