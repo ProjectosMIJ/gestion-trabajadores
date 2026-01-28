@@ -853,6 +853,7 @@ export default function ReportEmployee() {
               </div>
               <div className="border p-2  col-span-2 rounded-sm h-full">
                 {reportListFamilys.data !== null &&
+                reportListFamilys !== undefined &&
                 reportListFamilys.data.length > 0 ? (
                   <div className="sticky top-0">
                     <ReportFamilyTable familys={reportListFamilys.data} />

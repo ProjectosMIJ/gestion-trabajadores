@@ -49,16 +49,6 @@ export type OrganismosAds = {
   Organismoadscrito: string;
 };
 
-export type UbicacionFisica = {
-  id: number;
-  ubicacionfisica: string;
-};
-
-export type UbicacionAdministrativa = {
-  id: number;
-  ubicacionadministrativa: string;
-};
-
 export type Grado = {
   id: number;
   grado: string;
@@ -317,7 +307,7 @@ export interface Code {
   denominacioncargoespecifico: Cargo;
   grado: Grado | null;
   tiponomina: Nomina;
-  OrganismoAdscrito: string;
+  OrganismoAdscrito: OrganismosAds | null;
   DireccionGeneral: DireccionGeneral;
   DireccionLinea: DireccionLinea | null;
   Coordinacion: Coordinacion | null;
@@ -359,7 +349,7 @@ export interface ReportConfig {
 }
 export interface Dependency {
   id: number;
-  Codigo: String;
+  Codigo: string;
   dependencia: string;
 }
 
@@ -408,8 +398,6 @@ export interface Family {
     updatedat: string;
   }[];
 }
-[];
-
 export interface TypeMovement {
   id: number;
   movimiento: string;

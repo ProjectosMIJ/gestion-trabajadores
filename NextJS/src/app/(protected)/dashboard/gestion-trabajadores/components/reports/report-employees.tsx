@@ -1177,6 +1177,7 @@ export default function ReportEmployee() {
               </div>
               <div className="border p-2  col-span-2 rounded-sm h-full">
                 {reportListEmployee.data !== null &&
+                reportListEmployee.data !== undefined &&
                 reportListEmployee.data.length > 0 ? (
                   <div className="sticky top-0">
                     <TableEmployeeReport

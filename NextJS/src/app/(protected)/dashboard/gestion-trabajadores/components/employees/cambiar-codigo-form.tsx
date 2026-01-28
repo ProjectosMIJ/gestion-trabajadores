@@ -406,7 +406,7 @@ export function ChangeCodeForm() {
                                 )?.OrganismoAdscrito
                                   ? selectedCode.data.find(
                                       (v) => v.id === selectedCodeId,
-                                    )?.OrganismoAdscrito
+                                    )?.OrganismoAdscrito?.Organismoadscrito
                                   : "N/A"}
                               </p>
                               <p>
@@ -473,11 +473,12 @@ export function ChangeCodeForm() {
           {employee && (
             <div
               className={` ${
-                !Array.isArray(employee.data) &&
-                "border-2 border-blue-400/45 bg-blue-200/40"
+                !Array.isArray(employee.data) || employee.data !== null
+                  ? "border-2 border-blue-400/45 bg-blue-200/40"
+                  : "bg-red-700 border-red-400/45"
               }  rounded-sm p-2 `}
             >
-              {!Array.isArray(employee.data) ? (
+              {!Array.isArray(employee.data) && employee.data !== null ? (
                 <>
                   <p>Nombres: {employee.data.nombres}</p>
                   <p>Apellidos: {employee.data.apellidos}</p>
@@ -486,7 +487,7 @@ export function ChangeCodeForm() {
               ) : (
                 <p>
                   <span className="flex gap-4">
-                    Trabajador No Encontrado{" "}
+                    El Trabajador No Posee Cargos{" "}
                     <CircleAlert className="text-red-500" />
                   </span>
                 </p>

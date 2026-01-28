@@ -93,7 +93,6 @@ export function EmployeeEditModal({
       `${process.env.NEXT_PUBLIC_DJANGO_API_URL}direccion/municipios/${id}/`,
     );
     const getMunicipalitys = await responseMunicipalitys.json();
-    console.log(getMunicipalitys);
     setMunicipalitys(getMunicipalitys);
   };
 
@@ -126,7 +125,7 @@ export function EmployeeEditModal({
       municipioid: 0,
       parroquiaid: 0,
       nivelAcademico: 0,
-      direccionExacta: employee.direccion_exacta,
+      direccionExacta: "",
       fecha_nacimiento: "",
     },
   });
