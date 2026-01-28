@@ -130,7 +130,7 @@ class GestionStatusSerializer(BaseActionInputSerializer):
 # SERIALIZER PARA GESTIONAR EGRESOS Y PERSONAL PASIVO 
 class GestionEgreso_PasivoSerializer(BaseActionInputSerializer):
     motivo = serializers.PrimaryKeyRelatedField(queryset=Tipo_movimiento.objects.all())
-    tiponominaid = serializers.PrimaryKeyRelatedField(queryset=Tiponomina.objects.all(), required=False)
+    tiponominaid = serializers.IntegerField(required=False, allow_null=True)
     codigo_nuevo = serializers.CharField(required=False, max_length=50)
     liberar_activos = serializers.BooleanField(required=False, default=False)
     
