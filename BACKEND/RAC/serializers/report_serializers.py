@@ -103,12 +103,14 @@ class ReporteDinamicoSerializer(serializers.Serializer):
         hoy = date.today()
         nulos = {None, "", 0, "0", "undefined", "null"}
 
-        def procesar_edad(valor, es_max):
+        def procesar_edad(valor, es_max, campo_base):
             anios = int(valor)
             offset = 1 if es_max else 0
             fecha = hoy.replace(year=hoy.year - anios - offset)
             if es_max: fecha += timedelta(days=1)
-            return {f'fecha_nacimiento__{"gte" if es_max else "lte"}': fecha}
+            
+            campo_raiz = campo_base.replace('__gte', '').replace('__lte', '')
+            return {f'{campo_raiz}__{"gte" if es_max else "lte"}': fecha}
 
         for k, v in filtros_raw.items():
             if k not in permitidos or v in nulos:
@@ -119,7 +121,7 @@ class ReporteDinamicoSerializer(serializers.Serializer):
 
             try:
                 if "edad_" in k:
-                    filtros_limpios.update(procesar_edad(v_final, k == "edad_max"))
+                    filtros_limpios.update(procesar_edad(v_final, k == "edad_max", campo_db))
                 
                 elif "apn_" in k:
                     filtros_limpios[campo_db] = float(v_final)
