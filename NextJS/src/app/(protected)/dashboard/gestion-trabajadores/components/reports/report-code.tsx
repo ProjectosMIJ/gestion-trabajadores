@@ -29,31 +29,29 @@ import {
   getDirectionLine,
   getGrado,
   getNominaGeneral,
-  getReportConfigEmployee,
   getReportConfigLeaving,
-  getSex,
+  getStatusNomina,
   postReport,
 } from "../../api/getInfoRac";
 
-import { ApiResponse, Leaving } from "@/app/types/types";
+import { ApiResponse, Code } from "@/app/types/types";
 import { Button } from "@/components/ui/button";
-import ExportButton from "@/components/ui/ExportButtonPDF";
-import { Input } from "@/components/ui/input";
-import PDFView from "@/components/ui/PDFView";
 import { useSession } from "next-auth/react";
 import { useState, useTransition } from "react";
-import { ReportLeavingPDF } from "../../reportes/egresados/pdf/reportLeavingPDF";
+import TableCode from "../../personal/listado-codigo/tableCodeInfo/page";
 import {
-  schemaReportLeaving,
-  SchemaReportLeavingType,
-} from "../../reportes/egresados/schema/report-schema-leaving";
-import TableReportLeaving from "../../reportes/egresados/tableEmployeesReport/page";
+  schemaReportCode,
+  SchemaReportCodeType,
+} from "../../reportes/codigos/schema/schemaReportCode";
 import Loading from "../loading/loading";
+import ExportButton from "@/components/ui/ExportButtonPDF";
+import ReportCodePDF from "../../reportes/codigos/pdf/reportCodePDF";
+import PDFView from "@/components/ui/PDFView";
 
-export default function ReportLeaving() {
+export default function ReportCode() {
   const [isPending, startTransition] = useTransition();
-  const [reportListLeaving, setReportListLeaving] = useState<
-    ApiResponse<Leaving[] | null>
+  const [reportListCode, setReportListCode] = useState<
+    ApiResponse<Code[] | null>
   >({
     data: [],
     message: "",
@@ -61,7 +59,10 @@ export default function ReportLeaving() {
   });
   const { data: session } = useSession();
   const [dependencyId, setDependencyId] = useState<number>(0);
-
+  const { data: statusNomina, isLoading: isLoadingStatusNomina } = useSWR(
+    "statusNomina",
+    async () => await getStatusNomina(),
+  );
   const [directionGeneralId, setDirectionGeneralId] = useState<string | null>(
     null,
   );
@@ -84,10 +85,6 @@ export default function ReportLeaving() {
     directionLineId ? ["coordination", directionLineId] : null,
     async () => await getCoordination(directionLineId!),
   );
-  const { data: sex, isLoading: isLoadingSex } = useSWR(
-    "sex",
-    async () => await getSex(),
-  );
 
   const { data: cargoEspecifico, isLoading: isLoadingCargoEspecifico } = useSWR(
     "cargoEspecifico",
@@ -109,31 +106,30 @@ export default function ReportLeaving() {
     async () => await getReportConfigLeaving(),
   );
   const form = useForm({
-    resolver: zodResolver(schemaReportLeaving),
+    resolver: zodResolver(schemaReportCode),
     defaultValues: {
-      categoria: "egresados",
-      agrupar_por: "direccion_general",
+      categoria: "asignaciones",
+      agrupar_por: "tipo_nomina",
       tipo_reporte: "lista",
       filtros: {
         dependencia_id: undefined,
         direccion_general_id: undefined,
         direccion_linea_id: undefined,
         coordinacion_id: undefined,
-        sexo_id: undefined,
         nomina_id: undefined,
         grado_id: undefined,
         cargo_id: undefined,
         cargo_especifico_id: undefined,
+        estatus_id: undefined,
       },
     },
   });
-  const onSubmit = (data: SchemaReportLeavingType) => {
+  const onSubmit = (data: SchemaReportCodeType) => {
     startTransition(async () => {
-      const reponse = await postReport<
-        SchemaReportLeavingType,
-        Leaving[] | null
-      >(data);
-      setReportListLeaving(reponse);
+      const reponse = await postReport<SchemaReportCodeType, Code[] | null>(
+        data,
+      );
+      setReportListCode(reponse);
       form.reset();
     });
   };
@@ -443,18 +439,12 @@ export default function ReportLeaving() {
                       </FormItem>
                     )}
                   />
-                </fieldset>
-
-                <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-black">
-                  <legend className="text-black font-semibold">
-                    Informacion Basica
-                  </legend>
                   <FormField
                     control={form.control}
-                    name={`filtros.sexo_id`}
+                    name="filtros.estatus_id"
                     render={({ field }) => (
-                      <FormItem className=" cursor-pointer">
-                        <FormLabel className="cursor-pointer">Sexo </FormLabel>
+                      <FormItem>
+                        <FormLabel>Listado De Estatus</FormLabel>
                         <Select
                           onValueChange={(values) => {
                             field.onChange(Number.parseInt(values));
@@ -463,53 +453,19 @@ export default function ReportLeaving() {
                           <FormControl>
                             <SelectTrigger className="w-full truncate">
                               <SelectValue
-                                placeholder={`${isLoadingSex ? "Cargando Generos" : "Seleccione un Genero"}`}
+                                placeholder={`${isLoadingStatusNomina ? "Cargando Estatus De Codigos" : "Seleccione Un Codigo"}`}
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {sex?.data.map((v, i) => (
-                              <SelectItem value={`${v.id}`} key={i}>
-                                {v.sexo}
+                            {statusNomina?.data.map((status, i) => (
+                              <SelectItem key={i} value={`${status.id}`}>
+                                {status.estatus}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
 
-                  <FormField
-                    control={form.control}
-                    name="filtros.edad_min"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Edad Minima</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Ingrese Una  Minima"
-                            {...field}
-                            type="number"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="filtros.edad_max"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Edad Maxima</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Ingrese Una Edad Maxima"
-                            {...field}
-                            type="number"
-                          />
-                        </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -517,28 +473,22 @@ export default function ReportLeaving() {
                 </fieldset>
               </div>
               <div className="border p-2  col-span-2 rounded-sm h-full">
-                {reportListLeaving.data !== null &&
-                reportListLeaving.data !== undefined &&
-                reportListLeaving.data.length > 0 ? (
+                {reportListCode.data !== null &&
+                reportListCode.data !== undefined &&
+                reportListCode.data.length > 0 ? (
                   <div className="sticky top-0">
-                    <TableReportLeaving leaving={reportListLeaving.data} />
+                    <TableCode codeList={reportListCode.data} />
                     <ExportButton
                       className="w-full cursor-pointer"
                       document={
-                        <ReportLeavingPDF
-                          id={session.user.cedula}
-                          leaving={reportListLeaving.data}
-                        />
+                        <ReportCodePDF codeList={reportListCode.data} />
                       }
                       fileName="nomina.pdf"
                     />
 
                     <PDFView
                       document={
-                        <ReportLeavingPDF
-                          id={session.user.cedula}
-                          leaving={reportListLeaving.data}
-                        />
+                        <ReportCodePDF codeList={reportListCode.data} />
                       }
                       className="h-120 w-full"
                     />

@@ -129,7 +129,8 @@ export function ChangeStatusForm() {
                 >
                   {!isLoading ? (
                     <>
-                      {employee.data.asignaciones ? (
+                      {employee.data !== null &&
+                      employee.data.asignaciones.length > 0 ? (
                         <>
                           <FormField
                             control={form.control}
@@ -265,17 +266,16 @@ export function ChangeStatusForm() {
             <div
               className={` ${
                 !Array.isArray(employee.data) &&
-                "border-2 border-blue-400/45 bg-blue-200/40"
-              }  rounded-sm p-2 `}
+                employee.data !== null &&
+                "border-2 border-blue-400/45 bg-blue-200/40 p-2"
+              }  rounded-sm  `}
             >
-              {!Array.isArray(employee.data) ? (
+              {!Array.isArray(employee.data) && employee.data !== null && (
                 <>
                   <p>Nombres: {employee.data.nombres}</p>
                   <p>Apellidos: {employee.data.apellidos}</p>
                   <p>Cedula: {employee.data.cedulaidentidad}</p>
                 </>
-              ) : (
-                <></>
               )}
             </div>
           )}

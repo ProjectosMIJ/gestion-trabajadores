@@ -1,4 +1,7 @@
 import { Leaving, InfoCode } from "@/app/types/types";
+import cintillo from "$/cintillo.jpg";
+import juntosPorVida from "$/juntosPorVida.png";
+import logoOAC from "$/logoOAC.png";
 import {
   Document,
   Image,
@@ -8,7 +11,6 @@ import {
   View,
 } from "@react-pdf/renderer";
 
-// Tipos específicos para las props del componente CargoInfo
 interface CargoInfoProps {
   cargo: InfoCode;
   index: number;
@@ -43,13 +45,11 @@ const styles = StyleSheet.create({
   },
   footerBannerContainer: {
     width: "100%",
-    height: 25,
-    backgroundColor: "#f0f0f0",
+    height: 50,
   },
   footerImage: {
     width: "100%",
     height: "100%",
-    objectFit: "cover",
   },
   footerText: {
     fontSize: 7,
@@ -482,14 +482,14 @@ export function ReportLeavingPDF({
         >
           {/* Header */}
           <View style={styles.header} fixed>
-            <Image src="/juntosPorVida.png" style={styles.logo} />
-            <Image src="/juntosPorVida.png" style={styles.logo} />
+            <Image src={logoOAC.src} style={styles.logo} />
+            <Image src={juntosPorVida.src} style={styles.logo} />
           </View>
 
           {/* Footer con banner */}
           <View style={styles.footer} fixed>
             <View style={styles.footerBannerContainer}>
-              <Image src="/cintillo2.png" style={styles.footerImage} />
+              <Image src={cintillo.src} style={styles.footerImage} />
             </View>
             <Text style={styles.footerText}>
               {esPrimeraPagina
@@ -641,14 +641,14 @@ export function ReportLeavingPDF({
       <Page size="A4" style={styles.page}>
         {/* Header */}
         <View style={styles.header} fixed>
-          <Image src="/juntosPorVida.png" style={styles.logo} />
-          <Image src="/juntosPorVida.png" style={styles.logo} />
+          <Image src={logoOAC.src} style={styles.logo} />
+          <Image src={juntosPorVida.src} style={styles.logo} />
         </View>
 
         {/* Footer con banner */}
         <View style={styles.footer} fixed>
           <View style={styles.footerBannerContainer}>
-            <Image src="/cintillo2.png" style={styles.footerImage} />
+            <Image src={cintillo.src} style={styles.footerImage} />
           </View>
           <Text style={styles.footerText}>
             Reporte de Egreso de Personal - Documento confidencial

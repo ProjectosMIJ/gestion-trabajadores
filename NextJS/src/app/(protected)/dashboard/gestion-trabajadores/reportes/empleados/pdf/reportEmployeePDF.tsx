@@ -1,4 +1,7 @@
 import { EmployeeData } from "@/app/types/types";
+import cintillo from "$/cintillo.jpg";
+import juntosPorVida from "$/juntosPorVida.png";
+import logoOAC from "$/logoOAC.png";
 import {
   Document,
   Image,
@@ -144,8 +147,8 @@ export function ReportPDFEmployee({
         <Page key={employee.id} size="A4" style={styles.page} wrap>
           {/* Logos en la cabecera */}
           <View style={styles.header} fixed>
-            <Image style={styles.logoLeft} src={"/logoNuevo.png"} />
-            <Image style={styles.logoRight} src={"/juntosPorVida.png"} />
+            <Image style={styles.logoLeft} src={logoOAC.src} />
+            <Image style={styles.logoRight} src={juntosPorVida.src} />
           </View>
 
           {/* Título principal */}
@@ -343,7 +346,7 @@ export function ReportPDFEmployee({
 
           {/* Footer */}
           <View style={styles.footer} fixed>
-            <Image style={styles.footerImage} src={"/cintillo2.png"} />
+            <Image style={styles.footerImage} src={cintillo.src} />
           </View>
 
           {/* Número de página */}

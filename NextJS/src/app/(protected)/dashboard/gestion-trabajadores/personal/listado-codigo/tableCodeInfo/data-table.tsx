@@ -1,20 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import * as React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -27,23 +13,41 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import * as React from "react";
+import { Input } from "@/components/ui/input";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
-export function DataTableFamily<TData, TValue>({
+export function DataTableCodeInfo<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
   const [sorting, setSorting] = React.useState<SortingState>([]);
+
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
   );
+
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
+
   const table = useReactTable({
     data,
     columns,
@@ -62,23 +66,18 @@ export function DataTableFamily<TData, TValue>({
       rowSelection,
     },
   });
-
   return (
     <div>
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filter Cedulas..."
-          value={
-            (table.getColumn("cedulaFamiliar")?.getFilterValue() as string) ??
-            ""
-          }
+          placeholder="Filtrar Codigos..."
+          value={(table.getColumn("codigo")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table
-              .getColumn("cedulaFamiliar")
-              ?.setFilterValue(event.target.value)
+            table.getColumn("codigo")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -156,27 +155,31 @@ export function DataTableFamily<TData, TValue>({
           </TableBody>
         </Table>
       </div>
-      <div className="flex items-center justify-end space-x-2 py-4">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.previousPage()}
-          disabled={!table.getCanPreviousPage()}
-        >
-          Anterior
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => table.nextPage()}
-          disabled={!table.getCanNextPage()}
-        >
-          Siguiente
-        </Button>
-      </div>
-      <div className="text-muted-foreground flex-1 text-sm">
-        {table.getFilteredSelectedRowModel().rows.length} de{" "}
-        {table.getFilteredRowModel().rows.length} fila(s) seleccionadas.
+      <div>
+        <div className="flex items-center justify-end space-x-2 py-4">
+          <Button
+            variant="default"
+            type="button"
+            className="cursor-pointer bg-blue-800 text-white hover:bg-blue-950"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            <ArrowLeft />
+            Anterior
+          </Button>
+          <Button
+            type="button"
+            className="cursor-pointer bg-blue-800 text-white hover:bg-blue-950"
+            variant="default"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Siguiente
+            <ArrowRight />
+          </Button>
+        </div>
       </div>
     </div>
   );

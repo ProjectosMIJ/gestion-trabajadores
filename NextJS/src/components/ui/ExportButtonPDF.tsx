@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { DocumentProps } from "@react-pdf/renderer";
 import dynamic from "next/dynamic";
-import { ReactElement, useState, useEffect } from "react";
+import { ReactElement } from "react";
 
 interface ExportButtonProps {
   document: ReactElement<DocumentProps>;
@@ -30,17 +30,6 @@ export default function ExportButton({
   buttonText = "Descargar PDF",
   className,
 }: ExportButtonProps) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-  if (!mounted) {
-    return (
-      <Button className={`${cn(className)} bg-blue-600`} disabled>
-        {buttonText}
-      </Button>
-    );
-  }
   return (
     <PDFDownloadLink document={document} fileName={fileName}>
       {({ loading }) => (

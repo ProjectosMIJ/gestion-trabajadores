@@ -216,9 +216,7 @@ export const getHistoryMoveEmploye = async (
   return getHistoryMoveEmploye;
 };
 
-export const getCodeList = async (): Promise<
-  ApiResponse<Code[] | ErrorFetch>
-> => {
+export const getCodeList = async (): Promise<ApiResponse<Code[]>> => {
   const responseCodeList = await fetch(
     `${process.env.NEXT_PUBLIC_DJANGO_API_URL}codigos_lister/`,
   );

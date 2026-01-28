@@ -1,5 +1,5 @@
 "use client";
-import { Background, EmployeeData } from "@/app/types/types";
+import { EmployeeData } from "@/app/types/types";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -9,14 +9,6 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Ambulance,
-  ClipboardCheck,
-  ContactRound,
-  GraduationCap,
-  House,
-  Shirt,
-} from "lucide-react";
 import {
   Table,
   TableBody,
@@ -28,7 +20,15 @@ import {
 } from "@/components/ui/table";
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal } from "lucide-react";
+import {
+  Ambulance,
+  ClipboardCheck,
+  ContactRound,
+  GraduationCap,
+  House,
+  MoreHorizontal,
+  Shirt,
+} from "lucide-react";
 import { DataTableColumnHeader } from "./data-table-column-header";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -41,6 +41,7 @@ import {
   SheetTriggerUI,
   SheetUI,
 } from "@/components/ui/SheetUI";
+import Image from "next/image";
 export const columsReport: ColumnDef<EmployeeData>[] = [
   {
     id: "select",
@@ -138,7 +139,10 @@ export const columsReport: ColumnDef<EmployeeData>[] = [
                     </SheetHeaderUI>
                     <div className="flex flex-col m-auto justify-between h-full w-full gap-2">
                       <div className="w-60 h-60 m-auto rounded-sm flex flex-col">
-                        <img
+                        <Image
+                          height={64}
+                          width={64}
+                          alt="profile"
                           src="/bg.png"
                           className="rounded-sm object-cover w-full h-full"
                         />

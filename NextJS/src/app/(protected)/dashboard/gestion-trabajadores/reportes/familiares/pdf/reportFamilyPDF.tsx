@@ -7,7 +7,9 @@ import {
   Text,
   View,
 } from "@react-pdf/renderer";
-
+import cintillo from "$/cintillo.jpg";
+import juntosPorVida from "$/juntosPorVida.png";
+import logoOAC from "$/logoOAC.png";
 // Tipos para las listas
 interface DiscapacidadItem {
   discapacidad: string;
@@ -208,7 +210,7 @@ const ListaCompacta = <T extends DiscapacidadItem | PatologiaItem>({
       <View style={styles.value}>
         {items.map((item, idx) => {
           let texto = "";
-          let categoria = item.categoria?.nombre_categoria || "Sin categoría";
+          const categoria = item.categoria?.nombre_categoria || "Sin categoría";
           if (isDiscapacidadItem(item)) {
             texto = item.discapacidad;
           } else if (isPatologiaItem(item)) {
@@ -244,14 +246,14 @@ export function ReportFamilyPDF({ employeeData }: { employeeData: Family[] }) {
           >
             {/* Header */}
             <View style={styles.header} fixed>
-              <Image src="/logoOAC.png" style={styles.logo} />
-              <Image src="/juntosPorVida.png" style={styles.logo} />
+              <Image src={logoOAC.src} style={styles.logo} />
+              <Image src={juntosPorVida.src} style={styles.logo} />
             </View>
 
             {/* Footer con banner que ocupa todo el ancho */}
             <View style={styles.footer} fixed>
               <View style={styles.footerBannerContainer}>
-                <Image src="/cintillo2.png" style={styles.footerImage} />
+                <Image src={cintillo.src} style={styles.footerImage} />
               </View>
               <Text style={styles.footerText}>
                 Documento confidencial - Uso exclusivo para fines
@@ -403,14 +405,14 @@ export function ReportFamilyPDF({ employeeData }: { employeeData: Family[] }) {
             >
               {/* Header */}
               <View style={styles.header} fixed>
-                <Image src="/juntosPorVida.png" style={styles.logo} />
-                <Image src="/juntosPorVida.png" style={styles.logo} />
+                <Image src={logoOAC.src} style={styles.logo} />
+                <Image src={juntosPorVida.src} style={styles.logo} />
               </View>
 
               {/* Footer con banner ancho */}
               <View style={styles.footer} fixed>
                 <View style={styles.footerBannerContainer}>
-                  <Image src="/cintillo2.png" style={styles.footerImage} />
+                  <Image src={cintillo.src} style={styles.footerImage} />
                 </View>
                 <Text style={styles.footerText}>
                   Documento confidencial - Uso exclusivo para fines
