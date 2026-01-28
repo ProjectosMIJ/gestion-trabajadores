@@ -3,7 +3,7 @@ from django.apps import apps
 
 from RAC.models.personal_models import Employee
 from django.db.models import Count, F, Prefetch
-from RAC.services.report_service import MAPA_REPORTES
+from RAC.services.mapa_reporte import MAPA_REPORTES
 from .personal_serializers import *
 
 from datetime import date, timedelta

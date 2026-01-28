@@ -208,7 +208,7 @@ class GestionEgreso_PasivoSerializer(BaseActionInputSerializer):
             codigo=validated_data['codigo_nuevo'],
             denominacioncargoid=ultima_asig.denominacioncargoid,
             denominacioncargoespecificoid=ultima_asig.denominacioncargoespecificoid,
-            tiponominaid=validated_data['tiponominaid'],
+            tiponominaid_id=validated_data['tiponominaid'],
             estatusid=estatus_activo,
             Tipo_personal=tipo_pasivo,
             gradoid=ultima_asig.gradoid,

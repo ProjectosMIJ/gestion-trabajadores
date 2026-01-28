@@ -151,8 +151,10 @@ def create_position(request):
     except Exception as e:
         return Response({
             'status': "error",
-            'message': "No se pudo completar el registro del cargo.",
-            'data': None
+            'message': "No se pudo completar el registro del cargo",
+            'error': str(e),
+        
+
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 @extend_schema(

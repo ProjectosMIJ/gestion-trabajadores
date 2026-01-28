@@ -7,6 +7,7 @@ from drf_spectacular.utils import extend_schema,OpenApiExample
 
 from ..serializers.report_serializers import *
 from ..services.report_service import *
+from ..services.mapa_reporte import *
 
 @extend_schema(
     tags=["Reportes - Configuraciones"],
