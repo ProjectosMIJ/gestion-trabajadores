@@ -527,3 +527,23 @@ export const getRegion = async (): Promise<ApiResponse<Region[]>> => {
   const getResponse: ApiResponse<Region[]> = await response.json();
   return getResponse;
 };
+
+export const getStateByRegion = async (
+  id: number,
+): Promise<ApiResponse<States[]>> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}direccion/estado/${id}/`,
+  );
+  const getResponse: ApiResponse<States[]> = await response.json();
+  return getResponse;
+};
+
+export const getDirectionGeneralById = async (
+  id: number,
+): Promise<ApiResponse<DirectionGeneral[]>> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}direccionGeneral/${id}/`,
+  );
+  const getResponse: ApiResponse<DirectionGeneral[]> = await response.json();
+  return getResponse;
+};

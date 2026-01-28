@@ -11,7 +11,7 @@ export default function ReportFamilyPage() {
                 Reporte De Familiares
               </h1>
               <p className="text-muted-foreground mt-1">
-                Filtre La Informcacion de familiares
+                Filtre La Informcacion de los Familiares
               </p>
             </div>
             <ReportFamily />
