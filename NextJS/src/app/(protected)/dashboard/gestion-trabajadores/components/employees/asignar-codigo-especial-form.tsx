@@ -73,7 +73,6 @@ export function CodigoCatalogEspecialForm({
     useState<string>();
   const [selecteIdDirectionLine, setSelecteIdDirectionLine] =
     useState<string>();
-  const [selecteIdCoordination, setSelecteIdCoordination] = useState<string>();
   const [employee, setEmployee] = useState<EmployeeInfo | []>();
 
   const loadEmployee = async () => {
@@ -375,7 +374,7 @@ export function CodigoCatalogEspecialForm({
                     <Select
                       onValueChange={(values) => {
                         field.onChange(Number.parseInt(values));
-                        setSelecteIdDirectionLine(values);
+                        setSelecteIdDirectionGeneral(values);
                       }}
                     >
                       <FormControl>
@@ -419,7 +418,7 @@ export function CodigoCatalogEspecialForm({
                         <Select
                           onValueChange={(values) => {
                             field.onChange(Number.parseInt(values));
-                            setSelecteIdCoordination(values);
+                            setSelecteIdDirectionLine(values);
                           }}
                         >
                           <FormControl>

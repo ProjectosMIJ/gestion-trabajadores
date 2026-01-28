@@ -60,7 +60,7 @@ import {
   Trash,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import {
   FamilyEmployeeType,
   schemaFamilyFormity,
@@ -177,6 +177,7 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
     name: "familys",
     control: form.control,
   });
+
   return (
     <Card>
       <CardHeader>

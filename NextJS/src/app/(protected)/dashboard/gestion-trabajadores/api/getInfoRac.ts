@@ -7,6 +7,7 @@ import {
   Code,
   ConditionDwelling,
   Coordination,
+  Dependency,
   DirectionGeneral,
   DirectionLine,
   DisabilitysType,
@@ -20,11 +21,14 @@ import {
   Motion,
   Municipality,
   Nomina,
+  NominaGeneral,
   OrganismosAds,
   PantsSize,
   ParentType,
   Parish,
   PatologysType,
+  Region,
+  ReportConfig,
   ReportStatus,
   ReportTypeNomina,
   ReportTypePerson,
@@ -455,5 +459,71 @@ export const getMotionReason = async (): Promise<ApiResponse<Motion[]>> => {
     `${process.env.NEXT_PUBLIC_DJANGO_API_URL}motivos/movimiento/`,
   );
   const getResponse: ApiResponse<Motion[]> = await response.json();
+  return getResponse;
+};
+export const getReportConfigEmployee = async (): Promise<
+  ApiResponse<ReportConfig>
+> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}employee/reports/config/`,
+  );
+  const getResponse: ApiResponse<ReportConfig> = await response.json();
+  return getResponse;
+};
+export const getReportConfigFamily = async (): Promise<
+  ApiResponse<ReportConfig>
+> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}family/reports/config/`,
+  );
+  const getResponse: ApiResponse<ReportConfig> = await response.json();
+  return getResponse;
+};
+export const getReportConfigLeaving = async (): Promise<
+  ApiResponse<ReportConfig>
+> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}graduate/reports/config/`,
+  );
+  const getResponse: ApiResponse<ReportConfig> = await response.json();
+  return getResponse;
+};
+
+export const getNominaGeneral = async (): Promise<
+  ApiResponse<NominaGeneral[]>
+> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}nomina/general/`,
+  );
+  const getResponse: ApiResponse<NominaGeneral[]> = await response.json();
+  return getResponse;
+};
+export const getDependency = async (): Promise<ApiResponse<Dependency[]>> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}dependencias/`,
+  );
+  const getResponse: ApiResponse<Dependency[]> = await response.json();
+  return getResponse;
+};
+
+export const postReport = async <T, U>(values: T): Promise<ApiResponse<U>> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}reports/`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(values),
+    },
+  );
+  const getResponse: ApiResponse<U> = await response.json();
+  return getResponse;
+};
+export const getRegion = async (): Promise<ApiResponse<Region[]>> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}direccion/regiones/`,
+  );
+  const getResponse: ApiResponse<Region[]> = await response.json();
   return getResponse;
 };

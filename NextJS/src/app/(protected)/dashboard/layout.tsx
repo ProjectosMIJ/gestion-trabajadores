@@ -14,7 +14,7 @@ export default function ProtectedLayout({
 }>) {
   return (
     <SessionProvider>
-      <main className="flex flex-col justify-center items-center m-auto">
+      <main className="flex flex-col justify-center items-center m-auto  overflow-hidden h-full">
         <Toaster
           closeButton
           position="top-right"

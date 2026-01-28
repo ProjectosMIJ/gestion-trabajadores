@@ -24,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="w-full h-full">
+    <html lang="en" className="w-full h-full ">
       <body
         className={` antialiased  bg-no-repeat  bg-[url('/bg.png')] backdrop-blur-[8px] bg-cover object-center overflow-hidden  h-full`}
       >

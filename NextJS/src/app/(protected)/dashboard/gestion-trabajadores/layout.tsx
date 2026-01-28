@@ -22,7 +22,7 @@ export default function ProtectedLayout({
           >
             <SidebarTrigger className="text-black-600   scale-110" />
           </HeaderLayout>
-          <main className="flex-1 w-full">{children}</main>
+          <main className=" w-full h-full overflow-hidden">{children}</main>
         </SidebarInset>
       </SidebarProvider>
     </SessionProvider>

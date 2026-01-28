@@ -10,15 +10,6 @@ import {
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
 import { createCodeAction } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/crear-codigo/actions/createCode";
 import { schemaCode } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/crear-codigo/schemas/schemaCode";
-import {
-  ApiResponse,
-  Cargo,
-  Coordination,
-  DirectionGeneral,
-  DirectionLine,
-  Grado,
-  Nomina,
-} from "@/app/types/types";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -36,11 +27,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import useSWR from "swr";
 import { z } from "zod";
-import Loading from "../loading/loading";
 import {
   Form,
   FormControl,
@@ -52,7 +43,7 @@ import {
 } from "../../../../../../components/ui/form";
 import { Spinner } from "../../../../../../components/ui/spinner";
 import { Switch } from "../../../../../../components/ui/switch";
-import useSWR from "swr";
+import Loading from "../loading/loading";
 
 interface CodigoCatalogFormProps {
   onSuccess?: (bool: boolean) => true | false;

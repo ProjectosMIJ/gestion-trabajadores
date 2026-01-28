@@ -1,6 +1,6 @@
-"use client";
-import { CodigoCatalogForm } from "../../components/employees/codigo-catalog-form";
-export default function AsignarCodigoPage() {
+import ReportEmployee from "../../components/reports/report-employees";
+
+export default function ReportEmployeePage() {
   return (
     <div className="flex h-screen bg-background">
       <div className="flex flex-1 flex-col overflow-hidden">
@@ -8,14 +8,13 @@ export default function AsignarCodigoPage() {
           <div className="space-y-6 ">
             <div>
               <h1 className="text-3xl font-bold text-foreground">
-                Crear Nuevo Código
+                Reporte De Trabajadores
               </h1>
               <p className="text-muted-foreground mt-1">
-                Cree nuevos códigos de posición con sus atributos de cargo,
-                ubicación y nómina
+                Filtre La Informcacion de los trabajadores
               </p>
             </div>
-            <CodigoCatalogForm />
+            <ReportEmployee />
           </div>
         </main>
       </div>

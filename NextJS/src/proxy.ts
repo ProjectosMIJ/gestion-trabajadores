@@ -4,42 +4,16 @@ import { NextResponse } from "next/server";
 
 const { auth: proxy } = NextAuth(authConfig);
 
-const publicRoutes = [
-  "/",
-  "/login",
-  "/register",
-  "/forgot-password",
-  "/reset-password",
-  "/terms",
-  "/dashboard/oac/(.*)",
-  "/privacy",
-  "/about",
-  "/contact",
-  "/faq",
-  "/docs",
-  "api/auth/verify-email",
-  "/api/login",
-  "/api/auth/(.*)",
-  "/api/(.*)/",
-  "/api/inventory/inventario",
-  "/api/history",
-  "/api/inventory/list",
-  "/api/inventory/entregas/",
-  "/api/files/(.*)",
-  "/api/files/",
-  "/api/files/",
-  "/api/accounts/login",
-  "/api/files/(.*)", // Patrón para todas las rutas de archivos
-  "/dashboard/oac/(.*)",
-];
+const publicRoutes = ["/", "/login", "/register"];
 export default proxy((req) => {
   const { nextUrl, auth } = req;
   const isLoggedIn = !!auth?.user;
-
   if (!publicRoutes.includes(nextUrl.pathname) && !isLoggedIn) {
     return NextResponse.redirect(new URL("/login", nextUrl));
   }
-
+  if (publicRoutes.includes(nextUrl.pathname) && isLoggedIn) {
+    return NextResponse.redirect(new URL("/dashboard", nextUrl));
+  }
   return NextResponse.next();
 });
 export const config = {

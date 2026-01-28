@@ -41,7 +41,7 @@ import {
   SheetTriggerUI,
   SheetUI,
 } from "@/components/ui/SheetUI";
-export const columns: ColumnDef<EmployeeData>[] = [
+export const columsReport: ColumnDef<EmployeeData>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -233,43 +233,23 @@ export const columns: ColumnDef<EmployeeData>[] = [
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
-                                {(() => {
-                                  let totalYears = 0;
-                                  employee.antecedentes.map((v: Background) => {
-                                    if (!v.fecha_ingreso || !v.fecha_egreso)
-                                      return;
-
-                                    const start = new Date(v.fecha_ingreso);
-                                    const end = new Date(v.fecha_egreso);
-                                    const years =
-                                      (end.getTime() - start.getTime()) /
-                                      (1000 * 60 * 60 * 24 * 365);
-                                    totalYears += years;
-                                  });
-                                  return (
-                                    <>
-                                      {employee.antecedentes.map((v, i) => (
-                                        <TableRow key={i}>
-                                          <TableCell className="font-medium">
-                                            {v.fecha_ingreso}
-                                          </TableCell>
-                                          <TableCell>
-                                            {v.fecha_egreso}
-                                          </TableCell>
-                                          <TableCell>{v.institucion}</TableCell>
-                                        </TableRow>
-                                      ))}
-                                      <TableRow>
-                                        <TableCell
-                                          colSpan={3}
-                                          className="text-right font-bold"
-                                        >
-                                          Total años: {Math.round(totalYears)}
-                                        </TableCell>
-                                      </TableRow>
-                                    </>
-                                  );
-                                })()}
+                                {employee.antecedentes.map((v, i) => (
+                                  <TableRow key={i}>
+                                    <TableCell className="font-medium">
+                                      {v.fecha_ingreso}
+                                    </TableCell>
+                                    <TableCell>{v.fecha_egreso}</TableCell>
+                                    <TableCell>{v.institucion}</TableCell>
+                                  </TableRow>
+                                ))}
+                                <TableRow>
+                                  <TableCell
+                                    colSpan={3}
+                                    className="text-right font-bold"
+                                  >
+                                    Total años: {employee.anos_apn}
+                                  </TableCell>
+                                </TableRow>
                               </TableBody>
                             </Table>
                           </CardContent>

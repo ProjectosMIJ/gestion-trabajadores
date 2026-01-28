@@ -65,7 +65,7 @@ const departments: Department[] = [
 ];
 
 export default function Dashboard() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
 
   const handleDepartmentValidation = (

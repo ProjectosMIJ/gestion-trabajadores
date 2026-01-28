@@ -4,31 +4,73 @@ import "next-auth/jwt";
 declare module "next-auth" {
   interface Session {
     user: {
-      id?: string;
-      name?: string;
-      image?: string;
-      role?: string;
-      department?: string;
+      id: string;
+      name: string;
+      role: string;
+      department: string;
       cedula: string;
-      phone?: string;
-      email?: string;
-      id_especialidad_medico?: number;
+      phone: string;
+      email: string;
+      directionGeneral: {
+        id: string;
+        nombre: string;
+      };
+      direccionLine: {
+        id: string;
+        nombre: string;
+      } | null;
+      coordination: { id: string; nombre: string } | null;
+      dependency: {
+        id: string;
+        nombre: string;
+      };
     } & DefaultSession["user"];
   }
   interface User {
-    department?: string;
-    cedula?: string;
-    role?: string;
-    phone?: string;
-    id_especialidad_medico?: number;
+    id: string;
+    name: string;
+    role: string;
+    department: string;
+    cedula: string;
+    phone: string;
+    email: string;
+    directionGeneral: {
+      id: string;
+      nombre: string;
+    };
+    direccionLine: {
+      id: string;
+      nombre: string;
+    } | null;
+    coordination: { id: string; nombre: string } | null;
+    dependency: {
+      id: string;
+      nombre: string;
+    };
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
-    role?: string;
-    department?: string;
-    cedula?: string;
-    id_especialidad_medico?: number;
+    id: string;
+    name: string;
+    role: string;
+    department: string;
+    cedula: string;
+    phone: string;
+    email: string;
+    directionGeneral: {
+      id: string;
+      nombre: string;
+    };
+    direccionLine: {
+      id: string;
+      nombre: string;
+    } | null;
+    coordination: { id: string; nombre: string } | null;
+    dependency: {
+      id: string;
+      nombre: string;
+    };
   }
 }

@@ -58,14 +58,14 @@ export default function NotFound() {
         <div className="bg-blue-900 p-4 flex justify-center relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer"></div>
           <div className="transform hover:scale-110 transition-transform duration-500 hover:rotate-3">
-            {/* <Image
+            <Image
               src="/images/image.png"
               width={300} // Correcto: Ancho fijo
               height={300} // Correcto: Alto fijo
               alt="Logo Reportes"
               className="object-contain" // Mantiene la proporción dentro de los 300x150
               priority // Agrega esto para que cargue rápido en reportes
-            /> */}
+            />
           </div>
         </div>
 
