@@ -178,6 +178,24 @@ class DependenciaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dependencias
         fields = '__all__'
+
+class DireccionGeneralSerializer(serializers.ModelSerializer):
+    Dependencia = DependenciaSerializer(source='dependenciaId', read_only=True)
+    dependenciaId = serializers.PrimaryKeyRelatedField(
+        queryset=Dependencias.objects.all(), 
+        write_only=True, 
+        required=False
+    )
+
+    class Meta:
+        model = DireccionGeneral
+        fields = [
+            'id',
+            'Codigo',
+            'direccion_general',
+            'Dependencia',   
+            'dependenciaId'  
+        ]
 class DireccionGeneralSerializer(serializers.ModelSerializer):
     class Meta:
         model = DireccionGeneral

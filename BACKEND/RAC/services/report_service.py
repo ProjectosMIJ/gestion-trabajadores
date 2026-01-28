@@ -104,33 +104,37 @@ MAPA_REPORTES = {
             "parroquia_id": "datos_vivienda__parroquia_id",
             "condicion_vivienda_id": "datos_vivienda__condicion_vivienda_id",
             
+            
         }
     },
     "egresados": {
         "modelo": "EmployeeEgresado",
         "campos_permitidos": {
             "motivo": "motivo_egreso__movimiento",
-            "direccion_general": "DireccionGeneral__direccion_general",
-            "direccion_linea": "DireccionLinea__direccion_linea",
-            "coordinacion": "Coordinacion__coordinacion",
-            "cargo": "denominacioncargoid__cargo",
-            "cargo_especifico": "denominacioncargoespecificoid__cargo",
-            "grado": "gradoid__grado",
-            "tipo_nomina": "tiponominaid__nomina",
-            "organismo": "OrganismoAdscritoid__Organismoadscrito", 
+            
+            "direccion_general": "cargos_historial__DireccionGeneral__direccion_general",
+            "direccion_linea": "cargos_historial__DireccionLinea__direccion_linea",
+            "coordinacion": "cargos_historial__Coordinacion__coordinacion",
+            "cargo": "cargos_historial__denominacioncargoid__cargo",
+            "cargo_especifico": "cargos_historial__denominacioncargoespecificoid__cargo",
+            "grado": "cargos_historial__gradoid__grado",
+            "tipo_nomina": "cargos_historial__tiponominaid__nomina",
+            "organismo": "cargos_historial__OrganismoAdscritoid__Organismoadscrito", 
         },
         "filtros_permitidos": {
             "motivo_id": "motivo_egreso",
-            "cargo_id": "denominacioncargoid",
-            "cargo_especifico_id": "denominacioncargoespecificoid",
-            "grado_id": "gradoid",
-            "nomina_id": "tiponominaid",
-            "direccion_general_id": "DireccionGeneral",
-            "direccion_linea_id": "DireccionLinea",
-            "coordinacion_id": "Coordinacion",
-            "organismo_id": "OrganismoAdscritoid",
             "fecha_egreso_Desde": "fecha_egreso__gte",
             "fecha_egreso_Hasta": "fecha_egreso__lte",
+            
+            "cargo_id": "cargos_historial__denominacioncargoid",
+            "cargo_especifico_id": "cargos_historial__denominacioncargoespecificoid",
+            "grado_id": "cargos_historial__gradoid",
+            "nomina_id": "cargos_historial__tiponominaid",
+            "dependencia_id": "cargos_historial__DireccionGeneral__dependenciaId",
+            "direccion_general_id": "cargos_historial__DireccionGeneral",
+            "direccion_linea_id": "cargos_historial__DireccionLinea",
+            "coordinacion_id": "cargos_historial__Coordinacion",
+            "organismo_id": "cargos_historial__OrganismoAdscritoid",
         }
     },
     "asignaciones": {

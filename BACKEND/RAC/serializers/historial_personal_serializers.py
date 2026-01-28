@@ -4,7 +4,7 @@ from django.db import transaction
 
 from django.utils import timezone
 
-from ..models.historial_personal_models import EmployeeEgresado,EmployeeMovementHistory,Tipo_movimiento
+from ..models.historial_personal_models import *
 
 from ..models.personal_models import DireccionLinea, Tiponomina, Estatus, AsigTrabajo, Tipo_personal, antecedentes_servicio
 
@@ -249,13 +249,18 @@ class GestionEgreso_PasivoSerializer(BaseActionInputSerializer):
             fecha_ingreso=empleado.fechaingresoorganismo,
             fecha_egreso=fecha_hoy
         )
+        egreso_obj = EmployeeEgresado.objects.create(
+        employee=empleado,
+        n_contrato=empleado.n_contrato, 
+        fechaingresoorganismo=empleado.fechaingresoorganismo,
+        motivo_egreso=motivo
+        )
+
+   
         for asig in asignaciones:
-            EmployeeEgresado.objects.create(
-                employee=empleado,
-                nombres=empleado.nombres,
-                apellidos=empleado.apellidos,
+            CargoEgresado.objects.create(
+                egreso=egreso_obj,
                 codigo=asig.codigo,
-                fechaingresoorganismo=empleado.fechaingresoorganismo,
                 denominacioncargoid=asig.denominacioncargoid,
                 denominacioncargoespecificoid=asig.denominacioncargoespecificoid,
                 gradoid=asig.gradoid,
@@ -263,53 +268,59 @@ class GestionEgreso_PasivoSerializer(BaseActionInputSerializer):
                 DireccionGeneral=asig.DireccionGeneral,
                 DireccionLinea=asig.DireccionLinea,
                 Coordinacion=None,
-                OrganismoAdscritoid=asig.OrganismoAdscritoid,
-                motivo_egreso=motivo
+                OrganismoAdscritoid=asig.OrganismoAdscritoid
             )
-            
+        
             asig.estatusid = estatus_egresado
-            # REGISTRO EN EL HISTORIAL 
             registrar_historial_movimiento(empleado, asig, 'EGRESO', motivo, usuario)
             
             asig.employee = None
             asig.estatusid = estatus_vacante
             asig._history_user = usuario
             asig.save()
-            
+        
     # SERIALIZER LISTAR PERSONAL EGRESADO 
+
+class CargoEgresadoSerializer(serializers.ModelSerializer):
+    denominacioncargo = denominacionCargoSerializer(source='denominacioncargoid', read_only=True)
+    denominacioncargoespecifico = denominacionCargoEspecificoSerializer(source='denominacioncargoespecificoid', read_only=True)
+    grado = gradoSerializer(source='gradoid', read_only=True)
+    tiponomina = TipoNominaSerializer(source='tiponominaid', read_only=True)
+    DireccionGeneral = DireccionGeneralSerializer(read_only=True)
+    DireccionLinea = DireccionLineaSerializer(read_only=True)
+    Coordinacion = CoordinacionSerializer(read_only=True)
+    OrganismoAdscrito = OrganismoAdscritoSerializer(source='OrganismoAdscritoid', read_only=True)
+
+    class Meta:
+        model = CargoEgresado
+        fields = [
+            'id',
+            'codigo', 'denominacioncargo', 'denominacioncargoespecifico', 
+            'grado', 'tiponomina', 'DireccionGeneral', 
+            'DireccionLinea', 'Coordinacion', 'OrganismoAdscrito'
+        ]
+ 
 class PersonalEgresadoSerializer(serializers.ModelSerializer):
-    denominacioncargo = denominacionCargoSerializer(source='denominacioncargoid',read_only= True)
-    denominacioncargoespecifico = denominacionCargoEspecificoSerializer(source = 'denominacioncargoespecificoid', read_only = True)
-    grado = gradoSerializer(source='gradoid', read_only = True)
-    Tipo_movimiento = TipoMovimientoSerializer(source='motivo_egreso', read_only = True)
-    tiponomina = TipoNominaSerializer(source='tiponominaid', read_only = True)
-    DireccionGeneral = DireccionGeneralSerializer( read_only = True)
-    DireccionLinea = DireccionLineaSerializer( read_only = True)
-    Coordinacion = CoordinacionSerializer( read_only = True)
-    OrganismoAdscrito = OrganismoAdscritoSerializer( source = 'OrganismoAdscritoid',read_only = True)
+    cedula = serializers.CharField(source='employee.cedulaidentidad', read_only=True)
+    nombres = serializers.CharField(source='employee.nombres', read_only=True)
+    apellidos = serializers.CharField(source='employee.apellidos', read_only=True)
+    
+    Tipo_movimiento = TipoMovimientoSerializer(source='motivo_egreso', read_only=True)
+    
+    cargos = CargoEgresadoSerializer(source='cargos_historial', many=True, read_only=True)
+
     class Meta:
         model = EmployeeEgresado
         fields = [
-                
-                'employee',
-                'nombres',
-                'apellidos',
-                'codigo',
-                'fechaingresoorganismo',
-                'denominacioncargo',
-                'denominacioncargoespecifico',
-                'grado',
-                'tiponomina',
-                'DireccionGeneral',
-                'DireccionLinea',
-                'Coordinacion',
-                'OrganismoAdscrito',
-                'Tipo_movimiento',
-                'fecha_egreso'
-                
-            ]
-    
- 
+            'id',
+            'cedula',
+            'nombres',
+            'apellidos',
+            'fechaingresoorganismo',
+            'fecha_egreso',
+            'Tipo_movimiento',
+            'cargos'  
+        ]
     
     
     

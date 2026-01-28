@@ -60,7 +60,6 @@ class ReporteFamiliarAgrupadoSerializer(serializers.ModelSerializer):
 
 
 
-
 class ReporteDinamicoSerializer(serializers.Serializer):
     CATEGORIAS = [
         ('empleados', 'Empleados'), 
@@ -144,7 +143,6 @@ class ReporteDinamicoSerializer(serializers.Serializer):
         ).order_by('-total'))
 
     def _obtener_data_detallada(self, queryset, categoria, filtros_finales):
-        """Mapeo de funciones de lista para evitar múltiples if/elif."""
         handlers = {
             'empleados': self._preparar_lista_empleados,
             'egresados': self._preparar_lista_egresados,
@@ -170,9 +168,14 @@ class ReporteDinamicoSerializer(serializers.Serializer):
         return EmployeeDetailSerializer(queryset, many=True).data
 
     def _preparar_lista_egresados(self, queryset):
-        queryset = queryset.select_related(
-            'motivo_egreso', 'denominacioncargoid', 'denominacioncargoespecificoid',
-            'gradoid', 'tiponominaid', 'DireccionGeneral', 'DireccionLinea'
+        queryset = queryset.select_related('employee', 'motivo_egreso').prefetch_related(
+            'cargos_historial__denominacioncargoid',
+            'cargos_historial__denominacioncargoespecificoid',
+            'cargos_historial__gradoid',
+            'cargos_historial__tiponominaid',
+            'cargos_historial__DireccionGeneral',
+            'cargos_historial__DireccionLinea',
+            'cargos_historial__OrganismoAdscritoid'
         )
         return PersonalEgresadoSerializer(queryset, many=True).data
 
@@ -189,7 +192,9 @@ class ReporteDinamicoSerializer(serializers.Serializer):
             .prefetch_related('perfil_salud_set', 'perfil_fisico_set', 'formacion_academica_set')
 
         queryset = queryset.filter(carga_familiar__isnull=False).prefetch_related(
-            Prefetch('assignments', queryset=AsigModel.objects.filter(estatusid__estatus=ESTATUS_ACTIVO).select_related('denominacioncargoid', 'tiponominaid', 'DireccionGeneral')),
+            Prefetch('assignments', queryset=AsigModel.objects.filter(
+                estatusid__estatus=ESTATUS_ACTIVO
+            ).select_related('denominacioncargoid', 'tiponominaid', 'DireccionGeneral')),
             Prefetch('carga_familiar', queryset=fam_prefetch)
         )
         data = ReporteFamiliarAgrupadoSerializer(queryset, many=True).data

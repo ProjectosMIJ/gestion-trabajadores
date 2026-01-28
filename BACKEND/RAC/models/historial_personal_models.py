@@ -52,18 +52,44 @@ class EmployeeMovementHistory(models.Model):
         ordering = ['-fecha_movimiento']
         
     
-class EmployeeEgresado(models.Model):
-
-    employee = models.ForeignKey(Employee, on_delete=models.PROTECT, to_field='cedulaidentidad',related_name='historial_egreso', db_column='employeeCedula',null=True, blank=True)
-
-    nombres = models.TextField(max_length=255)
-    apellidos = models.TextField(max_length=255)
-    codigo = models.TextField(blank=True, null=True) 
     
+    
+class EmployeeEgresado(models.Model):
+    employee = models.ForeignKey(
+        Employee, 
+        on_delete=models.PROTECT, 
+        to_field='cedulaidentidad',
+        related_name='egresos', 
+        db_column='employeeCedula'
+    )
+    
+    n_contrato = models.TextField(blank=True, null=True) 
     fechaingresoorganismo = models.DateField(db_column='fechaIngresoOrganismo')
-   
     fecha_egreso = models.DateTimeField(auto_now_add=True)
+    
+    motivo_egreso = models.ForeignKey(
+        Tipo_movimiento, 
+        models.DO_NOTHING, 
+        db_column='motivoEgresoId'
+    )
 
+    class Meta:
+        managed = True
+        db_table = 'EmployeeEgresado'
+        ordering = ['-fecha_egreso']
+
+    @property
+    def nombre_completo(self):
+        return f"{self.employee.nombres} {self.employee.apellidos}"
+    
+    
+class CargoEgresado(models.Model):
+    egreso = models.ForeignKey(
+        EmployeeEgresado, 
+        related_name='cargos_historial', 
+        on_delete=models.CASCADE
+    )
+    codigo = models.TextField(unique=True)
     denominacioncargoid = models.ForeignKey(Denominacioncargo, models.DO_NOTHING, db_column='denominacionCargoId')
     denominacioncargoespecificoid = models.ForeignKey(Denominacioncargoespecifico, models.DO_NOTHING, db_column='denominacionCargoEspecificoId')
     gradoid = models.ForeignKey(Grado, models.DO_NOTHING, db_column='gradoId', blank=True, null=True)
@@ -74,10 +100,5 @@ class EmployeeEgresado(models.Model):
     Coordinacion = models.ForeignKey(Coordinaciones, models.DO_NOTHING, db_column='coordinacionId', null=True)
     OrganismoAdscritoid = models.ForeignKey(OrganismoAdscrito, models.DO_NOTHING, db_column='organismoAdscritoId', null=True)
 
-    motivo_egreso = models.ForeignKey(Tipo_movimiento, models.DO_NOTHING, db_column='motivoEgresoId')
-
-
     class Meta:
-        managed = True
-        db_table = 'EmployeeEgresado'
-        ordering = ['-fecha_egreso']
+        db_table = 'CargoEgresado'

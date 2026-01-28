@@ -23,7 +23,7 @@ class Denominacioncargo(models.Model):
         ordering = ['cargo']
 
 class Denominacioncargoespecifico(models.Model):
-    cargo = models.CharField(max_length=200)
+    cargo = models.CharField(max_length=200, unique=True)
 
     class Meta:
         managed = True
