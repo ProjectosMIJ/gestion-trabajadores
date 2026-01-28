@@ -60,6 +60,7 @@ export async function registerEmployeeSteps(
       usuario_id: userId,
       antecedentes,
     };
+
     const payloadFamily = {
       familys: familys?.map((familiar) => ({
         ...familiar,
@@ -67,6 +68,7 @@ export async function registerEmployeeSteps(
         employeecedula: cedulaidentidad,
       })),
     };
+
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_DJANGO_API_URL}employees_register/`,
       {

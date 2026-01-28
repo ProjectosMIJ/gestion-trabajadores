@@ -8,7 +8,7 @@ export type AcademyLevel = {
   id: number;
   nivelacademico: string;
 };
-export type AcademyLevelEmpleeData = {
+export type AcademyLevelEmployeeData = {
   nivelAcademico: {
     id: number;
     nivelacademico: string;
@@ -250,7 +250,21 @@ export interface PhysicalProfile {
   tallaPantalon: PantsSize | null;
   tallaZapatos: ShoesSize | null;
 }
-
+export interface InfoCode {
+  id: number;
+  codigo: string;
+  denominacioncargo: Cargo;
+  denominacioncargoespecifico: Cargo;
+  grado: Grado;
+  tiponomina: Nomina;
+  OrganismoAdscrito: OrganismosAds | null;
+  DireccionGeneral: DireccionGeneral | null;
+  DireccionLinea: DireccionLinea | null;
+  Coordinacion: Coordinacion | null;
+  estatusid: Status;
+  observaciones: string | null;
+  fecha_actualizacion: string;
+}
 export interface EmployeeData {
   anos_apn: number;
   id: number;
@@ -265,27 +279,11 @@ export interface EmployeeData {
   datos_vivienda: DewllingInfo;
   perfil_salud: HealthProfile;
   perfil_fisico: PhysicalProfile;
-  formacion_academica: AcademyLevelEmpleeData;
+  formacion_academica: AcademyLevelEmployeeData;
   antecedentes: Background[];
   fechaingresoorganismo: string;
   fecha_actualizacion: string;
-  asignaciones: [
-    {
-      id: number;
-      codigo: string;
-      denominacioncargo: Cargo;
-      denominacioncargoespecifico: Cargo;
-      grado: Grado;
-      tiponomina: Nomina;
-      OrganismoAdscrito: OrganismosAds | null;
-      DireccionGeneral: DireccionGeneral | null;
-      DireccionLinea: DireccionLinea | null;
-      Coordinacion: Coordinacion | null;
-      estatusid: Status;
-      observaciones: string | null;
-      fecha_actualizacion: string;
-    },
-  ];
+  asignaciones: InfoCode[];
 }
 export interface Sex {
   id: number;
@@ -374,4 +372,55 @@ export interface NominaGeneral {
 export interface Region {
   id: number;
   region: string;
+}
+
+export interface Family {
+  cedula_empleado: string;
+  nombre_empleado: string;
+  sexo_empleado: Sex;
+  denominacion_cargo: Cargo;
+  denominacion_cargo_especifico: Cargo;
+  tipo_nomina: Nomina;
+  familiares: {
+    id: number;
+    cedulaFamiliar: string;
+    primer_nombre: string;
+    segundo_nombre: string;
+    primer_apellido: string;
+    segundo_apellido: string;
+    parentesco: ParentType | null;
+    fechanacimiento: string;
+    sexo: Sex;
+    estadoCivil: StatusCivil | null;
+    mismo_ente: boolean;
+    heredero: boolean;
+    perfil_salud_familiar: HealthProfile | null;
+    perfil_fisico_familiar: PhysicalProfile | null;
+    formacion_academica_familiar: {
+      nivelAcademico: AcademyLevelEmployeeData | null;
+      institucion: string;
+      capacitacion: string;
+      carrera: Carrera | null;
+      mencion: Mencion | null;
+    };
+    observaciones: string;
+    createdat: string;
+    updatedat: string;
+  }[];
+}
+[];
+
+export interface TypeMovement {
+  id: number;
+  movimiento: string;
+}
+export interface Leaving {
+  id: number;
+  cedula: string;
+  nombres: string;
+  apellidos: string;
+  fechaingresoorganismo: string;
+  fecha_egreso: string;
+  Tipo_movimiento: TypeMovement;
+  cargos: InfoCode[];
 }

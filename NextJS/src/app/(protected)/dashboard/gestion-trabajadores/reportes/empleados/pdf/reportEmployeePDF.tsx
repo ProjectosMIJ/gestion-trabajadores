@@ -1,12 +1,11 @@
 import { EmployeeData } from "@/app/types/types";
 import {
+  Document,
+  Image,
   Page,
+  StyleSheet,
   Text,
   View,
-  Document,
-  StyleSheet,
-  Image,
-  Font,
 } from "@react-pdf/renderer";
 
 // Registrar fuentes si es necesario

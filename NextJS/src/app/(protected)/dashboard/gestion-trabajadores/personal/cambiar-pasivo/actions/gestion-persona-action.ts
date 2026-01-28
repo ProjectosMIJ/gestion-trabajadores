@@ -16,8 +16,11 @@ export default async function GestionAction(
         message: "No tienes permiso para realizar esta acción. Inicia sesión.",
       };
     }
-
-    const userId = Number.parseInt(session.user.id);
+    const payload = {
+      ...values,
+      usuario_id: Number.parseInt(session.user.id),
+    };
+    console.log(payload);
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_DJANGO_API_URL}historyEmployee/egreso/${employee}/`,
       {
@@ -25,7 +28,9 @@ export default async function GestionAction(
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ ...values, usuario_id: userId }),
+        body: JSON.stringify({
+          ...payload,
+        }),
       },
     );
     if (response.ok) {

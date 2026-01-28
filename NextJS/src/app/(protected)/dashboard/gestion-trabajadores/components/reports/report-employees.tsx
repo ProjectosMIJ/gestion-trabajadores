@@ -30,7 +30,7 @@ import {
   getConditionDwelling,
   getCoordination,
   getDependency,
-  getDirectionGeneral,
+  getDirectionGeneralById,
   getDirectionLine,
   getDisability,
   getGrado,
@@ -39,9 +39,10 @@ import {
   getNominaGeneral,
   getParish,
   getPatologys,
+  getRegion,
   getReportConfigEmployee,
   getSex,
-  getStates,
+  getStateByRegion,
   postReport,
 } from "../../api/getInfoRac";
 
@@ -70,6 +71,7 @@ import Loading from "../loading/loading";
 
 export default function ReportEmployee() {
   const [mencionId, setMencionId] = useState<string>();
+  const [regionId, setRegionId] = useState<number>(0);
 
   const [isPending, startTransition] = useTransition();
   const [reportListEmployee, setReportListEmployee] = useState<
@@ -81,6 +83,7 @@ export default function ReportEmployee() {
   });
   const [stateId, setStateId] = useState<string>();
   const { data: session } = useSession();
+  const [dependencyId, setDependencyId] = useState<number>(0);
 
   const [directionGeneralId, setDirectionGeneralId] = useState<string | null>(
     null,
@@ -88,8 +91,10 @@ export default function ReportEmployee() {
   const [directionLineId, setDirectionLineId] = useState<string | null>(null);
 
   const { data: directionGeneral, isLoading: isLoadingDirectionGeneral } =
-    useSWR("directionGeneral", async () => await getDirectionGeneral());
-
+    useSWR(
+      dependencyId ? ["directionGeneral", dependencyId] : null,
+      async () => await getDirectionGeneralById(dependencyId),
+    );
   const { data: dependency, isLoading: isLoadingDependency } = useSWR(
     "dependency",
     async () => await getDependency(),
@@ -147,9 +152,13 @@ export default function ReportEmployee() {
     async () => await getMencion(mencionId!),
   );
   const [municipalityId, setMunicipalityId] = useState<string>();
+  const { data: region, isLoading: isLoadingRegion } = useSWR(
+    "region",
+    async () => await getRegion(),
+  );
   const { data: states, isLoading: isLoadingStatesStates } = useSWR(
-    "states",
-    async () => await getStates(),
+    regionId ? ["states", regionId] : null,
+    async () => await getStateByRegion(regionId),
   );
   const { data: municipalitys, isLoading: isLoadingStatesSMunicipalitys } =
     useSWR(
@@ -159,6 +168,10 @@ export default function ReportEmployee() {
   const { data: parish, isLoading: isLoadingStatesParish } = useSWR(
     municipalityId ? ["parish", municipalityId] : null,
     async () => await getParish(municipalityId!),
+  );
+  const { data: reportEmployee, isLoading: isLoadingReportEmployee } = useSWR(
+    "reportEmployee",
+    async () => await getReportConfigEmployee(),
   );
   const {
     data: conditionDwelling,
@@ -229,6 +242,38 @@ export default function ReportEmployee() {
               className="space-y-4 grid grid-cols-3 min-h-screen gap-2"
             >
               <div className="flex flex-col gap-2">
+                <FormField
+                  control={form.control}
+                  name="agrupar_por"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Agrupar Por</FormLabel>
+                      <Select
+                        onValueChange={(values) => {
+                          field.onChange(values);
+                        }}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full truncate">
+                            <SelectValue
+                              placeholder={`${isLoadingReportEmployee ? "Cargando Agrupaciones" : "Seleccione una Agrupacion"}`}
+                            />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {reportEmployee?.data.agrupaciones.map(
+                            (agrupaciones, i) => (
+                              <SelectItem key={i} value={agrupaciones}>
+                                {agrupaciones}
+                              </SelectItem>
+                            ),
+                          )}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <Button className=" bg-blue-600 hover:bg-blue-800 cursor-pointer sticky top-[2px]">
                   Consultar Reporte
                 </Button>
@@ -245,6 +290,7 @@ export default function ReportEmployee() {
                         <Select
                           onValueChange={(values) => {
                             field.onChange(Number.parseInt(values));
+                            setDependencyId(Number.parseInt(values));
                           }}
                         >
                           <FormControl>
@@ -964,6 +1010,38 @@ export default function ReportEmployee() {
                   <legend className="text-emerald-800 font-semibold">
                     Direccion De Habitaciones
                   </legend>
+                  <FormField
+                    control={form.control}
+                    name="filtros.region_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Region </FormLabel>
+                        <Select
+                          onValueChange={(value) => {
+                            field.onChange(Number.parseInt(value));
+                            setRegionId(Number.parseInt(value));
+                          }}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full truncate">
+                              <SelectValue
+                                placeholder={`${isLoadingRegion ? "Cargando Regiones" : "Seleccione una Region"}`}
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {region?.data.map((region, i) => (
+                              <SelectItem key={i} value={`${region.id}`}>
+                                {region.region}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                   <FormField
                     control={form.control}
                     name="filtros.estado_id"
