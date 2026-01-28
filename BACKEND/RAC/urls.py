@@ -51,6 +51,7 @@ urlpatterns = [
     # --------------------
      #path para la ubicacion del personal
    path('direccion/regiones/', views.list_region, name='regiones'),
+   path('direccion/estado/<int:region_id>/', views.list_estados_by_region, name='estado'),
     path('direccion/estados/', views.list_estados, name='estados'),    
     path('direccion/municipios/<int:estadoid>/', views.list_municipios, name='municipios_por_estado'),
     path('direccion/parroquias/<int:municipioid>/', views.list_parroquias, name='parroquias'),
@@ -81,6 +82,7 @@ urlpatterns = [
         
         #  LISTAR
     path('dependencias/', views.list_dependencies, name='lista de dependencias'),
+    path('direccionGeneral/<int:dependencia_id>', views.list_general_directorates_by_dependencia, name='lista las direcciones generales'),
     path('listar-DireccionGeneral/', views.list_general_directorates, name='lista las direcciones de linea'),
     path('listar-DireccionLinea/<int:general_id>/',views.list_line_directorates_by_general, name='lista las direcciones generales'),
     path('listar-Coordinacion/<int:line_id>/', views.list_coordinations_by_line, name='lista de las coordinaciones'),

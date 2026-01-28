@@ -94,9 +94,15 @@ MAPA_REPORTES = {
             "edad_familiar_min": "carga_familiar__fechanacimiento__lte",
             "edad_familiar_max": "carga_familiar__fechanacimiento__gte", 
             "nomina_id": "assignments__tiponominaid",
+            "dependencia_id": "assignments__DireccionGeneral__dependenciaId",
             "direccion_general_id": "assignments__DireccionGeneral",
             "direccion_linea_id": "assignments__DireccionLinea",
             "coordinacion_id": "assignments__Coordinacion",
+            "region_id": "datos_vivienda__estado_id__Region",
+            "estado_id": "datos_vivienda__estado_id",
+            "municipio_id": "datos_vivienda__municipio_id",
+            "parroquia_id": "datos_vivienda__parroquia_id",
+            "condicion_vivienda_id": "datos_vivienda__condicion_vivienda_id",
             
         }
     },

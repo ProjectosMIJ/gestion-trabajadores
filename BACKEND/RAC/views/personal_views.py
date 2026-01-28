@@ -1,6 +1,5 @@
 
 from django.shortcuts import get_object_or_404
-from rest_framework.views import APIView
 from rest_framework.decorators import api_view
 from rest_framework import status
 from rest_framework.response import Response
@@ -1031,9 +1030,34 @@ def list_dependencies(request):
             'status': "error",
             'message': "No se pudo recuperar la lista de Dependencias",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
+   
+@extend_schema(
+    tags=["Recursos Humanos - Datos para Cargo"],
+    summary="Listar Direcciones Generales",
+    description="Devuelve una lista de todas las Direcciones Generales disponibles.",
+    responses=DireccionGeneralSerializer
+)     
+@api_view(['GET'])
+def list_general_directorates_by_dependencia(request, dependencia_id):
+    get_object_or_404(Dependencias, pk=dependencia_id)
+    
+    try:
+        queryset = DireccionGeneral.objects.filter(dependenciaId=dependencia_id)
+        serializer = DireccionGeneralSerializer(queryset, many=True)
         
+        return Response({
+            'status': "success",
+            'message': "Direcciones Generales filtradas por dependencia obtenidas correctamente",
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
 
+    except Exception as e:
+        return Response({
+            'status': "error",
+            'message': "Ocurrio un error al recuperar las Direcciones Generales por dependencia",
+            'data': []
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 @extend_schema(
     tags=["Recursos Humanos - Datos para Cargo"],
@@ -1057,8 +1081,7 @@ def list_general_directorates(request):
         return Response({
             'status': "error",
             'message': "No se pudo recuperar la lista de Direcciones Generales.",
-            'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
         
 @extend_schema(
@@ -1293,7 +1316,6 @@ def list_special_payroll_types(request):
         }, status=status.HTTP_200_OK)
 
     except Exception:
-        # 2. Error de servidor (500)
         return Response({
             'status': "error",
             'message': "No se pudo recuperar la lista de nóminas especiales.",
