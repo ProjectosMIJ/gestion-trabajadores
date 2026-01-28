@@ -135,6 +135,10 @@ MAPA_REPORTES = {
             "direccion_linea_id": "cargos_historial__DireccionLinea",
             "coordinacion_id": "cargos_historial__Coordinacion",
             "organismo_id": "cargos_historial__OrganismoAdscritoid",
+            "edad_min": "edad_trabajador__gte",
+            "edad_max": "edad_trabajador__lte",
+            "sexo_id": "sexoid",
+            
         }
     },
     "asignaciones": {
