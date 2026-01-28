@@ -479,10 +479,8 @@ class EmployeeCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerialize
 
         nested_data = self._pop_nested_data(validated_data)
         
-        # Actualizar campos directos
         instance = super().update(instance, validated_data)
 
-        # Actualizar relaciones
         self._handle_nested_data(instance, nested_data)
         return instance
     

@@ -126,6 +126,32 @@ MAPA_REPORTES = {
             "fecha_egreso_Desde": "fecha_egreso__gte",
             "fecha_egreso_Hasta": "fecha_egreso__lte",
         }
+    },
+    "asignaciones": {
+        "modelo": "AsigTrabajo",
+        "campos_permitidos": {
+            "codigo": "codigo",
+            "cargo": "denominacioncargoid__cargo",
+            "cargo_especifico": "denominacioncargoespecificoid__cargo",
+            "tipo_nomina": "tiponominaid__nomina",
+            "grado": "gradoid__grado",
+            "dependencia": "DireccionGeneral__dependenciaId__dependencia",
+            "direccion_general": "DireccionGeneral__direccion_general",
+            "direccion_linea": "DireccionLinea__direccion_linea",
+            "estatus": "estatusid__estatus",
+        },
+        "filtros_permitidos": {
+            "cargo_id": "denominacioncargoid",
+            "cargo_especifico_id": "denominacioncargoespecificoid",
+            "nomina_id": "tiponominaid",
+            "grado_id": "gradoid",
+            "dependencia_id": "DireccionGeneral__dependenciaId",
+            "general_id": "DireccionGeneral",
+            "linea_id": "DireccionLinea",
+            "coordinacion_id": "Coordinacion",
+            "organismo_id": "OrganismoAdscritoid",
+            "estatus_id": "estatusid",
+        }
     }
 }
 
@@ -140,3 +166,7 @@ def get_config_by_category(category):
 
 def get_report_types_config():
     return {"conteo", "lista"}
+
+def get_available_report_categories():
+ 
+    return list(MAPA_REPORTES.keys())

@@ -33,7 +33,30 @@ class EmployeeReportConfigView(APIView):
                 "message": "Error al obtener la configuración de empleados",
             }, status=status.HTTP_400_BAD_REQUEST)
 
+@extend_schema(
+    tags=["Reportes - Configuraciones"],
+    summary="configuraciones de Reportes para codigos de asignaciones",
+)
+class assignmentsReportConfigView(APIView):
+    def get(self, request):
+        try:
+            data = get_config_by_category('asignaciones')
+            if not data:
+                return Response({
+                    "status": "Error",
+                    "message": "No se pudo cargar la configuracion de asignaciones"
+                }, status=status.HTTP_400_BAD_REQUEST)
 
+            return Response({
+                "status": "Ok",
+                "message": "Configuracion de asignaciones cargada correctamente",
+                "data":data
+                }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status": "Error",
+                "message": "Error al obtener la configuracion de asignaciones",
+            }, status=status.HTTP_400_BAD_REQUEST)
 @extend_schema(
     tags=["Reportes - Configuraciones"],
     summary="configuraciones de Reportes para familiares",
@@ -107,6 +130,26 @@ class ReportTypesConfigView(APIView):
             }, status=status.HTTP_400_BAD_REQUEST)
 
 
+@extend_schema(
+    tags=["Reportes - Configuraciones"],
+    summary="Clasificacion de los tipos de reportes",
+)
+class AllReportsConfigView(APIView):
+
+    def get(self, request):
+        try:
+            categorias = get_available_report_categories()
+            return Response({
+                "status": "Ok",
+                "message": "Configuraciones cargadas correctamente",
+                "data": categorias
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({
+                "status": "Error",
+                "message": "No se pudo cargar ninguna configuracion",
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 @extend_schema(
         tags=["Reportes"],
