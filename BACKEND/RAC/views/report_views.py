@@ -181,12 +181,17 @@ def generate_dynamic_report(request):
     
     if serializer.is_valid():
         try:
-            resultados = serializer.ejecutar()
+            resultados = ReporteService.ejecutar(
+                mapa_config=MAPA_REPORTES,
+                **serializer.validated_data
+            )
+            
             return Response({
                 "status": "Ok",
                 "message": "Reporte generado correctamente",
                 "data": resultados
             }, status=status.HTTP_200_OK)
+            
         except Exception as e:
             return Response({
                 'status': "Error",
