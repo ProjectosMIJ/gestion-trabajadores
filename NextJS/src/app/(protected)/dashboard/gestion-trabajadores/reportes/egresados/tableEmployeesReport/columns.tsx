@@ -1,16 +1,9 @@
 "use client";
 
-import { ColumnDef } from "@tanstack/react-table";
-
-export type Payment = {
-  id: string;
-  amount: number;
-  status: "pending" | "processing" | "success" | "failed";
-  email: string;
-};
-import { ArrowUpDown, MoreHorizontal } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Leaving } from "@/app/types/types";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,9 +12,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Leaving } from "@/app/types/types";
-import { Badge } from "@/components/ui/badge";
+import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
+import { MoreHorizontal } from "lucide-react";
+
 export const columnsLeavingReport: ColumnDef<Leaving>[] = [
   {
     id: "select",
