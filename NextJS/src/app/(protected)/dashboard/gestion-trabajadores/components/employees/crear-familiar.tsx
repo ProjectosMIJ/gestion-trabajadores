@@ -77,15 +77,8 @@ export function CreateFamilyForm() {
     undefined,
   );
 
-  const [employee, setEmployee] = useState<EmployeeInfo | []>();
+  const [employee, setEmployee] = useState<EmployeeInfo | []>([]);
   const [isPending, startTransition] = useTransition();
-
-  const loadEmployee = async () => {
-    if (searchEmployee) {
-      const getEmployee = await getEmployeeInfo(searchEmployee);
-      setEmployee(getEmployee.data);
-    }
-  };
 
   const [down, setDown] = useState(false);
   const [mencionId, setMencionId] = useState<string>();
@@ -217,9 +210,19 @@ export function CreateFamilyForm() {
     });
   };
 
-  const validateEmployee = () => {
-    if (employee && !Array.isArray(employee)) {
-      form.setValue("employeecedula", searchEmployee ?? "");
+  const handleSearch = async () => {
+    if (!searchEmployee) return;
+    const response = await getEmployeeInfo(searchEmployee);
+    if (
+      response.data &&
+      !Array.isArray(response.data) &&
+      !(response.data && "message" in employee)
+    ) {
+      setEmployee(response.data);
+      form.setValue("employeecedula", response.data.cedulaidentidad, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
     }
   };
   return (
@@ -240,8 +243,7 @@ export function CreateFamilyForm() {
                 type="button"
                 variant={"outline"}
                 onClick={() => {
-                  loadEmployee();
-                  validateEmployee();
+                  handleSearch();
                 }}
               >
                 <Search className="h-4 w-4" />

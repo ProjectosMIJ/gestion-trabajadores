@@ -269,7 +269,11 @@ export function AsigCode() {
                                   <SelectContent>
                                     {selectedCode.data.map((codes, i) => (
                                       <SelectItem key={i} value={`${codes.id}`}>
-                                        {codes.codigo}
+                                        {codes.codigo} -{" "}
+                                        {
+                                          codes.denominacioncargoespecifico
+                                            .cargo
+                                        }
                                       </SelectItem>
                                     ))}
                                   </SelectContent>

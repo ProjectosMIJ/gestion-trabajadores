@@ -11,14 +11,7 @@ import {
   getMotionReason,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
 import { schemaChangeCode } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/cambiar-codigo/schema/schemaChangeCode";
-import {
-  ApiResponse,
-  Code,
-  Coordination,
-  DirectionGeneral,
-  DirectionLine,
-  EmployeeData,
-} from "@/app/types/types";
+import { ApiResponse, Code, EmployeeData } from "@/app/types/types";
 import {
   Select,
   SelectContent,
@@ -30,11 +23,11 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { CircleAlert, Search } from "lucide-react";
-import { useEffect, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import useSWR from "swr";
 import z from "zod";
-import ChangeCodeActions from "../../personal/cambiar-codigo/actions/actions-change-code";
 import { Button } from "../../../../../../components/ui/button";
 import {
   Card,
@@ -52,8 +45,7 @@ import {
 import { Input } from "../../../../../../components/ui/input";
 import { Label } from "../../../../../../components/ui/label";
 import { Spinner } from "../../../../../../components/ui/spinner";
-import { Textarea } from "../../../../../../components/ui/textarea";
-import useSWR from "swr";
+import ChangeCodeActions from "../../personal/cambiar-codigo/actions/actions-change-code";
 export function ChangeCodeForm() {
   const [searchEmployee, setSearchEmployee] = useState<string | undefined>(
     undefined,
