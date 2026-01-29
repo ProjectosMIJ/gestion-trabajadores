@@ -12,17 +12,7 @@ import {
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
 import { AsignSpecialCode } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/asignar-codigo-especial/actions/asign-special-code";
 import { schemaCodeEspecial } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/asignar-codigo-especial/schema/schemaCodeEspecial";
-import {
-  ApiResponse,
-  Cargo,
-  Coordination,
-  DirectionGeneral,
-  DirectionLine,
-  EmployeeInfo,
-  Grado,
-  Nomina,
-  OrganismosAds,
-} from "@/app/types/types";
+import { EmployeeInfo } from "@/app/types/types";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -45,6 +35,7 @@ import { CircleAlert, Search } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import useSWR from "swr";
 import { z } from "zod";
 import {
   Form,
@@ -57,7 +48,6 @@ import {
 } from "../../../../../../components/ui/form";
 import { Spinner } from "../../../../../../components/ui/spinner";
 import { Switch } from "../../../../../../components/ui/switch";
-import useSWR from "swr";
 
 interface CodigoCatalogFormProps {
   onSuccess?: (bool: boolean) => true | false;
@@ -73,14 +63,8 @@ export function CodigoCatalogEspecialForm({
     useState<string>();
   const [selecteIdDirectionLine, setSelecteIdDirectionLine] =
     useState<string>();
-  const [employee, setEmployee] = useState<EmployeeInfo | []>();
+  const [employee, setEmployee] = useState<EmployeeInfo | []>([]);
 
-  const loadEmployee = async () => {
-    if (searchEmployee) {
-      const getEmployee = await getEmployeeInfo(searchEmployee);
-      setEmployee(getEmployee.data);
-    }
-  };
   const [activeDirectionLine, setActiveDirectionLine] =
     useState<boolean>(false);
   const [activeCoordination, setActiveCoordination] = useState<boolean>(false);
@@ -167,11 +151,19 @@ export function CodigoCatalogEspecialForm({
       }
     });
   }
-  const validateEmployee = () => {
-    if (!Array.isArray(employee)) {
-      if (employee?.cedulaidentidad) {
-        form.setValue("employee", employee.cedulaidentidad);
-      }
+  const handleSearch = async () => {
+    if (!searchEmployee) return;
+    const response = await getEmployeeInfo(searchEmployee);
+    if (
+      response.data &&
+      !Array.isArray(response.data) &&
+      !(response.data && "message" in employee)
+    ) {
+      setEmployee(response.data);
+      form.setValue("employee", response.data.cedulaidentidad, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
     }
   };
   return (
@@ -197,8 +189,7 @@ export function CodigoCatalogEspecialForm({
               type="button"
               variant={"outline"}
               onClick={() => {
-                loadEmployee();
-                validateEmployee();
+                handleSearch();
               }}
             >
               <Search className="h-4 w-4" />

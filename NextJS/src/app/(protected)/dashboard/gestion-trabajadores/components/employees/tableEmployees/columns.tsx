@@ -41,6 +41,8 @@ import {
   SheetTriggerUI,
   SheetUI,
 } from "@/components/ui/SheetUI";
+import ExportButton from "@/components/ui/ExportButtonPDF";
+import { ReportPDFEmployee } from "../../../reportes/empleados/pdf/reportEmployeePDF";
 export const columns: ColumnDef<EmployeeData>[] = [
   {
     id: "select",
@@ -121,7 +123,15 @@ export const columns: ColumnDef<EmployeeData>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Extras</DropdownMenuLabel>
-
+            <DropdownMenuItem asChild>
+              <ExportButton
+                className="w-full"
+                fileName={`${employee.nombres}-${employee.apellidos}-expediente.pdf`}
+                document={
+                  <ReportPDFEmployee employeeData={[employee]} id="Sistema" />
+                }
+              />
+            </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <SheetUI>
                 <SheetTriggerUI

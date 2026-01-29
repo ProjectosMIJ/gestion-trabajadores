@@ -219,7 +219,7 @@ export function CreateFamilyForm() {
 
   const validateEmployee = () => {
     if (employee && !Array.isArray(employee)) {
-      form.setValue("employeecedula", employee.cedulaidentidad);
+      form.setValue("employeecedula", searchEmployee ?? "");
     }
   };
   return (
@@ -1124,7 +1124,7 @@ export function CreateFamilyForm() {
                   </fieldset>
                   <Button className="w-full cursor-pointer">
                     {" "}
-                    Registrar Trabajador
+                    Agregar Familiar
                   </Button>
                 </form>
               </Form>

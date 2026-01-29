@@ -42,8 +42,8 @@ export const schemaReportFamily = z.object({
       nomina_id: z.number().optional(),
       direccion_general_id: z.number().optional(),
       dependencia_id: z.number().optional(),
-      direccion_linea_id: z.number().optional(),
-      coordinacion_id: z.number().optional(),
+      direccion_linea_id: z.number().or(z.null()).optional(),
+      coordinacion_id: z.number().or(z.null()).optional(),
     })
     .optional(),
 });

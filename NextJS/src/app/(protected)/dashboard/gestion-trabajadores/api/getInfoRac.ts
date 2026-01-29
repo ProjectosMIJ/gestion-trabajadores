@@ -37,8 +37,6 @@ import {
   ShoesSize,
   States,
   Status,
-  UbicacionAdministrativa,
-  UbicacionFisica,
 } from "@/app/types/types";
 
 export const getAcademyLevel = async (): Promise<
@@ -81,27 +79,7 @@ export const getGrado = async (): Promise<ApiResponse<Grado[]>> => {
   const responseGrado: ApiResponse<Grado[]> = await grado.json();
   return responseGrado;
 };
-export const getUbicacionAdministrativa = async (): Promise<
-  ApiResponse<UbicacionAdministrativa[]>
-> => {
-  const ubicacionAdministrativa = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}listar-ubicacion-administrativa/`,
-  );
-  const responseUbicacionAdministrativa: ApiResponse<
-    UbicacionAdministrativa[]
-  > = await ubicacionAdministrativa.json();
-  return responseUbicacionAdministrativa;
-};
-export const getUbicacionFisica = async (): Promise<
-  ApiResponse<UbicacionFisica[]>
-> => {
-  const ubicacionFisica = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}listar-ubicacion-fisica/`,
-  );
-  const responseUbicacionFisica: ApiResponse<UbicacionFisica[]> =
-    await ubicacionFisica.json();
-  return responseUbicacionFisica;
-};
+
 export const getOrganismosAds = async (): Promise<
   ApiResponse<OrganismosAds[]>
 > => {

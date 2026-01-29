@@ -8,8 +8,8 @@ export const schemaReportCode = z.object({
     .object({
       dependencia_id: z.number().optional(),
       direccion_general_id: z.number().optional(),
-      direccion_linea_id: z.number().optional(),
-      coordinacion_id: z.number().optional(),
+      direccion_linea_id: z.number().or(z.null()).optional(),
+      coordinacion_id: z.number().or(z.null()).optional(),
       nomina_id: z.number().optional(),
       grado_id: z.number().optional(),
       cargo_id: z.number().optional(),

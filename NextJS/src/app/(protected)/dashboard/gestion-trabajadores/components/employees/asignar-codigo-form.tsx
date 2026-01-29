@@ -85,18 +85,6 @@ export function AsigCode() {
     const code = await getCodeByCoordination(id);
     setSelectedCode(code);
   };
-  const loadEmployee = async () => {
-    if (searchEmployee) {
-      const getEmployee = await getEmployeeInfo(searchEmployee);
-      setEmployee(getEmployee.data);
-    }
-  };
-
-  const validateEmployee = () => {
-    if (employee && !Array.isArray(employee)) {
-      form.setValue("employee", employee.cedulaidentidad);
-    }
-  };
 
   const form = useForm({
     resolver: zodResolver(schemaAsignCode),
@@ -118,10 +106,25 @@ export function AsigCode() {
       }
     });
   };
+  const handleSearch = async () => {
+    if (!searchEmployee) return;
+    const response = await getEmployeeInfo(searchEmployee);
+    if (
+      response.data &&
+      !Array.isArray(response.data) &&
+      !(response.data && "message" in response.data)
+    ) {
+      setEmployee(response.data);
+      form.setValue("employee", response.data.cedulaidentidad, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+    }
+  };
+
   return (
     <>
       <Card>
-        <CardHeader></CardHeader>
         <CardContent className="space-y-5">
           <div className="flex flex-col gap-2">
             <Label htmlFor="search-employee">Buscar Trabajador</Label>
@@ -136,10 +139,7 @@ export function AsigCode() {
               <Button
                 type="button"
                 variant={"outline"}
-                onClick={() => {
-                  loadEmployee();
-                  validateEmployee();
-                }}
+                onClick={() => handleSearch()}
               >
                 <Search className="h-4 w-4" />
               </Button>
@@ -320,7 +320,7 @@ export function AsigCode() {
                                 )?.OrganismoAdscrito
                                   ? selectedCode.data.find(
                                       (v) => v.id === selectedCodeId,
-                                    )?.OrganismoAdscrito
+                                    )?.OrganismoAdscrito?.Organismoadscrito
                                   : "N/A"}
                               </p>
                               <p>

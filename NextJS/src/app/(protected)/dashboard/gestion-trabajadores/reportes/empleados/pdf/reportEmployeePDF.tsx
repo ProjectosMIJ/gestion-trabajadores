@@ -1,5 +1,5 @@
 import { EmployeeData } from "@/app/types/types";
-import cintillo from "$/cintillo.jpg";
+import cintillo from "$/cintillo2.png";
 import juntosPorVida from "$/juntosPorVida.png";
 import logoOAC from "$/logoOAC.png";
 import {

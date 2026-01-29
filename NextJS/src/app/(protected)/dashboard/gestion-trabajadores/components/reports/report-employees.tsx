@@ -173,6 +173,8 @@ export default function ReportEmployee() {
     "reportEmployee",
     async () => await getReportConfigEmployee(),
   );
+  const isBasic = session?.user?.role === "basic";
+
   const {
     data: conditionDwelling,
     isLoading: isLoadingStatesConditionDwelling,
@@ -184,10 +186,22 @@ export default function ReportEmployee() {
       agrupar_por: "direccion_general",
       tipo_reporte: "lista",
       filtros: {
-        dependencia_id: undefined,
-        direccion_general_id: undefined,
-        direccion_linea_id: undefined,
-        coordinacion_id: undefined,
+        dependencia_id: isBasic
+          ? Number.parseInt(session?.user.dependency.id)
+          : undefined,
+        direccion_general_id: isBasic
+          ? Number.parseInt(session?.user.directionGeneral.id)
+          : undefined,
+        direccion_linea_id: isBasic
+          ? session?.user.direccionLine?.id
+            ? Number.parseInt(session?.user.direccionLine?.id)
+            : undefined
+          : null,
+        coordinacion_id: isBasic
+          ? session?.user.coordination?.id
+            ? Number.parseInt(session?.user.coordination?.id)
+            : undefined
+          : null,
         sexo_id: undefined,
         discapacidad_id: undefined,
         grupo_sanguineo_id: undefined,
@@ -215,6 +229,11 @@ export default function ReportEmployee() {
       },
     },
   });
+  if (!session) {
+    return (
+      <Loading promiseMessage="Validando Sesion Para Generar El Reporte"></Loading>
+    );
+  }
   const onSubmit = (data: SchemaReportEmployeeType) => {
     startTransition(async () => {
       const reponse = await postReport<
@@ -225,11 +244,7 @@ export default function ReportEmployee() {
       form.reset();
     });
   };
-  if (!session) {
-    return (
-      <Loading promiseMessage="Validando Sesion Para Generar El Reporte"></Loading>
-    );
-  }
+
   return (
     <Card>
       <CardContent>
@@ -277,135 +292,137 @@ export default function ReportEmployee() {
                 <Button className=" bg-blue-600 hover:bg-blue-800 cursor-pointer sticky top-[2px]">
                   Consultar Reporte
                 </Button>
-                <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-green-600">
-                  <legend className="text-green-800 font-semibold">
-                    Direcciones{" "}
-                  </legend>
-                  <FormField
-                    control={form.control}
-                    name="filtros.dependencia_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Dependencia</FormLabel>
-                        <Select
-                          onValueChange={(values) => {
-                            field.onChange(Number.parseInt(values));
-                            setDependencyId(Number.parseInt(values));
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full truncate">
-                              <SelectValue
-                                placeholder={`${isLoadingDependency ? "Cargando Depedencias" : "Seleccione una Dependencia"}`}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {dependency?.data.map((dependencia, i) => (
-                              <SelectItem key={i} value={`${dependencia.id}`}>
-                                {dependencia.Codigo}-{dependencia.dependencia}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="filtros.direccion_general_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Dirección General</FormLabel>
-                        <Select
-                          onValueChange={(values) => {
-                            field.onChange(Number.parseInt(values));
-                            setDirectionGeneralId(values);
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full truncate">
-                              <SelectValue
-                                placeholder={`${isLoadingDirectionGeneral ? "Cargando Direcciones Generales" : "Seleccione una Dirección General"}`}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {directionGeneral?.data.map((general, i) => (
-                              <SelectItem key={i} value={`${general.id}`}>
-                                {general.Codigo}-{general.direccion_general}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="filtros.direccion_linea_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Dirección De Linea</FormLabel>
-                        <Select
-                          onValueChange={(values) => {
-                            field.onChange(Number.parseInt(values));
-                            setDirectionLineId(values);
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full truncate">
-                              <SelectValue
-                                placeholder={`${isLoadingDirectionLine ? "Cargando Direcciones De Linea" : "Seleccione una Dirección De Linea"}`}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {directionLine?.data.map((line, i) => (
-                              <SelectItem key={i} value={`${line.id}`}>
-                                {line.Codigo}-{line.direccion_linea}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="filtros.coordinacion_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Coordinacion</FormLabel>
-                        <Select
-                          onValueChange={(values) => {
-                            field.onChange(Number.parseInt(values));
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full truncate">
-                              <SelectValue
-                                placeholder={`${isLoadingCoordination ? "Cargando Coordinaciones" : "Seleccione una Coordinación"}`}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {coordination?.data.map((coord, i) => (
-                              <SelectItem key={i} value={`${coord.id}`}>
-                                {coord.Codigo}-{coord.coordinacion}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                {session.user.role == "admin" && (
+                  <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-green-600">
+                    <legend className="text-green-800 font-semibold">
+                      Direcciones{" "}
+                    </legend>
+                    <FormField
+                      control={form.control}
+                      name="filtros.dependencia_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Dependencia</FormLabel>
+                          <Select
+                            onValueChange={(values) => {
+                              field.onChange(Number.parseInt(values));
+                              setDependencyId(Number.parseInt(values));
+                            }}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full truncate">
+                                <SelectValue
+                                  placeholder={`${isLoadingDependency ? "Cargando Depedencias" : "Seleccione una Dependencia"}`}
+                                />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {dependency?.data.map((dependencia, i) => (
+                                <SelectItem key={i} value={`${dependencia.id}`}>
+                                  {dependencia.Codigo}-{dependencia.dependencia}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="filtros.direccion_general_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Dirección General</FormLabel>
+                          <Select
+                            onValueChange={(values) => {
+                              field.onChange(Number.parseInt(values));
+                              setDirectionGeneralId(values);
+                            }}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full truncate">
+                                <SelectValue
+                                  placeholder={`${isLoadingDirectionGeneral ? "Cargando Direcciones Generales" : "Seleccione una Dirección General"}`}
+                                />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {directionGeneral?.data.map((general, i) => (
+                                <SelectItem key={i} value={`${general.id}`}>
+                                  {general.Codigo}-{general.direccion_general}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="filtros.direccion_linea_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Dirección De Linea</FormLabel>
+                          <Select
+                            onValueChange={(values) => {
+                              field.onChange(Number.parseInt(values));
+                              setDirectionLineId(values);
+                            }}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full truncate">
+                                <SelectValue
+                                  placeholder={`${isLoadingDirectionLine ? "Cargando Direcciones De Linea" : "Seleccione una Dirección De Linea"}`}
+                                />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {directionLine?.data.map((line, i) => (
+                                <SelectItem key={i} value={`${line.id}`}>
+                                  {line.Codigo}-{line.direccion_linea}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="filtros.coordinacion_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Coordinacion</FormLabel>
+                          <Select
+                            onValueChange={(values) => {
+                              field.onChange(Number.parseInt(values));
+                            }}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full truncate">
+                                <SelectValue
+                                  placeholder={`${isLoadingCoordination ? "Cargando Coordinaciones" : "Seleccione una Coordinación"}`}
+                                />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {coordination?.data.map((coord, i) => (
+                                <SelectItem key={i} value={`${coord.id}`}>
+                                  {coord.Codigo}-{coord.coordinacion}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
 
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </fieldset>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </fieldset>
+                )}
 
                 <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-red-800">
                   <legend className="text-red-900 font-semibold">
