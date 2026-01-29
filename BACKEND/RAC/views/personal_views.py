@@ -70,7 +70,7 @@ def update_employee(request, id):
             'message': "No se pudo actualizar el registro.",
             'debug': str(e),
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
     
 # LISTADO DE EMPLEADOS
 
@@ -117,6 +117,7 @@ def retrieve_employee(request, cedulaidentidad):
         return Response({
             'status': 'error',
             'message': 'No se encontró un empleado con la cédula',
+            'data': []
         
         }, status=status.HTTP_404_NOT_FOUND)
         
@@ -125,7 +126,7 @@ def retrieve_employee(request, cedulaidentidad):
             'status': 'error',
             'message': 'Ocurrió un error inesperado en el servidor',
             
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
         
 @extend_schema(
@@ -155,7 +156,7 @@ def create_position(request):
             'error': str(e),
         
 
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
 @extend_schema(
     tags=["Gestion de Cargos"],
@@ -183,7 +184,7 @@ def update_position(request, id):
             'status': "error",
             'message': "No se pudo actualizar el cargo debido a un error interno.",
             'data': None
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
         
 @extend_schema(
@@ -212,8 +213,8 @@ def assign_employee(request, id):
         return Response({
             'status': "error",
             'message': "No se pudo completar la asignación del empleado.",
-            'data': None
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+      
+        }, status=status.HTTP_400_BAD_REQUEST)
         
 @extend_schema(
     tags=["Asignacion de Cargos"],
@@ -239,8 +240,8 @@ def assign_employee_special(request):
         return Response({
             'status': "error",
             'message': "No se pudo completar la asignación especial.",
-            'data': None
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            'data': []
+        }, status=status.HTTP_400_BAD_REQUEST)
         
 
 @extend_schema(
@@ -268,7 +269,7 @@ def create_subsidiary_organism(request):
             'status': "error",
             'message': "No se pudo completar el registro del organismo.",
             'data': None
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
         
 # direccion general creacion   
@@ -297,7 +298,7 @@ def create_general_directorate(request):
             'status': "error",
             'message': "No se pudo completar el registro de la Dirección General.",
             'data': None
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
    
  #  CREACION DE DIRECCION DE LINEA 
 @extend_schema(
@@ -324,7 +325,7 @@ def create_line_directorate(request):
             'status': "error",
             'message': "No se pudo completar el registro de la Dirección de Línea",
             'data': None
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
+        }, status=status.HTTP_400_BAD_REQUEST)    
 @extend_schema(
     tags=["Recursos Humanos - Dependencia"],
     summary="Creacion de Coordinacion",
@@ -350,7 +351,7 @@ def create_coordination(request):
             'status': "error",
             'message': "No se pudo completar el registro de la Coordinación",
             'data': None
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
   
 
@@ -389,7 +390,7 @@ def list_employees_active(request):
             'status': "error",
             'message': "No se pudo recuperar la lista de empleados.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 @extend_schema(
     tags=["Asignacion de Cargos"],
@@ -432,7 +433,7 @@ def get_employee_by_id(request, cedulaidentidad):
             'status': "error",
             'message': "Ocurrió un error al procesar la búsqueda del empleado.",
             'data': None
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
         
 
@@ -467,7 +468,7 @@ def list_general_work_codes(request):
             'status': "error",
             'message': "No se pudo recuperar la lista de códigos generales.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
  
  
 # LISTA SOLO LOS CODIGOS VACANTES
@@ -506,7 +507,7 @@ def list_vacant_work_codes(request):
             'status': "error",
             'message': "No se pudo recuperar la lista de códigos de vacantes.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
 # lista de cargos vacantes por su direccion general
 @extend_schema(
@@ -547,7 +548,7 @@ def list_vacant_codes_by_general_directorate(request, general_id):
             'status': "error",
             'message': "No se pudieron recuperar las vacantes de la dirección.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
 @extend_schema(
     tags=["Gestion de Cargos"],
@@ -586,7 +587,7 @@ def list_vacant_codes_by_line_directorate(request, line_id):
             'status': "error",
             'message': "No se pudieron recuperar las vacantes de esta dirección de línea.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)  
+        }, status=status.HTTP_400_BAD_REQUEST)  
 
 @extend_schema(
     tags=["Gestion de Cargos"],
@@ -625,7 +626,7 @@ def list_vacant_codes_by_coordination(request, coordination_id):
             'status': "error",
             'message': "No se pudieron recuperar las vacantes de esta coordinación.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
              
 # DATOS PERFIL
@@ -653,7 +654,7 @@ def list_genders(request):
             'status': "error",
             'message': "No se pudieron recuperar los datos de sexo.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
 
 @extend_schema(
@@ -679,7 +680,7 @@ def list_marital_statuses(request):
             'status': "error",
             'message': "No se pudo recuperar la información de estados civiles.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 
 # DATOS ACADEMICOS 
@@ -707,7 +708,7 @@ def list_academic_levels(request):
             'status': "error",
             'message': "No se pudo recuperar la lista de niveles académicos.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
         
 @extend_schema(
@@ -733,7 +734,7 @@ def list_careers(request):
             'status': "error",
             'message': "No se pudo recuperar la lista de carreras.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
         
 @extend_schema(
@@ -766,7 +767,7 @@ def list_career_specializations(request, carrera_id):
             'status': 'error',
             'message': 'Ocurrió un error inesperado al recuperar las menciones.',
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
 
 
@@ -793,7 +794,7 @@ def list_housing_conditions(request):
             'status': "error",
             'message': "No se pudo recuperar la lista de condiciones de vivienda.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 # DATOS DE VESTIMENTA
 @extend_schema(
@@ -819,7 +820,7 @@ def list_shirt_sizes(request):
             'status': "error",
             'message': "No se pudo recuperar la lista de tallas de camisas.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 @extend_schema(
     tags=["Recursos Humanos - Datos Fisicos"],
@@ -845,7 +846,7 @@ def list_pant_sizes(request):
             'status': "error",
             'message': "No se pudo recuperar la lista de tallas de pantalones.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 
 @extend_schema(
@@ -872,7 +873,7 @@ def list_shoe_sizes(request):
             'status': "error",
             'message': "No se pudo recuperar la lista de tallas de calzado.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 # DATOS DE SALUD  
 
@@ -899,7 +900,7 @@ def list_blood_types(request):
             'status': "error",
             'message': "No se pudo recuperar la información de grupos sanguíneos.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
  
 @extend_schema(
@@ -925,7 +926,7 @@ def list_pathology_categories(request):
             'status': "error",
             'message': "No se pudo recuperar la lista de categorías.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
      
            
 @extend_schema(
@@ -951,7 +952,7 @@ def list_chronic_pathologies(request):
             'status': "error",
             'message': "No se pudo recuperar la información de patologías.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
         
 @extend_schema(
@@ -977,7 +978,7 @@ def list_disability_categories(request):
             'status': "error",
             'message': "No se pudo recuperar la lista de categorías de discapacidad.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
 
 @extend_schema(
@@ -1003,7 +1004,7 @@ def list_disabilities(request):
             'status': "error",
             'message': "No se pudo recuperar la lista de discapacidades.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
         
         
@@ -1111,7 +1112,7 @@ def list_line_directorates_by_general(request, general_id):
             'status': "error",
             'message': "Ocurrió un error al recuperar las Direcciones de Línea.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
         
 @extend_schema(
@@ -1139,7 +1140,7 @@ def list_coordinations_by_line(request, line_id):
             'status': "error",
             'message': "Ocurrió un error al recuperar las coordinaciones.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
  
 @extend_schema(
@@ -1165,7 +1166,7 @@ def list_subsidiary_organisms(request):
             'status': "error",
             'message': "No se pudo recuperar la lista de organismos adscritos.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)  
+        }, status=status.HTTP_400_BAD_REQUEST)  
       
 # CARGOS 
 @extend_schema(
@@ -1191,7 +1192,7 @@ def list_position_denominations(request):
             'status': "error",
             'message': "No se pudo recuperar la lista de denominaciones de cargos.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
 @extend_schema(
     tags=["Recursos Humanos - Datos para Cargo"],
@@ -1216,7 +1217,7 @@ def list_specific_position_denominations(request):
             'status': "error",
             'message': "No se pudo recuperar la lista de cargos específicos.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
         
 @extend_schema(
@@ -1242,7 +1243,7 @@ def list_job_grades(request):
             'status': "error",
             'message': "No se pudo recuperar la lista de grados.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 # NOMINAS
 @extend_schema(
@@ -1269,7 +1270,7 @@ def list_payroll_types(request):
             'status': "error",
             'message': "No se pudo recuperar la lista de tipos de nómina.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
 @extend_schema(
     tags=["Recursos Humanos - Datos para Cargo"],
@@ -1296,7 +1297,7 @@ def list_active_payroll_types(request):
             'status': "error",
             'message': "Ocurrió un error al consultar los tipos de nómina.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
 @extend_schema(
     tags=["Recursos Humanos - Datos para Cargo"],
@@ -1322,7 +1323,7 @@ def list_special_payroll_types(request):
             'status': "error",
             'message': "No se pudo recuperar la lista de nóminas especiales.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)      
+        }, status=status.HTTP_400_BAD_REQUEST)      
  
        
 @extend_schema(
@@ -1349,7 +1350,7 @@ def list_retired_payroll_types(request):
             'status': "error",
             'message': "Error al recuperar las nóminas de personal pasivo.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
 
 # ESTATUS 
@@ -1382,7 +1383,7 @@ def list_exit_statuses(request):
             'status': "error",
             'message': "Error al recuperar los estatus de egreso.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
 @extend_schema(
     tags=["Recursos Humanos - Gestion de estatus"],
@@ -1411,6 +1412,6 @@ def list_management_statuses(request):
             'status': "error",
             'message': "No se pudo recuperar la lista de estatus de gestión.",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
         

@@ -50,7 +50,7 @@ def list_estados_by_region(request, region_id):
             'status': "error",
             'message': "Ocurrio un error al recuperar los estados de esta region",
             'data': []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)  
+        }, status=status.HTTP_400_BAD_REQUEST)  
         
         
          
