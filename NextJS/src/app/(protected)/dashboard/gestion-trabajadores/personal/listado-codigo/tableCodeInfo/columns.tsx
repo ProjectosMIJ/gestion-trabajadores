@@ -148,7 +148,7 @@ export const columnsCode: ColumnDef<Code>[] = [
             {status}
           </Badge>
         );
-      return <Badge variant={"destructive"}>status</Badge>;
+      return <Badge variant={"destructive"}>{status}</Badge>;
     },
   },
   {
