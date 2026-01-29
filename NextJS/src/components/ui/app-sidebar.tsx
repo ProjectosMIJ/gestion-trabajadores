@@ -50,7 +50,7 @@ const items = [
   },
   {
     permission: {
-      roleAccept: ["basic", "admin"],
+      roleAccept: ["admin"],
       departmentAccept: ["RAC"],
     },
     title: "Personal Trabajador",
@@ -77,7 +77,7 @@ const items = [
   },
   {
     permission: {
-      roleAccept: ["basic", "admin"],
+      roleAccept: ["admin"],
       departmentAccept: ["RAC"],
     },
     title: "Dependencias",
@@ -103,7 +103,7 @@ const items = [
   },
   {
     permission: {
-      roleAccept: ["basic", "admin"],
+      roleAccept: ["admin"],
       departmentAccept: ["RAC"],
     },
     title: "Gestion De Codigos",
@@ -124,7 +124,7 @@ const items = [
   },
   {
     permission: {
-      roleAccept: ["basic", "admin"],
+      roleAccept: ["admin"],
       departmentAccept: ["RAC"],
     },
     title: "Movimientos",
@@ -160,6 +160,10 @@ const items = [
   },
 
   {
+    permission: {
+      roleAccept: ["basic", "admin"],
+      departmentAccept: ["RAC"],
+    },
     icon: BarChart3,
     title: "Reportes",
     url: "#",
