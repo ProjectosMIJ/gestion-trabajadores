@@ -144,7 +144,6 @@ export default function ReportEmployee() {
     municipalityId ? ["parish", municipalityId] : null,
     async () => await getParish(municipalityId!),
   );
-  const isBasic = session?.user?.role === "basic";
 
   const form = useForm({
     resolver: zodResolver(schemaReportFamily),
@@ -154,22 +153,10 @@ export default function ReportEmployee() {
       tipo_reporte: "lista",
       filtros: {
         condicion_vivienda_id: undefined,
-        dependencia_id: isBasic
-          ? Number.parseInt(session?.user.dependency.id)
-          : undefined,
-        direccion_general_id: isBasic
-          ? Number.parseInt(session?.user.directionGeneral.id)
-          : undefined,
-        direccion_linea_id: isBasic
-          ? session?.user.direccionLine?.id
-            ? Number.parseInt(session?.user.direccionLine?.id)
-            : undefined
-          : null,
-        coordinacion_id: isBasic
-          ? session?.user.coordination?.id
-            ? Number.parseInt(session?.user.coordination?.id)
-            : undefined
-          : null,
+        dependencia_id: undefined,
+        direccion_general_id: undefined,
+        direccion_linea_id: undefined,
+        coordinacion_id: undefined,
         discapacidades_id: undefined,
         edad_empleado_max: undefined,
         edad_empleado_min: undefined,
@@ -189,20 +176,31 @@ export default function ReportEmployee() {
       },
     },
   });
-  const onSubmit = (data: SchemaReportFamilyType) => {
-    startTransition(async () => {
-      const reponse = await postReport<SchemaReportFamilyType, Family[] | null>(
-        data,
-      );
-      setReportListFamilys(reponse);
-      form.reset();
-    });
-  };
   if (!session) {
     return (
       <Loading promiseMessage="Validando Sesion Para Generar El Reporte" />
     );
   }
+  const onSubmit = (data: SchemaReportFamilyType) => {
+    const payload = {
+      ...data,
+      filtros: {
+        dependencia_id: Number(session.user.dependency?.id) || undefined,
+        direccion_general_id:
+          Number(session.user.directionGeneral?.id) || undefined,
+        direccion_linea_id: Number(session.user.direccionLine?.id) || null,
+        coordinacion_id: Number(session.user.coordination?.id) || null,
+      },
+    };
+    startTransition(async () => {
+      const reponse = await postReport<SchemaReportFamilyType, Family[] | null>(
+        payload,
+      );
+      setReportListFamilys(reponse);
+      form.reset();
+    });
+  };
+
   return (
     <Card>
       <CardContent>

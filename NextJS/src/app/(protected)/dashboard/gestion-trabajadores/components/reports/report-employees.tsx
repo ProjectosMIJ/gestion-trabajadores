@@ -173,7 +173,6 @@ export default function ReportEmployee() {
     "reportEmployee",
     async () => await getReportConfigEmployee(),
   );
-  const isBasic = session?.user?.role === "basic";
 
   const {
     data: conditionDwelling,
@@ -186,22 +185,10 @@ export default function ReportEmployee() {
       agrupar_por: "direccion_general",
       tipo_reporte: "lista",
       filtros: {
-        dependencia_id: isBasic
-          ? Number.parseInt(session?.user.dependency.id)
-          : undefined,
-        direccion_general_id: isBasic
-          ? Number.parseInt(session?.user.directionGeneral.id)
-          : undefined,
-        direccion_linea_id: isBasic
-          ? session?.user.direccionLine?.id
-            ? Number.parseInt(session?.user.direccionLine?.id)
-            : undefined
-          : null,
-        coordinacion_id: isBasic
-          ? session?.user.coordination?.id
-            ? Number.parseInt(session?.user.coordination?.id)
-            : undefined
-          : null,
+        dependencia_id: undefined,
+        direccion_general_id: undefined,
+        direccion_linea_id: undefined,
+        coordinacion_id: undefined,
         sexo_id: undefined,
         discapacidad_id: undefined,
         grupo_sanguineo_id: undefined,
@@ -235,11 +222,21 @@ export default function ReportEmployee() {
     );
   }
   const onSubmit = (data: SchemaReportEmployeeType) => {
+    const payload = {
+      ...data,
+      filtros: {
+        dependencia_id: Number(session.user.dependency?.id) || undefined,
+        direccion_general_id:
+          Number(session.user.directionGeneral?.id) || undefined,
+        direccion_linea_id: Number(session.user.direccionLine?.id) || null,
+        coordinacion_id: Number(session.user.coordination?.id) || null,
+      },
+    };
     startTransition(async () => {
       const reponse = await postReport<
         SchemaReportEmployeeType,
         EmployeeData[] | null
-      >(data);
+      >(payload);
       setReportListEmployee(reponse);
       form.reset();
     });

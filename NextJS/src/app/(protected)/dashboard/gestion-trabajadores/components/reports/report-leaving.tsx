@@ -108,7 +108,6 @@ export default function ReportLeaving() {
     "reportLeaving",
     async () => await getReportConfigLeaving(),
   );
-  const isBasic = session?.user?.role === "basic";
 
   const form = useForm({
     resolver: zodResolver(schemaReportLeaving),
@@ -117,22 +116,11 @@ export default function ReportLeaving() {
       agrupar_por: "direccion_general",
       tipo_reporte: "lista",
       filtros: {
-        dependencia_id: isBasic
-          ? Number.parseInt(session?.user.dependency.id)
-          : undefined,
-        direccion_general_id: isBasic
-          ? Number.parseInt(session?.user.directionGeneral.id)
-          : undefined,
-        direccion_linea_id: isBasic
-          ? session?.user.direccionLine?.id
-            ? Number.parseInt(session?.user.direccionLine?.id)
-            : undefined
-          : null,
-        coordinacion_id: isBasic
-          ? session?.user.coordination?.id
-            ? Number.parseInt(session?.user.coordination?.id)
-            : undefined
-          : null,
+        dependencia_id: undefined,
+        direccion_general_id: undefined,
+        direccion_linea_id: undefined,
+
+        coordinacion_id: undefined,
         sexo_id: undefined,
         nomina_id: undefined,
         grado_id: undefined,
@@ -141,21 +129,32 @@ export default function ReportLeaving() {
       },
     },
   });
-  const onSubmit = (data: SchemaReportLeavingType) => {
-    startTransition(async () => {
-      const reponse = await postReport<
-        SchemaReportLeavingType,
-        Leaving[] | null
-      >(data);
-      setReportListLeaving(reponse);
-      form.reset();
-    });
-  };
   if (!session) {
     return (
       <Loading promiseMessage="Validando Sesion Para Generar El Reporte"></Loading>
     );
   }
+  const onSubmit = (data: SchemaReportLeavingType) => {
+    const payload = {
+      ...data,
+      filtros: {
+        dependencia_id: Number(session.user.dependency?.id) || undefined,
+        direccion_general_id:
+          Number(session.user.directionGeneral?.id) || undefined,
+        direccion_linea_id: Number(session.user.direccionLine?.id) || null,
+        coordinacion_id: Number(session.user.coordination?.id) || null,
+      },
+    };
+    startTransition(async () => {
+      const reponse = await postReport<
+        SchemaReportLeavingType,
+        Leaving[] | null
+      >(payload);
+      setReportListLeaving(reponse);
+      form.reset();
+    });
+  };
+
   return (
     <Card>
       <CardContent>

@@ -105,7 +105,6 @@ export default function ReportCode() {
     "reportLeaving",
     async () => await getReportConfigLeaving(),
   );
-  const isBasic = session?.user?.role === "basic";
   const form = useForm({
     resolver: zodResolver(schemaReportCode),
     defaultValues: {
@@ -113,22 +112,10 @@ export default function ReportCode() {
       agrupar_por: "tipo_nomina",
       tipo_reporte: "lista",
       filtros: {
-        dependencia_id: isBasic
-          ? Number.parseInt(session?.user.dependency.id)
-          : undefined,
-        direccion_general_id: isBasic
-          ? Number.parseInt(session?.user.directionGeneral.id)
-          : undefined,
-        direccion_linea_id: isBasic
-          ? session?.user.direccionLine?.id
-            ? Number.parseInt(session?.user.direccionLine?.id)
-            : undefined
-          : null,
-        coordinacion_id: isBasic
-          ? session?.user.coordination?.id
-            ? Number.parseInt(session?.user.coordination?.id)
-            : undefined
-          : null,
+        dependencia_id: undefined,
+        direccion_general_id: undefined,
+        direccion_linea_id: undefined,
+        coordinacion_id: undefined,
         nomina_id: undefined,
         grado_id: undefined,
         cargo_id: undefined,
@@ -137,20 +124,31 @@ export default function ReportCode() {
       },
     },
   });
-  const onSubmit = (data: SchemaReportCodeType) => {
-    startTransition(async () => {
-      const reponse = await postReport<SchemaReportCodeType, Code[] | null>(
-        data,
-      );
-      setReportListCode(reponse);
-      form.reset();
-    });
-  };
   if (!session) {
     return (
       <Loading promiseMessage="Validando Sesion Para Generar El Reporte"></Loading>
     );
   }
+  const onSubmit = (data: SchemaReportCodeType) => {
+    const payload = {
+      ...data,
+      filtros: {
+        dependencia_id: Number(session.user.dependency?.id) || undefined,
+        direccion_general_id:
+          Number(session.user.directionGeneral?.id) || undefined,
+        direccion_linea_id: Number(session.user.direccionLine?.id) || null,
+        coordinacion_id: Number(session.user.coordination?.id) || null,
+      },
+    };
+    startTransition(async () => {
+      const reponse = await postReport<SchemaReportCodeType, Code[] | null>(
+        payload,
+      );
+      setReportListCode(reponse);
+      form.reset();
+    });
+  };
+
   return (
     <Card>
       <CardContent>
