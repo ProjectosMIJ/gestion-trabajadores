@@ -84,9 +84,9 @@ WSGI_APPLICATION = 'SIGEP.wsgi.application'
 DATABASES = {
     'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            "NAME":"SIGEP",
+            "NAME":"SIGEP2",
             "USER": "postgres",
-            "PASSWORD": "3054=HitM",
+            "PASSWORD": "admin",
             "PORT": "5432",       
     }
 }

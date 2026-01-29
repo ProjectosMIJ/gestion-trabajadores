@@ -6,11 +6,8 @@ from RAC.serializers.personal_serializers import (
     EmployeeDetailSerializer, ListerCodigosSerializer
 )
 from RAC.serializers.historial_personal_serializers import PersonalEgresadoSerializer
-from RAC.serializers.report_serializers import  ReporteFamiliarAgrupadoSerializer
+from RAC.serializers.report_serializers import ReporteFamiliarAgrupadoSerializer
 from RAC.services.constants import ESTATUS_ACTIVO
-
-
-
 
 class ReporteService:
     @classmethod
@@ -25,7 +22,8 @@ class ReporteService:
 
         if categoria in ['familiares', 'empleados']:
             queryset = queryset.filter(assignments__estatusid__estatus=ESTATUS_ACTIVO)
-
+        
+   
         queryset = queryset.filter(**{f"{campo_db}__isnull": False}).distinct()
 
         if tipo_reporte == 'conteo':
@@ -34,7 +32,7 @@ class ReporteService:
                 total=Count(target_count, distinct=True)
             ).order_by('-total'))
 
-        return cls._obtener_data_detallada(queryset, categoria, filtros_finales)
+        return cls._obtener_data_detallada(queryset, categoria, filtros)
 
     @staticmethod
     def _procesar_filtros(filtros, permitidos):
@@ -119,7 +117,7 @@ class ReporteService:
 
         queryset = queryset.filter(carga_familiar__isnull=False).prefetch_related(
             Prefetch('assignments', queryset=AsigModel.objects.filter(
-                estatusid__estatus="ACTIVO"
+                estatusid__estatus=ESTATUS_ACTIVO
             ).select_related('denominacioncargoid', 'tiponominaid', 'DireccionGeneral')),
             Prefetch('carga_familiar', queryset=fam_prefetch)
         )
