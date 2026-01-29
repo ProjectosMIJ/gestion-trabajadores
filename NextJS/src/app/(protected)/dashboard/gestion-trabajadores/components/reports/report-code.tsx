@@ -113,8 +113,8 @@ export default function ReportCode() {
       tipo_reporte: "lista",
       filtros: {
         dependencia_id: undefined,
-        direccion_general_id: undefined,
-        direccion_linea_id: undefined,
+        general_id: undefined,
+        linea_id: undefined,
         coordinacion_id: undefined,
         nomina_id: undefined,
         grado_id: undefined,
@@ -133,11 +133,22 @@ export default function ReportCode() {
     const payload = {
       ...data,
       filtros: {
-        dependencia_id: Number(session.user.dependency?.id) || undefined,
-        direccion_general_id:
-          Number(session.user.directionGeneral?.id) || undefined,
-        direccion_linea_id: Number(session.user.direccionLine?.id) || null,
-        coordinacion_id: Number(session.user.coordination?.id) || null,
+        dependencia_id:
+          session.user.role !== "admin"
+            ? Number(session.user.dependency?.id)
+            : undefined,
+        general_id:
+          session.user.role !== "admin"
+            ? Number(session.user.directionGeneral?.id)
+            : undefined,
+        linea_id:
+          session.user.role !== "admin"
+            ? Number(session.user.direccionLine?.id)
+            : null,
+        coordinacion_id:
+          session.user.role !== "admin"
+            ? Number(session.user.coordination?.id)
+            : null,
       },
     };
     startTransition(async () => {
@@ -234,7 +245,7 @@ export default function ReportCode() {
                     />
                     <FormField
                       control={form.control}
-                      name="filtros.direccion_general_id"
+                      name="filtros.general_id"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Dirección General</FormLabel>
@@ -265,7 +276,7 @@ export default function ReportCode() {
                     />
                     <FormField
                       control={form.control}
-                      name="filtros.direccion_linea_id"
+                      name="filtros.linea_id"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>Dirección De Linea</FormLabel>

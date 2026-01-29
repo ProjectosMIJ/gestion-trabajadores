@@ -7,7 +7,7 @@ import {
   Text,
   View,
 } from "@react-pdf/renderer";
-import cintillo from "$/cintillo.jpg";
+import cintillo from "$/cintillo2.png";
 import juntosPorVida from "$/juntosPorVida.png";
 import logoOAC from "$/logoOAC.png";
 // Tipos para las listas
@@ -295,21 +295,21 @@ export function ReportFamilyPDF({ employeeData }: { employeeData: Family[] }) {
                 <View style={styles.row}>
                   <Text style={styles.label}>Cargo:</Text>
                   <Text style={styles.value}>
-                    {/* {empleado.denominacion_cargo?.denominacion_cargo || "N/A"} */}
+                    {empleado.denominacion_cargo?.cargo ?? "N/A"}
                   </Text>
                 </View>
 
                 <View style={styles.row}>
                   <Text style={styles.label}>Cargo Específico:</Text>
                   <Text style={styles.value}>
-                    {/* {empleado.denominacion_cargo_especifico?.denominacion_cargo || "N/A"} */}
+                    {empleado.denominacion_cargo_especifico?.cargo ?? "N/A"}
                   </Text>
                 </View>
 
                 <View style={styles.row}>
                   <Text style={styles.label}>Nómina:</Text>
                   <Text style={styles.value}>
-                    {/* {empleado.tipo_nomina?.tipo_nomina || "N/A"} */}
+                    {empleado.tipo_nomina?.nomina ?? "N/A"}
                   </Text>
                 </View>
               </View>
@@ -417,8 +417,8 @@ export function ReportFamilyPDF({ employeeData }: { employeeData: Family[] }) {
                 <Text style={styles.footerText}>
                   Documento confidencial - Uso exclusivo para fines
                   administrativos - Página del familiar{" "}
-                  {familiar.primer_nombre || ""}{" "}
-                  {familiar.primer_apellido || ""}
+                  {familiar.primer_nombre ?? ""}{" "}
+                  {familiar.primer_apellido ?? ""}
                 </Text>
               </View>
 
@@ -436,7 +436,7 @@ export function ReportFamilyPDF({ employeeData }: { employeeData: Family[] }) {
                     <View style={styles.row}>
                       <Text style={styles.label}>Cédula:</Text>
                       <Text style={styles.value}>
-                        {familiar.cedulaFamiliar || "N/A"}
+                        {familiar.cedulaFamiliar ?? "N/A"}
                       </Text>
                     </View>
 
@@ -455,7 +455,7 @@ export function ReportFamilyPDF({ employeeData }: { employeeData: Family[] }) {
                     <View style={styles.row}>
                       <Text style={styles.label}>Parentesco:</Text>
                       <Text style={styles.value}>
-                        {familiar.parentesco?.descripcion_parentesco || "N/A"}
+                        {familiar.parentesco?.descripcion_parentesco ?? "N/A"}
                       </Text>
                     </View>
 
@@ -469,14 +469,14 @@ export function ReportFamilyPDF({ employeeData }: { employeeData: Family[] }) {
                     <View style={styles.row}>
                       <Text style={styles.label}>Sexo:</Text>
                       <Text style={styles.value}>
-                        {familiar.sexo?.sexo || "N/A"}
+                        {familiar.sexo?.sexo ?? "N/A"}
                       </Text>
                     </View>
 
                     <View style={styles.row}>
                       <Text style={styles.label}>Estado Civil:</Text>
                       <Text style={styles.value}>
-                        {familiar.estadoCivil?.estadoCivil || "N/A"}
+                        {familiar.estadoCivil?.estadoCivil ?? "N/A"}
                       </Text>
                     </View>
 
@@ -505,7 +505,7 @@ export function ReportFamilyPDF({ employeeData }: { employeeData: Family[] }) {
                       <Text style={styles.label}>Grupo Sanguíneo:</Text>
                       <Text style={styles.value}>
                         {familiar.perfil_salud_familiar?.grupoSanguineo
-                          ?.GrupoSanguineo || "N/A"}
+                          ?.GrupoSanguineo ?? "N/A"}
                       </Text>
                     </View>
 
@@ -535,11 +535,17 @@ export function ReportFamilyPDF({ employeeData }: { employeeData: Family[] }) {
 
                     <View style={styles.row}>
                       <Text style={styles.label}>Tallas:</Text>
-                      {/* <Text style={styles.value}>
-                      Camisa: {familiar.perfil_fisico_familiar?.tallaCamisa?.tallaCamisa || "N/A"} | 
-                      Pantalón: {familiar.perfil_fisico_familiar?.tallaPantalon?.tallaPantalon || "N/A"} | 
-                      Zapatos: {familiar.perfil_fisico_familiar?.tallaZapatos?.tallaZapatos || "N/A"}
-                    </Text> */}
+                      <Text style={styles.value}>
+                        Camisa:{" "}
+                        {familiar.perfil_fisico_familiar?.tallaCamisa?.talla ??
+                          "N/A"}{" "}
+                        | Pantalón:{" "}
+                        {familiar.perfil_fisico_familiar?.tallaPantalon
+                          ?.talla ?? "N/A"}{" "}
+                        | Zapatos:{" "}
+                        {familiar.perfil_fisico_familiar?.tallaZapatos?.talla ??
+                          "N/A"}
+                      </Text>
                     </View>
                   </View>
                 </View>
@@ -552,16 +558,15 @@ export function ReportFamilyPDF({ employeeData }: { employeeData: Family[] }) {
                     <View style={styles.row}>
                       <Text style={styles.label}>Nivel:</Text>
                       <Text style={styles.value}>
-                        {/* {familiar.formacion_academica_familiar?.nivelAcademico?.nivelAcademico?.nivelacademico ||
-                       familiar.formacion_academica_familiar?.nivelAcademico?.nivelacademico ||
-                       "N/A"} */}
+                        {familiar.formacion_academica_familiar?.nivelAcademico
+                          ?.nivelAcademico?.nivelacademico ?? "N/A"}
                       </Text>
                     </View>
 
                     <View style={styles.row}>
                       <Text style={styles.label}>Institución:</Text>
                       <Text style={styles.value}>
-                        {familiar.formacion_academica_familiar?.institucion ||
+                        {familiar.formacion_academica_familiar?.institucion ??
                           "N/A"}
                       </Text>
                     </View>
@@ -569,18 +574,16 @@ export function ReportFamilyPDF({ employeeData }: { employeeData: Family[] }) {
                     <View style={styles.row}>
                       <Text style={styles.label}>Carrera:</Text>
                       <Text style={styles.value}>
-                        {/* {familiar.formacion_academica_familiar?.carrera?.nombre_carrera ||
-                       familiar.formacion_academica_familiar?.carrera?.carrera?.nombre_carrera ||
-                       "N/A"} */}
+                        {familiar.formacion_academica_familiar?.carrera
+                          ?.nombre_carrera ?? "N/A"}
                       </Text>
                     </View>
 
                     <View style={styles.row}>
                       <Text style={styles.label}>Mención:</Text>
                       <Text style={styles.value}>
-                        {/* {familiar.formacion_academica_familiar?.mencion?.nombre_mencion ||
-                       familiar.formacion_academica_familiar?.mencion?.mension?.nombre_mencion ||
-                       "N/A"} */}
+                        {familiar.formacion_academica_familiar?.mencion
+                          ?.nombre_mencion ?? "N/A"}
                       </Text>
                     </View>
 

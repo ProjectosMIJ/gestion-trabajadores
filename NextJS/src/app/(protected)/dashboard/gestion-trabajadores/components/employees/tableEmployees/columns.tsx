@@ -243,43 +243,23 @@ export const columns: ColumnDef<EmployeeData>[] = [
                                 </TableRow>
                               </TableHeader>
                               <TableBody>
-                                {(() => {
-                                  let totalYears = 0;
-                                  employee.antecedentes.map((v: Background) => {
-                                    if (!v.fecha_ingreso || !v.fecha_egreso)
-                                      return;
-
-                                    const start = new Date(v.fecha_ingreso);
-                                    const end = new Date(v.fecha_egreso);
-                                    const years =
-                                      (end.getTime() - start.getTime()) /
-                                      (1000 * 60 * 60 * 24 * 365);
-                                    totalYears += years;
-                                  });
-                                  return (
-                                    <>
-                                      {employee.antecedentes.map((v, i) => (
-                                        <TableRow key={i}>
-                                          <TableCell className="font-medium">
-                                            {v.fecha_ingreso}
-                                          </TableCell>
-                                          <TableCell>
-                                            {v.fecha_egreso}
-                                          </TableCell>
-                                          <TableCell>{v.institucion}</TableCell>
-                                        </TableRow>
-                                      ))}
-                                      <TableRow>
-                                        <TableCell
-                                          colSpan={3}
-                                          className="text-right font-bold"
-                                        >
-                                          Total años: {Math.round(totalYears)}
-                                        </TableCell>
-                                      </TableRow>
-                                    </>
-                                  );
-                                })()}
+                                {employee.antecedentes.map((v, i) => (
+                                  <TableRow key={i}>
+                                    <TableCell className="font-medium">
+                                      {v.fecha_ingreso}
+                                    </TableCell>
+                                    <TableCell>{v.fecha_egreso}</TableCell>
+                                    <TableCell>{v.institucion}</TableCell>
+                                  </TableRow>
+                                ))}
+                                <TableRow>
+                                  <TableCell
+                                    colSpan={3}
+                                    className="text-right font-bold"
+                                  >
+                                    Total años: {employee.anos_apn}
+                                  </TableCell>
+                                </TableRow>
                               </TableBody>
                             </Table>
                           </CardContent>
@@ -295,21 +275,29 @@ export const columns: ColumnDef<EmployeeData>[] = [
                         <CardContent>
                           <div className="grid grid-cols-2 place-content-center">
                             <div>Estado:</div>
-                            <div>{employee.datos_vivienda.estado.estado}</div>
+                            <div>
+                              {employee.datos_vivienda?.estado?.estado ?? "N/A"}
+                            </div>
                             <div>Municipio:</div>
                             <div>
-                              {employee.datos_vivienda.municipio.municipio}
+                              {employee.datos_vivienda?.municipio?.municipio ??
+                                "N/A"}
                             </div>
                             <div>Parroquia:</div>
                             <div>
-                              {employee.datos_vivienda.parroquia.parroquia}
+                              {employee.datos_vivienda?.parroquia?.parroquia ??
+                                "N/A"}
                             </div>
                             <div>Condicion De Vivienda:</div>
                             <div>
-                              {employee.datos_vivienda.condicion.condicion}
+                              {employee.datos_vivienda?.condicion?.condicion ??
+                                "N/A"}
                             </div>
                             <div>Direccion De Habitación:</div>
-                            <div>{employee.datos_vivienda.direccionExacta}</div>
+                            <div>
+                              {employee.datos_vivienda?.direccionExacta ??
+                                "N/A"}
+                            </div>
                           </div>
                         </CardContent>
                       </Card>
@@ -323,35 +311,29 @@ export const columns: ColumnDef<EmployeeData>[] = [
                           <div className="grid grid-cols-2 place-content-center">
                             <div>Nivel Academico:</div>
                             <div>
-                              {employee.formacion_academica.nivelAcademico
-                                ? employee.formacion_academica.nivelAcademico
-                                    .nivelacademico
-                                : "N/A"}
+                              {employee.formacion_academica?.nivelAcademico
+                                ?.nivelacademico ?? "N/A"}
                             </div>
                             <div>Carrera:</div>
                             <div>
-                              {employee.formacion_academica.nivelAcademico
-                                ? employee.formacion_academica.carrera
-                                    ?.nombre_carrera
-                                : "N/A"}
+                              {employee.formacion_academica?.carrera
+                                ?.nombre_carrera ?? "N/A"}
                             </div>
                             <div>Mención:</div>
                             <div>
-                              {employee.formacion_academica.nivelAcademico
-                                ? employee.formacion_academica.mension
-                                    ?.nombre_mencion
-                                : "N/A"}
+                              {employee.formacion_academica?.mension
+                                ?.nombre_mencion ?? "N/A"}
                             </div>
                             <div>Institucion:</div>
                             <div>
-                              {employee.formacion_academica.nivelAcademico
-                                ? employee.formacion_academica.institucion
-                                : "N/A"}
+                              {employee.formacion_academica?.institucion ??
+                                "N/A"}
                             </div>
 
                             <div>Capacitación</div>
                             <div>
-                              {employee.formacion_academica.capacitacion}
+                              {employee.formacion_academica?.capacitacion ??
+                                "N/A"}
                             </div>
                           </div>
                         </CardContent>
@@ -367,24 +349,21 @@ export const columns: ColumnDef<EmployeeData>[] = [
                           <div className="grid grid-cols-2 place-content-center">
                             <div>Talla De Camisa:</div>
                             <div>
-                              {employee.perfil_fisico?.tallaCamisa != null
-                                ? employee.perfil_fisico.tallaCamisa.talla
-                                : "N/A"}
+                              {employee.perfil_fisico?.tallaCamisa?.talla ??
+                                "N/A"}
                             </div>
                             <div>Talla de Pantalon:</div>
                             <div>
                               <div>
-                                {employee.perfil_fisico?.tallaPantalon != null
-                                  ? employee.perfil_fisico.tallaPantalon.talla
-                                  : "N/A"}
+                                {employee.perfil_fisico?.tallaPantalon?.talla ??
+                                  "N/A"}
                               </div>
                             </div>
                             <div>Talla De Calzado:</div>
                             <div>
                               <div>
-                                {employee.perfil_fisico?.tallaZapatos != null
-                                  ? employee.perfil_fisico.tallaZapatos.talla
-                                  : "N/A"}
+                                {employee.perfil_fisico?.tallaZapatos?.talla ??
+                                  "N/A"}
                               </div>
                             </div>
                           </div>

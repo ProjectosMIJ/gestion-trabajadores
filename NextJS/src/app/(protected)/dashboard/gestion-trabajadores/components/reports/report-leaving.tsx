@@ -138,11 +138,22 @@ export default function ReportLeaving() {
     const payload = {
       ...data,
       filtros: {
-        dependencia_id: Number(session.user.dependency?.id) || undefined,
+        dependencia_id:
+          session.user.role !== "admin"
+            ? Number(session.user.dependency?.id)
+            : undefined,
         direccion_general_id:
-          Number(session.user.directionGeneral?.id) || undefined,
-        direccion_linea_id: Number(session.user.direccionLine?.id) || null,
-        coordinacion_id: Number(session.user.coordination?.id) || null,
+          session.user.role !== "admin"
+            ? Number(session.user.directionGeneral?.id)
+            : undefined,
+        direccion_linea_id:
+          session.user.role !== "admin"
+            ? Number(session.user.direccionLine?.id)
+            : null,
+        coordinacion_id:
+          session.user.role !== "admin"
+            ? Number(session.user.coordination?.id)
+            : null,
       },
     };
     startTransition(async () => {

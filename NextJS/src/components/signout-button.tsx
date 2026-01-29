@@ -8,7 +8,7 @@ export function SignOut() {
   return (
     <Button
       variant={"destructive"}
-      onClick={() => signOut({ redirectTo: "/login" })}
+      onClick={() => signOut({ redirectTo: "/" })}
     >
       <LogOut />
     </Button>

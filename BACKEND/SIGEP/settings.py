@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-2vg*3_2nukjc_#ey_ufy_@xkyp5(pkpq34c@fsed28q!3uzxzs
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['172.16.26.48']
 
 
 # Application definition
@@ -59,6 +59,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'SIGEP.urls'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    "http://172.16.26.48:3000"
 ]
 TEMPLATES = [
     {
@@ -84,7 +85,7 @@ WSGI_APPLICATION = 'SIGEP.wsgi.application'
 DATABASES = {
     'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            "NAME":"SIGEP2",
+            "NAME":"SIGEP_PRUEBAS",
             "USER": "postgres",
             "PASSWORD": "admin",
             "PORT": "5432",       
@@ -146,7 +147,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://172.16.24.56:3000",
     "http://192.168.137.22:3000",
     "http://172.22.112.1:3000",
-    "http://172.16.24.46:3000",
+    "http://172.16.26.48:3000",
 ]
 
 CORS_ALLOW_CREDENTIALS = True

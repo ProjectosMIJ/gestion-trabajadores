@@ -205,7 +205,7 @@ export function ReportPDFEmployee({
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Nivel Académico:</Text>
               <Text style={styles.infoValue}>
-                {employee.formacion_academica.nivelAcademico?.nivelacademico ||
+                {employee.formacion_academica?.nivelAcademico?.nivelacademico ??
                   "No especificado"}
               </Text>
             </View>
@@ -213,14 +213,14 @@ export function ReportPDFEmployee({
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Institución:</Text>
               <Text style={styles.infoValue}>
-                {employee.formacion_academica.institucion || "No especificado"}
+                {employee.formacion_academica?.institucion ?? "No especificado"}
               </Text>
             </View>
 
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Carrera:</Text>
               <Text style={styles.infoValue}>
-                {employee.formacion_academica.carrera?.nombre_carrera ||
+                {employee.formacion_academica?.carrera?.nombre_carrera ??
                   "No especificado"}
               </Text>
             </View>
@@ -228,7 +228,7 @@ export function ReportPDFEmployee({
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Mención:</Text>
               <Text style={styles.infoValue}>
-                {employee.formacion_academica.mension?.nombre_mencion ||
+                {employee.formacion_academica?.mension?.nombre_mencion ??
                   "No especificado"}
               </Text>
             </View>
