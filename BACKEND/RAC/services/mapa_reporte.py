@@ -159,10 +159,10 @@ MAPA_REPORTES = {
             "nomina_id": "tiponominaid",
             "grado_id": "gradoid",
             "dependencia_id": "DireccionGeneral__dependenciaId",
-             "general_id": "DireccionGeneral", 
-        "linea_id": "DireccionLinea",     
-        "coordinacion_id": "Coordinacion",
-        "estatus_id": "estatusid",
+            "general_id": "DireccionGeneral", 
+            "linea_id": "DireccionLinea",     
+            "coordinacion_id": "Coordinacion",
+            "estatus_id": "estatusid",
             
         }
     }

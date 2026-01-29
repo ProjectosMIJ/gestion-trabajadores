@@ -41,7 +41,15 @@ class Employeefamily(models.Model):
     updatedat = models.DateTimeField(auto_now=True, db_column='updatedAt')  
     
     
-    class Meta: 
+    class Meta:
+        unique_together = [['employeecedula', 'cedulaFamiliar']]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['employeecedula'], 
+                condition=models.Q(heredero=True),
+                name='unique_heredero_per_employee'
+            )
+        ]
         ordering = ['-updatedat']
         managed = True
         verbose_name = "Employeefamily"

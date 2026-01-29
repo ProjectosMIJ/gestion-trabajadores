@@ -37,7 +37,7 @@ def registrar_familiar(request):
         except Exception as e:
             return Response({
                 "status": "Error",
-                "message": f"Error interno al guardar el registro: {str(e)}",
+                "message": f"Erroral guardar el registro: {str(e)}",
                 "data": []
             }, status=status.HTTP_400_BAD_REQUEST)
     return Response({
@@ -91,7 +91,7 @@ def registrar_familiares_masivo(request):
 
     datos_sucios = request.data
     datos_filtrados = [ item for item in datos_sucios if isinstance(item, dict) and 'cedulaFamiliar' in item ]
-    serializer = FamilyCreateSerializer(data=datos_filtrados, many=True)
+    serializer = FamilyCreateSerializer(data=datos_filtrados, many=True,context={'request': request})
     if serializer.is_valid():
         try:
             with transaction.atomic():
@@ -116,7 +116,8 @@ def registrar_familiares_masivo(request):
         except Exception as e:
             return Response({
                 "status": "Error",
-                "message": "Error al registrar"
+                "message": "Error al registrar - informacion invalidad o duplicada",
+                "error": str(e),
             }, status=status.HTTP_400_BAD_REQUEST)
 
     return Response({

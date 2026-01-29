@@ -1255,7 +1255,7 @@ def list_job_grades(request):
 @api_view(['GET'])
 def list_payroll_types(request):
     try:
-        queryset = Tiponomina.objects.all()
+        queryset = Tiponomina.objects.filter(es_activo=True)
         serializer = TipoNominaGeneralSerializer(queryset, many=True)
         
         return Response({
