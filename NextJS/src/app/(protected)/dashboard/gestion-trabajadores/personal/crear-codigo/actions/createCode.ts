@@ -24,7 +24,7 @@ export async function createCodeAction(values: z.infer<typeof schemaCode>) {
     }
     const payload = { ...values, usuario_id: userId };
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DJANGO_API_URL}empleados-codigo/`,
+      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}empleados-codigo/`,
       {
         method: "POST",
         headers: {

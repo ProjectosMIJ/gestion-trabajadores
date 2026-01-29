@@ -16,7 +16,7 @@ export async function AsignSpecialCode(
 
     const userId = Number.parseInt(session.user.id);
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DJANGO_API_URL}asignacion_CodigoEspecia/`,
+      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}asignacion_CodigoEspecia/`,
       {
         method: "POST",
         headers: {

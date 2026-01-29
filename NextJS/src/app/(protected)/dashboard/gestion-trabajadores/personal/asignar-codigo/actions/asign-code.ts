@@ -19,7 +19,7 @@ export async function AsignCode(values: z.infer<typeof schemaAsignCode>) {
       employee: values.employee,
     };
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DJANGO_API_URL}asignar_codigo/${values.code}/`,
+      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}asignar_codigo/${values.code}/`,
       {
         method: "PATCH",
         headers: {

@@ -17,7 +17,7 @@ export async function updateEmployee(
       };
     }
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DJANGO_API_URL}empleados-actualizar/${cedula}/`,
+      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}empleados-actualizar/${cedula}/`,
       {
         method: "PATCH",
         headers: {

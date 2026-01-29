@@ -17,7 +17,7 @@ export default async function createFamilyActions(
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DJANGO_API_URL}Employeefamily/`,
+      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employeefamily/`,
       {
         method: "POST",
         headers: {

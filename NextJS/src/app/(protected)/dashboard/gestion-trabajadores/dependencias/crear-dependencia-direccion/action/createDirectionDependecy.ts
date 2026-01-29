@@ -15,7 +15,7 @@ export async function createDirectionLine(
     };
   }
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}register-direccionLinea/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}register-direccionLinea/`,
     {
       method: "POST",
       headers: {
@@ -46,7 +46,7 @@ export async function createDirectionCordination(
     };
   }
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}register-Coordinacion/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}register-Coordinacion/`,
     {
       method: "POST",
       headers: {

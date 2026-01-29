@@ -135,32 +135,11 @@ export default function ReportLeaving() {
     );
   }
   const onSubmit = (data: SchemaReportLeavingType) => {
-    const payload = {
-      ...data,
-      filtros: {
-        dependencia_id:
-          session.user.role !== "admin"
-            ? Number(session.user.dependency?.id)
-            : undefined,
-        direccion_general_id:
-          session.user.role !== "admin"
-            ? Number(session.user.directionGeneral?.id)
-            : undefined,
-        direccion_linea_id:
-          session.user.role !== "admin"
-            ? Number(session.user.direccionLine?.id)
-            : null,
-        coordinacion_id:
-          session.user.role !== "admin"
-            ? Number(session.user.coordination?.id)
-            : null,
-      },
-    };
     startTransition(async () => {
       const reponse = await postReport<
         SchemaReportLeavingType,
         Leaving[] | null
-      >(payload);
+      >(data);
       setReportListLeaving(reponse);
       form.reset();
     });

@@ -70,7 +70,7 @@ export async function registerEmployeeSteps(
     };
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DJANGO_API_URL}employees_register/`,
+      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}employees_register/`,
       {
         method: "POST",
         headers: {
@@ -83,7 +83,7 @@ export async function registerEmployeeSteps(
     );
     if (response.ok) {
       await fetch(
-        `${process.env.NEXT_PUBLIC_DJANGO_API_URL}Employeefamily/masivo/`,
+        `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employeefamily/masivo/`,
         {
           method: "POST",
           headers: {

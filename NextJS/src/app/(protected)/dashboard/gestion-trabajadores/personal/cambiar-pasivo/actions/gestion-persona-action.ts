@@ -22,7 +22,7 @@ export default async function GestionAction(
     };
     console.log(payload);
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DJANGO_API_URL}historyEmployee/egreso/${employee}/`,
+      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}historyEmployee/egreso/${employee}/`,
       {
         method: "PATCH",
         headers: {

@@ -44,7 +44,7 @@ export async function registerEmployee(
     const formData = new FormData();
     formData.append("file", values.file!);
     await fetch(
-      `${process.env.NEXT_PUBLIC_NEST_API_URL}file-save/upload/profile/${values.cedulaidentidad}`,
+      `${process.env.NEXT_PUBLIC_NEST_API_URL_SERVER}file-save/upload/profile/${values.cedulaidentidad}`,
 
       {
         method: "POST",

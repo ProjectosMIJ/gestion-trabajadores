@@ -20,7 +20,7 @@ export async function CreateDependencyAction(
       };
     }
     const responseDirectionGeneral = await fetch(
-      `${process.env.NEXT_PUBLIC_DJANGO_API_URL}register-direccionGeneral/`,
+      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}register-direccionGeneral/`,
       {
         method: "POST",
         headers: {
@@ -43,7 +43,7 @@ export async function CreateDependencyAction(
     if (responseDirectionGeneral.ok) {
       if (values.direction_line) {
         const responseDirectionLinea = await fetch(
-          `${process.env.NEXT_PUBLIC_DJANGO_API_URL}register-direccionLinea/`,
+          `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}register-direccionLinea/`,
           {
             method: "POST",
             headers: {
@@ -68,7 +68,7 @@ export async function CreateDependencyAction(
         if (responseDirectionLinea.ok) {
           if (values.activeCoordination && values.activeDirectionLine) {
             await fetch(
-              `${process.env.NEXT_PUBLIC_DJANGO_API_URL}register-Coordinacion/`,
+              `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}register-Coordinacion/`,
               {
                 method: "POST",
                 headers: {

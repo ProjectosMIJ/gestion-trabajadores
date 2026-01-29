@@ -21,7 +21,7 @@ export function EmployeeDetailDrawer({
   if (!isOpen || !employee) return null;
   const imageProfileFn = async () => {
     const profileImg = await fetch(
-      `http://172.16.26.48:4000/read-file/profile/${employee.cedulaidentidad}`,
+      `http://localhost:4000/read-file/profile/${employee.cedulaidentidad}`,
     );
     const getProfile = await profileImg.blob();
     setProfile(URL.createObjectURL(getProfile));

@@ -130,30 +130,9 @@ export default function ReportCode() {
     );
   }
   const onSubmit = (data: SchemaReportCodeType) => {
-    const payload = {
-      ...data,
-      filtros: {
-        dependencia_id:
-          session.user.role !== "admin"
-            ? Number(session.user.dependency?.id)
-            : undefined,
-        general_id:
-          session.user.role !== "admin"
-            ? Number(session.user.directionGeneral?.id)
-            : undefined,
-        linea_id:
-          session.user.role !== "admin"
-            ? Number(session.user.direccionLine?.id)
-            : null,
-        coordinacion_id:
-          session.user.role !== "admin"
-            ? Number(session.user.coordination?.id)
-            : null,
-      },
-    };
     startTransition(async () => {
       const reponse = await postReport<SchemaReportCodeType, Code[] | null>(
-        payload,
+        data,
       );
       setReportListCode(reponse);
       form.reset();

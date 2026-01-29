@@ -18,7 +18,7 @@ export default async function ChangeCodeActions(
 
     const userId = Number.parseInt(session.user.id);
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DJANGO_API_URL}historyEmployee/cargo-movimiento/${values.code_old}/`,
+      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}historyEmployee/cargo-movimiento/${values.code_old}/`,
       {
         method: "PATCH",
         headers: {

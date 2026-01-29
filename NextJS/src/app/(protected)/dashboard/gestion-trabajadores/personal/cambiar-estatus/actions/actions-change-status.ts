@@ -18,7 +18,7 @@ export default async function ChangeStatusAction(
 
     const userId = Number.parseInt(session.user.id);
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DJANGO_API_URL}historyEmployee/Estatus/${values.cargo}/`,
+      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}historyEmployee/Estatus/${values.cargo}/`,
       {
         method: "PATCH",
         headers: {
