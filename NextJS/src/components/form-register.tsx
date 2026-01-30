@@ -30,7 +30,7 @@ const departmentOptions = [
   { value: "2", label: "Seguridad" },
   { value: "3", label: "Farmacia" },
   { value: "4", label: "Servico Medico" },
-  { value: "5", label: "Beneficios" },
+  { value: "5", label: "RAC" },
 ];
 
 export default function FormRegister() {
