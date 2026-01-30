@@ -1,17 +1,17 @@
 services:
   postgres:
     container_name: postgres-DB
-    image: postgres:17
+    image: postgres:18
     networks:
       postgres:
         aliases:
           - postgresdb
     environment:
       POSTGRES_PASSWORD: 3054=HitM
-      POSTGRES_DB: modulos
+      POSTGRES_DB: SIGEP
       POSTGRES_USER: postgres
     volumes:
-      - "C:/pgdata:/var/lib/postgresql/data"
+      - "C:/pgdata:/var/lib/postgresql"
     ports:
       - "5400:5432"
     healthcheck:
@@ -25,8 +25,8 @@ services:
   django:
     container_name: django-App
     build:
-      context: ./backend-OAC
-      dockerfile: Dockerfile
+      context: ./BACKEND
+      dockerfile: django.dockerfile
     networks:
       backend:
         aliases:
@@ -38,6 +38,7 @@ services:
       postgres:
         condition: service_healthy
     restart: always
+
   # nestjs:
   #   container_name: nestjs-App
   #   build:
@@ -57,7 +58,7 @@ services:
     container_name: nextjs-App
     build:
       context: ./NextJS
-      dockerfile: Dockerfile
+      dockerfile: nextjs.dockerfile
     env_file:
       - ./NextJS/.env
     ports:

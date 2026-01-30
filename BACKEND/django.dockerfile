@@ -21,4 +21,4 @@ RUN chmod +x wait-for-postgres.py
 EXPOSE 8000
 
 # Usar comando directo con python
-CMD ["bash", "-c", "python3 wait-for-postgres.py && python3 manage.py makemigrations --noinput && python3 manage.py migrate --noinput && python3 manage.py runserver 0.0.0.0:8000"]
+CMD ["bash", "-c", "python3 wait-for-postgres.py && python3 manage.py runserver 0.0.0.0:8000"]
