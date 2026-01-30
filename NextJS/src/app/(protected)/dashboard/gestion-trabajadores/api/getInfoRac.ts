@@ -367,6 +367,15 @@ export const getCodeByDirectionGeneral = async (
   const getEmployee: ApiResponse<Code[]> = await responseCode.json();
   return getEmployee;
 };
+export const getCodeByDirectionGeneralAll = async (
+  id: string,
+): Promise<ApiResponse<Code[]>> => {
+  const responseCode = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}cargos/Direccion_general/${id}/`,
+  );
+  const getEmployee: ApiResponse<Code[]> = await responseCode.json();
+  return getEmployee;
+};
 
 export const getCodeByDirectionLine = async (
   id: string,
@@ -377,7 +386,15 @@ export const getCodeByDirectionLine = async (
   const getEmployee: ApiResponse<Code[]> = await responseCode.json();
   return getEmployee;
 };
-
+export const getCodeByDirectionLineAll = async (
+  id: string,
+): Promise<ApiResponse<Code[]>> => {
+  const responseCode = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}cargos/Direccion_linea/${id}/`,
+  );
+  const getEmployee: ApiResponse<Code[]> = await responseCode.json();
+  return getEmployee;
+};
 export const getCodeByCoordination = async (
   id: string,
 ): Promise<ApiResponse<Code[]>> => {
@@ -387,7 +404,15 @@ export const getCodeByCoordination = async (
   const getEmployee: ApiResponse<Code[]> = await responseCode.json();
   return getEmployee;
 };
-
+export const getCodeByCoordinationAll = async (
+  id: string,
+): Promise<ApiResponse<Code[]>> => {
+  const responseCode = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}cargos/coordinacion/${id}/`,
+  );
+  const getEmployee: ApiResponse<Code[]> = await responseCode.json();
+  return getEmployee;
+};
 export const getCarrera = async (): Promise<ApiResponse<Carrera[]>> => {
   const responseCarrera = await fetch(
     `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}carreras/`,

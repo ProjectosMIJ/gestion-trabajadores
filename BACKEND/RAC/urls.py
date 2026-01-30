@@ -102,7 +102,10 @@ urlpatterns = [
     path('cargo_DreccionLinea/<int:general_id>/', views.list_vacant_codes_by_line_directorate, name='lista cargos por las direcciones de linea'),
     path('cargo_coordinacion/<int:coordination_id>/', views.list_vacant_codes_by_coordination, name='lista  cargos por las coordinaciones'),
 
-
+# lisar codigos tanto activos como vacantes por dependencia 
+    path('cargos/Direccion_general/<int:general_id>/', views.list_all_codes_by_general_directorate, name='lista de codigos por direccion general activos y vacantes'),
+    path('cargos/Direccion_linea/<int:line_id>/', views.list_all_codes_by_line_directorate, name='lista de codigos por direccion de linea activos y vacantes'),
+    path('cargos/coordinacion/<int:coordination_id>/', views.list_all_codes_by_coordination, name='lista de codigos por coordinacion activos y vacantes'),
 # ------------------
 # ASIGNACION DE CARGO
 # -------------------

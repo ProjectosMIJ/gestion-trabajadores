@@ -3,18 +3,16 @@
 import {
   getCargo,
   getCargoEspecifico,
-  getCodeByCoordination,
-  getCodeByDirectionGeneral,
-  getCodeByDirectionLine,
+  getCodeByCoordinationAll,
+  getCodeByDirectionGeneralAll,
+  getCodeByDirectionLineAll,
   getCoordination,
   getDirectionGeneral,
   getDirectionLine,
   getGrado,
   getNomina,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import { AsignCode } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/asignar-codigo/actions/asign-code";
-import { schemaAsignCode } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/asignar-codigo/schema/schema-asign-code";
-import { ApiResponse, Code, EmployeeInfo } from "@/app/types/types";
+import { ApiResponse, Code } from "@/app/types/types";
 import {
   Select,
   SelectContent,
@@ -24,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
@@ -41,9 +40,8 @@ import {
   FormLabel,
   FormMessage,
 } from "../../../../../../components/ui/form";
-import { schemaUpdateCode } from "../../personal/actualizar-codigo/schema/schema-update-code";
 import { updateCode } from "../../personal/actualizar-codigo/actions/update-code";
-import { Switch } from "@/components/ui/switch";
+import { schemaUpdateCode } from "../../personal/actualizar-codigo/schema/schema-update-code";
 import Loading from "../loading/loading";
 export function UpdateCode() {
   const [activeDirectionLine, setActiveDirectionLine] =
@@ -100,15 +98,15 @@ export function UpdateCode() {
     getGrado(),
   );
   const searchCodeByGeneral = async (id: string) => {
-    const code = await getCodeByDirectionGeneral(id);
+    const code = await getCodeByDirectionGeneralAll(id);
     setSelectedCode(code);
   };
   const searchCodeByLine = async (id: string) => {
-    const code = await getCodeByDirectionLine(id);
+    const code = await getCodeByDirectionLineAll(id);
     setSelectedCode(code);
   };
   const searchCodeByCoord = async (id: string) => {
-    const code = await getCodeByCoordination(id);
+    const code = await getCodeByCoordinationAll(id);
     setSelectedCode(code);
   };
   const validateDirectionLine = () => {
