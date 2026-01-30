@@ -91,8 +91,8 @@ DATABASES = {
             "NAME":"SIGEP",
             "USER": "postgres",
             "PASSWORD": "3054=HitM",
-            "PORT": "5432",      
-            # "HOST": "postgresdb" 
+        "HOST": "postgresdb",
+        "PORT": "5432"
     }
 }
 
