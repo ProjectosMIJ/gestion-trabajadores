@@ -39,21 +39,21 @@ services:
         condition: service_healthy
     restart: always
 
-  # nestjs:
-  #   container_name: nestjs-App
-  #   build:
-  #     context: ./file-manager
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - "C:/uploads:/app/NestFS/uploads"
-  #   networks:
-  #     file_manager:
-  #       aliases:
-  #         - file_managerapp
-  #   ports:
-  #     - "5000:5000"
-  #   command: npm run start:dev
-  #   restart: always
+  nestjs:
+    container_name: NestFS
+    build:
+      context: ./NestJS-Files
+      dockerfile: nestjs.dockerfile
+    volumes:
+      - "C:/uploads:/app/NestFS/uploads"
+    networks:
+      file_manager:
+        aliases:
+          - file_managerapp
+    ports:
+      - "5000:5000"
+    command: npm run start:dev
+    restart: always
   nextjs:
     container_name: nextjs-App
     build:

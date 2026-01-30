@@ -38,6 +38,7 @@ import FormUpdateBackground from "./updateInfo/forms/form-background";
 import FormUpdateDwelling from "./updateInfo/forms/form-dwelling";
 import FormUpdateHealth from "./updateInfo/forms/form-health_profile";
 import FormUpdatePhysical from "./updateInfo/forms/form-physical_profile";
+import { FormBasicUpdateInfo } from "./updateInfo/forms/form-basic-info";
 interface Props {
   employee: EmployeeData;
 }
@@ -62,8 +63,8 @@ export default function DetailInfoEmployee({ employee }: Props) {
           <SheetHeaderUI>
             <SheetTitleUI>Informacion Detallada Del Trabajador</SheetTitleUI>
           </SheetHeaderUI>
-          <div className="flex flex-col m-auto justify-between h-full w-full gap-2">
-            <div className="w-60 h-60 m-auto rounded-sm flex flex-col">
+          <div className="flex flex-col m-auto justify-between h-full w-full gap-2 ">
+            <div className="w-60 h-fit m-auto rounded-sm flex flex-col">
               <Image
                 height={700}
                 width={700}
@@ -74,6 +75,29 @@ export default function DetailInfoEmployee({ employee }: Props) {
               <h2 className="w-full m-auto font-bold text-center">
                 {employee.nombres} {employee.apellidos}
               </h2>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button
+                    type="button"
+                    className="cursor-pointer bg-blue-700 hover:bg-blue-900"
+                  >
+                    Actualizar Informacion Basica
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <FormBasicUpdateInfo
+                    idEmployee={employee.id.toString()}
+                    defaultValues={{
+                      apellidos: employee.apellidos,
+                      estadoCivil: employee.estadoCivil.id,
+                      fecha_nacimiento: new Date(employee.fecha_nacimiento),
+                      n_contrato: employee.n_contrato,
+                      nombres: employee.nombres,
+                      sexoid: employee.sexo.id,
+                    }}
+                  />
+                </DialogContent>
+              </Dialog>
             </div>
             <Card>
               <CardHeader>

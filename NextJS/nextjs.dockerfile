@@ -13,4 +13,6 @@ COPY . .
 #exponemos el puerto 3000
 EXPOSE 3000
 # Comando para iniciar el proyecto
-CMD ["pnpm", "run", "dev"]
+RUN pnpm run build
+
+CMD ["pnpm", "run", "start"]
