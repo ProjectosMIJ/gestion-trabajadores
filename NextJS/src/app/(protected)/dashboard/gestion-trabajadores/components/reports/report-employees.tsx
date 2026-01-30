@@ -247,6 +247,7 @@ export default function ReportEmployee() {
         EmployeeData[] | null
       >(payload);
       setReportListEmployee(response);
+      form.reset();
     });
   };
 
