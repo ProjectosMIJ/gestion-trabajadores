@@ -166,84 +166,45 @@ class CuentaSerializer(serializers.ModelSerializer):
         
    #   registrar usuario  
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
-    password2 = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
-    departament = serializers.CharField(write_only=True, required=False)
+    password = serializers.CharField(write_only=True, required=True)
+    password2 = serializers.CharField(write_only=True, required=True)
     
+    departament = serializers.PrimaryKeyRelatedField(
+        queryset=departaments.objects.all(), 
+        required=False,
+        allow_null=True
+    )
+
     class Meta:
         model = cuenta
         fields = ['cedula', 'password', 'password2', 'departament', 'email', 'phone', 'status']
-        extra_kwargs = {
-            'status': {'required': False, 'default': 'basic'},
-            'departament': {'required': False},
-        }
 
     def validate_cedula(self, value):
-        """
-        Valida que la cédula exista exclusivamente en la tabla Employee (RAC).
-        """
-        if value is None or str(value).strip() == "":
-            raise serializers.ValidationError("La cédula es requerida.")
-
-        # Si ya recibimos el objeto Employee por algún proceso previo
-        if isinstance(value, Employee):
-            return value
-
         cedula_str = str(value).strip()
-
-        try:
-            # Buscar únicamente en Employee
-            empleado = Employee.objects.get(cedulaidentidad__iexact=cedula_str)
-            return empleado
-        except Employee.DoesNotExist:
-            raise serializers.ValidationError("La cédula no pertenece a un empleado registrado en el sistema RAC.")
-
-    def validate(self, data):
-        # 1. Validar coincidencia de contraseñas
-        if data.get('password') != data.get('password2'):
-            raise serializers.ValidationError({"password": "Las contraseñas no coinciden."})
-
-        # 2. Validar que no tenga ya una cuenta creada
-        empleado = data.get('cedula')
-        # Como validate_cedula devuelve un objeto Employee, usamos su atributo
-        cedula_str = empleado.cedulaidentidad 
+        if not Employee.objects.filter(cedulaidentidad__iexact=cedula_str).exists():
+            raise serializers.ValidationError("La cédula no pertenece a un empleado registrado en RAC.")
         
         if cuenta.objects.filter(cedula=cedula_str).exists():
-            raise serializers.ValidationError({"cedula": "Este empleado ya posee una cuenta de usuario."})
+            raise serializers.ValidationError("Este empleado ya posee una cuenta de usuario.")
+            
+        return cedula_str
 
-        # 3. Procesar el Departamento (String/ID -> Objeto)
-        departament_value = data.pop('departament', None)
-        if departament_value:
-            try:
-                if str(departament_value).isdigit():
-                    data['departament'] = departaments.objects.get(id=int(departament_value))
-                else:
-                    data['departament'] = departaments.objects.get(nombre=departament_value)
-            except departaments.DoesNotExist:
-                raise serializers.ValidationError({"departament": "El departamento especificado no existe."})
-        
+    def validate(self, data):
+        if data.get('password') != data.get('password2'):
+            raise serializers.ValidationError({"password": "Las contraseñas no coinciden."})
         return data
 
     def create(self, validated_data):
-        # Extraer datos que no van directo al modelo 'cuenta'
         password = validated_data.pop('password')
         validated_data.pop('password2', None)
         
-        # 'cedula' aquí es el objeto Employee devuelto por validate_cedula
-        empleado = validated_data.pop('cedula')
+        cedula_str = validated_data.get('cedula')
+        empleado = Employee.objects.get(cedulaidentidad__iexact=cedula_str)
         
-        # Preparar los datos finales para la creación
-        validated_data['cedula'] = empleado.cedulaidentidad
-        # Generamos el username automáticamente desde los datos de RRHH
         validated_data['username'] = f"{empleado.nombres.strip()} {empleado.apellidos.strip()}"
+        validated_data['password'] = make_password(password) # Cifrar la contraseña
 
-        # Crear y cifrar contraseña
-        user = cuenta.objects.create(**validated_data)
-        user.password = make_password(password)
-        user.save()
-        
-        return user
-
+        return cuenta.objects.create(**validated_data)
 
 
 class UserDetailSerializer(serializers.ModelSerializer):

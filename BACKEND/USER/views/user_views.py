@@ -7,6 +7,7 @@ from django.contrib.auth.hashers import make_password
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import api_view, permission_classes
 import logging
+from drf_spectacular.utils import extend_schema
 
 @api_view(['GET'])
 def get(request):
@@ -82,44 +83,25 @@ def user_detail(request, user_id):
 
 
 # registro de usuario
-
-@api_view(['POST','GET'])
+@extend_schema(
+    tags=["Gestion de Usuarios"],
+    summary="Buscar empleado por cédula",
+    description="Devuelve los datos de un empleado identificado por su cédula",
+    request=RegisterSerializer,
+)
+@api_view(['POST'])
 @permission_classes([AllowAny])
 def register_view(request):
     try:
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
-            # Pre-check: ensure 'cedula' was resolved by the serializer and is not None
-            validated = serializer.validated_data
-            cedula_val = validated.get('cedula')
-            if cedula_val is None or (isinstance(cedula_val, str) and cedula_val.strip() == ""):
-                logging.error(f"Intento de registro con cedula nula: payload={request.data}")
-                return Response({
-                    'success': False,
-                    'errors': {'cedula': ['La cédula es requerida y debe existir en RAC.']}
-                }, status=status.HTTP_400_BAD_REQUEST)
-
             user = serializer.save()
-
-            return Response({
-                'success': True,
-                'user_id': user.user_id,
-                'username': user.username,
-                'message': 'Usuario registrado exitosamente'
-            }, status=status.HTTP_201_CREATED)
+            return Response({'success': True, 'message': 'Registrado'}, status=201)
         
-        return Response({
-            'success': False,
-            'errors': serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
-        
+        return Response({'success': False, 'errors': serializer.errors}, status=400)
     except Exception as e:
-        logging.error(f"Error durante el registro: {str(e)}")
-        return Response({
-            'success': False,
-            'error': 'Error en el servidor al procesar el registro'
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+        logging.error(f"Error: {str(e)}")
+        return Response({'success': False, 'error': str(e)}, status=500)
         
    # lista los usuarios registrados
 @api_view(['GET'])
