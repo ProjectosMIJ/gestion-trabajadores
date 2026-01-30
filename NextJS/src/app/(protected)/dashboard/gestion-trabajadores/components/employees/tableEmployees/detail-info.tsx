@@ -87,6 +87,7 @@ export default function DetailInfoEmployee({ employee }: Props) {
                 <DialogContent>
                   <FormBasicUpdateInfo
                     idEmployee={employee.id.toString()}
+                    cedulaidentidad={employee.cedulaidentidad}
                     defaultValues={{
                       apellidos: employee.apellidos,
                       estadoCivil: employee.estadoCivil.id,
@@ -94,6 +95,7 @@ export default function DetailInfoEmployee({ employee }: Props) {
                       n_contrato: employee.n_contrato,
                       nombres: employee.nombres,
                       sexoid: employee.sexo.id,
+                      file: undefined,
                     }}
                   />
                 </DialogContent>

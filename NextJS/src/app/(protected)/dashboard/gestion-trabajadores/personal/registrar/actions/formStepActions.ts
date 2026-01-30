@@ -81,6 +81,16 @@ export async function registerEmployeeSteps(
         }),
       },
     );
+    const formData = new FormData();
+    formData.append("file", data.file!);
+    await fetch(
+      `${process.env.NEXT_PUBLIC_NEST_API_URL_SERVER}file-save/upload/profile/${data.cedulaidentidad}`,
+
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
     if (response.ok) {
       await fetch(
         `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employeefamily/masivo/`,

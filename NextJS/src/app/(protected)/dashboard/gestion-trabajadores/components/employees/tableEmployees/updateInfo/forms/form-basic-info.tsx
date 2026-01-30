@@ -55,8 +55,13 @@ import {
 type Props = {
   defaultValues: BasicInfoUpdateType;
   idEmployee: string;
+  cedulaidentidad?: string;
 };
-export function FormBasicUpdateInfo({ defaultValues, idEmployee }: Props) {
+export function FormBasicUpdateInfo({
+  defaultValues,
+  idEmployee,
+  cedulaidentidad,
+}: Props) {
   const [isPending, startTransition] = useTransition();
   const [photoPreview, setPhotoPreview] = useState<string | null | undefined>(
     null,
@@ -81,7 +86,11 @@ export function FormBasicUpdateInfo({ defaultValues, idEmployee }: Props) {
 
   const onSubmitFormity = (values: BasicInfoUpdateType) => {
     startTransition(async () => {
-      const response = await updateInfoEmployee(values, idEmployee);
+      const response = await updateInfoEmployee(
+        values,
+        idEmployee,
+        cedulaidentidad,
+      );
       if (response.success) {
         toast.success(response.message);
       } else {

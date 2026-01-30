@@ -60,7 +60,7 @@ export const getStatus = async (): Promise<ApiResponse<Status[]>> => {
 };
 export const imageProfileFn = async (id: string) => {
   const profileImg = await fetch(
-    `${process.env.NEXT_PUBLIC_NEST_API_URL}/read-file/profile/${id}`,
+    `${process.env.NEXT_PUBLIC_NEST_API_URL_SERVER}read-file/profile/${id}`,
   );
   const getProfile = await profileImg.blob();
   return getProfile;

@@ -25,7 +25,8 @@ SECRET_KEY = 'django-insecure-2vg*3_2nukjc_#ey_ufy_@xkyp5(pkpq34c@fsed28q!3uzxzs
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost','djangoapp','django-App','postgresdb','nextjs-App']
+# Dentro de Docker, otros servicios llegan a este contenedor por el hostname del servicio (por ej. "django").
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'django', 'djangoapp', 'django-App', 'postgresdb', 'nextjs-App']
 
 # Application definition
 
@@ -90,8 +91,8 @@ DATABASES = {
             'ENGINE': 'django.db.backends.postgresql',
             "NAME":"SIGEP",
             "USER": "postgres",
-            "PASSWORD": "admin",
-            #  "HOST": "postgresdb",
+            "PASSWORD": "3054=HitM",
+             "HOST": "postgresdb",
              "PORT": "5432"
     }
 }
