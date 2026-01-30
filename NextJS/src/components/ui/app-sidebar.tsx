@@ -24,6 +24,7 @@ import {
   SignpostBig,
   User,
   UserPlus,
+  LucideIcon,
 } from "lucide-react";
 
 import {
@@ -43,7 +44,29 @@ import Link from "next/link";
 import { useState } from "react";
 import { Skeleton } from "./skeleton";
 
-const items = [
+// Definir tipos para los permisos
+type Permission = {
+  roleAccept: string[];
+  departmentAccept: string[];
+};
+
+// Definir tipos para los items del menú
+type MenuItem = {
+  title: string;
+  url: string;
+  icon: LucideIcon;
+  permission?: Permission;
+  subMenu?: SubMenuItem[];
+};
+
+type SubMenuItem = {
+  title: string;
+  url: string;
+  icon: LucideIcon;
+  permission?: Permission;
+};
+
+const items: MenuItem[] = [
   {
     title: "Inicio",
     url: "/dashboard",
@@ -51,28 +74,39 @@ const items = [
   },
   {
     permission: {
-      roleAccept: ["admin"],
+      roleAccept: ["basic", "admin"],
       departmentAccept: ["RAC"],
     },
     title: "Personal Trabajador",
     url: "#",
     icon: User,
-
     subMenu: [
       {
         title: "Agregar Trabajador",
         url: "/dashboard/gestion-trabajadores/personal/registrar",
         icon: UserPlus,
+        permission: {
+          roleAccept: ["admin"],
+          departmentAccept: ["RAC"],
+        },
       },
       {
         title: "Consultar Trabajador",
         url: "/dashboard/gestion-trabajadores/personal",
         icon: ListCheck,
+        permission: {
+          roleAccept: ["basic", "admin"],
+          departmentAccept: ["RAC"],
+        },
       },
       {
         title: "Agregar Familiar",
         url: "/dashboard/gestion-trabajadores/familiares/agregar-familiar",
         icon: ContactRound,
+        permission: {
+          roleAccept: ["admin"],
+          departmentAccept: ["RAC"],
+        },
       },
     ],
   },
@@ -89,16 +123,28 @@ const items = [
         title: "Crear Dependencia",
         url: "/dashboard/gestion-trabajadores/dependencias/crear-dependencia",
         icon: ArrowRightFromLine,
+        permission: {
+          roleAccept: ["admin"],
+          departmentAccept: ["RAC"],
+        },
       },
       {
         title: "Crear Direcciones",
         url: "/dashboard/gestion-trabajadores/dependencias/crear-dependencia-direccion",
         icon: MoveDownRight,
+        permission: {
+          roleAccept: ["admin"],
+          departmentAccept: ["RAC"],
+        },
       },
       {
         title: "Consultar Dependencias",
         url: "/dashboard/gestion-trabajadores/dependencias/listado-dependencia",
         icon: List,
+        permission: {
+          roleAccept: ["admin"],
+          departmentAccept: ["RAC"],
+        },
       },
     ],
   },
@@ -115,16 +161,28 @@ const items = [
         title: "Crear Nuevo Codigo",
         url: "/dashboard/gestion-trabajadores/personal/crear-codigo",
         icon: BadgePlus,
+        permission: {
+          roleAccept: ["admin"],
+          departmentAccept: ["RAC"],
+        },
       },
       {
         title: "Consultar Codigos",
         url: "/dashboard/gestion-trabajadores/personal/listado-codigo",
         icon: List,
+        permission: {
+          roleAccept: ["admin"],
+          departmentAccept: ["RAC"],
+        },
       },
       {
         title: "Actualizar Codigos",
         url: "/dashboard/gestion-trabajadores/personal/actualizar-codigo",
         icon: Crosshair,
+        permission: {
+          roleAccept: ["admin"],
+          departmentAccept: ["RAC"],
+        },
       },
     ],
   },
@@ -141,30 +199,49 @@ const items = [
         title: "Asignar Cargo",
         url: "/dashboard/gestion-trabajadores/personal/asignar-codigo",
         icon: BriefcaseBusiness,
+        permission: {
+          roleAccept: ["admin"],
+          departmentAccept: ["RAC"],
+        },
       },
       {
         title: "Asignar Cargo Esp",
         url: "/dashboard/gestion-trabajadores/personal/asignar-codigo-especial",
         icon: Briefcase,
+        permission: {
+          roleAccept: ["admin"],
+          departmentAccept: ["RAC"],
+        },
       },
       {
         title: "Cambiar Cargo",
         url: "/dashboard/gestion-trabajadores/personal/cambiar-codigo",
         icon: BriefcaseConveyorBelt,
+        permission: {
+          roleAccept: ["admin"],
+          departmentAccept: ["RAC"],
+        },
       },
       {
         title: "Cambiar Estatus",
         url: "/dashboard/gestion-trabajadores/personal/cambiar-estatus",
         icon: FileChartLine,
+        permission: {
+          roleAccept: ["admin"],
+          departmentAccept: ["RAC"],
+        },
       },
       {
         title: "Egresar/Pasivo",
         url: "/dashboard/gestion-trabajadores/personal/cambiar-pasivo",
         icon: BookCheck,
+        permission: {
+          roleAccept: ["admin"],
+          departmentAccept: ["RAC"],
+        },
       },
     ],
   },
-
   {
     permission: {
       roleAccept: ["basic", "admin"],
@@ -178,22 +255,37 @@ const items = [
         title: "Consultar Empleados",
         url: "/dashboard/gestion-trabajadores/reportes/empleados",
         icon: IdCard,
+        permission: {
+          roleAccept: ["basic", "admin"],
+          departmentAccept: ["RAC"],
+        },
       },
       {
         title: "Consultar Familiares",
         url: "/dashboard/gestion-trabajadores/reportes/familiares",
         icon: NotebookTabs,
+        permission: {
+          roleAccept: ["basic", "admin"],
+          departmentAccept: ["RAC"],
+        },
       },
-
       {
         title: "Consultar Egresados",
         url: "/dashboard/gestion-trabajadores/reportes/egresados",
         icon: DoorOpen,
+        permission: {
+          roleAccept: ["basic", "admin"],
+          departmentAccept: ["RAC"],
+        },
       },
       {
         title: "Consultar Cargos",
         url: "/dashboard/gestion-trabajadores/reportes/codigos",
         icon: BookKey,
+        permission: {
+          roleAccept: ["basic", "admin"],
+          departmentAccept: ["RAC"],
+        },
       },
     ],
   },
@@ -206,7 +298,7 @@ export function AppSidebarEmployees() {
   };
   const { data: session } = useSession();
 
-  const filteredItems = items.filter((item) => {
+  const checkPermission = (item: MenuItem | SubMenuItem): boolean => {
     if (!item.permission) return true;
 
     const hasRolePermission = item.permission.roleAccept.includes(
@@ -218,7 +310,30 @@ export function AppSidebarEmployees() {
     );
 
     return hasRolePermission && hasDepartmentPermission;
-  });
+  };
+
+  const filteredItems = items
+    .filter((item) => {
+      if (!checkPermission(item)) return false;
+      if (!item.subMenu) return true;
+      const filteredSubMenu = item.subMenu.filter((subItem) => {
+        return checkPermission(subItem);
+      });
+      return filteredSubMenu.length > 0;
+    })
+    .map((item) => {
+      if (item.subMenu) {
+        const filteredSubMenu = item.subMenu.filter((subItem) =>
+          checkPermission(subItem),
+        );
+        return {
+          ...item,
+          subMenu: filteredSubMenu,
+        };
+      }
+      return item;
+    });
+
   return (
     <Sidebar>
       <SidebarContent className="flex flex-col justify-between">
@@ -252,7 +367,7 @@ export function AppSidebarEmployees() {
                           className="text-sm h-fit"
                         >
                           <div className="flex items-center justify-between w-full">
-                            <div className="flex items-center  ">
+                            <div className="flex items-center">
                               <item.icon className="h-[16px]" />
                               <span className="ml-2 text-sm">{item.title}</span>
                             </div>
@@ -273,7 +388,6 @@ export function AppSidebarEmployees() {
                               >
                                 <Link href={subItem.url} className="text-sm">
                                   <subItem.icon className="h-[32px]" />
-
                                   {subItem.title}
                                 </Link>
                               </SidebarMenuButton>

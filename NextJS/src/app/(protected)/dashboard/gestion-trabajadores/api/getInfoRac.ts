@@ -1,3 +1,4 @@
+"use server";
 import {
   AcademyLevel,
   ApiResponse,
@@ -43,7 +44,7 @@ export const getAcademyLevel = async (): Promise<
   ApiResponse<AcademyLevel[]>
 > => {
   const academyLevel = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}listar-nivel-academico`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}listar-nivel-academico`,
   );
   const responseAcademyLevel: ApiResponse<AcademyLevel[]> =
     await academyLevel.json();
@@ -52,21 +53,21 @@ export const getAcademyLevel = async (): Promise<
 };
 export const getStatus = async (): Promise<ApiResponse<Status[]>> => {
   const status = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}listar-estatus/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}listar-estatus/`,
   );
   const responseStatus: ApiResponse<Status[]> = await status.json();
   return responseStatus;
 };
 export const getStatusNomina = async (): Promise<ApiResponse<Status[]>> => {
   const status = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}estatus-gestion/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}estatus-gestion/`,
   );
   const responseStatus: ApiResponse<Status[]> = await status.json();
   return responseStatus;
 };
 export const getStatusEmployee = async (): Promise<ApiResponse<Status[]>> => {
   const statusEmployee = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}estatus/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}estatus/`,
   );
   const responseStatusEmployee: ApiResponse<Status[]> =
     await statusEmployee.json();
@@ -74,7 +75,7 @@ export const getStatusEmployee = async (): Promise<ApiResponse<Status[]>> => {
 };
 export const getGrado = async (): Promise<ApiResponse<Grado[]>> => {
   const grado = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}listar-grado/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}listar-grado/`,
   );
   const responseGrado: ApiResponse<Grado[]> = await grado.json();
   return responseGrado;
@@ -84,7 +85,7 @@ export const getOrganismosAds = async (): Promise<
   ApiResponse<OrganismosAds[]>
 > => {
   const organismosAdscritos = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}organismos-adscritos/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}organismos-adscritos/`,
   );
   const responseOrganismosAdscritos: ApiResponse<OrganismosAds[]> =
     await organismosAdscritos.json();
@@ -92,14 +93,14 @@ export const getOrganismosAds = async (): Promise<
 };
 export const getNomina = async (): Promise<ApiResponse<Nomina[]>> => {
   const nomina = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}listar-tipo-nomina/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}listar-tipo-nomina/`,
   );
   const responseNomina: ApiResponse<Nomina[]> = await nomina.json();
   return responseNomina;
 };
 export const getNominaEspecial = async (): Promise<ApiResponse<Nomina[]>> => {
   const nomina = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}listar-nomina-especial/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}listar-nomina-especial/`,
   );
   const responseNomina: ApiResponse<Nomina[]> = await nomina.json();
   return responseNomina;
@@ -107,21 +108,21 @@ export const getNominaEspecial = async (): Promise<ApiResponse<Nomina[]>> => {
 
 export const getNominaPasivo = async (): Promise<ApiResponse<Nomina[]>> => {
   const nomina = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}listar-nominaPasivo/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}listar-nominaPasivo/`,
   );
   const responseNomina: ApiResponse<Nomina[]> = await nomina.json();
   return responseNomina;
 };
 export const getCargo = async (): Promise<ApiResponse<Cargo[]>> => {
   const cargo = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}listar-denominacion-cargo/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}listar-denominacion-cargo/`,
   );
   const responseCargo: ApiResponse<Cargo[]> = await cargo.json();
   return responseCargo;
 };
 export const getCargoEspecifico = async (): Promise<ApiResponse<Cargo[]>> => {
   const cargoEspecifico = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}listar-denominacion-cargo-especifico/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}listar-denominacion-cargo-especifico/`,
   );
   const responseCargoEspecifico: ApiResponse<Cargo[]> =
     await cargoEspecifico.json();
@@ -129,7 +130,7 @@ export const getCargoEspecifico = async (): Promise<ApiResponse<Cargo[]>> => {
 };
 export const getStates = async (): Promise<ApiResponse<States[]>> => {
   const states = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}direccion/estados/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}direccion/estados/`,
   );
   const responseStates: ApiResponse<States[]> = await states.json();
   return responseStates;
@@ -138,7 +139,7 @@ export const getMunicipalitys = async (
   id: string,
 ): Promise<ApiResponse<Municipality[]>> => {
   const responseMunicipalitys = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}direccion/municipios/${id}/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}direccion/municipios/${id}/`,
   );
   const getMunicipalitys: ApiResponse<Municipality[]> =
     await responseMunicipalitys.json();
@@ -147,7 +148,7 @@ export const getMunicipalitys = async (
 
 export const getParish = async (id: string): Promise<ApiResponse<Parish[]>> => {
   const responseParish = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}direccion/parroquias/${id}/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}direccion/parroquias/${id}/`,
   );
   const getParish: ApiResponse<Parish[]> = await responseParish.json();
   return getParish;
@@ -157,7 +158,7 @@ export const getCodigo = async (): Promise<
   ApiResponse<Code[] | ErrorFetch>
 > => {
   const responseCode = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}listar-codigos/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}listar-codigos/`,
   );
   const getCode: ApiResponse<Code[]> = await responseCode.json();
   return getCode;
@@ -167,7 +168,7 @@ export const getEmployeeById = async (
   id: string,
 ): Promise<ApiResponse<EmployeeData>> => {
   const responseEmployee = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}empleados-cedula/${id}/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}empleados-cedula/${id}/`,
   );
   const getEmployee: ApiResponse<EmployeeData> = await responseEmployee.json();
   return getEmployee;
@@ -176,7 +177,7 @@ export const getEmployeeData = async (): Promise<
   ApiResponse<EmployeeData[]>
 > => {
   const responseEmployee = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}Employee/cargos/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employee/cargos/`,
   );
   const getEmployee: ApiResponse<EmployeeData[]> =
     await responseEmployee.json();
@@ -187,7 +188,7 @@ export const getHistoryMoveEmploye = async (
   id: string,
 ): Promise<ApiResponse<EmployeeCargoHistory[]>> => {
   const responseHistoryMoveEmploye = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}historyEmployee/historial/${id}/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}historyEmployee/historial/${id}/`,
   );
   const getHistoryMoveEmploye: ApiResponse<EmployeeCargoHistory[]> =
     await responseHistoryMoveEmploye.json();
@@ -196,7 +197,7 @@ export const getHistoryMoveEmploye = async (
 
 export const getCodeList = async (): Promise<ApiResponse<Code[]>> => {
   const responseCodeList = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}codigos_lister/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}codigos_lister/`,
   );
   const getCodeList: ApiResponse<Code[]> = await responseCodeList.json();
   return getCodeList;
@@ -206,7 +207,7 @@ export const getReportTypePerson = async (): Promise<
   ApiResponse<ReportTypePerson[]>
 > => {
   const responseReportTypePerson = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}reporte-personal/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}reporte-personal/`,
   );
   const getReportTypePerson: ApiResponse<ReportTypePerson[]> =
     await responseReportTypePerson.json();
@@ -216,7 +217,7 @@ export const getReportStatus = async (): Promise<
   ApiResponse<ReportStatus[]>
 > => {
   const responseReportStatus = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}estatus/reportes/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}estatus/reportes/`,
   );
   const getReportStatus: ApiResponse<ReportStatus[]> =
     await responseReportStatus.json();
@@ -227,7 +228,7 @@ export const getReportTypeNomina = async (): Promise<
   ApiResponse<ReportTypeNomina[]>
 > => {
   const responseReportTypeNomina = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}tiponomina/reportes/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}tiponomina/reportes/`,
   );
   const getReportTypeNomina: ApiResponse<ReportTypeNomina[]> =
     await responseReportTypeNomina.json();
@@ -237,7 +238,7 @@ export const getBloodGroup = async (): Promise<
   ApiResponse<BloodGroupType[]>
 > => {
   const responseBloodGroup = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}listar-grupoSanguineos/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}listar-grupoSanguineos/`,
   );
   const getBloodGroup: ApiResponse<BloodGroupType[]> =
     await responseBloodGroup.json();
@@ -246,7 +247,7 @@ export const getBloodGroup = async (): Promise<
 
 export const getPatologys = async (): Promise<ApiResponse<PatologysType[]>> => {
   const responsePatologys = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}Patologias/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Patologias/`,
   );
   const getPatologys: ApiResponse<PatologysType[]> =
     await responsePatologys.json();
@@ -257,7 +258,7 @@ export const getDisability = async (): Promise<
   ApiResponse<DisabilitysType[]>
 > => {
   const responseDisability = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}Discapacidades/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Discapacidades/`,
   );
   const getDisability: ApiResponse<DisabilitysType[]> =
     await responseDisability.json();
@@ -266,7 +267,7 @@ export const getDisability = async (): Promise<
 
 export const getShirtSize = async (): Promise<ApiResponse<ShirtSize[]>> => {
   const responseShirtSize = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}listar-tallasCamisas/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}listar-tallasCamisas/`,
   );
   const getShirtSize: ApiResponse<ShirtSize[]> = await responseShirtSize.json();
   return getShirtSize;
@@ -274,7 +275,7 @@ export const getShirtSize = async (): Promise<ApiResponse<ShirtSize[]>> => {
 
 export const getPantsSize = async (): Promise<ApiResponse<PantsSize[]>> => {
   const responsePantsSize = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}listar-tallaPantalones/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}listar-tallaPantalones/`,
   );
   const getPantsSize: ApiResponse<PantsSize[]> = await responsePantsSize.json();
   return getPantsSize;
@@ -282,7 +283,7 @@ export const getPantsSize = async (): Promise<ApiResponse<PantsSize[]>> => {
 
 export const getShoesSize = async (): Promise<ApiResponse<ShoesSize[]>> => {
   const responseShoesSize = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}listar-tallaZapatos/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}listar-tallaZapatos/`,
   );
   const getShoesSize: ApiResponse<ShoesSize[]> = await responseShoesSize.json();
   return getShoesSize;
@@ -292,7 +293,7 @@ export const getMaritalstatus = async (): Promise<
   ApiResponse<MaritalStatusType[]>
 > => {
   const responseMaritalstatus = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}listar-estadoCivil/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}listar-estadoCivil/`,
   );
   const getMaritalstatus: ApiResponse<MaritalStatusType[]> =
     await responseMaritalstatus.json();
@@ -301,7 +302,7 @@ export const getMaritalstatus = async (): Promise<
 
 export const getParent = async (): Promise<ApiResponse<ParentType[]>> => {
   const responseParent = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}Parentesco/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Parentesco/`,
   );
   const getParent: ApiResponse<ParentType[]> = await responseParent.json();
   return getParent;
@@ -311,7 +312,7 @@ export const getDirectionGeneral = async (): Promise<
   ApiResponse<DirectionGeneral[]>
 > => {
   const responseDirectionGeneral = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}listar-DireccionGeneral/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}listar-DireccionGeneral/`,
   );
   const getDirectionGeneral: ApiResponse<DirectionGeneral[]> =
     await responseDirectionGeneral.json();
@@ -322,7 +323,7 @@ export const getDirectionLine = async (
   id: string,
 ): Promise<ApiResponse<DirectionLine[]>> => {
   const responseDirectionLine = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}listar-DireccionLinea/${id}/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}listar-DireccionLinea/${id}/`,
   );
   const getDirectionLine: ApiResponse<DirectionLine[]> =
     await responseDirectionLine.json();
@@ -333,7 +334,7 @@ export const getCoordination = async (
   id: string,
 ): Promise<ApiResponse<Coordination[]>> => {
   const responseCoordination = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}listar-Coordinacion/${id}/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}listar-Coordinacion/${id}/`,
   );
   const getCoordination: ApiResponse<Coordination[]> =
     await responseCoordination.json();
@@ -344,7 +345,7 @@ export const getEmployeeInfo = async (
   id: string,
 ): Promise<ApiResponse<EmployeeInfo>> => {
   const responseEmployee = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}listar-data-empleados/${id}/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}listar-data-empleados/${id}/`,
   );
   const getEmployee: ApiResponse<EmployeeInfo> = await responseEmployee.json();
   return getEmployee;
@@ -354,7 +355,7 @@ export const getCodeByDirectionGeneral = async (
   id: string,
 ): Promise<ApiResponse<Code[]>> => {
   const responseCode = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}cargo_DreccionGeneral/${id}/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}cargo_DreccionGeneral/${id}/`,
   );
   const getEmployee: ApiResponse<Code[]> = await responseCode.json();
   return getEmployee;
@@ -364,7 +365,7 @@ export const getCodeByDirectionLine = async (
   id: string,
 ): Promise<ApiResponse<Code[]>> => {
   const responseCode = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}cargo_DreccionLinea/${id}/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}cargo_DreccionLinea/${id}/`,
   );
   const getEmployee: ApiResponse<Code[]> = await responseCode.json();
   return getEmployee;
@@ -374,7 +375,7 @@ export const getCodeByCoordination = async (
   id: string,
 ): Promise<ApiResponse<Code[]>> => {
   const responseCode = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}cargo_coordinacion/${id}/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}cargo_coordinacion/${id}/`,
   );
   const getEmployee: ApiResponse<Code[]> = await responseCode.json();
   return getEmployee;
@@ -382,7 +383,7 @@ export const getCodeByCoordination = async (
 
 export const getCarrera = async (): Promise<ApiResponse<Carrera[]>> => {
   const responseCarrera = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}carreras/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}carreras/`,
   );
   const getEmployee: ApiResponse<Carrera[]> = await responseCarrera.json();
   return getEmployee;
@@ -392,7 +393,7 @@ export const getMencion = async (
   id: string,
 ): Promise<ApiResponse<Mencion[]>> => {
   const responseMencion = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}Menciones/${id}/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Menciones/${id}/`,
   );
   const getEmployee: ApiResponse<Mencion[]> = await responseMencion.json();
   return getEmployee;
@@ -401,7 +402,7 @@ export const getConditionDwelling = async (): Promise<
   ApiResponse<ConditionDwelling[]>
 > => {
   const responseConditionDwelling = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}condicion_vivienda/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}condicion_vivienda/`,
   );
   const getDewlling: ApiResponse<ConditionDwelling[]> =
     await responseConditionDwelling.json();
@@ -410,7 +411,7 @@ export const getConditionDwelling = async (): Promise<
 
 export const getSex = async (): Promise<ApiResponse<Sex[]>> => {
   const responseSex = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}listar-sexo/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}listar-sexo/`,
   );
   const getSex: ApiResponse<Sex[]> = await responseSex.json();
   return getSex;
@@ -418,21 +419,21 @@ export const getSex = async (): Promise<ApiResponse<Sex[]>> => {
 
 export const getReasonLeaving = async (): Promise<ApiResponse<Motion[]>> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}motivos/egreso/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}motivos/egreso/`,
   );
   const getResponse: ApiResponse<Motion[]> = await response.json();
   return getResponse;
 };
 export const getInternalReason = async (): Promise<ApiResponse<Motion[]>> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}motivos/estatus/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}motivos/estatus/`,
   );
   const getResponse: ApiResponse<Motion[]> = await response.json();
   return getResponse;
 };
 export const getMotionReason = async (): Promise<ApiResponse<Motion[]>> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}motivos/movimiento/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}motivos/movimiento/`,
   );
   const getResponse: ApiResponse<Motion[]> = await response.json();
   return getResponse;
@@ -441,7 +442,7 @@ export const getReportConfigEmployee = async (): Promise<
   ApiResponse<ReportConfig>
 > => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}employee/reports/config/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}employee/reports/config/`,
   );
   const getResponse: ApiResponse<ReportConfig> = await response.json();
   return getResponse;
@@ -450,7 +451,7 @@ export const getReportConfigFamily = async (): Promise<
   ApiResponse<ReportConfig>
 > => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}family/reports/config/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}family/reports/config/`,
   );
   const getResponse: ApiResponse<ReportConfig> = await response.json();
   return getResponse;
@@ -459,7 +460,7 @@ export const getReportConfigLeaving = async (): Promise<
   ApiResponse<ReportConfig>
 > => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}graduate/reports/config/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}graduate/reports/config/`,
   );
   const getResponse: ApiResponse<ReportConfig> = await response.json();
   return getResponse;
@@ -469,14 +470,14 @@ export const getNominaGeneral = async (): Promise<
   ApiResponse<NominaGeneral[]>
 > => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}nomina/general/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}nomina/general/`,
   );
   const getResponse: ApiResponse<NominaGeneral[]> = await response.json();
   return getResponse;
 };
 export const getDependency = async (): Promise<ApiResponse<Dependency[]>> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}dependencias/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}dependencias/`,
   );
   const getResponse: ApiResponse<Dependency[]> = await response.json();
   return getResponse;
@@ -484,7 +485,7 @@ export const getDependency = async (): Promise<ApiResponse<Dependency[]>> => {
 
 export const postReport = async <T, U>(values: T): Promise<ApiResponse<U>> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}reports/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}reports/`,
     {
       method: "POST",
       headers: {
@@ -498,7 +499,7 @@ export const postReport = async <T, U>(values: T): Promise<ApiResponse<U>> => {
 };
 export const getRegion = async (): Promise<ApiResponse<Region[]>> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}direccion/regiones/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}direccion/regiones/`,
   );
   const getResponse: ApiResponse<Region[]> = await response.json();
   return getResponse;
@@ -508,7 +509,7 @@ export const getStateByRegion = async (
   id: number,
 ): Promise<ApiResponse<States[]>> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}direccion/estado/${id}/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}direccion/estado/${id}/`,
   );
   const getResponse: ApiResponse<States[]> = await response.json();
   return getResponse;
@@ -518,7 +519,7 @@ export const getDirectionGeneralById = async (
   id: number,
 ): Promise<ApiResponse<DirectionGeneral[]>> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL}direccionGeneral/${id}/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}direccionGeneral/${id}/`,
   );
   const getResponse: ApiResponse<DirectionGeneral[]> = await response.json();
   return getResponse;
