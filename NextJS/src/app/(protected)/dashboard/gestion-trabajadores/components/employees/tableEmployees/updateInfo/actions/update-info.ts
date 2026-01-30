@@ -28,7 +28,6 @@ export default async function updateInfoEmployee(
     }
 
     const userId = Number.parseInt(session.user.id);
-    console.log({ ...data, usuario_id: userId, idEmployee });
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employee/${idEmployee}/`,
       {

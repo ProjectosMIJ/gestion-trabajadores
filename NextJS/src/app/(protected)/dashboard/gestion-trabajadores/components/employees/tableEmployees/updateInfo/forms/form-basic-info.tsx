@@ -56,7 +56,7 @@ type Props = {
   defaultValues: BasicInfoUpdateType;
   idEmployee: string;
 };
-export function FormBasicInfo({ defaultValues, idEmployee }: Props) {
+export function FormBasicUpdateInfo({ defaultValues, idEmployee }: Props) {
   const [isPending, startTransition] = useTransition();
   const [photoPreview, setPhotoPreview] = useState<string | null | undefined>(
     null,
