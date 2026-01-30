@@ -25,8 +25,7 @@ SECRET_KEY = 'django-insecure-2vg*3_2nukjc_#ey_ufy_@xkyp5(pkpq34c@fsed28q!3uzxzs
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['localhost','djangoapp','postgresdb']
-
+ALLOWED_HOSTS = ['localhost','djangoapp','django-App','postgresdb']
 
 # Application definition
 
@@ -58,9 +57,12 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'SIGEP.urls'
 CORS_ALLOWED_ORIGINS = [
-    'http://localhost:3000',
-    'http://djangoapp:3000',
-
+    "http://192.168.1.5:3000", 
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://nextjs-App:3000",  # <- Agregar este
+    "http://172.16.24.81:3000",
+    # ... las demás IPs
 ]
 TEMPLATES = [
     {

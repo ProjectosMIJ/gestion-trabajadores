@@ -222,19 +222,31 @@ export default function ReportEmployee() {
     );
   }
   const onSubmit = (data: SchemaReportEmployeeType) => {
-    setReportListEmployee({
-      data: null,
-      message: "",
-      status: "",
-    });
-
     startTransition(async () => {
-      const reponse = await postReport<
+      const isNotAdmin = session?.user?.role !== "admin";
+      const payload = {
+        ...data,
+        filtros: {
+          ...data.filtros,
+          dependencia_id: isNotAdmin
+            ? Number(session.user.dependency?.id)
+            : data?.filtros?.dependencia_id,
+          direccion_general_id: isNotAdmin
+            ? Number(session.user.directionGeneral?.id)
+            : data?.filtros?.direccion_general_id,
+          direccion_linea_id: isNotAdmin
+            ? Number(session.user.direccionLine?.id) || null
+            : data?.filtros?.direccion_linea_id,
+          coordinacion_id: isNotAdmin
+            ? Number(session.user.coordination?.id) || null
+            : data?.filtros?.coordinacion_id,
+        },
+      };
+      const response = await postReport<
         SchemaReportEmployeeType,
         EmployeeData[] | null
-      >(data);
-      setReportListEmployee(reponse);
-      form.reset();
+      >(payload);
+      setReportListEmployee(response);
     });
   };
 
