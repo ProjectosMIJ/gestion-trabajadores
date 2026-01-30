@@ -14,6 +14,347 @@ from drf_spectacular.utils import extend_schema
 
 
 
+import pandas as pd
+from datetime import datetime
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.parsers import MultiPartParser
+
+from USER.models.user_models import cuenta as User  
+
+class ImportarCargosESPECIALESView(APIView):
+    parser_classes = [MultiPartParser]
+    serializer_class = CargosUploadSerializer
+
+    def post(self, request):
+        errores = []
+        creados = 0
+        
+        serializer = CargosUploadSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        archivo = request.FILES['archivo']
+        
+        try:
+            df = pd.read_excel(archivo) if not archivo.name.endswith('.csv') else pd.read_csv(archivo)
+            df.columns = df.columns.str.strip().str.lower()
+            
+            def normalizar(texto):
+                if not texto: return ""
+                return " ".join(str(texto).split()).upper()
+
+            cache = {
+                'cargos': {normalizar(obj.cargo): obj for obj in Denominacioncargo.objects.all()},
+                'especificos': {normalizar(obj.cargo): obj for obj in Denominacioncargoespecifico.objects.all()},
+                'nominas': {normalizar(obj.nomina): obj for obj in Tiponomina.objects.all()},
+                'organismos': {normalizar(obj.Organismoadscrito): obj for obj in OrganismoAdscrito.objects.all() if obj.Organismoadscrito},
+                'direcciones': {normalizar(obj.direccion_general): obj for obj in DireccionGeneral.objects.all() if obj.direccion_general},
+                'estatus': {normalizar(obj.estatus): obj for obj in Estatus.objects.all()},
+                'grados': {normalizar(obj.grado): obj for obj in Grado.objects.all()},
+                'tipos_p': {normalizar(obj.tipo_personal): obj for obj in Tipo_personal.objects.all()},
+            }
+
+            tp_default = Tipo_personal.objects.filter(id=2).first()
+            usuario_historial = User.objects.filter(user_id=10).first()
+
+            if not usuario_historial:
+                raise Exception("Error crítico: No existe el usuario con ID 10 en la tabla 'cuenta'.")
+
+            def generar_codigo_especial(prefijo):
+                ultimo_registro = AsigTrabajo.objects.filter(codigo__startswith=prefijo).order_by('-codigo').first()
+                if ultimo_registro and ultimo_registro.codigo:
+                    try:
+                        numero_actual = int(ultimo_registro.codigo.split('_')[1])
+                        nuevo_numero = numero_actual + 1
+                    except (IndexError, ValueError):
+                        nuevo_numero = 1
+                else:
+                    nuevo_numero = 1
+                
+                return f"{prefijo}_{nuevo_numero:04d}"
+
+            with transaction.atomic():
+                for index, row in df.iterrows():
+                    try:
+                        def buscar(cat, col_name):
+                            val = row.get(col_name)
+                            if pd.isna(val) or str(val).strip() == "":
+                                return None
+                            return cache[cat].get(normalizar(val))
+
+                        nomina_obj = buscar('nominas', 'nomina')
+                        nombre_nomina = normalizar(row.get('nomina'))
+                        
+                        codigo_final = row.get('codigo')
+                        
+                        if nombre_nomina == "COMISION DE SERVICIO":
+                            codigo_final = generar_codigo_especial("CS")
+                        elif nombre_nomina == "HONORARIOS PROFESIONALES":
+                            codigo_final = generar_codigo_especial("HP")
+                        
+                        if AsigTrabajo.objects.filter(codigo=codigo_final).exists():
+                            if "CS_" in str(codigo_final) or "HP_" in str(codigo_final):
+                                codigo_final = generar_codigo_especial(codigo_final.split('_')[0])
+                            else:
+                                raise ValueError(f"El código '{codigo_final}' ya existe.")
+
+                        cedula = str(row.get('cedula', '')).strip().split('.')[0]
+                        empleado = Employee.objects.filter(cedulaidentidad=cedula).first()
+
+                        cargo_obj = buscar('cargos', 'cargo')
+                        especifico_obj = buscar('especificos', 'cargo_especifico')
+                        estatus_obj = buscar('estatus', 'estatus')
+
+                        if not all([cargo_obj, especifico_obj, nomina_obj, estatus_obj]):
+                            f = []
+                            if not cargo_obj: f.append(f"Cargo: '{row.get('cargo')}'")
+                            if not especifico_obj: f.append(f"Específico: '{row.get('cargo_especifico')}'")
+                            if not nomina_obj: f.append(f"Nómina: '{row.get('nomina')}'")
+                            if not estatus_obj: f.append(f"Estatus: '{row.get('estatus')}'")
+                            raise ValueError(f"Faltan datos críticos: {', '.join(f)}")
+
+                        asignacion = AsigTrabajo(
+                            codigo=codigo_final,
+                            employee=empleado,
+                            denominacioncargoid=cargo_obj,
+                            denominacioncargoespecificoid=especifico_obj,
+                            tiponominaid=nomina_obj,
+                            estatusid=estatus_obj,
+                            OrganismoAdscritoid=buscar('organismos', 'organismo'),
+                            DireccionGeneral=buscar('direcciones', 'direccion_general'),
+                            gradoid=buscar('grados', 'grado'),
+                            Tipo_personal=buscar('tipos_p', 'tipo_personal') or tp_default,
+                            observaciones=str(row.get('observaciones', ''))[:255] if not pd.isna(row.get('observaciones')) else ''
+                        )
+                        
+                        asignacion._history_user = usuario_historial
+                        asignacion.save()
+                        creados += 1
+
+                    except Exception as e:
+                        errores.append(f"Fila {index + 2}: {str(e)}")
+
+                if errores:
+                    raise Exception("Errores encontrados en el procesamiento.")
+
+            return Response({"mensaje": f"Se crearon {creados} registros correctamente."}, status=201)
+
+        except Exception as e:
+            return Response({
+                "error": "Operación cancelada",
+                "detalles": errores if errores else [str(e)]
+            }, status=400)
+
+# carga masiva de cargos 
+
+class ImportarCargosView(APIView):
+    parser_classes = [MultiPartParser]
+    serializer_class = CargosUploadSerializer
+
+    def post(self, request):
+        errores = []
+        creados = 0
+        
+        serializer = CargosUploadSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        archivo = request.FILES['archivo']
+        
+        try:
+            df = pd.read_excel(archivo) if not archivo.name.endswith('.csv') else pd.read_csv(archivo)
+            df.columns = df.columns.str.strip().str.lower()
+            
+            cache = {
+                'cargos': {str(obj.cargo).strip().upper(): obj for obj in Denominacioncargo.objects.all()},
+                'especificos': {str(obj.cargo).strip().upper(): obj for obj in Denominacioncargoespecifico.objects.all()},
+                'nominas': {str(obj.nomina).strip().upper(): obj for obj in Tiponomina.objects.all()},
+                'organismos': {str(obj.Organismoadscrito).strip().upper(): obj for obj in OrganismoAdscrito.objects.all() if obj.Organismoadscrito},
+                'direcciones': {str(obj.direccion_general).strip().upper(): obj for obj in DireccionGeneral.objects.all() if obj.direccion_general},
+                'estatus': {str(obj.estatus).strip().upper(): obj for obj in Estatus.objects.all()},
+                'grados': {str(obj.grado).strip().upper(): obj for obj in Grado.objects.all()},
+                'tipos_p': {str(obj.tipo_personal).strip().upper(): obj for obj in Tipo_personal.objects.all()},
+            }
+
+            tp_default = Tipo_personal.objects.filter(id=2).first()
+            
+            usuario_historial = User.objects.filter(user_id=10).first()
+
+            if not usuario_historial:
+                raise Exception("Error crítico: No existe el usuario con ID 10 en la tabla 'cuenta'.")
+
+            with transaction.atomic():
+                for index, row in df.iterrows():
+                    try:
+                        def buscar(cat, col_name):
+                            val = row.get(col_name)
+                            if pd.isna(val) or str(val).strip() == "":
+                                return None
+                            limpio = str(val).strip().upper()
+                            return cache[cat].get(limpio)
+
+                        cedula = str(row.get('cedula', '')).strip().split('.')[0]
+                        empleado = Employee.objects.filter(cedulaidentidad=cedula).first()
+
+                        cargo_obj = buscar('cargos', 'cargo')
+                        especifico_obj = buscar('especificos', 'cargo_especifico')
+                        nomina_obj = buscar('nominas', 'nomina')
+                        estatus_obj = buscar('estatus', 'estatus')
+
+                        if not all([cargo_obj, especifico_obj, nomina_obj, estatus_obj]):
+                            f = []
+                            if not cargo_obj: f.append(f"Cargo: '{row.get('cargo')}'")
+                            if not especifico_obj: f.append(f"Específico: '{row.get('cargo_especifico')}'")
+                            if not nomina_obj: f.append(f"Nómina: '{row.get('nomina')}'")
+                            if not estatus_obj: f.append(f"Estatus: '{row.get('estatus')}'")
+                            raise ValueError(f"Faltan datos críticos: {', '.join(f)}")
+
+                        asignacion = AsigTrabajo(
+                            codigo=row.get('codigo'),
+                            employee=empleado,
+                            denominacioncargoid=cargo_obj,
+                            denominacioncargoespecificoid=especifico_obj,
+                            tiponominaid=nomina_obj,
+                            estatusid=estatus_obj,
+                            OrganismoAdscritoid=buscar('organismos', 'organismo'),
+                            DireccionGeneral=buscar('direcciones', 'direccion_general'),
+                            gradoid=buscar('grados', 'grado'),
+                            Tipo_personal=buscar('tipos_p', 'tipo_personal') or tp_default,
+                            observaciones=str(row.get('observaciones', ''))[:255] if not pd.isna(row.get('observaciones')) else ''
+                        )
+                        
+                        asignacion._history_user = usuario_historial
+                        asignacion.save()
+                        creados += 1
+
+                    except Exception as e:
+                        errores.append(f"Fila {index + 2}: {str(e)}")
+
+                if errores:
+                    raise Exception("Errores encontrados en el procesamiento.")
+
+            return Response({"mensaje": f"Se crearon {creados} registros correctamente."}, status=201)
+
+        except Exception as e:
+            return Response({
+                "error": "Operación cancelada",
+                "detalles": errores if errores else [str(e)]
+            }, status=400)
+
+
+
+# CARGA PERSONAL 
+@extend_schema(
+    tags=["Gestion de Empleado"],
+    summary="Registrar datos personales de empleadoas",
+    description="Permite registrar los datos personales del empleado",
+    request=CargaMasivaSerializer,
+)
+class ImportEmployeesView(APIView):
+    def post(self, request):
+        serializer = CargaMasivaSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        file = request.FILES['archivo']
+        
+        try:
+            # Leer el archivo Excel
+            df = pd.read_excel(file)
+
+            # Mapeo de Sexo: Convertimos etiquetas a IDs (1: Femenino, 2: Masculino)
+            # Asumiendo que en el Excel la columna se llama 'sexo'
+            gender_map = {
+                'femenino': 1,
+                'Femenino': 1,
+                'FEMENINO': 1,
+                'masculino': 2,
+                'Masculino': 2,
+                'MASCULINO': 2,
+                'F': 1,
+                'f': 1,
+                'm': 2,
+                'M': 2
+            }
+
+            employees_to_create = []
+            errors = []
+
+            for index, row in df.iterrows():
+                try:
+                    # Helper to clean and parse dates from various formats
+                    def parse_date(val):
+                        if pd.isna(val):
+                            return None
+                        # If it's already a Timestamp or datetime
+                        if isinstance(val, (pd.Timestamp, datetime)):
+                            try:
+                                return pd.to_datetime(val).date()
+                            except Exception:
+                                return None
+
+                        s = str(val).strip()
+                        # Remove smart quotes and extra quote chars
+                        for ch in ['\u201c','\u201d','\u2018','\u2019','"',"'"]:
+                            s = s.replace(ch, '')
+                        s = s.strip()
+
+                        ts = pd.to_datetime(s, dayfirst=True, errors='coerce')
+                        if pd.isna(ts):
+                            return None
+                        return ts.date()
+
+                    # Obtener ID de sexo basado en el mapeo
+                    sexo_raw = row.get('sexo', '')
+                    sexo_id = gender_map.get(sexo_raw)
+                    if not sexo_id:
+                        errors.append(f"Fila {index}: Sexo '{sexo_raw}' no válido.")
+                        continue
+
+                    # Parsear fechas (acepta dd/mm/yyyy y limpia comillas tipográficas)
+                    fecha_nac = parse_date(row.get('fecha_nacimiento'))
+                    fecha_ingreso = parse_date(row.get('fechaingresoorganismo'))
+
+                    if row.get('fecha_nacimiento') and fecha_nac is None:
+                        errors.append(f"Fila {index}: fecha_nacimiento '{row.get('fecha_nacimiento')}' no válido.")
+
+                    if row.get('fechaingresoorganismo') and fecha_ingreso is None:
+                        errors.append(f"Fila {index}: fechaingresoorganismo '{row.get('fechaingresoorganismo')}' no válido.")
+
+                    # Crear instancia del modelo (sin guardar en DB aún para optimizar)
+                    employee = Employee(
+                        cedulaidentidad=row.get('CEDULA DE IDENTIDAD'),
+                        nombres=row.get('NOMBRES'),
+                        apellidos=row.get('APELLIDOS'),
+                        fecha_nacimiento=fecha_nac,
+                        fechaingresoorganismo=fecha_ingreso,
+                        sexoid_id=sexo_id,  # Usamos _id para asignar directamente el entero
+                        # Si tienes el ID de estado civil en el excel: usar entero en vez de string
+                        estadoCivil_id=1
+                    )
+                    employees_to_create.append(employee)
+
+                except Exception as e:
+                    errors.append(f"Fila {index}: {str(e)}")
+
+            # Carga masiva en la base de datos
+            if employees_to_create:
+                Employee.objects.bulk_create(employees_to_create, ignore_conflicts=True)
+
+            return Response({
+                "message": f"Se procesaron {len(employees_to_create)} empleados.",
+                "errors": errors
+            }, status=status.HTTP_201_CREATED)
+
+        except Exception as e:
+            return Response({"error": f"Error al leer el archivo: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+# ......................................................................
+
+
 @extend_schema(
     tags=["Gestion de Empleado"],
     summary="Registrar datos personales de empleadoa",

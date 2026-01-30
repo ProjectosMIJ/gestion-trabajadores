@@ -870,3 +870,19 @@ class EmployeeDetailSerializer(serializers.ModelSerializer):
     def get_formacion_academica(self, obj):
         academica = obj.formacion_academica_set.first()
         return FormacionAcademicaSerializer(academica).data if academica else None
+    
+    
+    
+    # ..........................................................
+    
+    
+    
+class CargaMasivaSerializer(serializers.Serializer):
+    archivo = serializers.FileField()
+
+
+
+
+class CargosUploadSerializer(serializers.Serializer):
+    archivo = serializers.FileField()
+
