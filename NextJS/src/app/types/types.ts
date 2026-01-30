@@ -9,6 +9,7 @@ export type AcademyLevel = {
   nivelacademico: string;
 };
 export type AcademyLevelEmployeeData = {
+  nivel_Academico_id: number;
   nivelAcademico: {
     id: number;
     nivelacademico: string;

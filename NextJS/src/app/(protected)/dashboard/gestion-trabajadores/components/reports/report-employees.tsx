@@ -224,7 +224,7 @@ export default function ReportEmployee() {
   const onSubmit = (data: SchemaReportEmployeeType) => {
     startTransition(async () => {
       const isNotAdmin = session?.user?.role !== "admin";
-      const payload = {
+      const payload: SchemaReportEmployeeType = {
         ...data,
         filtros: {
           ...data.filtros,
