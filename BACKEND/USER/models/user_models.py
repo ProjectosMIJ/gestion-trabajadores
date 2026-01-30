@@ -13,14 +13,13 @@ class departaments(models.Model):
 
 class cuenta(models.Model):
     user_id = models.AutoField(primary_key=True)
-    cedula = models.CharField(max_length=20, unique=True)  # Cambiado a CharField para permitir caracteres especiales
+    cedula = models.CharField(max_length=20, unique=True)  
     username = models.CharField(max_length=100)
     password = models.CharField(max_length=100)
     email = models.EmailField(max_length=100, null=True, blank=True)
-    phone = models.CharField(max_length=20, null=True, blank=True)  # Nuevo campo
-    status = models.CharField(max_length=50, default='basic')  # Nuevo campo para el estatus
+    phone = models.CharField(max_length=20, null=True, blank=True) 
+    status = models.CharField(max_length=50, default='basic')  
     departament = models.ForeignKey(departaments, on_delete=models.CASCADE, null=True, blank=True)
-    # id_especialidad_medico = models.ForeignKey("medicoSM.Especialidad", on_delete=models.CASCADE, null=True, blank=True)  # Aplicación medicoSM no existe
 
     class Meta:
         managed = True
