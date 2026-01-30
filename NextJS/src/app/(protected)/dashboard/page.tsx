@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Lock, Check } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import Loading from "./gestion-trabajadores/components/loading/loading";
 type Department = {
   id: string;
   name: string;
@@ -65,8 +66,14 @@ const departments: Department[] = [
 ];
 
 export default function Dashboard() {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const router = useRouter();
+  if (status === "unauthenticated") {
+    return <Loading promiseMessage="Intentando Auntenticar" />;
+  }
+  if (status === "loading") {
+    return <Loading promiseMessage="Cargando Sesion" />;
+  }
 
   const handleDepartmentValidation = (
     departmentId: string,

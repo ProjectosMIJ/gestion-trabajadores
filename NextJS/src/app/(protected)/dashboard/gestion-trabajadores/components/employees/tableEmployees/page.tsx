@@ -6,33 +6,37 @@ import { getEmployeeData } from "../../../api/getInfoRac";
 import { auth } from "#/auth";
 async function getData(): Promise<EmployeeData[]> {
   const session = await auth();
-  if (!session || !session.user?.id) {
+  if (!session?.user) {
     return [];
   }
   const employeeData = await getEmployeeData();
-  const directionGeneralId = Number(session.user.directionGeneral.id);
-  const directionLineId = session.user.direccionLine
-    ? Number(session.user.direccionLine.id)
+  const user = session.user;
+  const depId = user.dependency?.id ? Number(user.dependency.id) : null;
+  const dgId = user.directionGeneral?.id
+    ? Number(user.directionGeneral.id)
     : null;
-  const coordinationId = session.user.coordination
-    ? Number(session.user.coordination.id)
-    : null;
-  const finalFiltered = employeeData.data.filter((v) =>
-    v.asignaciones?.some((asignacion) => {
-      const matchesDirectionGeneral =
-        asignacion.DireccionGeneral?.id === directionGeneralId;
-      const matchesDirectionLine = directionLineId
-        ? asignacion.DireccionLinea?.id === directionLineId
-        : true;
-      const matchesCoordination = coordinationId
-        ? asignacion.Coordinacion?.id === coordinationId
-        : true;
+  const dlId = user.direccionLine?.id ? Number(user.direccionLine.id) : null;
+  const coId = user.coordination?.id ? Number(user.coordination.id) : null;
 
-      return (
-        matchesDirectionGeneral && matchesDirectionLine && matchesCoordination
-      );
-    }),
-  );
+  if (user.role === "admin") {
+    return employeeData.data || [];
+  }
+  const finalFiltered = (employeeData.data || []).filter((employee) => {
+    if (!employee.asignaciones || employee.asignaciones.length === 0)
+      return false;
+    return employee.asignaciones.some((asig) => {
+      const matchesDep = depId
+        ? asig.DireccionGeneral?.dependencia?.id === depId
+        : true;
+      const matchesDG = dgId ? asig.DireccionGeneral?.id === dgId : true;
+
+      const matchesDL = dlId ? asig.DireccionLinea?.id === dlId : true;
+
+      const matchesCO = coId ? asig.Coordinacion?.id === coId : true;
+
+      return matchesDep && matchesDG && matchesDL && matchesCO;
+    });
+  });
 
   return finalFiltered;
 }

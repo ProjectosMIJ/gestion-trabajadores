@@ -341,36 +341,32 @@ export default function DetailInfoEmployee({ employee }: Props) {
                   <div className="flex flex-row items-center gap-2">
                     Informacion De Vestimenta <Shirt />
                   </div>
-                  {employee.perfil_fisico && (
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          type="button"
-                          className="cursor-pointer bg-blue-700 hover:bg-blue-900"
-                        >
-                          Actualizar
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <FormUpdatePhysical
-                          idEmployee={employee.id.toString()}
-                          defaultValues={{
-                            perfil_fisico: {
-                              tallaCamisa:
-                                Number(employee.perfil_fisico?.tallaCamisa) ??
-                                0,
-                              tallaPantalon:
-                                Number(employee.perfil_fisico?.tallaPantalon) ??
-                                0,
-                              tallaZapatos:
-                                Number(employee.perfil_fisico?.tallaZapatos) ??
-                                0,
-                            },
-                          }}
-                        />
-                      </DialogContent>
-                    </Dialog>
-                  )}
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button
+                        type="button"
+                        className="cursor-pointer bg-blue-700 hover:bg-blue-900"
+                      >
+                        Actualizar
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <FormUpdatePhysical
+                        idEmployee={employee.id.toString()}
+                        defaultValues={{
+                          perfil_fisico: {
+                            tallaCamisa:
+                              Number(employee.perfil_fisico?.tallaCamisa) ?? 0,
+                            tallaPantalon:
+                              Number(employee.perfil_fisico?.tallaPantalon) ??
+                              0,
+                            tallaZapatos:
+                              Number(employee.perfil_fisico?.tallaZapatos) ?? 0,
+                          },
+                        }}
+                      />
+                    </DialogContent>
+                  </Dialog>
                 </CardTitle>
               </CardHeader>
               <CardContent>
