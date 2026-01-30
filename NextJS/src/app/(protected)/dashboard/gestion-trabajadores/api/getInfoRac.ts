@@ -58,6 +58,13 @@ export const getStatus = async (): Promise<ApiResponse<Status[]>> => {
   const responseStatus: ApiResponse<Status[]> = await status.json();
   return responseStatus;
 };
+export const imageProfileFn = async (id: string) => {
+  const profileImg = await fetch(
+    `${process.env.NEXT_PUBLIC_NEST_API_URL}/read-file/profile/${id}`,
+  );
+  const getProfile = await profileImg.blob();
+  return getProfile;
+};
 export const getStatusNomina = async (): Promise<ApiResponse<Status[]>> => {
   const status = await fetch(
     `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}estatus-gestion/`,
