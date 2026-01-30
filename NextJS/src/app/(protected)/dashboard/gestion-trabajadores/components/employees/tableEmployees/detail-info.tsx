@@ -1,16 +1,10 @@
+"use client";
+import { EmployeeData } from "@/app/types/types";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
 import {
   SheetContentUI,
   SheetHeaderUI,
@@ -27,7 +21,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { EmployeeData } from "@/app/types/types";
 import {
   Ambulance,
   ClipboardCheck,
@@ -37,16 +30,26 @@ import {
   Shirt,
 } from "lucide-react";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
+import { useMemo } from "react";
+import useSWR from "swr";
+import { imageProfileFn } from "../../../api/getInfoRac";
 import FormUpdateAcademyLevel from "./updateInfo/forms/form-academic_training";
-import FormUpdatePhysical from "./updateInfo/forms/form-physical_profile";
+import FormUpdateBackground from "./updateInfo/forms/form-background";
 import FormUpdateDwelling from "./updateInfo/forms/form-dwelling";
 import FormUpdateHealth from "./updateInfo/forms/form-health_profile";
-import FormUpdateBackground from "./updateInfo/forms/form-background";
+import FormUpdatePhysical from "./updateInfo/forms/form-physical_profile";
 interface Props {
   employee: EmployeeData;
 }
 export default function DetailInfoEmployee({ employee }: Props) {
+  const { data: profileBlob } = useSWR(
+    employee.cedulaidentidad ? ["profile", employee.cedulaidentidad] : null,
+    () => imageProfileFn(employee.cedulaidentidad),
+  );
+  const imageUrl = useMemo(() => {
+    if (!profileBlob) return "/bg.png";
+    return URL.createObjectURL(profileBlob);
+  }, [profileBlob]);
   return (
     <SheetUI>
       <SheetTriggerUI
@@ -65,7 +68,7 @@ export default function DetailInfoEmployee({ employee }: Props) {
                 height={700}
                 width={700}
                 alt="profile"
-                src="/bg.png"
+                src={imageUrl}
                 className="rounded-sm object-cover w-full h-full"
               />
               <h2 className="w-full m-auto font-bold text-center">
