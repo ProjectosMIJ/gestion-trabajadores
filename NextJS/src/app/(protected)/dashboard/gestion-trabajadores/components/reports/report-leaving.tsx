@@ -557,7 +557,7 @@ export default function ReportLeaving() {
                       fileName="nomina.pdf"
                     />
 
-                    <PDFView
+                    {/* <PDFView
                       document={
                         <ReportLeavingPDF
                           id={session.user.cedula}
@@ -565,7 +565,7 @@ export default function ReportLeaving() {
                         />
                       }
                       className="h-120 w-full"
-                    />
+                    /> */}
                   </div>
                 ) : (
                   <Card className="border-none shadow-none">

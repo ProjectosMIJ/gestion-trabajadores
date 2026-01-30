@@ -81,20 +81,32 @@ export const columsReport: ColumnDef<EmployeeData>[] = [
     header: "Apellidos",
   },
   {
-    accessorKey: "sex",
+    accessorKey: "sexo.sexo",
     header: "Sexo",
   },
   {
     accessorKey: "fecha_nacimiento",
-    header: "fecha_nacimiento",
+    header: "Fecha de Nacimiento",
+    cell: ({ getValue }) => {
+      const fecha = getValue();
+      return (
+        <span>
+          {fecha ? new Date(fecha as string).toLocaleDateString() : "N/A"}
+        </span>
+      );
+    },
   },
   {
     accessorKey: "n_contrato",
     header: "Número De Ingreso",
+    cell: ({ getValue }) => {
+      const numero = getValue();
+      return <span>{numero ? numero.toString() : "N/A"}</span>;
+    },
   },
   {
     accessorKey: "fechaingresoorganismo",
-    header: "Fecha De Ingreso Al Organismo",
+    header: "F. Ingreso Al Organismo",
   },
 
   {

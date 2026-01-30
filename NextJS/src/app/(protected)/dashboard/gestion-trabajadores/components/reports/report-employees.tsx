@@ -1218,7 +1218,7 @@ export default function ReportEmployee() {
                       fileName="nomina.pdf"
                     />
 
-                    <PDFView
+                    {/* <PDFView
                       document={
                         <ReportPDFEmployee
                           id={session.user.cedula}
@@ -1226,7 +1226,7 @@ export default function ReportEmployee() {
                         />
                       }
                       className="h-120 w-full"
-                    />
+                    /> */}
                   </div>
                 ) : (
                   <Card className="border-none shadow-none">

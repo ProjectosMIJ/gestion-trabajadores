@@ -507,13 +507,13 @@ export default function ReportCode() {
                       }
                       fileName="nomina.pdf"
                     />
-
+                    {/* 
                     <PDFView
                       document={
                         <ReportCodePDF codeList={reportListCode.data} />
                       }
                       className="h-120 w-full"
-                    />
+                    /> */}
                   </div>
                 ) : (
                   <Card className="border-none shadow-none">

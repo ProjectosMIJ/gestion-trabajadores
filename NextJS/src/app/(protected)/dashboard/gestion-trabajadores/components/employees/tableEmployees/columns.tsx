@@ -1,5 +1,5 @@
 "use client";
-import { Background, EmployeeData } from "@/app/types/types";
+import { EmployeeData } from "@/app/types/types";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -9,38 +9,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Ambulance,
-  ClipboardCheck,
-  ContactRound,
-  GraduationCap,
-  House,
-  Shirt,
-} from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCaption,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
 import { DataTableColumnHeader } from "./data-table-column-header";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import {
-  SheetContentUI,
-  SheetHeaderUI,
-  SheetTitleUI,
-  SheetTriggerUI,
-  SheetUI,
-} from "@/components/ui/SheetUI";
 import ExportButton from "@/components/ui/ExportButtonPDF";
 import { ReportPDFEmployee } from "../../../reportes/empleados/pdf/reportEmployeePDF";
 import DetailInfoEmployee from "./detail-info";
@@ -83,20 +56,33 @@ export const columns: ColumnDef<EmployeeData>[] = [
     header: "Apellidos",
   },
   {
-    accessorKey: "sex",
+    accessorKey: "sexo.sexo",
     header: "Sexo",
   },
   {
     accessorKey: "fecha_nacimiento",
-    header: "fecha_nacimiento",
+    header: "F. Nacimiento",
+    cell: ({ getValue }) => {
+      const fecha = getValue();
+      return (
+        <span>
+          {" "}
+          {fecha ? new Date(fecha.toString()).toLocaleDateString() : "N/A"}
+        </span>
+      );
+    },
   },
   {
     accessorKey: "n_contrato",
-    header: "Número De Ingreso",
+    header: "N. De Ingreso",
+    cell: ({ getValue }) => {
+      const numero = getValue();
+      return <span>{numero ? numero.toString() : "N/A"}</span>;
+    },
   },
   {
     accessorKey: "fechaingresoorganismo",
-    header: "Fecha De Ingreso Al Organismo",
+    header: "F. Ingreso Al Organismo",
   },
 
   {

@@ -889,14 +889,14 @@ export default function ReportEmployee() {
                       fileName="nomina.pdf"
                     />
 
-                    <PDFView
+                    {/* <PDFView
                       document={
                         <ReportFamilyPDF
                           employeeData={reportListFamilys.data}
                         />
                       }
                       className="h-120 w-full"
-                    />
+                    /> */}
                   </div>
                 ) : (
                   <Card className="border-none shadow-none">
