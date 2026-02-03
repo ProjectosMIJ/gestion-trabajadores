@@ -4,6 +4,7 @@ from rest_framework import serializers
 
 # importaciones de modelos y utilidades
 from django.db import transaction
+from django.utils import timezone
 from ..models.personal_models import *
 from ..models.historial_personal_models import Tipo_movimiento
 #importacion de servicios
@@ -233,11 +234,6 @@ class CoordinacionSerializer(serializers.ModelSerializer):
         return value
     
 
-class ISODateField(serializers.DateField):
-    def to_internal_value(self, value):
-        if isinstance(value, str) and 'T' in value:
-            value = value.split('T')[0]
-        return super().to_internal_value(value)
 
 class CleanZerosMixin:
     def to_internal_value(self, data):
@@ -386,8 +382,9 @@ class FormacionAcademicaSerializer(serializers.ModelSerializer):
         
      
 class AntecedentesServicioSerializer(serializers.ModelSerializer):
-    fecha_ingreso = ISODateField(required=False, allow_null=True)
-    fecha_egreso = ISODateField(required=False, allow_null=True)
+    fecha_ingreso = serializers.DateField(required=False, allow_null=True,
+        input_formats=['iso-8601', '%Y-%m-%dT%H:%M:%S.%fZ', '%Y-%m-%d'])
+    fecha_egreso = serializers.DateField(required=False, allow_null=True,input_formats=['iso-8601', '%Y-%m-%dT%H:%M:%S.%fZ', '%Y-%m-%d'])
     class Meta:
         model = antecedentes_servicio
         exclude = ['empleado_id']   
@@ -451,8 +448,12 @@ class OrganismoAdscritoSerializer(serializers.ModelSerializer):
 
 class EmployeeCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer):
     usuario_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)
-    fecha_nacimiento = ISODateField(required=False)
-    fechaingresoorganismo = ISODateField(required=False)
+    fecha_nacimiento =serializers.DateField(
+        input_formats=['iso-8601', '%Y-%m-%d','%Y-%m-%dT%H:%M:%S.%fZ']
+    )
+    fechaingresoorganismo = serializers.DateField(
+        input_formats=['iso-8601', '%Y-%m-%d','%Y-%m-%dT%H:%M:%S.%fZ']
+    )
     datos_vivienda = DatosViviendaSerializer(required=False)
     perfil_salud = PerfilSaludSerializer(required=False)
     perfil_fisico = PerfilFisicoSerializer(required=False)

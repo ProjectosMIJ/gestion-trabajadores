@@ -704,35 +704,40 @@ def create_coordination(request):
     description="Devuelve una lista de todos los empleados con sus cargos",
     request=EmployeeDetailSerializer,
 )
+
 @api_view(['GET'])
 def list_employees_active(request):
-
     try:
-        filtro_asignaciones = AsigTrabajo.objects.filter(
+        cedula_query = request.query_params.get('cedulaidentidad', None)
+
+        filtro_asignaciones = AsigTrabajo.objects.select_related('Tipo_personal').filter(
             Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO
         )
-
         empleados = Employee.objects.filter(
             assignments__Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO
         ).prefetch_related(
             Prefetch('assignments', queryset=filtro_asignaciones)
         ).distinct()
 
-        serializer = EmployeeDetailSerializer(empleados, many=True)
+        if cedula_query:
+            empleados = empleados.filter(cedulaidentidad__icontains=cedula_query)
+        else:
+            empleados = empleados[:10]
 
+        serializer = EmployeeDetailSerializer(empleados, many=True)
         return Response({
             'status': "success",
             'message': "Empleados activos listados correctamente",
             'data': serializer.data
         }, status=status.HTTP_200_OK)
 
-    except Exception:
+    except Exception as e:
         return Response({
             'status': "error",
-            'message': "No se pudo recuperar la lista de empleados.",
-            'data': []
+            'message': "Error al recuperar la lista de empleados.",
         }, status=status.HTTP_400_BAD_REQUEST)
-
+        
+        
 @extend_schema(
     tags=["Asignacion de Cargos"],
     summary="Buscar empleado por cédula",
@@ -812,6 +817,43 @@ def list_general_work_codes(request):
         }, status=status.HTTP_400_BAD_REQUEST)
  
  
+#  ............
+# def list_employees_active(request):
+#     paginator = PageNumberPagination()
+#     paginator.page_size = 10
+
+#     try:
+#         # 1. Optimización de QuerySet (Añadimos select_related para campos fijos)
+#         empleados = Employee.objects.filter(
+#             assignments__Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO
+#         ).select_related('sexoid', 'estadoCivil').prefetch_related(
+#             Prefetch('assignments', queryset=AsigTrabajo.objects.filter(
+#                 Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO
+#             ))
+#         ).distinct().order_by('apellidos') # La paginación REQUIERE un orden estable
+
+#         # 2. APLICAR PAGINACIÓN REAL
+#         page = paginator.paginate_queryset(empleados, request)
+        
+#         if page is not None:
+#             serializer = EmployeeDetailSerializer(page, many=True)
+#             # Esto devolverá automáticamente los enlaces 'next', 'previous' y el 'count'
+#             return paginator.get_paginated_response(serializer.data)
+
+#         # Caso fallback si no hay paginación
+#         serializer = EmployeeDetailSerializer(empleados, many=True)
+#         return Response({
+#             'status': "success",
+#             'data': serializer.data
+#         }, status=status.HTTP_200_OK)
+
+#     except Exception as e:
+#         return Response({
+#             'status': "error",
+#             'message': f"Error: {str(e)}",
+#             'data': []
+#         }, status=status.HTTP_400_BAD_REQUEST)
+# .........?
 # LISTA SOLO LOS CODIGOS VACANTES
 @extend_schema(
     tags=["Gestion de Cargos"],

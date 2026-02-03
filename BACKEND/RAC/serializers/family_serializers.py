@@ -25,6 +25,7 @@ from ..serializers.personal_serializers import (
 )
 class FamilyCreateSerializer(serializers.ModelSerializer):
     cedulaFamiliar = serializers.CharField(required=False, allow_blank=True, allow_null=True)
+    fechanacimiento = serializers.DateField( allow_null=True,input_formats=['iso-8601', '%Y-%m-%d','%Y-%m-%dT%H:%M:%S.%fZ']  )
     usuario_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all())
     orden_hijo = serializers.IntegerField(write_only=True, required=False, allow_null=True)
 
@@ -65,9 +66,7 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
             if obj_key in data and isinstance(data[obj_key], dict):
                 data[obj_key] = limp_ceros(data[obj_key])
 
-        value = data.get('fechanacimiento')
-        if value and isinstance(value, str) and 'T' in value:
-            data['fechanacimiento'] = value.split('T')[0]
+
             
         return super().to_internal_value(data)
         
@@ -159,7 +158,6 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
             instance._history_user = usuario
 
         with transaction.atomic():
-            # Actualizar instancia principal
             for attr, value in validated_data.items():
                 setattr(instance, attr, value)
             instance.save()

@@ -91,8 +91,8 @@ DATABASES = {
             'ENGINE': 'django.db.backends.postgresql',
             "NAME":"SIGEP",
             "USER": "postgres",
-            "PASSWORD": "3054=HitM",
-             "HOST": "postgresdb",
+            "PASSWORD": "admin",
+            #  "HOST": "postgresdb",
              "PORT": "5432"
     }
 }
@@ -136,6 +136,8 @@ STATIC_URL = 'static/'
 
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
 }
 
 # Default primary key field type
