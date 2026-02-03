@@ -88,7 +88,7 @@ class AssignmentPDFGenerator(BasePDFGenerator):
         total_asignaciones = len(self.assignments)
         
         # Contar por estatus
-        ocupados = sum(1 for a in self.assignments if self._get_estatus(a).upper() == 'OCUPADO')
+        ocupados = sum(1 for a in self.assignments if self._get_estatus(a).upper() == 'ACTIVO')
         vacantes = sum(1 for a in self.assignments if self._get_estatus(a).upper() == 'VACANTE')
         
         stats = {

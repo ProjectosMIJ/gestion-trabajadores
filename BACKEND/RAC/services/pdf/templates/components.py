@@ -26,67 +26,69 @@ def get_logo_path(logo_name):
     # Buscar primero en static
     static_path = os.path.join(settings.BASE_DIR, 'RAC', 'static', 'pdf_assets', logo_name)
     if os.path.exists(static_path):
+        print(f"Logo encontrado en static: {static_path}")
         return static_path
     
     # Buscar en STATIC_ROOT si está configurado
     if hasattr(settings, 'STATIC_ROOT') and settings.STATIC_ROOT:
         static_root_path = os.path.join(settings.STATIC_ROOT, 'pdf_assets', logo_name)
         if os.path.exists(static_root_path):
+            print(f"Logo encontrado en STATIC_ROOT: {static_root_path}")
             return static_root_path
-    
-    return None
 
+    # Buscar en la carpeta templates.img
+    templates_img_path = os.path.join(settings.BASE_DIR, 'RAC', 'services', 'pdf', 'templates', 'img', logo_name)
+    if os.path.exists(templates_img_path):
+        print(f"Logo encontrado en templates.img: {templates_img_path}")
+        return templates_img_path
+    
+    print(f"Logo no encontrado: {logo_name}")
+    return None
 
 def create_header(title, subtitle=None, width=None):
     """
     Crea el header del documento con logos y título.
-    
-    Args:
-        title: Título principal del reporte
-        subtitle: Subtítulo opcional
-        width: Ancho disponible para el header
-    
-    Returns:
-        Lista de elementos Platypus para el header
     """
     styles = get_paragraph_styles()
     elements = []
     
-    # Intentar cargar logos
-    logo_oac_path = get_logo_path('logoOAC.png')
-    logo_jpv_path = get_logo_path('juntosPorVida.png')
-    
+    # Si no se proporciona un ancho, usamos el estándar de A4 menos márgenes
+    if not width:
+        width = 160 * mm 
+
+    # Intentar cargar logos mediante la función de búsqueda de rutas
+    logo_left_path = get_logo_path('logoNuevo.png')
+    logo_right_path = get_logo_path('juntosPorVida.png')
+
     header_data = []
     
-    # Logo izquierdo
-    if logo_oac_path:
+    # 1. Logo izquierdo (Ajustado con mm y mask para transparencia)
+    if logo_left_path:
         try:
-            logo_oac = Image(logo_oac_path, width=60, height=24)
-            header_data.append(logo_oac)
-        except:
+            # mask='auto' es vital para que los logos PNG se vean bien
+            logo_left = Image(logo_left_path, width=30*mm, height=15*mm, mask='auto')
+            header_data.append(logo_left)
+        except Exception as e:
             header_data.append('')
     else:
         header_data.append('')
     
-    # Título central
+    # 2. Título central
     title_paragraph = Paragraph(title.upper(), styles['Title'])
     header_data.append(title_paragraph)
     
-    # Logo derecho
-    if logo_jpv_path:
+    # 3. Logo derecho (Ajustado con mm y mask)
+    if logo_right_path:
         try:
-            logo_jpv = Image(logo_jpv_path, width=60, height=24)
-            header_data.append(logo_jpv)
-        except:
+            logo_right = Image(logo_right_path, width=35*mm, height=15*mm, mask='auto')
+            header_data.append(logo_right)
+        except Exception as e:
             header_data.append('')
     else:
         header_data.append('')
     
-    # Crear tabla para el header
-    if width:
-        col_widths = [70, width - 140, 70]
-    else:
-        col_widths = [70, 350, 70]
+    # Definición de anchos de columna: [Logo Izq, Título, Logo Der]
+    col_widths = [40*mm, width - 80*mm, 40*mm]
     
     header_table = Table([header_data], colWidths=col_widths)
     header_table.setStyle(TableStyle([
@@ -95,12 +97,12 @@ def create_header(title, subtitle=None, width=None):
         ('ALIGN', (2, 0), (2, 0), 'RIGHT'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('TOPPADDING', (0, 0), (-1, -1), 0),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 0),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
     ]))
     
     elements.append(header_table)
     
-    # Subtítulo si existe
+    # Subtítulo opcional
     if subtitle:
         elements.append(Spacer(1, 5))
         subtitle_paragraph = Paragraph(subtitle, styles['Subtitle'])
@@ -109,8 +111,6 @@ def create_header(title, subtitle=None, width=None):
     elements.append(Spacer(1, 10))
     
     return elements
-
-
 def create_footer(doc, canvas, page_number, total_pages, footer_text=None):
     """
     Dibuja el footer en el canvas.
@@ -125,20 +125,20 @@ def create_footer(doc, canvas, page_number, total_pages, footer_text=None):
     canvas.saveState()
     
     # Intentar cargar cintillo
-    cintillo_path = get_logo_path('cintillo.png')
+    cintillo_path = get_logo_path('cintillo2.png')
     
-    page_width = doc.pagesize[0]
+    page_width, page_height = doc.pagesize
     
     # Dibujar cintillo si existe
     if cintillo_path:
         try:
             canvas.drawImage(
                 cintillo_path,
-                0,
-                0,
-                width=page_width,
-                height=35,
-                preserveAspectRatio=True,
+                0,  # Posición X (inicio desde el borde izquierdo)
+                0,  # Posición Y (inicio desde el borde inferior)
+                width=page_width,  # Ancho igual al ancho de la página
+                height=60,  # Altura fija del cintillo
+                preserveAspectRatio=False,  # Desactivar la preservación de la relación de aspecto
                 mask='auto'
             )
         except:

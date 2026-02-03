@@ -93,8 +93,8 @@ class EmployeePDFGenerator(BasePDFGenerator):
         total_empleados = len(self.employees)
         
         # Contar por sexo
-        masculino = sum(1 for e in self.employees if self._get_sexo(e) == 'M')
-        femenino = sum(1 for e in self.employees if self._get_sexo(e) == 'F')
+        masculino = sum(1 for e in self.employees if self._get_sexo(e) == 'MASCULINO')
+        femenino = sum(1 for e in self.employees if self._get_sexo(e) == 'FEMENINO')
         
         stats = {
             'Total Empleados': total_empleados,
@@ -166,8 +166,8 @@ class EmployeePDFGenerator(BasePDFGenerator):
             22 * mm,   # F. Ingreso
             18 * mm,   # Años APN
             22 * mm,   # N° Contrato
-            15 * mm,   # Sexo
-            30 * mm,   # Estado Civil
+            22 * mm,   # Sexo
+            25 * mm,   # Estado Civil
         ]
         
         # Construir filas de datos

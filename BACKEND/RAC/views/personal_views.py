@@ -794,12 +794,14 @@ def get_employee_by_id(request, cedulaidentidad):
 )
 @api_view(['GET'])
 def list_general_work_codes(request):
-
     try:
-
+        codigo_query = request.query_params.get('codigo', None)
         queryset = AsigTrabajo.objects.filter(
             Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO
         )
+        if codigo_query:
+            queryset = queryset.filter(codigo__icontains=codigo_query)
+        queryset = queryset[:10]
         
         serializer = ListerCodigosSerializer(queryset, many=True)
         
@@ -809,51 +811,15 @@ def list_general_work_codes(request):
             'data': serializer.data
         }, status=status.HTTP_200_OK)
 
-    except Exception:
+    except Exception as e:
         return Response({
             'status': "error",
-            'message': "No se pudo recuperar la lista de códigos generales.",
+            'message': f"No se pudo recuperar la lista de códigos: {str(e)}",
             'data': []
         }, status=status.HTTP_400_BAD_REQUEST)
  
  
-#  ............
-# def list_employees_active(request):
-#     paginator = PageNumberPagination()
-#     paginator.page_size = 10
 
-#     try:
-#         # 1. Optimización de QuerySet (Añadimos select_related para campos fijos)
-#         empleados = Employee.objects.filter(
-#             assignments__Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO
-#         ).select_related('sexoid', 'estadoCivil').prefetch_related(
-#             Prefetch('assignments', queryset=AsigTrabajo.objects.filter(
-#                 Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO
-#             ))
-#         ).distinct().order_by('apellidos') # La paginación REQUIERE un orden estable
-
-#         # 2. APLICAR PAGINACIÓN REAL
-#         page = paginator.paginate_queryset(empleados, request)
-        
-#         if page is not None:
-#             serializer = EmployeeDetailSerializer(page, many=True)
-#             # Esto devolverá automáticamente los enlaces 'next', 'previous' y el 'count'
-#             return paginator.get_paginated_response(serializer.data)
-
-#         # Caso fallback si no hay paginación
-#         serializer = EmployeeDetailSerializer(empleados, many=True)
-#         return Response({
-#             'status': "success",
-#             'data': serializer.data
-#         }, status=status.HTTP_200_OK)
-
-#     except Exception as e:
-#         return Response({
-#             'status': "error",
-#             'message': f"Error: {str(e)}",
-#             'data': []
-#         }, status=status.HTTP_400_BAD_REQUEST)
-# .........?
 # LISTA SOLO LOS CODIGOS VACANTES
 @extend_schema(
     tags=["Gestion de Cargos"],

@@ -9,7 +9,7 @@ from datetime import datetime
 from django.http import FileResponse
 from reportlab.platypus import SimpleDocTemplate, PageBreak
 from reportlab.lib.pagesizes import A4, landscape
-
+from reportlab.lib.units import mm
 from .templates.styles import PAGE_CONFIG, COLORS, FONTS
 from .templates.components import create_header, create_footer
 
@@ -98,13 +98,18 @@ class BasePDFGenerator(ABC):
         """Dibuja el header en el canvas."""
         canvas.saveState()
         
-        page_width = doc.pagesize[0]
-        page_height = doc.pagesize[1]
-        
-        # Título centrado en la parte superior
-        canvas.setFont(FONTS['title'][0], FONTS['title'][1])
-        canvas.setFillColor(COLORS['primary'])
-        canvas.drawCentredString(page_width / 2, page_height - 25, self.title.upper())
+        header_elements = create_header(self.title, width=doc.width)
+    
+    # 2. Posicionamiento vertical
+    # Calculamos la posición Y para que quede dentro del topMargin
+        y_offset = doc.pagesize[1] - self.page_config['topMargin'] + 10 * mm
+    
+        for el in header_elements:
+        # wrap calcula el espacio necesario para el elemento
+            w, h = el.wrap(doc.width, doc.topMargin)
+        # drawOn "estampa" el elemento (tabla o spacer) en las coordenadas X, Y
+            el.drawOn(canvas, doc.leftMargin, y_offset)
+            y_offset -= h
         
         canvas.restoreState()
     
