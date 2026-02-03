@@ -4,10 +4,16 @@ from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from drf_spectacular.utils import extend_schema,OpenApiExample
+from django.apps import apps
 
 from ..serializers.report_serializers import *
 from ..services.report_service import *
 from ..services.mapa_reporte import *
+from ..services.pdf.generators.employee_pdf import EmployeePDFGenerator
+from ..services.pdf.generators.family_pdf import FamilyPDFGenerator
+from ..services.pdf.generators.assignment_pdf import AssignmentPDFGenerator
+from ..services.pdf.generators.graduate_pdf import GraduatePDFGenerator
+
 
 @extend_schema(
     tags=["Reportes - Configuraciones"],
@@ -202,3 +208,244 @@ def generate_dynamic_report(request):
             'status': "Error",
             'message': serializer.errors,
         }, status=status.HTTP_400_BAD_REQUEST)
+
+
+# =============================================================================
+# GENERACIÓN DE REPORTES PDF
+# =============================================================================
+
+@extend_schema(
+    tags=["Reportes - PDF"],
+    summary="Generar Reporte PDF",
+    description="""
+    Genera un reporte PDF según la categoría especificada.
+    
+    **Categorías disponibles:**
+    
+    1. **empleados**: Lista de empleados con datos básicos
+       - Cédula, nombres, apellidos
+       - Fecha de nacimiento e ingreso
+       - Años en APN, número de contrato
+       - Sexo, estado civil
+    
+    2. **familiares**: Lista de empleados con sus familiares
+       - Datos del empleado (cédula, nombre)
+       - Datos del familiar (cédula, nombre, parentesco)
+       - Fecha de nacimiento, sexo, estado civil
+       - Heredero, mismo ente
+    
+    Retorna el PDF directamente para descargar.
+    """,
+    request=ReportePDFSerializer,
+    responses={
+        200: {
+            'content': {'application/pdf': {}},
+            'description': 'PDF generado exitosamente'
+        }
+    },
+    examples=[
+        OpenApiExample(
+            'Ejemplo de PDF de Empleados',
+            summary='Generar PDF de empleados filtrados',
+            description='Genera un PDF con todos los empleados de una dependencia específica.',
+            value={
+                "categoria": "empleados",
+                "filtros": {
+                    "dependencia_id": 1
+                }
+            },
+            request_only=True,
+        ),
+        OpenApiExample(
+            'Ejemplo de PDF de Familiares',
+            summary='Generar PDF de familiares',
+            description='Genera un PDF con empleados y sus familiares.',
+            value={
+                "categoria": "familiares",
+                "filtros": {}
+            },
+            request_only=True,
+        ),
+    ]
+)
+@api_view(['POST'])
+def generate_pdf_report(request):
+    """
+    Genera un reporte PDF basado en los parámetros proporcionados.
+    
+    Categorías soportadas: 'empleados', 'familiares'
+    """
+    serializer = ReportePDFSerializer(data=request.data)
+    
+    if not serializer.is_valid():
+        return Response({
+            'status': "Error",
+            'message': serializer.errors,
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        validated_data = serializer.validated_data
+        categoria = validated_data.get('categoria', 'empleados')
+        filtros = validated_data.get('filtros', {})
+        
+        # Categorías soportadas
+        categorias_soportadas = ['empleados', 'familiares', 'asignaciones', 'egresados']
+        
+        if categoria not in categorias_soportadas:
+            return Response({
+                'status': "Error",
+                'message': f"La categoría '{categoria}' no está soportada para PDF. Categorías disponibles: {', '.join(categorias_soportadas)}",
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Generar PDF según la categoría
+        if categoria == 'empleados':
+            return _generate_employee_pdf(filtros)
+        elif categoria == 'familiares':
+            return _generate_family_pdf(filtros)
+        elif categoria == 'asignaciones':
+            return _generate_assignment_pdf(filtros)
+        elif categoria == 'egresados':
+            return _generate_graduate_pdf(filtros)
+        
+    except Exception as e:
+        import traceback
+        return Response({
+            'status': "Error",
+            'message': str(e),
+            'detail': traceback.format_exc()
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+def _generate_employee_pdf(filtros):
+    """Genera el PDF de empleados."""
+    Employee = apps.get_model('RAC', 'Employee')
+    
+    queryset = Employee.objects.select_related(
+        'sexoid',
+        'estadoCivil'
+    ).all()
+    
+    # Aplicar filtros
+    config = MAPA_REPORTES.get('empleados', {})
+    filtros_permitidos = config.get('filtros_permitidos', {})
+    
+    for filtro_key, filtro_value in filtros.items():
+        if filtro_value is not None and filtro_key in filtros_permitidos:
+            campo_db = filtros_permitidos[filtro_key]
+            queryset = queryset.filter(**{campo_db: filtro_value})
+    
+    queryset = queryset.order_by('apellidos', 'nombres')
+    
+    generator = EmployeePDFGenerator(
+        employees=queryset,
+        title="Reporte de Empleados",
+        filters=filtros
+    )
+    
+    return generator.get_response(as_attachment=True)
+
+
+def _generate_family_pdf(filtros):
+    """Genera el PDF de familiares."""
+    Employee = apps.get_model('RAC', 'Employee')
+    
+    # Obtener empleados con sus familiares
+    queryset = Employee.objects.select_related(
+        'sexoid',
+        'estadoCivil'
+    ).prefetch_related(
+        'carga_familiar',
+        'carga_familiar__parentesco',
+        'carga_familiar__sexo',
+        'carga_familiar__estadoCivil'
+    ).filter(
+        carga_familiar__isnull=False  # Solo empleados con familiares
+    ).distinct()
+    
+    # Aplicar filtros
+    config = MAPA_REPORTES.get('familiares', {})
+    filtros_permitidos = config.get('filtros_permitidos', {})
+    
+    for filtro_key, filtro_value in filtros.items():
+        if filtro_value is not None and filtro_key in filtros_permitidos:
+            campo_db = filtros_permitidos[filtro_key]
+            queryset = queryset.filter(**{campo_db: filtro_value})
+    
+    queryset = queryset.order_by('apellidos', 'nombres')
+    
+    generator = FamilyPDFGenerator(
+        employees=queryset,
+        title="Reporte de Familiares",
+        filters=filtros
+    )
+    
+    return generator.get_response(as_attachment=True)
+
+
+def _generate_assignment_pdf(filtros):
+    """Genera el PDF de asignaciones/códigos."""
+    AsigTrabajo = apps.get_model('RAC', 'AsigTrabajo')
+    
+    # Obtener asignaciones con relaciones
+    queryset = AsigTrabajo.objects.select_related(
+        'employee',
+        'denominacioncargoid',
+        'denominacioncargoespecificoid',
+        'gradoid',
+        'tiponominaid',
+        'DireccionGeneral',
+        'estatusid'
+    ).all()
+    
+    # Aplicar filtros
+    config = MAPA_REPORTES.get('asignaciones', {})
+    filtros_permitidos = config.get('filtros_permitidos', {})
+    
+    for filtro_key, filtro_value in filtros.items():
+        if filtro_value is not None and filtro_key in filtros_permitidos:
+            campo_db = filtros_permitidos[filtro_key]
+            queryset = queryset.filter(**{campo_db: filtro_value})
+    
+    queryset = queryset.order_by('codigo')
+    
+    generator = AssignmentPDFGenerator(
+        assignments=queryset,
+        title="Reporte de Asignaciones",
+        filters=filtros
+    )
+    
+    return generator.get_response(as_attachment=True)
+
+
+def _generate_graduate_pdf(filtros):
+    """Genera el PDF de egresados."""
+    EmployeeEgresado = apps.get_model('RAC', 'EmployeeEgresado')
+    
+    # Obtener egresados con relaciones
+    queryset = EmployeeEgresado.objects.select_related(
+        'employee',
+        'motivo_egreso'
+    ).prefetch_related(
+        'cargos_historial',
+        'cargos_historial__denominacioncargoid',
+        'cargos_historial__DireccionGeneral'
+    ).all()
+    
+    # Aplicar filtros
+    config = MAPA_REPORTES.get('egresados', {})
+    filtros_permitidos = config.get('filtros_permitidos', {})
+    
+    for filtro_key, filtro_value in filtros.items():
+        if filtro_value is not None and filtro_key in filtros_permitidos:
+            campo_db = filtros_permitidos[filtro_key]
+            queryset = queryset.filter(**{campo_db: filtro_value})
+    
+    queryset = queryset.order_by('-fecha_egreso')
+    
+    generator = GraduatePDFGenerator(
+        graduates=queryset,
+        title="Reporte de Egresados",
+        filters=filtros
+    )
+    
+    return generator.get_response(as_attachment=True)
