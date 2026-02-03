@@ -1,0 +1,295 @@
+"""
+Generador de PDF para reportes de egresados.
+Genera una tabla con información de empleados egresados.
+"""
+from reportlab.platypus import Spacer, Paragraph, PageBreak
+from reportlab.lib.pagesizes import landscape, A4
+from reportlab.lib.units import mm
+
+from ..base_generator import BasePDFGenerator
+from ..templates.styles import PAGE_CONFIG, COLORS, get_paragraph_styles
+from ..templates.components import (
+    create_header, 
+    create_section_title, 
+    create_data_table,
+    create_stats_box,
+    format_date
+)
+
+
+class GraduatePDFGenerator(BasePDFGenerator):
+    """
+    Generador de PDF para reportes de egresados.
+    
+    Genera un reporte tabular con los datos de empleados egresados:
+    - Cédula
+    - Nombre completo
+    - Fecha de ingreso
+    - Fecha de egreso
+    - Motivo de egreso
+    - Último cargo
+    - Última dirección
+    """
+    
+    def __init__(self, graduates, title="Reporte de Egresados", filters=None):
+        """
+        Inicializa el generador de PDF de egresados.
+        
+        Args:
+            graduates: QuerySet o lista de egresados
+            title: Título del reporte
+            filters: Diccionario con los filtros aplicados
+        """
+        super().__init__(
+            data=graduates,
+            title=title,
+            orientation='landscape',
+            metadata={'filters': filters or {}}
+        )
+        
+        self.graduates = list(graduates) if hasattr(graduates, '__iter__') else []
+        self.filters = filters or {}
+        self.styles = get_paragraph_styles()
+    
+    def _get_footer_text(self):
+        """Retorna el texto para el footer."""
+        total = len(self.graduates)
+        return f"Total de egresados: {total} | Generado: {self.generated_at.strftime('%d/%m/%Y %H:%M')}"
+    
+    def _generate_filename(self):
+        """Genera el nombre del archivo."""
+        date_str = self.generated_at.strftime('%Y%m%d_%H%M')
+        return f"reporte_egresados_{date_str}.pdf"
+    
+    def _build_content(self):
+        """Construye el contenido del PDF."""
+        story = []
+        
+        # Agregar encabezado con estadísticas
+        story.extend(self._build_header_section())
+        
+        # Agregar sección de filtros aplicados (si hay)
+        if self.filters:
+            story.extend(self._build_filters_section())
+        
+        # Agregar tabla de egresados
+        story.extend(self._build_graduates_table())
+        
+        return story
+    
+    def _build_header_section(self):
+        """Construye la sección del encabezado con estadísticas."""
+        elements = []
+        
+        elements.append(Spacer(1, 10))
+        
+        # Estadísticas generales
+        total_egresados = len(self.graduates)
+        
+        # Contar por motivo
+        motivos_count = {}
+        for g in self.graduates:
+            motivo = self._get_motivo(g)
+            motivos_count[motivo] = motivos_count.get(motivo, 0) + 1
+        
+        stats = {'Total Egresados': total_egresados}
+        # Agregar top 3 motivos
+        for motivo, count in sorted(motivos_count.items(), key=lambda x: -x[1])[:3]:
+            if motivo != 'N/A':
+                stats[motivo] = count
+        
+        width = self._get_available_width()
+        stats_box = create_stats_box(stats, width)
+        elements.append(stats_box)
+        elements.append(Spacer(1, 15))
+        
+        return elements
+    
+    def _build_filters_section(self):
+        """Construye la sección de filtros aplicados."""
+        elements = []
+        
+        filter_text_parts = []
+        for key, value in self.filters.items():
+            if value:
+                filter_text_parts.append(f"{key}: {value}")
+        
+        if filter_text_parts:
+            elements.extend(create_section_title("Filtros Aplicados"))
+            filter_text = " | ".join(filter_text_parts)
+            elements.append(Paragraph(filter_text, self.styles['Small']))
+            elements.append(Spacer(1, 10))
+        
+        return elements
+    
+    def _build_graduates_table(self):
+        """Construye la tabla de egresados."""
+        elements = []
+        
+        elements.extend(create_section_title("Listado de Egresados"))
+        
+        if not self.graduates:
+            elements.append(Paragraph(
+                "No se encontraron egresados con los filtros aplicados.",
+                self.styles['Body']
+            ))
+            return elements
+        
+        # Definir encabezados
+        headers = [
+            '#',
+            'Cédula',
+            'Nombre Completo',
+            'F. Ingreso',
+            'F. Egreso',
+            'Motivo',
+            'Último Cargo',
+            'Dirección'
+        ]
+        
+        # Anchos de columna para landscape A4
+        col_widths = [
+            10 * mm,   # #
+            22 * mm,   # Cédula
+            50 * mm,   # Nombre
+            22 * mm,   # F. Ingreso
+            22 * mm,   # F. Egreso
+            35 * mm,   # Motivo
+            45 * mm,   # Último Cargo
+            45 * mm,   # Dirección
+        ]
+        
+        # Construir filas de datos
+        rows = []
+        
+        for idx, graduate in enumerate(self.graduates, start=1):
+            row = [
+                str(idx),
+                self._get_cedula(graduate),
+                self._get_nombre(graduate),
+                self._get_fecha_ingreso(graduate),
+                self._get_fecha_egreso(graduate),
+                self._get_motivo(graduate),
+                self._get_ultimo_cargo(graduate),
+                self._get_ultima_direccion(graduate),
+            ]
+            rows.append(row)
+        
+        # Crear tabla
+        table = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
+        elements.append(table)
+        
+        return elements
+    
+    # =========================================================================
+    # Métodos auxiliares para extraer datos
+    # =========================================================================
+    
+    def _get_cedula(self, graduate):
+        """Extrae la cédula del empleado egresado."""
+        if isinstance(graduate, dict):
+            employee = graduate.get('employee', {})
+            if isinstance(employee, dict):
+                return str(employee.get('cedulaidentidad', 'N/A'))
+            return 'N/A'
+        
+        employee = getattr(graduate, 'employee', None)
+        if employee:
+            return str(getattr(employee, 'cedulaidentidad', 'N/A'))
+        return 'N/A'
+    
+    def _get_nombre(self, graduate):
+        """Extrae el nombre completo del empleado egresado."""
+        if isinstance(graduate, dict):
+            employee = graduate.get('employee', {})
+            if isinstance(employee, dict):
+                nombres = employee.get('nombres', '')
+                apellidos = employee.get('apellidos', '')
+                return f"{nombres} {apellidos}".strip() or 'N/A'
+            return 'N/A'
+        
+        employee = getattr(graduate, 'employee', None)
+        if employee:
+            nombres = getattr(employee, 'nombres', '')
+            apellidos = getattr(employee, 'apellidos', '')
+            return f"{nombres} {apellidos}".strip() or 'N/A'
+        return 'N/A'
+    
+    def _get_fecha_ingreso(self, graduate):
+        """Extrae la fecha de ingreso."""
+        if isinstance(graduate, dict):
+            fecha = graduate.get('fechaingresoorganismo')
+        else:
+            fecha = getattr(graduate, 'fechaingresoorganismo', None)
+        return format_date(fecha)
+    
+    def _get_fecha_egreso(self, graduate):
+        """Extrae la fecha de egreso."""
+        if isinstance(graduate, dict):
+            fecha = graduate.get('fecha_egreso')
+        else:
+            fecha = getattr(graduate, 'fecha_egreso', None)
+        return format_date(fecha)
+    
+    def _get_motivo(self, graduate):
+        """Extrae el motivo de egreso."""
+        if isinstance(graduate, dict):
+            motivo = graduate.get('motivo_egreso', {})
+            if isinstance(motivo, dict):
+                return motivo.get('movimiento', 'N/A')
+            return str(motivo) if motivo else 'N/A'
+        
+        motivo_obj = getattr(graduate, 'motivo_egreso', None)
+        if motivo_obj:
+            return getattr(motivo_obj, 'movimiento', 'N/A')
+        return 'N/A'
+    
+    def _get_ultimo_cargo(self, graduate):
+        """Extrae el último cargo del egresado."""
+        if isinstance(graduate, dict):
+            cargos = graduate.get('cargos_historial', [])
+            if cargos and len(cargos) > 0:
+                cargo = cargos[0]
+                if isinstance(cargo, dict):
+                    cargo_info = cargo.get('denominacioncargoid', {})
+                    if isinstance(cargo_info, dict):
+                        return cargo_info.get('cargo', 'N/A')
+            return 'N/A'
+        
+        # Si es un modelo Django
+        cargos = getattr(graduate, 'cargos_historial', None)
+        if cargos:
+            try:
+                first_cargo = cargos.first()
+                if first_cargo:
+                    cargo_obj = getattr(first_cargo, 'denominacioncargoid', None)
+                    if cargo_obj:
+                        return getattr(cargo_obj, 'cargo', 'N/A')
+            except:
+                pass
+        return 'N/A'
+    
+    def _get_ultima_direccion(self, graduate):
+        """Extrae la última dirección del egresado."""
+        if isinstance(graduate, dict):
+            cargos = graduate.get('cargos_historial', [])
+            if cargos and len(cargos) > 0:
+                cargo = cargos[0]
+                if isinstance(cargo, dict):
+                    direccion = cargo.get('DireccionGeneral', {})
+                    if isinstance(direccion, dict):
+                        return direccion.get('direccion_general', 'N/A')
+            return 'N/A'
+        
+        # Si es un modelo Django
+        cargos = getattr(graduate, 'cargos_historial', None)
+        if cargos:
+            try:
+                first_cargo = cargos.first()
+                if first_cargo:
+                    direccion_obj = getattr(first_cargo, 'DireccionGeneral', None)
+                    if direccion_obj:
+                        return getattr(direccion_obj, 'direccion_general', 'N/A')
+            except:
+                pass
+        return 'N/A'
