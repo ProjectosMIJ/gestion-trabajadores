@@ -7,6 +7,7 @@ from ..serializers.personal_serializers import *
 from django.db.models import Prefetch
 from ..models.personal_models import *
 from ..models.ubicacion_models import *
+from RAC.filters.filters_personal import EmployeeFilter, AsigTrabajoFilter
 from ..services.constants import *
 from ..services.report_service import *
 from drf_spectacular.utils import extend_schema
@@ -708,23 +709,30 @@ def create_coordination(request):
 @api_view(['GET'])
 def list_employees_active(request):
     try:
-        cedula_query = request.query_params.get('cedulaidentidad', None)
-
         filtro_asignaciones = AsigTrabajo.objects.select_related('Tipo_personal').filter(
             Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO
         )
-        empleados = Employee.objects.filter(
+        
+        queryset = Employee.objects.filter(
             assignments__Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO
         ).prefetch_related(
             Prefetch('assignments', queryset=filtro_asignaciones)
         ).distinct()
 
-        if cedula_query:
-            empleados = empleados.filter(cedulaidentidad__icontains=cedula_query)
-        else:
-            empleados = empleados[:10]
+        filterset = EmployeeFilter(request.GET, queryset=queryset)
+        
+        if not filterset.is_valid():
+            return Response({
+                'status': "error",
+                'message': "Los parámetros de búsqueda son inválidos.",
+                'data': []
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+   
+        empleados = filterset.qs[:10]
 
         serializer = EmployeeDetailSerializer(empleados, many=True)
+
         return Response({
             'status': "success",
             'message': "Empleados activos listados correctamente",
@@ -734,9 +742,9 @@ def list_employees_active(request):
     except Exception as e:
         return Response({
             'status': "error",
-            'message': "Error al recuperar la lista de empleados.",
+            'message': f"Error al recuperar la lista de empleados: {str(e)}",
+            'data': []
         }, status=status.HTTP_400_BAD_REQUEST)
-        
         
 @extend_schema(
     tags=["Asignacion de Cargos"],
@@ -795,15 +803,22 @@ def get_employee_by_id(request, cedulaidentidad):
 @api_view(['GET'])
 def list_general_work_codes(request):
     try:
-        codigo_query = request.query_params.get('codigo', None)
         queryset = AsigTrabajo.objects.filter(
             Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO
         )
-        if codigo_query:
-            queryset = queryset.filter(codigo__icontains=codigo_query)
-        queryset = queryset[:10]
+
+        filterset = AsigTrabajoFilter(request.GET, queryset=queryset)
         
-        serializer = ListerCodigosSerializer(queryset, many=True)
+        if not filterset.is_valid():
+            return Response({
+                'status': "error",
+                'message': "Los parámetros de filtro son inválidos.",
+                'data': []
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        codigos = filterset.qs.distinct()[:10]
+        
+        serializer = ListerCodigosSerializer(codigos, many=True)
         
         return Response({
             'status': "success",

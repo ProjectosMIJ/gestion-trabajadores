@@ -70,8 +70,8 @@ class AssignmentPDFGenerator(BasePDFGenerator):
         story.extend(self._build_header_section())
         
         # Agregar sección de filtros aplicados (si hay)
-        if self.filters:
-            story.extend(self._build_filters_section())
+        # if self.filters:
+        #     story.extend(self._build_filters_section())
         
         # Agregar tabla de asignaciones
         story.extend(self._build_assignments_table())

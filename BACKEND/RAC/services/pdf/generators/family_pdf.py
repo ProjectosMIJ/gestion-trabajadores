@@ -170,7 +170,7 @@ class FamilyPDFGenerator(BasePDFGenerator):
             45 * mm,   # Familiar
             28 * mm,   # Parentesco
             22 * mm,   # F. Nacimiento
-            14 * mm,   # Sexo
+            18 * mm,   # Sexo
             18 * mm,   # Heredero
             22 * mm,   # Mismo Ente
         ]

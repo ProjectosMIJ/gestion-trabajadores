@@ -95,7 +95,7 @@ urlpatterns = [
       # editar codigo
     path('codigos/<int:id>/', views.update_position, name='codigos-edit'),
 #     # listar codigo  tanto activos como vacantes
-    path('codigos_lister/', views.list_general_work_codes, name='lista de codigos generales'),
+    path('cargos/general/', views.list_general_work_codes, name='lista de codigos generales'),
 #     # lista unicamente los codigos vacantes
     path('listar-codigos/', views.list_vacant_work_codes, name='lista de codigos vacantes'),
     path('cargo_DreccionGeneral/<int:general_id>/', views.list_vacant_codes_by_general_directorate, name='lista cargos por las direcciones generales '),
