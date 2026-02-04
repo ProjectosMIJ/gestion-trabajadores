@@ -14,7 +14,8 @@ class EmployeeFilter(django_filters.FilterSet):
     class Meta:
         model = Employee
         fields = []
-        
+    
+    
         
         
 class AsigTrabajoFilter(django_filters.FilterSet):

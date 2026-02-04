@@ -16,7 +16,7 @@ COLORS = {
     'primary': colors.HexColor('#1a237e'),      # Azul institucional oscuro
     'secondary': colors.HexColor('#3949ab'),    # Azul secundario
     'accent': colors.HexColor('#5c6bc0'),       # Azul claro
-    'text': colors.HexColor('#333333'),         # Texto principal
+    'text': colors.HexColor('#000000'),         # Texto principal
     'muted': colors.HexColor('#666666'),        # Texto secundario
     'light': colors.HexColor('#999999'),        # Texto terciario
     'border': colors.HexColor('#e0e0e0'),       # Bordes
@@ -76,7 +76,7 @@ def get_paragraph_styles():
             name='CustomTitle',
             fontName=FONTS['title'][0],
             fontSize=FONTS['title'][1],
-            textColor=COLORS['primary'],
+            textColor=COLORS['black'],
             alignment=TA_CENTER,
             spaceAfter=10,
         ),
@@ -92,7 +92,7 @@ def get_paragraph_styles():
             name='SectionTitle',
             fontName=FONTS['section'][0],
             fontSize=FONTS['section'][1],
-            textColor=COLORS['primary'],
+            textColor=COLORS['black'],
             alignment=TA_LEFT,
             spaceBefore=12,
             spaceAfter=6,
@@ -110,21 +110,21 @@ def get_paragraph_styles():
             name='CustomSmall',
             fontName=FONTS['small'][0],
             fontSize=FONTS['small'][1],
-            textColor=COLORS['muted'],
+            textColor=COLORS['black'],
             alignment=TA_LEFT,
         ),
         'CenterSmall': ParagraphStyle(
             name='CenterSmall',
             fontName=FONTS['small'][0],
             fontSize=FONTS['small'][1],
-            textColor=COLORS['muted'],
+            textColor=COLORS['black'],
             alignment=TA_CENTER,
         ),
         'TableHeader': ParagraphStyle(
             name='TableHeader',
             fontName=FONTS['header_cell'][0],
             fontSize=FONTS['header_cell'][1],
-            textColor=COLORS['white'],
+            textColor=COLORS['black'],
             alignment=TA_CENTER,
         ),
         'TableCell': ParagraphStyle(
@@ -132,7 +132,7 @@ def get_paragraph_styles():
             fontName=FONTS['table_cell'][0],
             fontSize=FONTS['table_cell'][1],
             textColor=COLORS['text'],
-            alignment=TA_LEFT,
+            alignment=TA_CENTER,
         ),
     }
     
@@ -148,8 +148,8 @@ def get_table_style(with_alternating_rows=True):
     """
     style_commands = [
         # Encabezado
-        ('BACKGROUND', (0, 0), (-1, 0), COLORS['primary']),
-        ('TEXTCOLOR', (0, 0), (-1, 0), COLORS['white']),
+        ('BACKGROUND', (0, 0), (-1, 0), COLORS['white']),
+        ('TEXTCOLOR', (0, 0), (-1, 0), COLORS['black']),
         ('FONTNAME', (0, 0), (-1, 0), FONTS['header_cell'][0]),
         ('FONTSIZE', (0, 0), (-1, 0), FONTS['header_cell'][1]),
         ('ALIGN', (0, 0), (-1, 0), 'CENTER'),
@@ -169,7 +169,7 @@ def get_table_style(with_alternating_rows=True):
         
         # Bordes
         ('GRID', (0, 0), (-1, -1), 0.5, COLORS['border']),
-        ('LINEBELOW', (0, 0), (-1, 0), 1, COLORS['primary']),
+        ('LINEBELOW', (0, 0), (-1, 0), 1, COLORS['black']),
     ]
     
     return TableStyle(style_commands)
@@ -182,7 +182,7 @@ def get_header_style():
         'logo_height': 24,
         'title_font': FONTS['title'],
         'subtitle_font': FONTS['subtitle'],
-        'text_color': COLORS['primary'],
+        'text_color': COLORS['black'],
     }
 
 

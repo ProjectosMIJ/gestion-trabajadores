@@ -383,31 +383,40 @@ def _generate_family_pdf(filtros):
 
 
 def _generate_assignment_pdf(filtros):
-    """Genera el PDF de asignaciones/códigos."""
     AsigTrabajo = apps.get_model('RAC', 'AsigTrabajo')
     
-    # Obtener asignaciones con relaciones
     queryset = AsigTrabajo.objects.select_related(
-        'employee',
-        'denominacioncargoid',
+        'employee', 
+        'denominacioncargoid', 
         'denominacioncargoespecificoid',
-        'gradoid',
-        'tiponominaid',
-        'DireccionGeneral',
+        'gradoid', 
+        'tiponominaid', 
+        'DireccionGeneral', 
         'estatusid'
-    ).all()
-    
-    # Aplicar filtros
+    ).only(
+        'codigo',
+        'employee__cedulaidentidad', 
+        'employee__nombres', 
+        'employee__apellidos',
+        'denominacioncargoid__cargo',
+        'denominacioncargoespecificoid__cargo',
+        'gradoid__grado',
+        'tiponominaid__nomina',
+        'DireccionGeneral__direccion_general',
+        'estatusid__estatus'
+    )
+
     config = MAPA_REPORTES.get('asignaciones', {})
     filtros_permitidos = config.get('filtros_permitidos', {})
     
+    query_filtros = Q()
     for filtro_key, filtro_value in filtros.items():
         if filtro_value is not None and filtro_key in filtros_permitidos:
             campo_db = filtros_permitidos[filtro_key]
-            queryset = queryset.filter(**{campo_db: filtro_value})
+            query_filtros &= Q(**{campo_db: filtro_value})
     
-    queryset = queryset.order_by('codigo')
-    
+    queryset = queryset.filter(query_filtros).order_by('codigo')
+
     generator = AssignmentPDFGenerator(
         assignments=queryset,
         title="Reporte de Asignaciones",
