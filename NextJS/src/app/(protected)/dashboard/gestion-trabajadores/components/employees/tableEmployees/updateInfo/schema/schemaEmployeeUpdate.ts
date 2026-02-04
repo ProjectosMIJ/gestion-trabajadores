@@ -1,12 +1,16 @@
 import { z } from "zod";
 
 export const schemaBasicUpdateInfo = z.object({
-  nombres: z.string({
-    message: "Debe Ingresar Letras",
-  }),
-  apellidos: z.string({
-    message: "Debe Ingresar Letras",
-  }),
+  nombres: z
+    .string({
+      message: "Debe Ingresar Letras",
+    })
+    .optional(),
+  apellidos: z
+    .string({
+      message: "Debe Ingresar Letras",
+    })
+    .optional(),
   file: z
     .instanceof(File)
     .nullable()
@@ -20,7 +24,6 @@ export const schemaBasicUpdateInfo = z.object({
   fecha_nacimiento: z
     .date({
       message: "Debe Ingresar Una Fecha Requerida",
-      required_error: "La Fecha Es Requerida",
     })
     .refine((date) => date <= new Date(), {
       message: "La Fecha De Nacimiento No Puede Ser En El Futuro",
@@ -38,13 +41,11 @@ export const schemaBasicUpdateInfo = z.object({
   n_contrato: z
     .string({
       message: "Debe Ingresar Informacion Valida",
-      required_error: "Este Campo Es Requerido",
     })
     .optional(),
   sexoid: z
     .number({
       message: "Debe Ingresar Un Sexo Valido",
-      required_error: "El Sexo Es Requerido",
     })
     .refine((val) => !(val === 0), {
       message: "Debe Seleccionar Un Sexo",

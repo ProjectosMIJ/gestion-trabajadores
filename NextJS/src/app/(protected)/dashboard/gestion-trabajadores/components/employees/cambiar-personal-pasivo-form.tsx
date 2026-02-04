@@ -6,8 +6,8 @@ import {
   getReasonLeaving,
   getStatusEmployee,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import GestionAction from "@/app/(protected)/dashboard/gestion-trabajadores/personal/cambiar-pasivo/actions/gestion-persona-action";
-import { schemaPasivo } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/cambiar-pasivo/schema/schemaPasivo";
+import GestionAction from "@/app/(protected)/dashboard/gestion-trabajadores/movimientos/cambiar-pasivo/actions/gestion-persona-action";
+import { schemaPasivo } from "@/app/(protected)/dashboard/gestion-trabajadores/movimientos/cambiar-pasivo/schema/schemaPasivo";
 import { EmployeeInfo } from "@/app/types/types";
 import {
   Select,

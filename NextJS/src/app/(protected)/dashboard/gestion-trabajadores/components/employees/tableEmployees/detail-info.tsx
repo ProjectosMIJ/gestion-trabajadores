@@ -259,8 +259,7 @@ export default function DetailInfoEmployee({ employee }: Props) {
                         defaultValues={{
                           datos_vivienda: {
                             direccion_exacta:
-                              employee.datos_vivienda?.direccionExacta ?? "",
-                            // Si la API te devuelve objetos, extrae solo el ID
+                              employee.datos_vivienda?.direccion_exacta ?? "",
                             estado_id: Number(
                               employee.datos_vivienda?.estado?.id ??
                                 employee.datos_vivienda?.estado.estado,
@@ -301,7 +300,9 @@ export default function DetailInfoEmployee({ employee }: Props) {
                     {employee.datos_vivienda?.condicion?.condicion ?? "N/A"}
                   </div>
                   <div>Direccion De Habitación:</div>
-                  <div>{employee.datos_vivienda?.direccionExacta ?? "N/A"}</div>
+                  <div>
+                    {employee.datos_vivienda?.direccion_exacta ?? "N/A"}
+                  </div>
                 </div>
               </CardContent>
             </Card>
@@ -460,9 +461,8 @@ export default function DetailInfoEmployee({ employee }: Props) {
                 <div className="grid grid-cols-2 place-content-center">
                   <div>Tipo De Sangre:</div>
                   <div>
-                    {employee.perfil_salud?.grupoSanguineo != null
-                      ? employee.perfil_salud.grupoSanguineo.GrupoSanguineo
-                      : "N/A"}
+                    {employee.perfil_salud.grupoSanguineo?.grupoSanguineo ??
+                      "N/A"}
                   </div>
                   {employee.perfil_salud?.patologiasCronicas &&
                     employee.perfil_salud.patologiasCronicas.length > 0 && (

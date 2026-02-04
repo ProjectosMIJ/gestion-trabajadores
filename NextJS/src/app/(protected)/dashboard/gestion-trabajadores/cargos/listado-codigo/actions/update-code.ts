@@ -1,9 +1,9 @@
 "use server";
 
 import { auth } from "#/auth";
-import { SchemaUpdateCode } from "../schema/schema-update-code";
+import { UpdateCodeTable } from "../schema/schema-update-code";
 
-export async function updateCode(values: SchemaUpdateCode) {
+export async function updateCodeTable(values: UpdateCodeTable, id: number) {
   try {
     const session = await auth();
     if (!session || !session.user?.id) {
@@ -12,14 +12,14 @@ export async function updateCode(values: SchemaUpdateCode) {
         message: "No tienes permiso para realizar esta acción. Inicia sesión.",
       };
     }
-    const { code, ...valuesNotCode } = values;
+    const { ...valuesNotCode } = values;
     const userId = Number.parseInt(session.user.id);
     const payload = {
       usuario_id: userId,
       ...valuesNotCode,
     };
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}codigos/${code}/`,
+      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}codigos/${id}/`,
       {
         method: "PATCH",
         headers: {
@@ -31,12 +31,12 @@ export async function updateCode(values: SchemaUpdateCode) {
     if (response.ok) {
       return {
         success: true,
-        message: "Codigo Asingnado Exitosamente",
+        message: "Codigo Actualizado Exitosamente",
       };
     }
     return {
       success: false,
-      message: "Codigo No Asignado",
+      message: "Codigo No Actualizado",
     };
   } catch {
     return {

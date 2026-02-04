@@ -8,8 +8,8 @@ import {
   getGrado,
   getNomina,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import { createCodeAction } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/crear-codigo/actions/createCode";
-import { schemaCode } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/crear-codigo/schemas/schemaCode";
+import { createCodeAction } from "@/app/(protected)/dashboard/gestion-trabajadores/cargos/crear-codigo/actions/createCode";
+import { schemaCode } from "@/app/(protected)/dashboard/gestion-trabajadores/cargos/crear-codigo/schemas/schemaCode";
 import { Button } from "@/components/ui/button";
 import {
   Card,

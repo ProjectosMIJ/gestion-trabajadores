@@ -196,7 +196,7 @@ export interface DewllingInfo {
   estado: States;
   municipio: Municipality;
   parroquia: Parish;
-  direccionExacta: string;
+  direccion_exacta: string;
   condicion: {
     id: number;
     condicion: string;
@@ -205,7 +205,7 @@ export interface DewllingInfo {
 export interface HealthProfile {
   grupoSanguineo: {
     id: number;
-    GrupoSanguineo: string;
+    grupoSanguineo: string;
   } | null;
   discapacidad:
     | {

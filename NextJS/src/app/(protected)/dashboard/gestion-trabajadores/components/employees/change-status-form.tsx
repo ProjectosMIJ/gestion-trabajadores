@@ -5,8 +5,8 @@ import {
   getInternalReason,
   getStatusNomina,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import ChangeStatusAction from "@/app/(protected)/dashboard/gestion-trabajadores/personal/cambiar-estatus/actions/actions-change-status";
-import { schemaStatusChange } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/cambiar-estatus/schema/schemaChangeStatus";
+import ChangeStatusAction from "@/app/(protected)/dashboard/gestion-trabajadores/movimientos/cambiar-estatus/actions/actions-change-status";
+import { schemaStatusChange } from "@/app/(protected)/dashboard/gestion-trabajadores/movimientos/cambiar-estatus/schema/schemaChangeStatus";
 import { ApiResponse, EmployeeData } from "@/app/types/types";
 import {
   Select,
