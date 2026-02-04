@@ -193,7 +193,7 @@ urlpatterns = [
     path('graduate/reports/config/', views.GraduateReportConfigView.as_view(), name='configuraciones_egresados'),
     path('reports/types/', views.ReportTypesConfigView.as_view(), name='tipos_reporte'),
     path('reports/categorys/', views.AllReportsConfigView.as_view(), name='configuraciones_totales'),
-    path('reports/', views.generate_dynamic_report, name='reporte_generico'),
+    # path('reports/', views.generate_dynamic_report, name='reporte_generico'),
     
     # Generación de reportes PDF
     path('reports/pdf/', views.generate_pdf_report, name='reporte_pdf'),

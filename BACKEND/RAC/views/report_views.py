@@ -158,56 +158,6 @@ class AllReportsConfigView(APIView):
                 "message": "No se pudo cargar ninguna configuracion",
             }, status=status.HTTP_400_BAD_REQUEST)
 
-@extend_schema(
-        tags=["Reportes"],
-        summary="Generar Reporte Dinámico",
-        description="Genera estadísticas o listados detallados de empleados, familiares o egresados.",
-        request=ReporteDinamicoSerializer,
-        responses={200: serializers.ListField()},
-        examples=[
-        OpenApiExample(
-            'Ejemplo de Conteo de Familiares',
-            summary='Reporte de conteo agrupado por nómina',
-            description='Filtra familiares por sexo y los cuenta según el tipo de nómina del titular.',
-            value={
-                "categoria": "familiares",
-                "agrupar_por": "tipo_nomina",
-                "tipo_reporte": "conteo",
-                "filtros": {
-                    "sexo_id": 1
-                }
-            },
-            request_only=True, 
-        ),
-    ]
-)
-@api_view(['POST'])
-def generate_dynamic_report(request):
-    serializer = ReporteDinamicoSerializer(data=request.data)
-    
-    if serializer.is_valid():
-        try:
-            resultados = ReporteService.ejecutar(
-                mapa_config=MAPA_REPORTES,
-                **serializer.validated_data
-            )
-            
-            return Response({
-                "status": "Ok",
-                "message": "Reporte generado correctamente",
-                "data": resultados
-            }, status=status.HTTP_200_OK)
-            
-        except Exception as e:
-            return Response({
-                'status': "Error",
-                'message': str(e),
-            }, status=status.HTTP_400_BAD_REQUEST)
-    else:
-        return Response({
-            'status': "Error",
-            'message': serializer.errors,
-        }, status=status.HTTP_400_BAD_REQUEST)
 
 
 # =============================================================================
@@ -215,7 +165,7 @@ def generate_dynamic_report(request):
 # =============================================================================
 
 @extend_schema(
-    tags=["Reportes - PDF"],
+    tags=["Reportes"],
     summary="Generar Reporte PDF",
     description="""
     Genera un reporte PDF según la categoría especificada.
@@ -249,10 +199,13 @@ def generate_dynamic_report(request):
             summary='Generar PDF de empleados filtrados',
             description='Genera un PDF con todos los empleados de una dependencia específica.',
             value={
-                "categoria": "empleados",
+                "categoria": "familiares",
+                "agrupar_por": "tipo_nomina",
+                "tipo_reporte": "lista",
                 "filtros": {
-                    "dependencia_id": 1
+                    "sexo_id": 1
                 }
+               
             },
             request_only=True,
         ),
@@ -270,11 +223,7 @@ def generate_dynamic_report(request):
 )
 @api_view(['POST'])
 def generate_pdf_report(request):
-    """
-    Genera un reporte PDF basado en los parámetros proporcionados.
-    
-    Categorías soportadas: 'empleados', 'familiares'
-    """
+
     serializer = ReportePDFSerializer(data=request.data)
     
     if not serializer.is_valid():
