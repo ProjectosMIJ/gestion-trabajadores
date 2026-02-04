@@ -1207,7 +1207,7 @@ export default function ReportEmployee() {
                       employees={reportListEmployee.data}
                       className=""
                     />
-                    <ExportButton
+                    {/* <ExportButton
                       className="w-full cursor-pointer"
                       document={
                         <ReportPDFEmployee
@@ -1216,7 +1216,7 @@ export default function ReportEmployee() {
                         />
                       }
                       fileName="nomina.pdf"
-                    />
+                    /> */}
 
                     {/* <PDFView
                       document={

@@ -3,10 +3,7 @@ import {
   getDisability,
   getPatologys,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import {
-  HealthType,
-  schemaHealthProfile,
-} from "@/app/(protected)/dashboard/gestion-trabajadores/personal/registrar/schemas/schema-health_profile";
+import { HealthType } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/registrar/schemas/schema-health_profile";
 import { DisabilitysType, PatologysType } from "@/app/types/types";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,10 +34,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { useMemo, useTransition } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import useSWR from "swr";
 import Loading from "../../../../loading/loading";
 import updateInfoEmployee from "../actions/update-info";
-import { toast } from "sonner";
+import {
+  HealthUpdateType,
+  schemaHealthProfileUpdate,
+} from "../schema/schema-health_profile";
 
 type Props = {
   defaultValues: HealthType;
@@ -51,7 +52,7 @@ export default function FormUpdateHealth({ defaultValues, idEmployee }: Props) {
   const [isPending, startTransition] = useTransition();
 
   const form = useForm({
-    resolver: zodResolver(schemaHealthProfile),
+    resolver: zodResolver(schemaHealthProfileUpdate),
     defaultValues,
   });
   const { data: patology, isLoading: isLoadingPatology } = useSWR(
@@ -66,7 +67,7 @@ export default function FormUpdateHealth({ defaultValues, idEmployee }: Props) {
     "disability",
     async () => await getDisability(),
   );
-  const onSubmitFormity = (values: HealthType) => {
+  const onSubmitFormity = (values: HealthUpdateType) => {
     startTransition(async () => {
       const response = await updateInfoEmployee(values, idEmployee);
       if (response.success) {

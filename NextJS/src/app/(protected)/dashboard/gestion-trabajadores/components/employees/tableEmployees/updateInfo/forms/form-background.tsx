@@ -10,6 +10,10 @@ import {
   X,
 } from "lucide-react";
 
+import {
+  BackgroundType,
+  schemaBackground,
+} from "@/app/(protected)/dashboard/gestion-trabajadores/personal/registrar/schemas/schema-background";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -37,16 +41,13 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { format } from "date-fns";
-import { useFieldArray, useForm } from "react-hook-form";
-import { z } from "zod";
-import {
-  BackgroundType,
-  schemaBackground,
-} from "@/app/(protected)/dashboard/gestion-trabajadores/personal/registrar/schemas/schema-background";
 import { useTransition } from "react";
-import updateInfoEmployee from "../actions/update-info";
+import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
 import Loading from "../../../../loading/loading";
+import updateInfoEmployee from "../actions/update-info";
+import { schemaBackgroundUpdate } from "../schema/schema-background";
 
 type Props = {
   defaultValues: BackgroundType;
@@ -58,7 +59,7 @@ export default function FormUpdateBackground({
 }: Props) {
   const [isPending, startTransition] = useTransition();
   const form = useForm({
-    resolver: zodResolver(schemaBackground),
+    resolver: zodResolver(schemaBackgroundUpdate),
     defaultValues,
   });
   const { fields, append, remove } = useFieldArray({

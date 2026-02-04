@@ -69,15 +69,6 @@ export function DataTableCodeInfo<TData, TValue>({
   return (
     <div>
       <div className="flex items-center py-4">
-        <Input
-          placeholder="Filtrar Codigos..."
-          value={(table.getColumn("codigo")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("codigo")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -148,7 +139,7 @@ export function DataTableCodeInfo<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  Sin Resultados
                 </TableCell>
               </TableRow>
             )}

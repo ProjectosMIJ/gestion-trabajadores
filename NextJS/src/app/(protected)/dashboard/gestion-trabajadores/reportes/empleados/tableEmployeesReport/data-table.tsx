@@ -165,6 +165,7 @@ export function DataTableReportEmployee<TData, TValue>({
           size="sm"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
+          type="button"
         >
           Anterior
         </Button>
@@ -173,6 +174,7 @@ export function DataTableReportEmployee<TData, TValue>({
           size="sm"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
+          type="button"
         >
           Siguiente
         </Button>

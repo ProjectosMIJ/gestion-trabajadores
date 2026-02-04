@@ -546,7 +546,7 @@ export default function ReportLeaving() {
                 reportListLeaving.data.length > 0 ? (
                   <div className="sticky top-0">
                     <TableReportLeaving leaving={reportListLeaving.data} />
-                    <ExportButton
+                    {/* <ExportButton
                       className="w-full cursor-pointer"
                       document={
                         <ReportLeavingPDF
@@ -555,7 +555,7 @@ export default function ReportLeaving() {
                         />
                       }
                       fileName="nomina.pdf"
-                    />
+                    /> */}
 
                     {/* <PDFView
                       document={

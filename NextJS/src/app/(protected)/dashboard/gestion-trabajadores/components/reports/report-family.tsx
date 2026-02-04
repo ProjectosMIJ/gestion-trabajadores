@@ -879,7 +879,7 @@ export default function ReportEmployee() {
                 reportListFamilys.data.length > 0 ? (
                   <div className="sticky top-0">
                     <ReportFamilyTable familys={reportListFamilys.data} />
-                    <ExportButton
+                    {/* <ExportButton
                       className="w-full cursor-pointer"
                       document={
                         <ReportFamilyPDF
@@ -887,7 +887,7 @@ export default function ReportEmployee() {
                         />
                       }
                       fileName="nomina.pdf"
-                    />
+                    /> */}
 
                     {/* <PDFView
                       document={

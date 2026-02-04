@@ -1,24 +1,12 @@
 import { z } from "zod";
 
 export const schemaBasicUpdateInfo = z.object({
-  nombres: z
-    .string({
-      message: "Debe Ingresar Letras",
-      required_error: "El Nombre Completo Es Requerido",
-    })
-    .min(3, { message: "Debe Ingresar Al Menos 3 Letras" })
-    .max(30, {
-      message: "Debe Ingresar Maximo 30 Letras",
-    }),
-  apellidos: z
-    .string({
-      message: "Debe Ingresar Letras",
-      required_error: "El Apellido Completo Es Requerido",
-    })
-    .min(3, { message: "Debe Ingresar Al Menos 3 Letras" })
-    .max(30, {
-      message: "Debe Ingresar Maximo 30 Letras",
-    }),
+  nombres: z.string({
+    message: "Debe Ingresar Letras",
+  }),
+  apellidos: z.string({
+    message: "Debe Ingresar Letras",
+  }),
   file: z
     .instanceof(File)
     .nullable()
@@ -29,7 +17,6 @@ export const schemaBasicUpdateInfo = z.object({
       message: "El Tamaño Maximo De La Imagen Es 5MB",
     })
     .optional(),
-
   fecha_nacimiento: z
     .date({
       message: "Debe Ingresar Una Fecha Requerida",
@@ -46,14 +33,14 @@ export const schemaBasicUpdateInfo = z.object({
       {
         message: "La Edad Mínima Es De 16 Años",
       },
-    ),
-
+    )
+    .optional(),
   n_contrato: z
     .string({
       message: "Debe Ingresar Informacion Valida",
       required_error: "Este Campo Es Requerido",
     })
-    .min(3, { message: "Debe Ingresar Al Menos 3 Caracteres" }),
+    .optional(),
   sexoid: z
     .number({
       message: "Debe Ingresar Un Sexo Valido",
@@ -61,13 +48,15 @@ export const schemaBasicUpdateInfo = z.object({
     })
     .refine((val) => !(val === 0), {
       message: "Debe Seleccionar Un Sexo",
-    }),
+    })
+    .optional(),
   estadoCivil: z
     .number({
       errorMap: () => ({ message: "Debe Seleccionar Un Estado Civil" }),
     })
     .refine((val) => !(val == 0), {
       message: "Debe Seleccionar Un Esttado Civil",
-    }),
+    })
+    .optional(),
 });
 export type BasicInfoUpdateType = z.infer<typeof schemaBasicUpdateInfo>;

@@ -7,7 +7,7 @@ import { useMemo } from "react";
 export default function TableCode({ codeList }: { codeList: Code[] }) {
   const safeData = useMemo(() => codeList ?? [], [codeList]);
   return (
-    <div className="container mx-auto py-10">
+    <div>
       <DataTableCodeInfo columns={columnsCode} data={safeData} />
     </div>
   );

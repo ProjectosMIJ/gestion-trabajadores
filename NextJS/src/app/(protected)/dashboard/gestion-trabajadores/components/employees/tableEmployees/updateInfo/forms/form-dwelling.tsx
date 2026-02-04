@@ -42,8 +42,12 @@ import useSWR from "swr";
 import updateInfoEmployee from "../actions/update-info";
 import { toast } from "sonner";
 import Loading from "../../../../loading/loading";
+import {
+  DwellingUpdateType,
+  schemaDwellingUpdate,
+} from "../schema/schema-dwelling";
 export type Props = {
-  defaultValues: DwellingType;
+  defaultValues: DwellingUpdateType;
   idEmployee: string;
 };
 
@@ -72,10 +76,10 @@ export default function FormUpdateDwelling({
     isLoading: isLoadingStatesConditionDwelling,
   } = useSWR("conditionDwelling", async () => await getConditionDwelling());
   const form = useForm({
-    resolver: zodResolver(schemaDwelling),
+    resolver: zodResolver(schemaDwellingUpdate),
     defaultValues,
   });
-  const onSubmitFormity = (values: DwellingType) => {
+  const onSubmitFormity = (values: DwellingUpdateType) => {
     startTransition(async () => {
       const response = await updateInfoEmployee(values, idEmployee);
       if (response.success) {
