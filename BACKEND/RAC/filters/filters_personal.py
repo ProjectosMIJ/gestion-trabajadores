@@ -23,9 +23,9 @@ class AsigTrabajoFilter(django_filters.FilterSet):
     estatus_id = django_filters.NumberFilter(field_name='estatusid')
     tipo_nomina = django_filters.NumberFilter(field_name='tiponominaid')
     dependencia_id = django_filters.NumberFilter(field_name='DireccionGeneral__dependenciaId')
-    direccion_general = django_filters.NumberFilter(field_name='DireccionGeneral')
-    direccion_linea = django_filters.NumberFilter(field_name='DireccionLinea')
-    coordinacion = django_filters.NumberFilter(field_name='Coordinacion')
+    direccion_general_id = django_filters.NumberFilter(field_name='DireccionGeneral')
+    direccion_linea_id = django_filters.NumberFilter(field_name='DireccionLinea')
+    coordinacion_id = django_filters.NumberFilter(field_name='Coordinacion')
 
     class Meta:
         model = AsigTrabajo
