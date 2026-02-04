@@ -50,7 +50,7 @@ import {
   SchemaReportFamilyType,
 } from "../../reportes/familiares/schema/report-schema-family";
 import Loading from "../loading/loading";
-import { Eraser } from "lucide-react";
+import { Download, Eraser, Search } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { format } from "date-fns";
 
@@ -886,14 +886,16 @@ export default function ReportEmployee() {
               <div className="flex flex-row gap-2 flex-1 w-full col-span-3">
                 <Button className="flex-1 cursor-pointer">
                   Consultar Reporte
+                  <Search />
                 </Button>
                 {reportListFamilys && (
                   <a
                     href={reportListFamilys}
                     download={`Reporte_Familiares ${format(new Date(), "dd/MM/yyyy")}.pdf`}
-                    className={`${buttonVariants({ variant: "outline" })} flex-1 cursor-pointer`}
+                    className={`${buttonVariants({ variant: "outline" })} flex-1 cursor-pointer animate-pulse`}
                   >
                     Descargar Reporte
+                    <Download />
                   </a>
                 )}
                 <Button

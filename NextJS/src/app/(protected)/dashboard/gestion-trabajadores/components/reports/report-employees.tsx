@@ -58,7 +58,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { ArrowBigDown, CalendarIcon, Eraser } from "lucide-react";
+import {
+  ArrowBigDown,
+  CalendarIcon,
+  Download,
+  Eraser,
+  Search,
+} from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useState, useTransition } from "react";
 import { ReportPDFEmployee } from "../../reportes/empleados/pdf/reportEmployeePDF";
@@ -1236,14 +1242,15 @@ export default function ReportEmployee() {
               <div className="flex flex-row gap-2 flex-1 w-full col-span-3">
                 <Button className="flex-1 cursor-pointer">
                   Consultar Reporte
+                  <Search />
                 </Button>
                 {reportListEmployee && (
                   <a
                     href={reportListEmployee}
                     download={`Reporte_Empleados ${format(new Date(), "dd/MM/yyyy")}.pdf`}
-                    className={`${buttonVariants({ variant: "outline" })} flex-1 cursor-pointer`}
+                    className={`${buttonVariants({ variant: "outline" })} flex-1 cursor-pointer animate-pulse`}
                   >
-                    Descargar Reporte
+                    Descargar Reporte <Download />
                   </a>
                 )}
                 <Button
