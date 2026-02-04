@@ -368,7 +368,7 @@ def _generate_assignment_pdf(filtros):
 
     generator = AssignmentPDFGenerator(
         assignments=queryset,
-        title="Reporte de Asignaciones",
+        title="Reporte de Cargos",
         filters=filtros
     )
     

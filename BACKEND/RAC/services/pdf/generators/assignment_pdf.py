@@ -35,7 +35,7 @@ class AssignmentPDFGenerator(BasePDFGenerator):
     def _get_footer_text(self):
         """Retorna el texto para el footer usando count() de la DB."""
         total = self.assignments.count()
-        return f"Total de asignaciones: {total} | Generado: {self.generated_at.strftime('%d/%m/%Y %H:%M')}"
+        return f"Total de Cargos: {total} | Generado: {self.generated_at.strftime('%d/%m/%Y %H:%M')}"
 
     def _build_content(self):
         """
@@ -64,7 +64,7 @@ class AssignmentPDFGenerator(BasePDFGenerator):
         )
 
         stats = {
-            'Total Asignaciones': stats_data['total'],
+            'Total Cargos': stats_data['total'],
             'Ocupados': stats_data['ocupados'],
             'Vacantes': stats_data['vacantes'],
         }
@@ -78,7 +78,7 @@ class AssignmentPDFGenerator(BasePDFGenerator):
     def _build_assignments_table(self):
         """Construye la tabla procesando registros con .iterator()."""
         elements = []
-        elements.extend(create_section_title("Listado de Asignaciones"))
+        elements.extend(create_section_title("Listado de Cargos"))
 
         headers = [
             '#', 'Código', 'Cédula', 'Empleado', 'Cargo', 
