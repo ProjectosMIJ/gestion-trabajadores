@@ -167,7 +167,7 @@ export default function ReportCode() {
           ) : (
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-4 grid grid-cols-3 min-h-screen gap-2"
+              className="space-y-4 grid grid-cols-3 min-h-max  gap-2"
             >
               <div className="flex flex-col gap-2">
                 <FormField
@@ -487,49 +487,11 @@ export default function ReportCode() {
                             ))}
                           </SelectContent>
                         </Select>
-
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </fieldset>
-              </div>
-              <div className="border p-2  col-span-2 rounded-sm h-full">
-                {reportListCode.data !== null &&
-                reportListCode.data !== undefined &&
-                reportListCode.data.length > 0 ? (
-                  <div className="sticky top-0">
-                    <TableCode codeList={reportListCode.data} />
-                    <ExportButton
-                      className="w-full cursor-pointer"
-                      document={
-                        <ReportCodePDF codeList={reportListCode.data} />
-                      }
-                      fileName="nomina.pdf"
-                    />
-                    {/* 
-                    <PDFView
-                      document={
-                        <ReportCodePDF codeList={reportListCode.data} />
-                      }
-                      className="h-120 w-full"
-                    /> */}
-                  </div>
-                ) : (
-                  <Card className="border-none shadow-none">
-                    <CardHeader>
-                      <CardTitle>
-                        Eliges Las Directivas Para Generar El Reporte
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <Loading
-                        promiseMessage="No Hay Informacion Que Cumpla Con Las Directivas"
-                        className="w-full h-full border-none shadow-none animate-bounce bg-transparent mt-10"
-                      ></Loading>
-                    </CardContent>
-                  </Card>
-                )}
               </div>
             </form>
           )}
