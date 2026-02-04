@@ -5,10 +5,7 @@ import {
   getShirtSize,
   getShoesSize,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import {
-  PhysicalProfileType,
-  schemaPhysicalProfile,
-} from "@/app/(protected)/dashboard/gestion-trabajadores/personal/registrar/schemas/schema-physical_profile";
+import { PhysicalProfileType } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/registrar/schemas/schema-physical_profile";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -37,9 +34,12 @@ import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import useSWR from "swr";
-import { z } from "zod";
-import updateInfoEmployee from "../actions/update-info";
 import Loading from "../../../../loading/loading";
+import updateInfoEmployee from "../actions/update-info";
+import {
+  PhysicalProfileUpdateType,
+  schemaPhysicalProfileUpdate,
+} from "../schema/schema-physical_profile";
 
 type Props = {
   defaultValues: PhysicalProfileType;
@@ -52,7 +52,7 @@ export default function FormUpdatePhysical({
   const [isPending, startTransition] = useTransition();
 
   const form = useForm({
-    resolver: zodResolver(schemaPhysicalProfile),
+    resolver: zodResolver(schemaPhysicalProfileUpdate),
     defaultValues,
   });
   const { data: shirtSize, isLoading: isLoadingShirtSize } = useSWR(
@@ -67,7 +67,7 @@ export default function FormUpdatePhysical({
     "shoesSize",
     async () => await getShoesSize(),
   );
-  const onSubmitFormity = (values: z.infer<typeof schemaPhysicalProfile>) => {
+  const onSubmitFormity = (values: PhysicalProfileUpdateType) => {
     startTransition(async () => {
       const response = await updateInfoEmployee(values, idEmployee);
       if (response.success) {

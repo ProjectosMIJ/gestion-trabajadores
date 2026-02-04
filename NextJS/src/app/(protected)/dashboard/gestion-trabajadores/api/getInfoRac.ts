@@ -39,6 +39,7 @@ import {
   States,
   Status,
 } from "@/app/types/types";
+import { Blob } from "buffer";
 
 export const getAcademyLevel = async (): Promise<
   ApiResponse<AcademyLevel[]>
@@ -190,7 +191,21 @@ export const getEmployeeData = async (): Promise<
     await responseEmployee.json();
   return getEmployee;
 };
-
+export const getEmployeeDataSearch = async ({
+  searchParams,
+}: {
+  searchParams: string | undefined;
+}): Promise<ApiResponse<EmployeeData[]>> => {
+  const url = searchParams
+    ? `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employee/cargos/?${searchParams}`
+    : `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employee/cargos/`;
+  const responseEmployee = await fetch(`${url}`, {
+    cache: "no-cache",
+  });
+  const getEmployee: ApiResponse<EmployeeData[]> =
+    await responseEmployee.json();
+  return getEmployee;
+};
 export const getHistoryMoveEmploye = async (
   id: string,
 ): Promise<ApiResponse<EmployeeCargoHistory[]>> => {
@@ -209,7 +224,17 @@ export const getCodeList = async (): Promise<ApiResponse<Code[]>> => {
   const getCodeList: ApiResponse<Code[]> = await responseCodeList.json();
   return getCodeList;
 };
-
+export const getCodeListSearch = async ({
+  searchParams,
+}: {
+  searchParams: string | undefined;
+}): Promise<ApiResponse<Code[]>> => {
+  const responseCodeList = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}cargos/general/?${searchParams}`,
+  );
+  const getCodeList: ApiResponse<Code[]> = await responseCodeList.json();
+  return getCodeList;
+};
 export const getReportTypePerson = async (): Promise<
   ApiResponse<ReportTypePerson[]>
 > => {
@@ -515,9 +540,9 @@ export const getDependency = async (): Promise<ApiResponse<Dependency[]>> => {
   return getResponse;
 };
 
-export const postReport = async <T, U>(values: T): Promise<ApiResponse<U>> => {
+export const postReport = async <T>(values: T): Promise<globalThis.Blob> => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}reports/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}reports/pdf/`,
     {
       method: "POST",
       headers: {
@@ -526,7 +551,7 @@ export const postReport = async <T, U>(values: T): Promise<ApiResponse<U>> => {
       body: JSON.stringify(values),
     },
   );
-  const getResponse: ApiResponse<U> = await response.json();
+  const getResponse = await response.blob();
   return getResponse;
 };
 export const getRegion = async (): Promise<ApiResponse<Region[]>> => {

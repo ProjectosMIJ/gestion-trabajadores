@@ -35,7 +35,7 @@ import {
 } from "../../api/getInfoRac";
 
 import { ApiResponse, Code } from "@/app/types/types";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import { useState, useTransition } from "react";
 import TableCode from "../../personal/listado-codigo/tableCodeInfo/page";
@@ -47,16 +47,13 @@ import Loading from "../loading/loading";
 import ExportButton from "@/components/ui/ExportButtonPDF";
 import ReportCodePDF from "../../reportes/codigos/pdf/reportCodePDF";
 import PDFView from "@/components/ui/PDFView";
+import { Download, Eraser, Search } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { format } from "date-fns";
 
 export default function ReportCode() {
   const [isPending, startTransition] = useTransition();
-  const [reportListCode, setReportListCode] = useState<
-    ApiResponse<Code[] | null>
-  >({
-    data: [],
-    message: "",
-    status: "",
-  });
+  const [reportListCode, setReportListCodeBlob] = useState<string>();
   const { data: session } = useSession();
   const [dependencyId, setDependencyId] = useState<number>(0);
   const { data: statusNomina, isLoading: isLoadingStatusNomina } = useSWR(
@@ -150,14 +147,16 @@ export default function ReportCode() {
             : data?.filtros?.coordinacion_id,
         },
       };
-      const reponse = await postReport<SchemaReportCodeType, Code[] | null>(
-        payload,
-      );
-      setReportListCode(reponse);
+      const reponse = await postReport<SchemaReportCodeType>(payload);
+      const urlBlob = URL.createObjectURL(reponse);
+      setReportListCodeBlob(urlBlob);
       form.reset();
     });
   };
-
+  const handleClean = () => {
+    form.reset();
+    setReportListCodeBlob(undefined);
+  };
   return (
     <Card>
       <CardContent>
@@ -167,9 +166,9 @@ export default function ReportCode() {
           ) : (
             <form
               onSubmit={form.handleSubmit(onSubmit)}
-              className="space-y-4 grid grid-cols-3 min-h-screen gap-2"
+              className="space-y-4 grid grid-cols-3   gap-2"
             >
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 col-span-3">
                 <FormField
                   control={form.control}
                   name="agrupar_por"
@@ -202,334 +201,330 @@ export default function ReportCode() {
                     </FormItem>
                   )}
                 />
-                <Button className=" bg-blue-600 hover:bg-blue-800 cursor-pointer sticky top-[2px]">
-                  Consultar Reporte
-                </Button>
-                {session.user.role == "admin" && (
-                  <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-green-600">
-                    <legend className="text-green-800 font-semibold">
-                      Direcciones{" "}
-                    </legend>
-                    <FormField
-                      control={form.control}
-                      name="filtros.dependencia_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Dependencia</FormLabel>
-                          <Select
-                            onValueChange={(values) => {
-                              field.onChange(Number.parseInt(values));
-                              setDependencyId(Number.parseInt(values));
-                            }}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="w-full truncate">
-                                <SelectValue
-                                  placeholder={`${isLoadingDependency ? "Cargando Depedencias" : "Seleccione una Dependencia"}`}
-                                />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {dependency?.data.map((dependencia, i) => (
-                                <SelectItem key={i} value={`${dependencia.id}`}>
-                                  {dependencia.Codigo}-{dependencia.dependencia}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="filtros.general_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Dirección General</FormLabel>
-                          <Select
-                            onValueChange={(values) => {
-                              field.onChange(Number.parseInt(values));
-                              setDirectionGeneralId(values);
-                            }}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="w-full truncate">
-                                <SelectValue
-                                  placeholder={`${isLoadingDirectionGeneral ? "Cargando Direcciones Generales" : "Seleccione una Dirección General"}`}
-                                />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {directionGeneral?.data.map((general, i) => (
-                                <SelectItem key={i} value={`${general.id}`}>
-                                  {general.Codigo}-{general.direccion_general}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="filtros.linea_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Dirección De Linea</FormLabel>
-                          <Select
-                            onValueChange={(values) => {
-                              field.onChange(Number.parseInt(values));
-                              setDirectionLineId(values);
-                            }}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="w-full truncate">
-                                <SelectValue
-                                  placeholder={`${isLoadingDirectionLine ? "Cargando Direcciones De Linea" : "Seleccione una Dirección De Linea"}`}
-                                />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {directionLine?.data.map((line, i) => (
-                                <SelectItem key={i} value={`${line.id}`}>
-                                  {line.Codigo}-{line.direccion_linea}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="filtros.coordinacion_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Coordinacion</FormLabel>
-                          <Select
-                            onValueChange={(values) => {
-                              field.onChange(Number.parseInt(values));
-                            }}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="w-full truncate">
-                                <SelectValue
-                                  placeholder={`${isLoadingCoordination ? "Cargando Coordinaciones" : "Seleccione una Coordinación"}`}
-                                />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {coordination?.data.map((coord, i) => (
-                                <SelectItem key={i} value={`${coord.id}`}>
-                                  {coord.Codigo}-{coord.coordinacion}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
 
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </fieldset>
-                )}
+                <ScrollArea className="w-full ">
+                  <div className="flex flex-row w-full gap-2">
+                    {session.user.role == "admin" && (
+                      <fieldset className="flex flex-col w-full gap-3 border-2 p-2 rounded-sm border-green-600">
+                        <legend className="text-green-800 font-semibold">
+                          Direcciones{" "}
+                        </legend>
+                        <FormField
+                          control={form.control}
+                          name="filtros.dependencia_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Dependencia</FormLabel>
+                              <Select
+                                onValueChange={(values) => {
+                                  field.onChange(Number.parseInt(values));
+                                  setDependencyId(Number.parseInt(values));
+                                }}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="w-full truncate">
+                                    <SelectValue
+                                      placeholder={`${isLoadingDependency ? "Cargando Depedencias" : "Seleccione una Dependencia"}`}
+                                    />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {dependency?.data.map((dependencia, i) => (
+                                    <SelectItem
+                                      key={i}
+                                      value={`${dependencia.id}`}
+                                    >
+                                      {dependencia.Codigo}-
+                                      {dependencia.dependencia}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="filtros.general_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Dirección General</FormLabel>
+                              <Select
+                                onValueChange={(values) => {
+                                  field.onChange(Number.parseInt(values));
+                                  setDirectionGeneralId(values);
+                                }}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="w-full truncate">
+                                    <SelectValue
+                                      placeholder={`${isLoadingDirectionGeneral ? "Cargando Direcciones Generales" : "Seleccione una Dirección General"}`}
+                                    />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {directionGeneral?.data.map((general, i) => (
+                                    <SelectItem key={i} value={`${general.id}`}>
+                                      {general.Codigo}-
+                                      {general.direccion_general}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="filtros.linea_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Dirección De Linea</FormLabel>
+                              <Select
+                                onValueChange={(values) => {
+                                  field.onChange(Number.parseInt(values));
+                                  setDirectionLineId(values);
+                                }}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="w-full truncate">
+                                    <SelectValue
+                                      placeholder={`${isLoadingDirectionLine ? "Cargando Direcciones De Linea" : "Seleccione una Dirección De Linea"}`}
+                                    />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {directionLine?.data.map((line, i) => (
+                                    <SelectItem key={i} value={`${line.id}`}>
+                                      {line.Codigo}-{line.direccion_linea}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="filtros.coordinacion_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Coordinacion</FormLabel>
+                              <Select
+                                onValueChange={(values) => {
+                                  field.onChange(Number.parseInt(values));
+                                }}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="w-full truncate">
+                                    <SelectValue
+                                      placeholder={`${isLoadingCoordination ? "Cargando Coordinaciones" : "Seleccione una Coordinación"}`}
+                                    />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {coordination?.data.map((coord, i) => (
+                                    <SelectItem key={i} value={`${coord.id}`}>
+                                      {coord.Codigo}-{coord.coordinacion}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
 
-                <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-red-800">
-                  <legend className="text-red-900 font-semibold">
-                    Informacion De Cargo
-                  </legend>
-                  <FormField
-                    control={form.control}
-                    name="filtros.cargo_especifico_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Denominacion De Cargo Especifico</FormLabel>
-                        <Select
-                          onValueChange={(values) => {
-                            field.onChange(Number.parseInt(values));
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full truncate">
-                              <SelectValue
-                                placeholder={`${isLoadingCargoEspecifico ? "Cargando Cargos Especificos" : "Seleccione una Denominacion De Cargo Especifico"}`}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {cargoEspecifico?.data.map((cargo, i) => (
-                              <SelectItem key={i} value={`${cargo.id}`}>
-                                {cargo.cargo}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </fieldset>
                     )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="filtros.cargo_id"
-                    render={({ field }) => (
-                      <FormItem className=" ">
-                        <FormLabel>Denominacion De Cargo</FormLabel>
-                        <Select
-                          onValueChange={(values) => {
-                            field.onChange(Number.parseInt(values));
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full truncate">
-                              <SelectValue
-                                placeholder={`${isLoadingCargo ? "Cargando Denominaciones De Cargo" : "Seleccione una Denominacion De Cargo"}`}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {cargo?.data.map((cargo, i) => (
-                              <SelectItem key={i} value={`${cargo.id}`}>
-                                {cargo.cargo}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="filtros.nomina_id"
-                    render={({ field }) => (
-                      <FormItem className=" ">
-                        <FormLabel>Tipo de Nomina</FormLabel>
-                        <Select
-                          onValueChange={(values) => {
-                            field.onChange(Number.parseInt(values));
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full truncate">
-                              <SelectValue
-                                placeholder={`${isLoadingNomina ? "Cargando Nominas" : "Seleccione un Tipo de Nomina"}`}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {nomina?.data.map((nomina, i) => (
-                              <SelectItem key={i} value={`${nomina.id}`}>
-                                {nomina.nomina}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="filtros.grado_id"
-                    render={({ field }) => (
-                      <FormItem className="col-span-3">
-                        <FormLabel>Grado</FormLabel>
-                        <Select
-                          onValueChange={(values) => {
-                            field.onChange(Number.parseInt(values));
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full truncate">
-                              <SelectValue
-                                placeholder={`${isLoadingGrado ? "Cargando Grados" : "Seleccione un Grado"}`}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {grado?.data.map((grado, i) => (
-                              <SelectItem key={i} value={`${grado.id}`}>
-                                {grado.grado}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="filtros.estatus_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Listado De Estatus</FormLabel>
-                        <Select
-                          onValueChange={(values) => {
-                            field.onChange(Number.parseInt(values));
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full truncate">
-                              <SelectValue
-                                placeholder={`${isLoadingStatusNomina ? "Cargando Estatus De Codigos" : "Seleccione Un Codigo"}`}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {statusNomina?.data.map((status, i) => (
-                              <SelectItem key={i} value={`${status.id}`}>
-                                {status.estatus}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
 
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </fieldset>
-              </div>
-              <div className="border p-2  col-span-2 rounded-sm h-full">
-                {reportListCode.data !== null &&
-                reportListCode.data !== undefined &&
-                reportListCode.data.length > 0 ? (
-                  <div className="sticky top-0">
-                    <TableCode codeList={reportListCode.data} />
-                    <ExportButton
-                      className="w-full cursor-pointer"
-                      document={
-                        <ReportCodePDF codeList={reportListCode.data} />
-                      }
-                      fileName="nomina.pdf"
-                    />
-                    {/* 
-                    <PDFView
-                      document={
-                        <ReportCodePDF codeList={reportListCode.data} />
-                      }
-                      className="h-120 w-full"
-                    /> */}
+                    <fieldset className="flex flex-col w-full gap-3 border-2 p-2 rounded-sm border-red-800">
+                      <legend className="text-red-900 font-semibold">
+                        Informacion De Cargo
+                      </legend>
+                      <FormField
+                        control={form.control}
+                        name="filtros.cargo_especifico_id"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>
+                              Denominacion De Cargo Especifico
+                            </FormLabel>
+                            <Select
+                              onValueChange={(values) => {
+                                field.onChange(Number.parseInt(values));
+                              }}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="w-full truncate">
+                                  <SelectValue
+                                    placeholder={`${isLoadingCargoEspecifico ? "Cargando Cargos Especificos" : "Seleccione una Denominacion De Cargo Especifico"}`}
+                                  />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {cargoEspecifico?.data.map((cargo, i) => (
+                                  <SelectItem key={i} value={`${cargo.id}`}>
+                                    {cargo.cargo}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="filtros.cargo_id"
+                        render={({ field }) => (
+                          <FormItem className=" ">
+                            <FormLabel>Denominacion De Cargo</FormLabel>
+                            <Select
+                              onValueChange={(values) => {
+                                field.onChange(Number.parseInt(values));
+                              }}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="w-full truncate">
+                                  <SelectValue
+                                    placeholder={`${isLoadingCargo ? "Cargando Denominaciones De Cargo" : "Seleccione una Denominacion De Cargo"}`}
+                                  />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {cargo?.data.map((cargo, i) => (
+                                  <SelectItem key={i} value={`${cargo.id}`}>
+                                    {cargo.cargo}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="filtros.nomina_id"
+                        render={({ field }) => (
+                          <FormItem className=" ">
+                            <FormLabel>Tipo de Nomina</FormLabel>
+                            <Select
+                              onValueChange={(values) => {
+                                field.onChange(Number.parseInt(values));
+                              }}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="w-full truncate">
+                                  <SelectValue
+                                    placeholder={`${isLoadingNomina ? "Cargando Nominas" : "Seleccione un Tipo de Nomina"}`}
+                                  />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {nomina?.data.map((nomina, i) => (
+                                  <SelectItem key={i} value={`${nomina.id}`}>
+                                    {nomina.nomina}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="filtros.grado_id"
+                        render={({ field }) => (
+                          <FormItem className="col-span-3">
+                            <FormLabel>Grado</FormLabel>
+                            <Select
+                              onValueChange={(values) => {
+                                field.onChange(Number.parseInt(values));
+                              }}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="w-full truncate">
+                                  <SelectValue
+                                    placeholder={`${isLoadingGrado ? "Cargando Grados" : "Seleccione un Grado"}`}
+                                  />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {grado?.data.map((grado, i) => (
+                                  <SelectItem key={i} value={`${grado.id}`}>
+                                    {grado.grado}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="filtros.estatus_id"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Listado De Estatus</FormLabel>
+                            <Select
+                              onValueChange={(values) => {
+                                field.onChange(Number.parseInt(values));
+                              }}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="w-full truncate">
+                                  <SelectValue
+                                    placeholder={`${isLoadingStatusNomina ? "Cargando Estatus De Codigos" : "Seleccione Un Codigo"}`}
+                                  />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {statusNomina?.data.map((status, i) => (
+                                  <SelectItem key={i} value={`${status.id}`}>
+                                    {status.estatus}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </fieldset>
                   </div>
-                ) : (
-                  <Card className="border-none shadow-none">
-                    <CardHeader>
-                      <CardTitle>
-                        Eliges Las Directivas Para Generar El Reporte
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <Loading
-                        promiseMessage="No Hay Informacion Que Cumpla Con Las Directivas"
-                        className="w-full h-full border-none shadow-none animate-bounce bg-transparent mt-10"
-                      ></Loading>
-                    </CardContent>
-                  </Card>
+                </ScrollArea>
+              </div>
+              <div className="flex flex-row gap-2 flex-1 w-full col-span-3">
+                <Button className="flex-1 cursor-pointer">
+                  Consultar Reporte
+                  <Search />
+                </Button>
+                {reportListCode && (
+                  <a
+                    href={reportListCode}
+                    download={`Reporte_Cargos ${format(new Date(), "dd/MM/yyyy")}.pdf`}
+                    className={`${buttonVariants({ variant: "outline" })} flex-1 cursor-pointer animate-pulse`}
+                  >
+                    Descargar Reporte
+                    <Download />
+                  </a>
                 )}
+                <Button
+                  className="flex-1 cursor-pointer"
+                  variant={"destructive"}
+                  onClick={handleClean}
+                  type="button"
+                >
+                  Limpiar Reporte
+                  <Eraser />
+                </Button>
               </div>
             </form>
           )}

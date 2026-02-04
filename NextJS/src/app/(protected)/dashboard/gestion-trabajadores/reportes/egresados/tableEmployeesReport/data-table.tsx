@@ -155,6 +155,7 @@ export function DataTableLeaving<TData, TValue>({
       <div className="flex items-center justify-end space-x-2 py-4">
         <Button
           variant="outline"
+          type="button"
           size="sm"
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
@@ -163,6 +164,7 @@ export function DataTableLeaving<TData, TValue>({
         </Button>
         <Button
           variant="outline"
+          type="button"
           size="sm"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}

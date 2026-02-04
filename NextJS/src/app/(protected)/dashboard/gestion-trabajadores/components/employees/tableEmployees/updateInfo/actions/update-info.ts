@@ -1,21 +1,21 @@
 "use server";
 
-import { AcademyType } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/registrar/schemas/schema-academic_training";
-import { BackgroundType } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/registrar/schemas/schema-background";
-import { DwellingType } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/registrar/schemas/schema-dwelling";
-import { HealthType } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/registrar/schemas/schema-health_profile";
-import { PhysicalProfileType } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/registrar/schemas/schema-physical_profile";
-import { BasicInfoUpdateType } from "../schema/schemaEmployeeUpdate";
 import { auth } from "#/auth";
-import { profile } from "console";
+import { PhysicalProfileType } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/registrar/schemas/schema-physical_profile";
+import { AcademyUpdateUpdateType } from "../schema/schema-academic_training";
+import { BackgroundUpdateType } from "../schema/schema-background";
+import { DwellingUpdateType } from "../schema/schema-dwelling";
+import { HealthUpdateType } from "../schema/schema-health_profile";
+import { BasicInfoUpdateType } from "../schema/schemaEmployeeUpdate";
+import { PhysicalProfileUpdateType } from "../schema/schema-physical_profile";
 
 export default async function updateInfoEmployee(
   data:
-    | PhysicalProfileType
-    | BackgroundType
-    | HealthType
-    | DwellingType
-    | AcademyType
+    | PhysicalProfileUpdateType
+    | BackgroundUpdateType
+    | HealthUpdateType
+    | DwellingUpdateType
+    | AcademyUpdateUpdateType
     | BasicInfoUpdateType,
   idEmployee: string,
   cedulaidentidad?: string,

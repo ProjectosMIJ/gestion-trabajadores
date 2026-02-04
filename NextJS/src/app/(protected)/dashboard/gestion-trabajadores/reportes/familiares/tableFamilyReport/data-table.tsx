@@ -161,6 +161,7 @@ export function DataTableFamily<TData, TValue>({
           variant="outline"
           size="sm"
           onClick={() => table.previousPage()}
+          type="button"
           disabled={!table.getCanPreviousPage()}
         >
           Anterior
@@ -168,6 +169,7 @@ export function DataTableFamily<TData, TValue>({
         <Button
           variant="outline"
           size="sm"
+          type="button"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >
