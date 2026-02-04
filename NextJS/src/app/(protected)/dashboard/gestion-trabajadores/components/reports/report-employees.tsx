@@ -1240,7 +1240,7 @@ export default function ReportEmployee() {
                 {reportListEmployee && (
                   <a
                     href={reportListEmployee}
-                    download={`Reporte_${new Date().getTime()}.pdf`}
+                    download={`Reporte_Empleados ${format(new Date(), "dd/MM/yyyy")}.pdf`}
                     className={`${buttonVariants({ variant: "outline" })} flex-1 cursor-pointer`}
                   >
                     Descargar Reporte

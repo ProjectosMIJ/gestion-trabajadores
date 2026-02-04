@@ -13,7 +13,7 @@ export default function ProtectedLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <main className="flex flex-col justify-center items-center m-auto  overflow-hidden h-full">
+    <main className="flex flex-col justify-center items-center m-auto ">
       <Toaster
         closeButton
         position="top-right"

@@ -52,6 +52,7 @@ import {
 import Loading from "../loading/loading";
 import { Eraser } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { format } from "date-fns";
 
 export default function ReportEmployee() {
   const [isPending, startTransition] = useTransition();
@@ -889,7 +890,7 @@ export default function ReportEmployee() {
                 {reportListFamilys && (
                   <a
                     href={reportListFamilys}
-                    download={`Reporte_${new Date().getTime()}.pdf`}
+                    download={`Reporte_Familiares ${format(new Date(), "dd/MM/yyyy")}.pdf`}
                     className={`${buttonVariants({ variant: "outline" })} flex-1 cursor-pointer`}
                   >
                     Descargar Reporte
