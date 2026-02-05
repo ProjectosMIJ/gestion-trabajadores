@@ -505,7 +505,7 @@ export function ReportFamilyPDF({ employeeData }: { employeeData: Family[] }) {
                       <Text style={styles.label}>Grupo Sanguíneo:</Text>
                       <Text style={styles.value}>
                         {familiar.perfil_salud_familiar?.grupoSanguineo
-                          ?.GrupoSanguineo ?? "N/A"}
+                          ?.grupoSanguineo ?? "N/A"}
                       </Text>
                     </View>
 

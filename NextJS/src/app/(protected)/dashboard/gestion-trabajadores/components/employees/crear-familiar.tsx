@@ -419,7 +419,7 @@ export function CreateFamilyForm() {
                                           {field.value ? (
                                             formatDate(
                                               field.value,
-                                              "yyyy-MM-dd",
+                                              "dd/MM/yyyy",
                                             )
                                           ) : (
                                             <span>Selecciona una fecha</span>
@@ -697,45 +697,6 @@ export function CreateFamilyForm() {
                             {showMoreDetails && (
                               <>
                                 <FormField
-                                  name={`formacion_academica_familiar.institucion`}
-                                  control={form.control}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel className="cursor-pointer">
-                                        Institucion (Opcional)
-                                      </FormLabel>
-                                      <FormControl>
-                                        <Input
-                                          type="text"
-                                          placeholder="Universidad Nacional..."
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                                <FormField
-                                  name={`formacion_academica_familiar.capacitacion`}
-                                  control={form.control}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel className="cursor-pointer">
-                                        Capacitacion (Opcional)
-                                      </FormLabel>
-                                      <FormControl>
-                                        <Input
-                                          type="text"
-                                          placeholder="Capacitado En..."
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-
-                                <FormField
                                   control={form.control}
                                   name={`formacion_academica_familiar.carrera_id`}
                                   render={({ field }) => (
@@ -806,6 +767,45 @@ export function CreateFamilyForm() {
                                           ))}
                                         </SelectContent>
                                       </Select>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+
+                                <FormField
+                                  name={`formacion_academica_familiar.capacitacion`}
+                                  control={form.control}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="cursor-pointer">
+                                        Capacitacion (Opcional)
+                                      </FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          type="text"
+                                          placeholder="Capacitado En..."
+                                          {...field}
+                                        />
+                                      </FormControl>
+                                      <FormMessage />
+                                    </FormItem>
+                                  )}
+                                />
+                                <FormField
+                                  name={`formacion_academica_familiar.institucion`}
+                                  control={form.control}
+                                  render={({ field }) => (
+                                    <FormItem>
+                                      <FormLabel className="cursor-pointer">
+                                        Institucion (Opcional)
+                                      </FormLabel>
+                                      <FormControl>
+                                        <Input
+                                          type="text"
+                                          placeholder="Universidad Nacional..."
+                                          {...field}
+                                        />
+                                      </FormControl>
                                       <FormMessage />
                                     </FormItem>
                                   )}

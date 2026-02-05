@@ -472,7 +472,7 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                                         className="font-light"
                                       >
                                         {field.value ? (
-                                          formatDate(field.value, "yyyy-MM-dd")
+                                          formatDate(field.value, "dd/MM/yyyy")
                                         ) : (
                                           <span>Selecciona una fecha</span>
                                         )}

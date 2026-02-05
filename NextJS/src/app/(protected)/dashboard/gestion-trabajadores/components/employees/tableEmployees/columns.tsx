@@ -17,6 +17,7 @@ import { DataTableColumnHeader } from "./data-table-column-header";
 import ExportButton from "@/components/ui/ExportButtonPDF";
 import { ReportPDFEmployee } from "../../../reportes/empleados/pdf/reportEmployeePDF";
 import DetailInfoEmployee from "./detail-info";
+import { format } from "date-fns";
 export const columns: ColumnDef<EmployeeData>[] = [
   {
     accessorKey: "cedulaidentidad",
@@ -40,12 +41,9 @@ export const columns: ColumnDef<EmployeeData>[] = [
     accessorKey: "fecha_nacimiento",
     header: "F. Nacimiento",
     cell: ({ getValue }) => {
-      const fecha = getValue();
+      const fecha = getValue() as string;
       return (
-        <span>
-          {" "}
-          {fecha ? new Date(fecha.toString()).toLocaleDateString() : "N/A"}
-        </span>
+        <span> {fecha ? format(new Date(fecha), "dd/MM/yyy") : "N/A"}</span>
       );
     },
   },
@@ -60,6 +58,12 @@ export const columns: ColumnDef<EmployeeData>[] = [
   {
     accessorKey: "fechaingresoorganismo",
     header: "F. Ingreso Al Organismo",
+    cell: ({ getValue }) => {
+      const fecha = getValue() as string;
+      return (
+        <span> {fecha ? format(new Date(fecha), "dd/MM/yyy") : "N/A"}</span>
+      );
+    },
   },
 
   {

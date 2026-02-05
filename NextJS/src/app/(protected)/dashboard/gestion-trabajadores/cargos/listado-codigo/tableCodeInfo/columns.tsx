@@ -11,14 +11,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { ColumnDef } from "@tanstack/react-table";
 import { format } from "date-fns";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
@@ -26,7 +18,7 @@ import UpdateCode from "./detail-info";
 export const columnsCode: ColumnDef<Code>[] = [
   {
     id: "actions",
-    header: "Accioens",
+    header: "Acciones",
     cell: ({ row }) => {
       const codigo = row.original;
 

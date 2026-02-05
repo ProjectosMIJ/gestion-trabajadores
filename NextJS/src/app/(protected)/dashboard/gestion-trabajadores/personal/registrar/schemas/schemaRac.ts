@@ -43,5 +43,5 @@ export const schemaEmployeeEdit = z.object({
   fecha_nacimiento: z
     .date()
     .or(z.string())
-    .transform((v) => String(format(v, "yyyy-MM-dd"))),
+    .transform((v) => String(format(v, "dd/MM/yyyy"))),
 });

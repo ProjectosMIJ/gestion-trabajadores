@@ -1,6 +1,7 @@
 # 📄 Sistema de Generación de PDFs - Documentación
 
 ## Índice
+
 1. [Resumen](#resumen)
 2. [Arquitectura](#arquitectura)
 3. [Endpoint](#endpoint)
@@ -15,12 +16,12 @@
 
 Sistema modular para generación de reportes PDF usando **ReportLab**. Soporta 4 categorías de reportes con filtros dinámicos.
 
-| Categoría | Descripción | Generador |
-|-----------|-------------|-----------|
-| `empleados` | Lista de empleados activos | `EmployeePDFGenerator` |
-| `familiares` | Empleados con sus familiares | `FamilyPDFGenerator` |
-| `asignaciones` | Códigos de trabajo | `AssignmentPDFGenerator` |
-| `egresados` | Empleados egresados | `GraduatePDFGenerator` |
+| Categoría      | Descripción                  | Generador                |
+| -------------- | ---------------------------- | ------------------------ |
+| `empleados`    | Lista de empleados activos   | `EmployeePDFGenerator`   |
+| `familiares`   | Empleados con sus familiares | `FamilyPDFGenerator`     |
+| `asignaciones` | Códigos de trabajo           | `AssignmentPDFGenerator` |
+| `egresados`    | Empleados egresados          | `GraduatePDFGenerator`   |
 
 ---
 
@@ -55,8 +56,8 @@ Content-Type: application/json
 
 ```json
 {
-  "categoria": "string",   // Requerido: empleados | familiares | asignaciones | egresados
-  "filtros": {}            // Opcional: objeto con filtros
+  "categoria": "string", // Requerido: empleados | familiares | asignaciones | egresados
+  "filtros": {} // Opcional: objeto con filtros
 }
 ```
 
@@ -73,115 +74,119 @@ Content-Type: application/json
 ### 1. Empleados (`categoria: "empleados"`)
 
 **Columnas del PDF:**
+
 - Cédula, Nombres, Apellidos, F. Nacimiento, F. Ingreso, Años APN, Contrato, Sexo, Estado Civil
 
 **Filtros disponibles:**
 
-| Filtro | Tipo | Descripción |
-|--------|------|-------------|
-| `dependencia_id` | integer | ID de la dependencia |
-| `direccion_general_id` | integer | ID de dirección general |
-| `direccion_linea_id` | integer | ID de dirección de línea |
-| `coordinacion_id` | integer | ID de coordinación |
-| `sexo_id` | integer | ID del sexo |
-| `discapacidad_id` | integer | ID de discapacidad |
-| `grupo_sanguineo_id` | integer | ID grupo sanguíneo |
-| `patologia_id` | integer | ID de patología |
-| `nomina_id` | integer | ID tipo de nómina |
-| `grado_id` | integer | ID del grado |
-| `cargo_id` | integer | ID del cargo |
-| `cargo_especifico_id` | integer | ID cargo específico |
-| `nivel_academico_id` | integer | ID nivel académico |
-| `carrera_id` | integer | ID de carrera |
-| `mencion_id` | integer | ID de mención |
-| `estatus_id` | integer | ID del estatus |
-| `tipo_personal` | integer | ID tipo personal |
-| `apn_min` | decimal | Años APN mínimos |
-| `apn_max` | decimal | Años APN máximos |
-| `edad_min` | integer | Edad mínima |
-| `edad_max` | integer | Edad máxima |
-| `fecha_ingreso_Desde` | date | Fecha ingreso desde (YYYY-MM-DD) |
-| `fecha_ingreso_Hasta` | date | Fecha ingreso hasta |
-| `region_id` | integer | ID de región |
-| `estado_id` | integer | ID de estado |
-| `municipio_id` | integer | ID de municipio |
-| `parroquia_id` | integer | ID de parroquia |
-| `condicion_vivienda_id` | integer | ID condición vivienda |
+| Filtro                  | Tipo    | Descripción                      |
+| ----------------------- | ------- | -------------------------------- |
+| `dependencia_id`        | integer | ID de la dependencia             |
+| `direccion_general_id`  | integer | ID de dirección general          |
+| `direccion_linea_id`    | integer | ID de dirección de línea         |
+| `coordinacion_id`       | integer | ID de coordinación               |
+| `sexo_id`               | integer | ID del sexo                      |
+| `discapacidad_id`       | integer | ID de discapacidad               |
+| `grupo_sanguineo_id`    | integer | ID grupo sanguíneo               |
+| `patologia_id`          | integer | ID de patología                  |
+| `nomina_id`             | integer | ID tipo de nómina                |
+| `grado_id`              | integer | ID del grado                     |
+| `cargo_id`              | integer | ID del cargo                     |
+| `cargo_especifico_id`   | integer | ID cargo específico              |
+| `nivel_academico_id`    | integer | ID nivel académico               |
+| `carrera_id`            | integer | ID de carrera                    |
+| `mencion_id`            | integer | ID de mención                    |
+| `estatus_id`            | integer | ID del estatus                   |
+| `tipo_personal`         | integer | ID tipo personal                 |
+| `apn_min`               | decimal | Años APN mínimos                 |
+| `apn_max`               | decimal | Años APN máximos                 |
+| `edad_min`              | integer | Edad mínima                      |
+| `edad_max`              | integer | Edad máxima                      |
+| `fecha_ingreso_Desde`   | date    | Fecha ingreso desde (dd/MM/yyyy) |
+| `fecha_ingreso_Hasta`   | date    | Fecha ingreso hasta              |
+| `region_id`             | integer | ID de región                     |
+| `estado_id`             | integer | ID de estado                     |
+| `municipio_id`          | integer | ID de municipio                  |
+| `parroquia_id`          | integer | ID de parroquia                  |
+| `condicion_vivienda_id` | integer | ID condición vivienda            |
 
 ---
 
 ### 2. Familiares (`categoria: "familiares"`)
 
 **Columnas del PDF:**
+
 - # | Cédula Emp. | Empleado | Cédula Fam. | Familiar | Parentesco | F. Nacimiento | Sexo | Heredero | Mismo Ente
 
 **Filtros disponibles:**
 
-| Filtro | Tipo | Descripción |
-|--------|------|-------------|
-| `parentesco_id` | integer | ID del parentesco |
-| `patologias_id` | integer | ID patología familiar |
-| `grupo_sanguineo_id` | integer | ID grupo sanguíneo familiar |
-| `discapacidades_id` | integer | ID discapacidad familiar |
-| `sexo_familiar_id` | integer | ID sexo del familiar |
-| `estado_civil_id` | integer | ID estado civil familiar |
-| `sexo_empleado_id` | integer | ID sexo del empleado |
-| `edad_empleado_min` | integer | Edad mínima empleado |
-| `edad_empleado_max` | integer | Edad máxima empleado |
-| `nomina_id` | integer | ID tipo de nómina |
-| `dependencia_id` | integer | ID de dependencia |
-| `direccion_general_id` | integer | ID dirección general |
-| `direccion_linea_id` | integer | ID dirección línea |
-| `coordinacion_id` | integer | ID coordinación |
-| `region_id` | integer | ID de región |
-| `estado_id` | integer | ID de estado |
-| `municipio_id` | integer | ID de municipio |
+| Filtro                 | Tipo    | Descripción                 |
+| ---------------------- | ------- | --------------------------- |
+| `parentesco_id`        | integer | ID del parentesco           |
+| `patologias_id`        | integer | ID patología familiar       |
+| `grupo_sanguineo_id`   | integer | ID grupo sanguíneo familiar |
+| `discapacidades_id`    | integer | ID discapacidad familiar    |
+| `sexo_familiar_id`     | integer | ID sexo del familiar        |
+| `estado_civil_id`      | integer | ID estado civil familiar    |
+| `sexo_empleado_id`     | integer | ID sexo del empleado        |
+| `edad_empleado_min`    | integer | Edad mínima empleado        |
+| `edad_empleado_max`    | integer | Edad máxima empleado        |
+| `nomina_id`            | integer | ID tipo de nómina           |
+| `dependencia_id`       | integer | ID de dependencia           |
+| `direccion_general_id` | integer | ID dirección general        |
+| `direccion_linea_id`   | integer | ID dirección línea          |
+| `coordinacion_id`      | integer | ID coordinación             |
+| `region_id`            | integer | ID de región                |
+| `estado_id`            | integer | ID de estado                |
+| `municipio_id`         | integer | ID de municipio             |
 
 ---
 
 ### 3. Asignaciones (`categoria: "asignaciones"`)
 
 **Columnas del PDF:**
+
 - # | Código | Cédula | Empleado | Cargo | Cargo Esp. | Grado | Nómina | Dirección | Estatus
 
 **Filtros disponibles:**
 
-| Filtro | Tipo | Descripción |
-|--------|------|-------------|
-| `cargo_id` | integer | ID del cargo |
-| `cargo_especifico_id` | integer | ID cargo específico |
-| `nomina_id` | integer | ID tipo de nómina |
-| `grado_id` | integer | ID del grado |
-| `dependencia_id` | integer | ID de dependencia |
-| `general_id` | integer | ID dirección general |
-| `linea_id` | integer | ID dirección línea |
-| `coordinacion_id` | integer | ID coordinación |
-| `estatus_id` | integer | ID del estatus |
+| Filtro                | Tipo    | Descripción          |
+| --------------------- | ------- | -------------------- |
+| `cargo_id`            | integer | ID del cargo         |
+| `cargo_especifico_id` | integer | ID cargo específico  |
+| `nomina_id`           | integer | ID tipo de nómina    |
+| `grado_id`            | integer | ID del grado         |
+| `dependencia_id`      | integer | ID de dependencia    |
+| `general_id`          | integer | ID dirección general |
+| `linea_id`            | integer | ID dirección línea   |
+| `coordinacion_id`     | integer | ID coordinación      |
+| `estatus_id`          | integer | ID del estatus       |
 
 ---
 
 ### 4. Egresados (`categoria: "egresados"`)
 
 **Columnas del PDF:**
+
 - # | Cédula | Nombre Completo | F. Ingreso | F. Egreso | Motivo | Último Cargo | Dirección
 
 **Filtros disponibles:**
 
-| Filtro | Tipo | Descripción |
-|--------|------|-------------|
-| `motivo_id` | integer | ID motivo de egreso |
-| `fecha_egreso_Desde` | datetime | Fecha egreso desde |
-| `fecha_egreso_Hasta` | datetime | Fecha egreso hasta |
-| `cargo_id` | integer | ID del cargo |
-| `cargo_especifico_id` | integer | ID cargo específico |
-| `grado_id` | integer | ID del grado |
-| `nomina_id` | integer | ID tipo de nómina |
-| `dependencia_id` | integer | ID de dependencia |
-| `direccion_general_id` | integer | ID dirección general |
-| `direccion_linea_id` | integer | ID dirección línea |
-| `coordinacion_id` | integer | ID coordinación |
-| `organismo_id` | integer | ID organismo adscrito |
-| `sexo_id` | integer | ID sexo del empleado |
+| Filtro                 | Tipo     | Descripción           |
+| ---------------------- | -------- | --------------------- |
+| `motivo_id`            | integer  | ID motivo de egreso   |
+| `fecha_egreso_Desde`   | datetime | Fecha egreso desde    |
+| `fecha_egreso_Hasta`   | datetime | Fecha egreso hasta    |
+| `cargo_id`             | integer  | ID del cargo          |
+| `cargo_especifico_id`  | integer  | ID cargo específico   |
+| `grado_id`             | integer  | ID del grado          |
+| `nomina_id`            | integer  | ID tipo de nómina     |
+| `dependencia_id`       | integer  | ID de dependencia     |
+| `direccion_general_id` | integer  | ID dirección general  |
+| `direccion_linea_id`   | integer  | ID dirección línea    |
+| `coordinacion_id`      | integer  | ID coordinación       |
+| `organismo_id`         | integer  | ID organismo adscrito |
+| `sexo_id`              | integer  | ID sexo del empleado  |
 
 ---
 
@@ -341,19 +346,19 @@ Crear/modificar el servicio de reportes en Next.js:
 // src/lib/api/reports.ts
 
 interface PDFReportRequest {
-  categoria: 'empleados' | 'familiares' | 'asignaciones' | 'egresados';
+  categoria: "empleados" | "familiares" | "asignaciones" | "egresados";
   filtros?: Record<string, any>;
 }
 
 export const reportsService = {
   async generatePDF(params: PDFReportRequest): Promise<Blob> {
     const response = await fetch(`${API_URL}/api/reports/pdf/`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${getToken()}`
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${getToken()}`,
       },
-      body: JSON.stringify(params)
+      body: JSON.stringify(params),
     });
 
     if (!response.ok) {
@@ -366,14 +371,14 @@ export const reportsService = {
 
   downloadPDF(blob: Blob, filename: string) {
     const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = filename;
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
     a.remove();
-  }
+  },
 };
 ```
 
@@ -381,23 +386,23 @@ export const reportsService = {
 
 ```tsx
 // src/components/reports/PDFDownloadButton.tsx
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { reportsService } from '@/lib/api/reports';
-import { Button } from '@/components/ui/button';
-import { Download, Loader2 } from 'lucide-react';
+import { useState } from "react";
+import { reportsService } from "@/lib/api/reports";
+import { Button } from "@/components/ui/button";
+import { Download, Loader2 } from "lucide-react";
 
 interface PDFDownloadButtonProps {
-  categoria: 'empleados' | 'familiares' | 'asignaciones' | 'egresados';
+  categoria: "empleados" | "familiares" | "asignaciones" | "egresados";
   filtros?: Record<string, any>;
   label?: string;
 }
 
-export function PDFDownloadButton({ 
-  categoria, 
-  filtros = {}, 
-  label = 'Descargar PDF' 
+export function PDFDownloadButton({
+  categoria,
+  filtros = {},
+  label = "Descargar PDF",
 }: PDFDownloadButtonProps) {
   const [loading, setLoading] = useState(false);
 
@@ -405,10 +410,10 @@ export function PDFDownloadButton({
     setLoading(true);
     try {
       const blob = await reportsService.generatePDF({ categoria, filtros });
-      const filename = `reporte_${categoria}_${new Date().toISOString().split('T')[0]}.pdf`;
+      const filename = `reporte_${categoria}_${new Date().toISOString().split("T")[0]}.pdf`;
       reportsService.downloadPDF(blob, filename);
     } catch (error) {
-      console.error('Error al generar PDF:', error);
+      console.error("Error al generar PDF:", error);
       // Mostrar notificación de error
     } finally {
       setLoading(false);
@@ -432,7 +437,7 @@ export function PDFDownloadButton({
 
 ```tsx
 // En cualquier página de reportes
-import { PDFDownloadButton } from '@/components/reports/PDFDownloadButton';
+import { PDFDownloadButton } from "@/components/reports/PDFDownloadButton";
 
 export default function ReportesPage() {
   const [filtros, setFiltros] = useState({});
@@ -440,15 +445,15 @@ export default function ReportesPage() {
   return (
     <div>
       {/* Formulario de filtros... */}
-      
-      <PDFDownloadButton 
-        categoria="empleados" 
+
+      <PDFDownloadButton
+        categoria="empleados"
         filtros={filtros}
         label="Exportar Empleados"
       />
-      
-      <PDFDownloadButton 
-        categoria="familiares" 
+
+      <PDFDownloadButton
+        categoria="familiares"
         filtros={filtros}
         label="Exportar Familiares"
       />
@@ -461,39 +466,35 @@ export default function ReportesPage() {
 
 ```tsx
 // src/components/reports/PDFFilterForm.tsx
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { PDFDownloadButton } from './PDFDownloadButton';
+import { useState } from "react";
+import { PDFDownloadButton } from "./PDFDownloadButton";
 
 const CATEGORIAS = [
-  { value: 'empleados', label: 'Empleados' },
-  { value: 'familiares', label: 'Familiares' },
-  { value: 'asignaciones', label: 'Asignaciones' },
-  { value: 'egresados', label: 'Egresados' },
+  { value: "empleados", label: "Empleados" },
+  { value: "familiares", label: "Familiares" },
+  { value: "asignaciones", label: "Asignaciones" },
+  { value: "egresados", label: "Egresados" },
 ];
 
 export function PDFFilterForm() {
-  const [categoria, setCategoria] = useState<string>('empleados');
+  const [categoria, setCategoria] = useState<string>("empleados");
   const [filtros, setFiltros] = useState<Record<string, any>>({});
 
   return (
     <div className="space-y-4">
-      <select 
-        value={categoria} 
-        onChange={(e) => setCategoria(e.target.value)}
-      >
-        {CATEGORIAS.map(cat => (
-          <option key={cat.value} value={cat.value}>{cat.label}</option>
+      <select value={categoria} onChange={(e) => setCategoria(e.target.value)}>
+        {CATEGORIAS.map((cat) => (
+          <option key={cat.value} value={cat.value}>
+            {cat.label}
+          </option>
         ))}
       </select>
 
       {/* Campos de filtro según la categoría seleccionada */}
-      
-      <PDFDownloadButton 
-        categoria={categoria as any} 
-        filtros={filtros} 
-      />
+
+      <PDFDownloadButton categoria={categoria as any} filtros={filtros} />
     </div>
   );
 }
@@ -505,28 +506,28 @@ export function PDFFilterForm() {
 
 ### Alta Prioridad
 
-| Tarea | Descripción | Estado |
-|-------|-------------|--------|
+| Tarea                    | Descripción                                                                           | Estado    |
+| ------------------------ | ------------------------------------------------------------------------------------- | --------- |
 | 🔴 Logos institucionales | Agregar `logoOAC.png`, `juntosPorVida.png`, `cintillo.png` a `RAC/static/pdf_assets/` | Pendiente |
-| 🔴 Header con logos | Modificar `base_generator.py` para incluir logos en el encabezado | Pendiente |
-| 🔴 Pruebas unitarias | Crear tests para cada generador | Pendiente |
+| 🔴 Header con logos      | Modificar `base_generator.py` para incluir logos en el encabezado                     | Pendiente |
+| 🔴 Pruebas unitarias     | Crear tests para cada generador                                                       | Pendiente |
 
 ### Media Prioridad
 
-| Tarea | Descripción | Estado |
-|-------|-------------|--------|
-| 🟡 Paginación de tabla | Dividir tablas largas en múltiples páginas con headers repetidos | Implementado (automático) |
-| 🟡 Filtros de fecha en familiares | Agregar filtros por fecha de nacimiento del familiar | Pendiente |
-| 🟡 Preview en navegador | Opción para abrir PDF en nueva pestaña en lugar de descargar | Pendiente |
+| Tarea                             | Descripción                                                      | Estado                    |
+| --------------------------------- | ---------------------------------------------------------------- | ------------------------- |
+| 🟡 Paginación de tabla            | Dividir tablas largas en múltiples páginas con headers repetidos | Implementado (automático) |
+| 🟡 Filtros de fecha en familiares | Agregar filtros por fecha de nacimiento del familiar             | Pendiente                 |
+| 🟡 Preview en navegador           | Opción para abrir PDF en nueva pestaña en lugar de descargar     | Pendiente                 |
 
 ### Baja Prioridad
 
-| Tarea | Descripción | Estado |
-|-------|-------------|--------|
-| 🟢 Exportar a Excel | Crear generadores paralelos para Excel | Pendiente |
-| 🟢 Gráficos estadísticos | Agregar charts con conteos y distribuciones | Pendiente |
+| Tarea                      | Descripción                                   | Estado    |
+| -------------------------- | --------------------------------------------- | --------- |
+| 🟢 Exportar a Excel        | Crear generadores paralelos para Excel        | Pendiente |
+| 🟢 Gráficos estadísticos   | Agregar charts con conteos y distribuciones   | Pendiente |
 | 🟢 Template personalizable | Permitir al usuario elegir columnas a incluir | Pendiente |
-| 🟢 Marca de agua | Agregar marca de agua configurable | Pendiente |
+| 🟢 Marca de agua           | Agregar marca de agua configurable            | Pendiente |
 
 ---
 

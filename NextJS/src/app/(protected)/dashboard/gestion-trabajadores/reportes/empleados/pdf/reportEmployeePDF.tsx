@@ -285,7 +285,7 @@ export function ReportPDFEmployee({
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Grupo Sanguíneo:</Text>
               <Text style={styles.infoValue}>
-                {employee?.perfil_salud?.grupoSanguineo?.GrupoSanguineo ??
+                {employee?.perfil_salud?.grupoSanguineo?.grupoSanguineo ??
                   "N/A"}
               </Text>
             </View>

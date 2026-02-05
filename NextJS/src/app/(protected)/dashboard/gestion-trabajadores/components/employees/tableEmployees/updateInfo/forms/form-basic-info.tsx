@@ -244,7 +244,7 @@ export function FormBasicUpdateInfo({
                                   className="font-light"
                                 >
                                   {field.value ? (
-                                    format(field.value, "yyyy-MM-dd")
+                                    format(field.value, "dd/MM/yyyy")
                                   ) : (
                                     <span>Selecciona una fecha</span>
                                   )}

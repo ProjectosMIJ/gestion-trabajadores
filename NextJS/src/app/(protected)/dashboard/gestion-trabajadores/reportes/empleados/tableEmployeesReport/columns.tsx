@@ -301,7 +301,7 @@ export const columsReport: ColumnDef<EmployeeData>[] = [
                             </div>
                             <div>Direccion De Habitación:</div>
                             <div>
-                              {employee.datos_vivienda?.direccionExacta ??
+                              {employee.datos_vivienda?.direccion_exacta ??
                                 "N/A"}
                             </div>
                           </div>
@@ -387,7 +387,7 @@ export const columsReport: ColumnDef<EmployeeData>[] = [
                             <div>Tipo De Sangre:</div>
                             <div>
                               {employee.perfil_salud?.grupoSanguineo
-                                ?.GrupoSanguineo ?? "N/A"}
+                                ?.grupoSanguineo ?? "N/A"}
                             </div>
                             {employee.perfil_salud?.patologiasCronicas &&
                               employee.perfil_salud.patologiasCronicas.length >
