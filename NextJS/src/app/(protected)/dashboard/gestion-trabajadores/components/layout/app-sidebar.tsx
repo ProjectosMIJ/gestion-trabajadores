@@ -42,7 +42,7 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { Skeleton } from "./skeleton";
+import { Skeleton } from "../../../../../../components/ui/skeleton";
 
 // Definir tipos para los permisos
 type Permission = {

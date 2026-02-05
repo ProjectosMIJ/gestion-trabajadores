@@ -461,8 +461,9 @@ export default function DetailInfoEmployee({ employee }: Props) {
                 <div className="grid grid-cols-2 place-content-center">
                   <div>Tipo De Sangre:</div>
                   <div>
-                    {employee.perfil_salud.grupoSanguineo?.grupoSanguineo ??
-                      "N/A"}
+                    {employee.perfil_salud?.grupoSanguineo != null
+                      ? employee.perfil_salud.grupoSanguineo.grupoSanguineo
+                      : "N/A"}
                   </div>
                   {employee.perfil_salud?.patologiasCronicas &&
                     employee.perfil_salud.patologiasCronicas.length > 0 && (
