@@ -1,6 +1,6 @@
 "use client";
 
-import { CodigoCatalogEspecialForm } from "../../components/employees/asignar-codigo-especial-form";
+import { CodigoCatalogEspecialForm } from "../../components/movimientos/asignar-codigo-especial-form";
 
 export default function AsignarCodigoEspecialPage() {
   return (

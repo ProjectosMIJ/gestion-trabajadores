@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeStatusForm } from "../../components/employees/change-status-form";
+import { ChangeStatusForm } from "../../components/movimientos/change-status-form";
 
 export default function ChangeStatusPage() {
   return (

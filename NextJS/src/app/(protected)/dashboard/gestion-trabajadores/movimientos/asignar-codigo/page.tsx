@@ -1,6 +1,6 @@
 "use client";
 
-import { AsigCode } from "../../components/employees/asignar-codigo-form";
+import { AsigCode } from "../../components/movimientos/asignar-codigo-form";
 
 export default function AsignarCodigoPage() {
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { PasivoForm } from "../../components/employees/cambiar-personal-pasivo-form";
+import { PasivoForm } from "../../components/movimientos/cambiar-personal-pasivo-form";
 
 export default function PasivoPage() {
   return (

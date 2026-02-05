@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeCodeForm } from "../../components/employees/cambiar-codigo-form";
+import { ChangeCodeForm } from "../../components/movimientos/cambiar-codigo-form";
 
 export default function ChangeCodePage() {
   return (
