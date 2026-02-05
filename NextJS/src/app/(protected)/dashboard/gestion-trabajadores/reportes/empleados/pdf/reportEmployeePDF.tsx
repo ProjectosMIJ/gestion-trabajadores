@@ -11,8 +11,6 @@ import {
   View,
 } from "@react-pdf/renderer";
 
-// Registrar fuentes si es necesario
-
 // Crear estilos
 const styles = StyleSheet.create({
   page: {
@@ -116,6 +114,47 @@ const styles = StyleSheet.create({
     backgroundColor: "#e8e8e8",
     padding: 5,
   },
+  // Nuevos estilos para la sección de información personal con imagen
+  personalInfoContainer: {
+    flexDirection: "row",
+    marginBottom: 10,
+  },
+  personalInfoText: {
+    flex: 1,
+    paddingRight: 15,
+  },
+  photoContainer: {
+    width: 100,
+    alignItems: "center",
+    justifyContent: "flex-start",
+  },
+  photoFrame: {
+    width: 80,
+    height: 100,
+    borderWidth: 1,
+    borderColor: "#bfbfbf",
+    borderStyle: "solid",
+    backgroundColor: "#f9f9f9",
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 5,
+  },
+  photoText: {
+    fontSize: 8,
+    color: "#666",
+    textAlign: "center",
+    paddingHorizontal: 5,
+  },
+  photoPlaceholder: {
+    fontSize: 10,
+    color: "#999",
+    textAlign: "center",
+  },
+  employeePhoto: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+  },
   infoRow: {
     flexDirection: "row",
     marginBottom: 4,
@@ -131,15 +170,14 @@ const styles = StyleSheet.create({
   },
 });
 
-// Datos de ejemplo para logos y footer
-// Reemplaza estas URLs con las reales
-
 export function ReportPDFEmployee({
   employeeData,
   id,
+  photoUrl,
 }: {
   employeeData: EmployeeData[];
   id: string;
+  photoUrl?: string;
 }) {
   return (
     <Document>
@@ -162,42 +200,67 @@ export function ReportPDFEmployee({
             </Text>
           </View>
 
-          {/* Información básica del empleado */}
+          {/* Información básica del empleado con imagen */}
           <View>
             <Text style={styles.sectionTitle}>INFORMACIÓN PERSONAL</Text>
 
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Cédula de Identidad:</Text>
-              <Text style={styles.infoValue}>{employee.cedulaidentidad}</Text>
-            </View>
+            <View style={styles.personalInfoContainer}>
+              {/* Columna izquierda: Información textual */}
+              <View style={styles.personalInfoText}>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Cédula de Identidad:</Text>
+                  <Text style={styles.infoValue}>
+                    {employee.cedulaidentidad}
+                  </Text>
+                </View>
 
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Nombres y Apellidos:</Text>
-              <Text style={styles.infoValue}>
-                {employee.nombres} {employee.apellidos}
-              </Text>
-            </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Nombres y Apellidos:</Text>
+                  <Text style={styles.infoValue}>
+                    {employee.nombres} {employee.apellidos}
+                  </Text>
+                </View>
 
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Fecha de Nacimiento:</Text>
-              <Text style={styles.infoValue}>
-                {new Date(employee.fecha_nacimiento).toLocaleDateString()}
-              </Text>
-            </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Fecha de Nacimiento:</Text>
+                  <Text style={styles.infoValue}>
+                    {new Date(employee.fecha_nacimiento).toLocaleDateString()}
+                  </Text>
+                </View>
 
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Sexo:</Text>
-              <Text style={styles.infoValue}>{employee.sexo.sexo}</Text>
-            </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Sexo:</Text>
+                  <Text style={styles.infoValue}>{employee.sexo.sexo}</Text>
+                </View>
 
-            <View style={styles.infoRow}>
-              <Text style={styles.infoLabel}>Estado Civil:</Text>
-              <Text style={styles.infoValue}>
-                {employee.estadoCivil.estadoCivil}
-              </Text>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Estado Civil:</Text>
+                  <Text style={styles.infoValue}>
+                    {employee.estadoCivil.estadoCivil}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Columna derecha: Foto del empleado */}
+              <View style={styles.photoContainer}>
+                <View style={styles.photoFrame}>
+                  {employee.profile ? (
+                    <Image
+                      style={styles.employeePhoto}
+                      src={photoUrl || "/bg.png"}
+                    />
+                  ) : (
+                    <Text style={styles.photoPlaceholder}>
+                      Foto no disponible
+                    </Text>
+                  )}
+                </View>
+                <Text style={styles.photoText}>{employee.cedulaidentidad}</Text>
+              </View>
             </View>
           </View>
 
+          {/* Resto del código permanece igual */}
           {/* Información de formación académica */}
           <View>
             <Text style={styles.sectionTitle}>FORMACIÓN ACADÉMICA</Text>

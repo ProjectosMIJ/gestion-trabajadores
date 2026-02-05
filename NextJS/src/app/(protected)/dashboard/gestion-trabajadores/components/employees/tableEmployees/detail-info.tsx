@@ -51,6 +51,7 @@ export default function DetailInfoEmployee({ employee }: Props) {
     if (!profileBlob) return "/bg.png";
     return URL.createObjectURL(profileBlob);
   }, [profileBlob]);
+
   return (
     <SheetUI>
       <SheetTriggerUI

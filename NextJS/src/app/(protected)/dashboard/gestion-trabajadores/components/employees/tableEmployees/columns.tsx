@@ -18,6 +18,9 @@ import ExportButton from "@/components/ui/ExportButtonPDF";
 import { ReportPDFEmployee } from "../../../reportes/empleados/pdf/reportEmployeePDF";
 import DetailInfoEmployee from "./detail-info";
 import { format } from "date-fns";
+import useSWR from "swr";
+import { useMemo } from "react";
+import { imageProfileFn } from "../../../api/getInfoRac";
 export const columns: ColumnDef<EmployeeData>[] = [
   {
     accessorKey: "cedulaidentidad",
@@ -71,7 +74,14 @@ export const columns: ColumnDef<EmployeeData>[] = [
     header: "Acciones",
     cell: ({ row }) => {
       const employee = row.original;
-
+      const { data: profileBlob } = useSWR(
+        employee.cedulaidentidad ? ["profile", employee.cedulaidentidad] : null,
+        () => imageProfileFn(employee.cedulaidentidad),
+      );
+      const imageUrl = useMemo(() => {
+        if (!profileBlob) return "/bg.png";
+        return URL.createObjectURL(profileBlob);
+      }, [profileBlob]);
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -96,7 +106,11 @@ export const columns: ColumnDef<EmployeeData>[] = [
                 className="w-full"
                 fileName={`${employee.nombres}-${employee.apellidos}-expediente.pdf`}
                 document={
-                  <ReportPDFEmployee employeeData={[employee]} id="Sistema" />
+                  <ReportPDFEmployee
+                    employeeData={[employee]}
+                    photoUrl={imageUrl}
+                    id="Sistema"
+                  />
                 }
               />
             </DropdownMenuItem>
