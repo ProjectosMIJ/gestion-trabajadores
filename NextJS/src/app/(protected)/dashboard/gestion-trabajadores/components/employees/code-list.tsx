@@ -17,7 +17,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../../../../../../components/ui/card";
-import TableCode from "../../personal/listado-codigo/tableCodeInfo/page";
+import TableCode from "../../cargos/listado-codigo/tableCodeInfo/page";
 import Loading from "../loading/loading";
 import { useSession } from "next-auth/react";
 import { useState, useTransition } from "react";
@@ -46,7 +46,6 @@ import { toast } from "sonner";
 
 export function CodeListPage() {
   const { data: session } = useSession();
-  const [isPending, startTransition] = useTransition();
   const [searchParams, setSearchParams] = useState<string>();
   const schemaSearch = z.object({
     tipo_nomina: z.coerce.number().optional(),
@@ -115,8 +114,6 @@ export function CodeListPage() {
     );
     const params = new URLSearchParams(filteredEntries as unknown as string);
     setSearchParams(params.toString());
-
-    toast.success(params);
   };
   const { data: codeList, isLoading } = useSWR(
     searchParams,

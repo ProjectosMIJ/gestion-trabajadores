@@ -10,8 +10,8 @@ import {
   getNominaEspecial,
   getOrganismosAds,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import { AsignSpecialCode } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/asignar-codigo-especial/actions/asign-special-code";
-import { schemaCodeEspecial } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/asignar-codigo-especial/schema/schemaCodeEspecial";
+import { AsignSpecialCode } from "@/app/(protected)/dashboard/gestion-trabajadores/movimientos/asignar-codigo-especial/actions/asign-special-code";
+import { schemaCodeEspecial } from "@/app/(protected)/dashboard/gestion-trabajadores/movimientos/asignar-codigo-especial/schema/schemaCodeEspecial";
 import { EmployeeInfo } from "@/app/types/types";
 import { Button } from "@/components/ui/button";
 import {

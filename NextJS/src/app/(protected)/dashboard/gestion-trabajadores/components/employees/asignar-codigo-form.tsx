@@ -9,8 +9,8 @@ import {
   getDirectionLine,
   getEmployeeInfo,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import { AsignCode } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/asignar-codigo/actions/asign-code";
-import { schemaAsignCode } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/asignar-codigo/schema/schema-asign-code";
+import { AsignCode } from "@/app/(protected)/dashboard/gestion-trabajadores/movimientos/asignar-codigo/actions/asign-code";
+import { schemaAsignCode } from "@/app/(protected)/dashboard/gestion-trabajadores/movimientos/asignar-codigo/schema/schema-asign-code";
 import { ApiResponse, Code, EmployeeInfo } from "@/app/types/types";
 import {
   Select,

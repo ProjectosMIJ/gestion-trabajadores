@@ -77,7 +77,11 @@ export function FormBasicUpdateInfo({
   );
   const form = useForm({
     resolver: zodResolver(schemaBasicUpdateInfo),
-    defaultValues,
+    defaultValues: {
+      apellidos: defaultValues.apellidos,
+      fecha_nacimiento: defaultValues.fecha_nacimiento,
+      n_contrato: defaultValues.n_contrato ?? undefined,
+    },
   });
   const handleRemovePhoto = () => {
     setPhotoPreview(null);

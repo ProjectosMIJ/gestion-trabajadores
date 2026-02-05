@@ -10,7 +10,7 @@ import {
   getEmployeeById,
   getMotionReason,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import { schemaChangeCode } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/cambiar-codigo/schema/schemaChangeCode";
+import { schemaChangeCode } from "@/app/(protected)/dashboard/gestion-trabajadores/movimientos/cambiar-codigo/schema/schemaChangeCode";
 import { ApiResponse, Code, EmployeeData } from "@/app/types/types";
 import {
   Select,
@@ -45,7 +45,7 @@ import {
 import { Input } from "../../../../../../components/ui/input";
 import { Label } from "../../../../../../components/ui/label";
 import { Spinner } from "../../../../../../components/ui/spinner";
-import ChangeCodeActions from "../../personal/cambiar-codigo/actions/actions-change-code";
+import ChangeCodeActions from "../../movimientos/cambiar-codigo/actions/actions-change-code";
 export function ChangeCodeForm() {
   const [searchEmployee, setSearchEmployee] = useState<string | undefined>(
     undefined,

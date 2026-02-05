@@ -53,7 +53,13 @@ export default function FormUpdatePhysical({
 
   const form = useForm({
     resolver: zodResolver(schemaPhysicalProfileUpdate),
-    defaultValues,
+    defaultValues: {
+      perfil_fisico: {
+        tallaCamisa: 0,
+        tallaPantalon: 0,
+        tallaZapatos: 0,
+      },
+    },
   });
   const { data: shirtSize, isLoading: isLoadingShirtSize } = useSWR(
     "shirtSize",
@@ -83,9 +89,7 @@ export default function FormUpdatePhysical({
         <CardTitle>Vestimenta</CardTitle>
       </CardHeader>
       <CardContent>
-        <CardAction className="text-gray-600">
-          Paso 5: Datos De Vestimenta
-        </CardAction>
+        <CardAction className="text-gray-600">Datos De Vestimenta</CardAction>
         {isPending ? (
           <Loading promiseMessage="Actualizando Informacion" />
         ) : (
@@ -102,7 +106,7 @@ export default function FormUpdatePhysical({
                     <FormLabel>Talla De Camisa</FormLabel>
                     <Select
                       onValueChange={(values) => {
-                        field.onChange(Number.parseInt(values));
+                        field.onChange(values === "" ? "" : Number(values));
                       }}
                     >
                       <FormControl>
@@ -132,7 +136,7 @@ export default function FormUpdatePhysical({
                     <FormLabel>Talla De Pantalón</FormLabel>
                     <Select
                       onValueChange={(values) => {
-                        field.onChange(Number.parseInt(values));
+                        field.onChange(values === "" ? "" : Number(values));
                       }}
                     >
                       <FormControl>
@@ -163,7 +167,7 @@ export default function FormUpdatePhysical({
                     <FormLabel>Talla De Zapatos</FormLabel>
                     <Select
                       onValueChange={(values) => {
-                        field.onChange(Number.parseInt(values));
+                        field.onChange(values === "" ? "" : Number(values));
                       }}
                     >
                       <FormControl>

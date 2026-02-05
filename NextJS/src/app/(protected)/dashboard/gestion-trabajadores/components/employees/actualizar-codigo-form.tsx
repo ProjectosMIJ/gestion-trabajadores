@@ -40,8 +40,8 @@ import {
   FormLabel,
   FormMessage,
 } from "../../../../../../components/ui/form";
-import { updateCode } from "../../personal/actualizar-codigo/actions/update-code";
-import { schemaUpdateCode } from "../../personal/actualizar-codigo/schema/schema-update-code";
+import { updateCode } from "../../cargos/actualizar-codigo/actions/update-code";
+import { schemaUpdateCode } from "../../cargos/actualizar-codigo/schema/schema-update-code";
 import Loading from "../loading/loading";
 export function UpdateCode() {
   const [activeDirectionLine, setActiveDirectionLine] =

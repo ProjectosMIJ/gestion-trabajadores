@@ -91,7 +91,7 @@ const items: MenuItem[] = [
         },
       },
       {
-        title: "Consultar Trabajador",
+        title: "Consultar/Actualizar",
         url: "/dashboard/gestion-trabajadores/personal",
         icon: ListCheck,
         permission: {
@@ -159,7 +159,7 @@ const items: MenuItem[] = [
     subMenu: [
       {
         title: "Crear Nuevo Codigo",
-        url: "/dashboard/gestion-trabajadores/personal/crear-codigo",
+        url: "/dashboard/gestion-trabajadores/cargos/crear-codigo",
         icon: BadgePlus,
         permission: {
           roleAccept: ["admin"],
@@ -167,18 +167,9 @@ const items: MenuItem[] = [
         },
       },
       {
-        title: "Consultar Codigos",
-        url: "/dashboard/gestion-trabajadores/personal/listado-codigo",
+        title: "Consultar/Actualizar",
+        url: "/dashboard/gestion-trabajadores/cargos/listado-codigo",
         icon: List,
-        permission: {
-          roleAccept: ["admin"],
-          departmentAccept: ["RAC"],
-        },
-      },
-      {
-        title: "Actualizar Codigos",
-        url: "/dashboard/gestion-trabajadores/personal/actualizar-codigo",
-        icon: Crosshair,
         permission: {
           roleAccept: ["admin"],
           departmentAccept: ["RAC"],
@@ -197,7 +188,7 @@ const items: MenuItem[] = [
     subMenu: [
       {
         title: "Asignar Cargo",
-        url: "/dashboard/gestion-trabajadores/personal/asignar-codigo",
+        url: "/dashboard/gestion-trabajadores/movimientos/asignar-codigo",
         icon: BriefcaseBusiness,
         permission: {
           roleAccept: ["admin"],
@@ -206,7 +197,7 @@ const items: MenuItem[] = [
       },
       {
         title: "Asignar Cargo Esp",
-        url: "/dashboard/gestion-trabajadores/personal/asignar-codigo-especial",
+        url: "/dashboard/gestion-trabajadores/movimientos/asignar-codigo-especial",
         icon: Briefcase,
         permission: {
           roleAccept: ["admin"],
@@ -215,7 +206,7 @@ const items: MenuItem[] = [
       },
       {
         title: "Cambiar Cargo",
-        url: "/dashboard/gestion-trabajadores/personal/cambiar-codigo",
+        url: "/dashboard/gestion-trabajadores/movimientos/cambiar-codigo",
         icon: BriefcaseConveyorBelt,
         permission: {
           roleAccept: ["admin"],
@@ -224,7 +215,7 @@ const items: MenuItem[] = [
       },
       {
         title: "Cambiar Estatus",
-        url: "/dashboard/gestion-trabajadores/personal/cambiar-estatus",
+        url: "/dashboard/gestion-trabajadores/movimientos/cambiar-estatus",
         icon: FileChartLine,
         permission: {
           roleAccept: ["admin"],
@@ -233,7 +224,7 @@ const items: MenuItem[] = [
       },
       {
         title: "Egresar/Pasivo",
-        url: "/dashboard/gestion-trabajadores/personal/cambiar-pasivo",
+        url: "/dashboard/gestion-trabajadores/movimientos/cambiar-pasivo",
         icon: BookCheck,
         permission: {
           roleAccept: ["admin"],

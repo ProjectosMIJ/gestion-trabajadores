@@ -24,6 +24,7 @@ import {
   getCarrera,
   getMencion,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
+import { AcademyType } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/registrar/schemas/schema-academic_training";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -35,14 +36,14 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useState, useTransition } from "react";
-import useSWR from "swr";
-import {
-  AcademyType,
-  schemaAcademy,
-} from "@/app/(protected)/dashboard/gestion-trabajadores/personal/registrar/schemas/schema-academic_training";
-import updateInfoEmployee from "../actions/update-info";
 import { toast } from "sonner";
+import useSWR from "swr";
 import Loading from "../../../../loading/loading";
+import updateInfoEmployee from "../actions/update-info";
+import {
+  AcademyUpdateUpdateType,
+  schemaAcademyUpdate,
+} from "../schema/schema-academic_training";
 
 type Props = {
   defaultValues: AcademyType;
@@ -56,7 +57,7 @@ export default function FormUpdateAcademyLevel({
   const [mencionId, setMencionId] = useState<string>();
   const [showMoreDetails, setShowMoreDetails] = useState(false);
   const form = useForm({
-    resolver: zodResolver(schemaAcademy),
+    resolver: zodResolver(schemaAcademyUpdate),
     defaultValues,
   });
 
@@ -72,7 +73,7 @@ export default function FormUpdateAcademyLevel({
     mencionId ? ["mencion", mencionId] : null,
     async () => await getMencion(mencionId!),
   );
-  const onSubmitFormity = (values: AcademyType) => {
+  const onSubmitFormity = (values: AcademyUpdateUpdateType) => {
     startTransition(async () => {
       const response = await updateInfoEmployee(values, idEmployee);
       if (response.success) {
@@ -139,41 +140,6 @@ export default function FormUpdateAcademyLevel({
                   {showMoreDetails && (
                     <>
                       <FormField
-                        name="formacion_academica.institucion"
-                        control={form.control}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Institucion (Opcional)</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="text"
-                                placeholder="Universidad Nacional..."
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        name="formacion_academica.capacitacion"
-                        control={form.control}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Capacitacion (Opcional)</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="text"
-                                placeholder="Capacitado En..."
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
                         control={form.control}
                         name="formacion_academica.carrera_id"
                         render={({ field }) => (
@@ -230,6 +196,40 @@ export default function FormUpdateAcademyLevel({
                                 ))}
                               </SelectContent>
                             </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        name="formacion_academica.capacitacion"
+                        control={form.control}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Capacitacion (Opcional)</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="text"
+                                placeholder="Capacitado En..."
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        name="formacion_academica.institucion"
+                        control={form.control}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Institucion (Opcional)</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="text"
+                                placeholder="Universidad Nacional..."
+                                {...field}
+                              />
+                            </FormControl>
                             <FormMessage />
                           </FormItem>
                         )}

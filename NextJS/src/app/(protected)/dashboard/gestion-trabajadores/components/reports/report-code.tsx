@@ -38,7 +38,7 @@ import { ApiResponse, Code } from "@/app/types/types";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
 import { useState, useTransition } from "react";
-import TableCode from "../../personal/listado-codigo/tableCodeInfo/page";
+import TableCode from "../../cargos/listado-codigo/tableCodeInfo/page";
 import {
   schemaReportCode,
   SchemaReportCodeType,
