@@ -11,6 +11,7 @@ import {
   View,
 } from "@react-pdf/renderer";
 import { format } from "date-fns";
+import { useSession } from "next-auth/react";
 
 // Crear estilos
 const styles = StyleSheet.create({
@@ -175,30 +176,32 @@ export function ReportPDFEmployee({
   employeeData,
   id,
   photoUrl,
+  session,
 }: {
   employeeData: EmployeeData[];
   id: string;
-  photoUrl?: string;
+  photoUrl: string;
+  session?: ReturnType<typeof useSession>;
 }) {
   return (
     <Document>
       {employeeData.map((employee, index) => (
         <Page key={employee.id} size="A4" style={styles.page} wrap>
           {/* Logos en la cabecera */}
+          <Text style={{ fontSize: 8, textAlign: "right" }}>
+            Usuario: {session?.data?.user.name}, Fecha De Generacion:{" "}
+            {format(new Date(), "dd/MM/yyyy HH:mm:ss")}
+          </Text>
           <View style={styles.header} fixed>
             <Image style={styles.logoLeft} src={logoOAC.src} />
-            <Image style={styles.logoRight} src={juntosPorVida.src} />
+            <View>
+              <Image style={styles.logoRight} src={juntosPorVida.src} />
+            </View>
           </View>
 
           {/* Título principal */}
           <View>
-            <Text style={styles.title}>
-              REPORTE DE INFORMACIÓN DEL TRABAJADOR
-            </Text>
-            <Text style={styles.subtitle}>
-              Generado Por {id}, Fecha de generación:{" "}
-              {new Date().toLocaleDateString()}
-            </Text>
+            <Text style={styles.title}>INFORMACIÓN DEL TRABAJADOR</Text>
           </View>
 
           {/* Información básica del empleado con imagen */}
@@ -238,6 +241,12 @@ export function ReportPDFEmployee({
                   <Text style={styles.infoLabel}>Estado Civil:</Text>
                   <Text style={styles.infoValue}>
                     {employee.estadoCivil.estadoCivil}
+                  </Text>
+                </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Domicilio Fiscal:</Text>
+                  <Text style={styles.infoValue}>
+                    {employee.datos_vivienda.direccion_exacta}
                   </Text>
                 </View>
               </View>

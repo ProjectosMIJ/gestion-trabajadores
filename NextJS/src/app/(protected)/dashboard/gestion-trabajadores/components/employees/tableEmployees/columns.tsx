@@ -21,6 +21,7 @@ import { format } from "date-fns";
 import useSWR from "swr";
 import { useMemo } from "react";
 import { imageProfileFn } from "../../../api/getInfoRac";
+import { useSession } from "next-auth/react";
 export const columns: ColumnDef<EmployeeData>[] = [
   {
     accessorKey: "cedulaidentidad",
@@ -110,6 +111,7 @@ export const columns: ColumnDef<EmployeeData>[] = [
                     employeeData={[employee]}
                     photoUrl={imageUrl}
                     id="Sistema"
+                    session={useSession()}
                   />
                 }
               />
