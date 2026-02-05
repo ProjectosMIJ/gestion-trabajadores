@@ -58,7 +58,16 @@ export default function FormUpdateAcademyLevel({
   const [showMoreDetails, setShowMoreDetails] = useState(false);
   const form = useForm({
     resolver: zodResolver(schemaAcademyUpdate),
-    defaultValues,
+    defaultValues: {
+      formacion_academica: {
+        nivel_Academico_id:
+          defaultValues.formacion_academica.nivel_Academico_id || undefined,
+        carrera_id: defaultValues.formacion_academica.carrera_id || undefined,
+        mencion_id: defaultValues.formacion_academica.mencion_id || undefined,
+        capacitacion: defaultValues.formacion_academica.capacitacion || "",
+        institucion: defaultValues.formacion_academica.institucion || "",
+      },
+    },
   });
 
   const { data: academyLevel, isLoading: isLoadingAcademyLevel } = useSWR(
