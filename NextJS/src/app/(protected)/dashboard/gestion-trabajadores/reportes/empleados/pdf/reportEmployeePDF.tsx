@@ -10,6 +10,7 @@ import {
   Text,
   View,
 } from "@react-pdf/renderer";
+import { format } from "date-fns";
 
 // Crear estilos
 const styles = StyleSheet.create({
@@ -192,7 +193,7 @@ export function ReportPDFEmployee({
           {/* Título principal */}
           <View>
             <Text style={styles.title}>
-              REPORTE DE INFORMACIÓN DEL EMPLEADO
+              REPORTE DE INFORMACIÓN DEL TRABAJADOR
             </Text>
             <Text style={styles.subtitle}>
               Generado Por {id}, Fecha de generación:{" "}
@@ -202,7 +203,7 @@ export function ReportPDFEmployee({
 
           {/* Información básica del empleado con imagen */}
           <View>
-            <Text style={styles.sectionTitle}>INFORMACIÓN PERSONAL</Text>
+            <Text style={styles.sectionTitle}>DATOS PERSONALES</Text>
 
             <View style={styles.personalInfoContainer}>
               {/* Columna izquierda: Información textual */}
@@ -299,7 +300,7 @@ export function ReportPDFEmployee({
 
           {/* Tabla de asignaciones */}
           <View>
-            <Text style={styles.sectionTitle}>ASIGNACIONES LABORALES</Text>
+            <Text style={styles.sectionTitle}>DATOS LABORALES</Text>
 
             <View style={styles.table}>
               {/* Encabezado de la tabla */}
@@ -339,11 +340,25 @@ export function ReportPDFEmployee({
                 </View>
               ))}
             </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Fecha de ingreso:</Text>
+              <Text style={styles.infoValue}>
+                {format(employee?.fechaingresoorganismo, "dd/MM/yyyy") ?? "N/A"}
+              </Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Antecedentes:</Text>
+              <Text style={styles.infoValue}>
+                {employee.anos_apn !== null && employee.anos_apn !== undefined
+                  ? `${employee.anos_apn} años en APN`
+                  : "N/A"}
+              </Text>
+            </View>
           </View>
 
           {/* Información de salud */}
           <View>
-            <Text style={styles.sectionTitle}>PERFIL DE SALUD</Text>
+            <Text style={styles.sectionTitle}>SALUD Y BIENESTAR</Text>
 
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Grupo Sanguíneo:</Text>
@@ -376,12 +391,6 @@ export function ReportPDFEmployee({
                   : "Ninguna"}
               </Text>
             </View>
-          </View>
-
-          {/* Información física */}
-          <View>
-            <Text style={styles.sectionTitle}>PERFIL FÍSICO</Text>
-
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Talla Camisa:</Text>
               <Text style={styles.infoValue}>
@@ -407,6 +416,8 @@ export function ReportPDFEmployee({
             </View>
           </View>
 
+          {/* Información física */}
+
           {/* Footer */}
           <View style={styles.footer} fixed>
             <Image style={styles.footerImage} src={cintillo.src} />
@@ -416,7 +427,7 @@ export function ReportPDFEmployee({
           <Text
             style={styles.pageNumber}
             render={({ pageNumber, totalPages }) =>
-              `Empleado ${index + 1} de ${employeeData.length} - Página ${pageNumber} de ${totalPages}`
+              `Trabajador ${index + 1} de ${employeeData.length} - Página ${pageNumber} de ${totalPages}`
             }
             fixed
           />
