@@ -342,7 +342,7 @@ export function FormBasicUpdateInfo({
                   </div>
                 </div>
                 <div className="flex gap-3 justify-end pt-4">
-                  <Button className="w-full">Siguiente</Button>
+                  <Button className="w-full">Guardar</Button>
                 </div>
               </div>
             </form>

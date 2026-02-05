@@ -61,11 +61,11 @@ export default function FormUpdateAcademyLevel({
     defaultValues: {
       formacion_academica: {
         nivel_Academico_id:
-          defaultValues.formacion_academica.nivel_Academico_id || undefined,
-        carrera_id: defaultValues.formacion_academica.carrera_id || undefined,
-        mencion_id: defaultValues.formacion_academica.mencion_id || undefined,
-        capacitacion: defaultValues.formacion_academica.capacitacion || "",
-        institucion: defaultValues.formacion_academica.institucion || "",
+          defaultValues.formacion_academica?.nivel_Academico_id ?? 0,
+        carrera_id: defaultValues.formacion_academica?.carrera_id ?? undefined,
+        mencion_id: defaultValues.formacion_academica?.mencion_id ?? undefined,
+        capacitacion: defaultValues.formacion_academica?.capacitacion ?? "",
+        institucion: defaultValues.formacion_academica?.institucion ?? "",
       },
     },
   });
