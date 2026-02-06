@@ -44,11 +44,11 @@ import { formatInTimeZone } from "date-fns-tz";
 import { useTransition } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { useSWRConfig } from "swr";
 import { z } from "zod";
 import Loading from "../../../../loading/loading";
 import updateInfoEmployee from "../actions/update-info";
 import { schemaBackgroundUpdate } from "../schema/schema-background";
-import useSWR, { useSWRConfig } from "swr";
 type Props = {
   defaultValues: BackgroundType;
   idEmployee: string;

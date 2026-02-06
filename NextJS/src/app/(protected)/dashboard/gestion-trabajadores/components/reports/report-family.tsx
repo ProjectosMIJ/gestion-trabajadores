@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import useSWR from "swr";
 import {
   getAcademyLevel,
@@ -168,6 +168,10 @@ export default function ReportEmployee() {
       },
     },
   });
+  const filtrosForm = useWatch({
+    name: "filtros",
+    control: form.control,
+  });
   if (!session) {
     return (
       <Loading promiseMessage="Validando Sesion Para Generar El Reporte" />
@@ -216,38 +220,6 @@ export default function ReportEmployee() {
               className="space-y-4 grid grid-cols-3 min-h-max gap-2"
             >
               <div className="flex flex-col gap-2 col-span-3">
-                <FormField
-                  control={form.control}
-                  name={`agrupar_por`}
-                  render={({ field }) => (
-                    <FormItem className=" cursor-pointer">
-                      <FormLabel className="cursor-pointer">
-                        Agrupar Por{" "}
-                      </FormLabel>
-                      <Select
-                        onValueChange={(values) => {
-                          field.onChange(values);
-                        }}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full truncate">
-                            <SelectValue
-                              placeholder={`${isLoadingFamilyReport ? "Cargando Agrupaciones" : "Seleccione una Agrupacion"}`}
-                            />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {familyReports?.data.agrupaciones.map((v, i) => (
-                            <SelectItem value={`${v}`} key={i}>
-                              {v}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <ScrollArea className="col-span-3 h-100">
                   <div className="grid grid-cols-2 gap-3">
                     <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-amber-700">
@@ -885,13 +857,15 @@ export default function ReportEmployee() {
               </div>
               <div className="flex flex-row gap-2 flex-1 w-full col-span-3">
                 <Button className="flex-1 cursor-pointer">
-                  Consultar Reporte
+                  {filtrosForm && Object.values(filtrosForm).some((v) => !!v)
+                    ? "Consultar Reporte"
+                    : "Consultar Reporte General"}
                   <Search />
                 </Button>
                 {reportListFamilys && (
                   <a
                     href={reportListFamilys}
-                    download={`Reporte_Familiares ${formatInTimeZone(new Date(),"UTC", "dd/MM/yyyy")}.pdf`}
+                    download={`Reporte_Familiares ${formatInTimeZone(new Date(), "UTC", "dd/MM/yyyy")}.pdf`}
                     className={`${buttonVariants({ variant: "outline" })} flex-1 cursor-pointer animate-pulse`}
                   >
                     Descargar Reporte

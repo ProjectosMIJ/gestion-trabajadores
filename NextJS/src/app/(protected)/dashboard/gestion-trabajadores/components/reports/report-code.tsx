@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 import {
   Form,
@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import useSWR from "swr";
 import {
   getCargo,
@@ -34,22 +34,17 @@ import {
   postReport,
 } from "../../api/getInfoRac";
 
-import { ApiResponse, Code } from "@/app/types/types";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { formatInTimeZone } from "date-fns-tz";
+import { Download, Eraser, Search } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useState, useTransition } from "react";
-import TableCode from "../../cargos/listado-codigo/tableCodeInfo/page";
 import {
   schemaReportCode,
   SchemaReportCodeType,
 } from "../../reportes/codigos/schema/schemaReportCode";
 import Loading from "../loading/loading";
-import ExportButton from "@/components/ui/ExportButtonPDF";
-import ReportCodePDF from "../../reportes/codigos/pdf/reportCodePDF";
-import PDFView from "@/components/ui/PDFView";
-import { Download, Eraser, Search } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { formatInTimeZone } from "date-fns-tz";
 
 export default function ReportCode() {
   const [isPending, startTransition] = useTransition();
@@ -121,6 +116,10 @@ export default function ReportCode() {
       },
     },
   });
+  const filtrosForm = useWatch({
+    name: "filtros",
+    control: form.control,
+  });
   if (!session) {
     return (
       <Loading promiseMessage="Validando Sesion Para Generar El Reporte"></Loading>
@@ -169,39 +168,6 @@ export default function ReportCode() {
               className="space-y-4 grid grid-cols-3   gap-2"
             >
               <div className="flex flex-col gap-2 col-span-3">
-                <FormField
-                  control={form.control}
-                  name="agrupar_por"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Agrupar Por</FormLabel>
-                      <Select
-                        onValueChange={(values) => {
-                          field.onChange(values);
-                        }}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full truncate">
-                            <SelectValue
-                              placeholder={`${isLoadingReporLeaving ? "Cargando Agrupaciones" : "Seleccione una Agrupacion"}`}
-                            />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {reportLeaving?.data.agrupaciones.map(
-                            (agrupaciones, i) => (
-                              <SelectItem key={i} value={agrupaciones}>
-                                {agrupaciones}
-                              </SelectItem>
-                            ),
-                          )}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
                 <ScrollArea className="w-full ">
                   <div className="flex flex-row w-full gap-2">
                     {session.user.role == "admin" && (
@@ -503,13 +469,15 @@ export default function ReportCode() {
               </div>
               <div className="flex flex-row gap-2 flex-1 w-full col-span-3">
                 <Button className="flex-1 cursor-pointer">
-                  Consultar Reporte
+                  {filtrosForm && Object.values(filtrosForm).some((v) => !!v)
+                    ? "Consultar Reporte"
+                    : "Consultar Reporte General"}
                   <Search />
                 </Button>
                 {reportListCode && (
                   <a
                     href={reportListCode}
-                    download={`Reporte_Cargos ${formatInTimeZone(new Date(),'UTC', "dd/MM/yyyy")}.pdf`}
+                    download={`Reporte_Cargos ${formatInTimeZone(new Date(), "UTC", "dd/MM/yyyy")}.pdf`}
                     className={`${buttonVariants({ variant: "outline" })} flex-1 cursor-pointer animate-pulse`}
                   >
                     Descargar Reporte

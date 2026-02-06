@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 import {
   Form,
@@ -18,7 +18,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import useSWR from "swr";
 import {
   getCargo,
@@ -29,29 +29,23 @@ import {
   getDirectionLine,
   getGrado,
   getNominaGeneral,
-  getReportConfigEmployee,
   getReportConfigLeaving,
   getSex,
   postReport,
 } from "../../api/getInfoRac";
 
-import { ApiResponse, Leaving } from "@/app/types/types";
 import { Button, buttonVariants } from "@/components/ui/button";
-import ExportButton from "@/components/ui/ExportButtonPDF";
 import { Input } from "@/components/ui/input";
-import PDFView from "@/components/ui/PDFView";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { formatInTimeZone } from "date-fns-tz";
+import { Download, Eraser, Search } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useState, useTransition } from "react";
-import { ReportLeavingPDF } from "../../reportes/egresados/pdf/reportLeavingPDF";
 import {
   schemaReportLeaving,
   SchemaReportLeavingType,
 } from "../../reportes/egresados/schema/report-schema-leaving";
-import TableReportLeaving from "../../reportes/egresados/tableEmployeesReport/page";
 import Loading from "../loading/loading";
-import { formatInTimeZone } from "date-fns-tz";
-import { Download, Eraser, Search } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function ReportLeaving() {
   const [isPending, startTransition] = useTransition();
@@ -101,10 +95,6 @@ export default function ReportLeaving() {
   const { data: grado, isLoading: isLoadingGrado } = useSWR("grado", async () =>
     getGrado(),
   );
-  const { data: reportLeaving, isLoading: isLoadingReporLeaving } = useSWR(
-    "reportLeaving",
-    async () => await getReportConfigLeaving(),
-  );
 
   const form = useForm({
     resolver: zodResolver(schemaReportLeaving),
@@ -125,6 +115,10 @@ export default function ReportLeaving() {
         cargo_especifico_id: undefined,
       },
     },
+  });
+  const filtrosForm = useWatch({
+    name: "filtros",
+    control: form.control,
   });
   if (!session) {
     return (
@@ -175,38 +169,6 @@ export default function ReportLeaving() {
               className="space-y-4 grid grid-cols-3  gap-2"
             >
               <div className="flex flex-col gap-2 col-span-3 ">
-                <FormField
-                  control={form.control}
-                  name="agrupar_por"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Agrupar Por</FormLabel>
-                      <Select
-                        onValueChange={(values) => {
-                          field.onChange(values);
-                        }}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full truncate">
-                            <SelectValue
-                              placeholder={`${isLoadingReporLeaving ? "Cargando Agrupaciones" : "Seleccione una Agrupacion"}`}
-                            />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {reportLeaving?.data.agrupaciones.map(
-                            (agrupaciones, i) => (
-                              <SelectItem key={i} value={agrupaciones}>
-                                {agrupaciones}
-                              </SelectItem>
-                            ),
-                          )}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
                 <ScrollArea className="h-100 w-full ">
                   <div className="grid grid-cols-2 gap-2">
                     {session.user.role == "admin" && (
@@ -552,12 +514,15 @@ export default function ReportLeaving() {
 
               <div className="flex flex-row gap-2 flex-1 w-full col-span-3">
                 <Button className="flex-1 cursor-pointer">
-                  Consultar Reporte <Search />
+                  {filtrosForm && Object.values(filtrosForm).some((v) => !!v)
+                    ? "Consultar Reporte"
+                    : "Consultar Reporte General"}
+                  <Search />
                 </Button>
                 {reportListLeaving && (
                   <a
                     href={reportListLeaving}
-                    download={`Reporte_Egresados ${formatInTimeZone(new Date(),'UTC', "dd/MM/yyyy")}.pdf`}
+                    download={`Reporte_Egresados ${formatInTimeZone(new Date(), "UTC", "dd/MM/yyyy")}.pdf`}
                     className={`${buttonVariants({ variant: "outline" })} flex-1 cursor-pointer animate-pulse`}
                   >
                     Descargar Reporte

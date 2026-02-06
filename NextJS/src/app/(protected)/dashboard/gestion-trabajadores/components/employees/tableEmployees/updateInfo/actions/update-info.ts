@@ -1,13 +1,12 @@
 "use server";
 
 import { auth } from "#/auth";
-import { PhysicalProfileType } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/registrar/schemas/schema-physical_profile";
 import { AcademyUpdateUpdateType } from "../schema/schema-academic_training";
 import { BackgroundUpdateType } from "../schema/schema-background";
 import { DwellingUpdateType } from "../schema/schema-dwelling";
 import { HealthUpdateType } from "../schema/schema-health_profile";
-import { BasicInfoUpdateType } from "../schema/schemaEmployeeUpdate";
 import { PhysicalProfileUpdateType } from "../schema/schema-physical_profile";
+import { BasicInfoUpdateType } from "../schema/schemaEmployeeUpdate";
 
 export default async function updateInfoEmployee(
   data:

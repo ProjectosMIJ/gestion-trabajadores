@@ -1,6 +1,6 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 
 import {
   Form,
@@ -19,7 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import useSWR from "swr";
 import {
   getAcademyLevel,
@@ -46,35 +46,24 @@ import {
   postReport,
 } from "../../api/getInfoRac";
 
-import { ApiResponse, EmployeeData } from "@/app/types/types";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import ExportButton from "@/components/ui/ExportButtonPDF";
 import { Input } from "@/components/ui/input";
-import PDFView from "@/components/ui/PDFView";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { formatInTimeZone } from "date-fns-tz";
-import {
-  ArrowBigDown,
-  CalendarIcon,
-  Download,
-  Eraser,
-  Search,
-} from "lucide-react";
+import { CalendarIcon, Download, Eraser, Search } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useState, useTransition } from "react";
-import { ReportPDFEmployee } from "../../reportes/empleados/pdf/reportEmployeePDF";
 import {
   schemaReportEmployee,
   SchemaReportEmployeeType,
 } from "../../reportes/empleados/schema/report-schema-employee";
-import TableEmployeeReport from "../../reportes/empleados/tableEmployeesReport/page";
 import Loading from "../loading/loading";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function ReportEmployee() {
   const [mencionId, setMencionId] = useState<string>();
@@ -217,6 +206,10 @@ export default function ReportEmployee() {
       },
     },
   });
+  const filtrosForm = useWatch({
+    name: "filtros",
+    control: form.control,
+  });
   if (!session) {
     return (
       <Loading promiseMessage="Validando Sesion Para Generar El Reporte"></Loading>
@@ -266,39 +259,6 @@ export default function ReportEmployee() {
               className="space-y-4 grid grid-cols-3 min-h-max gap-2"
             >
               <div className="flex flex-col gap-2 col-span-3">
-                <FormField
-                  control={form.control}
-                  name="agrupar_por"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Agrupar Por</FormLabel>
-                      <Select
-                        onValueChange={(values) => {
-                          field.onChange(values);
-                        }}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full truncate">
-                            <SelectValue
-                              placeholder={`${isLoadingReportEmployee ? "Cargando Agrupaciones" : "Seleccione una Agrupacion"}`}
-                            />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {reportEmployee?.data.agrupaciones.map(
-                            (agrupaciones, i) => (
-                              <SelectItem key={i} value={agrupaciones}>
-                                {agrupaciones}
-                              </SelectItem>
-                            ),
-                          )}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
                 <ScrollArea className="h-100 ">
                   {session.user.role == "admin" && (
                     <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-green-600">
@@ -890,7 +850,11 @@ export default function ReportEmployee() {
                                     className="font-light"
                                   >
                                     {field.value ? (
-                                      formatInTimeZone(field.value,'UTC', "dd/MM/yyy")
+                                      formatInTimeZone(
+                                        field.value,
+                                        "UTC",
+                                        "dd/MM/yyy",
+                                      )
                                     ) : (
                                       <span>Selecciona una fecha</span>
                                     )}
@@ -937,7 +901,11 @@ export default function ReportEmployee() {
                                     className="font-light"
                                   >
                                     {field.value ? (
-                                      formatInTimeZone(field.value,'UTC', "dd/MM/yyy")
+                                      formatInTimeZone(
+                                        field.value,
+                                        "UTC",
+                                        "dd/MM/yyy",
+                                      )
                                     ) : (
                                       <span>Selecciona una fecha</span>
                                     )}
@@ -984,7 +952,11 @@ export default function ReportEmployee() {
                                     className="font-light"
                                   >
                                     {field.value ? (
-                                      formatInTimeZone(field.value,'UTC', "dd/MM/yyy")
+                                      formatInTimeZone(
+                                        field.value,
+                                        "UTC",
+                                        "dd/MM/yyy",
+                                      )
                                     ) : (
                                       <span>Selecciona una fecha</span>
                                     )}
@@ -1031,7 +1003,11 @@ export default function ReportEmployee() {
                                     className="font-light"
                                   >
                                     {field.value ? (
-                                      formatInTimeZone(field.value,'UTC', "dd/MM/yyy")
+                                      formatInTimeZone(
+                                        field.value,
+                                        "UTC",
+                                        "dd/MM/yyy",
+                                      )
                                     ) : (
                                       <span>Selecciona una fecha</span>
                                     )}
@@ -1241,13 +1217,15 @@ export default function ReportEmployee() {
               </div>
               <div className="flex flex-row gap-2 flex-1 w-full col-span-3">
                 <Button className="flex-1 cursor-pointer">
-                  Consultar Reporte
+                  {filtrosForm && Object.values(filtrosForm).some((v) => !!v)
+                    ? "Consultar Reporte"
+                    : "Consultar Reporte General"}
                   <Search />
                 </Button>
                 {reportListEmployee && (
                   <a
                     href={reportListEmployee}
-                    download={`Reporte_Empleados ${formatInTimeZone(new Date(),'UTC', "dd/MM/yyyy")}.pdf`}
+                    download={`Reporte_Empleados ${formatInTimeZone(new Date(), "UTC", "dd/MM/yyyy")}.pdf`}
                     className={`${buttonVariants({ variant: "outline" })} flex-1 cursor-pointer animate-pulse`}
                   >
                     Descargar Reporte <Download />
