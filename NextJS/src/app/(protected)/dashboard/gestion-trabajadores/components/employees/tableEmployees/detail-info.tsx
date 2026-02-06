@@ -39,6 +39,7 @@ import FormUpdateDwelling from "./updateInfo/forms/form-dwelling";
 import FormUpdateHealth from "./updateInfo/forms/form-health_profile";
 import FormUpdatePhysical from "./updateInfo/forms/form-physical_profile";
 import { FormBasicUpdateInfo } from "./updateInfo/forms/form-basic-info";
+import { formatInTimeZone } from "date-fns-tz";
 interface Props {
   employee: EmployeeData;
 }
@@ -187,15 +188,37 @@ export default function DetailInfoEmployee({ employee }: Props) {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {employee.antecedentes.map((v, i) => (
-                        <TableRow key={i}>
-                          <TableCell className="font-medium">
-                            {v.fecha_ingreso}
-                          </TableCell>
-                          <TableCell>{v.fecha_egreso}</TableCell>
-                          <TableCell>{v.institucion}</TableCell>
-                        </TableRow>
-                      ))}
+                      {employee.antecedentes.length > 0 && (
+                        <>
+                          {employee.antecedentes.map((v, i) => (
+                            <TableRow key={i}>
+                              <TableCell className="font-medium">
+                                {v.fecha_ingreso
+                                  ? formatInTimeZone(
+                                      new Date(v.fecha_ingreso),
+                                      "UTC",
+                                      "dd/MM/yyyy",
+                                    )
+                                  : "N/A"}
+                              </TableCell>
+
+                              <TableCell>
+                                {v.fecha_egreso
+                                  ? formatInTimeZone(
+                                      new Date(v.fecha_egreso),
+                                      "UTC",
+                                      "dd/MM/yyyy",
+                                    )
+                                  : "Presente"}{" "}
+                                {/* Common for current jobs */}
+                              </TableCell>
+
+                              <TableCell>{v.institucion}</TableCell>
+                            </TableRow>
+                          ))}
+                        </>
+                      )}
+
                       <TableRow>
                         <TableCell colSpan={3} className="text-right font-bold">
                           Total años: {employee.anos_apn}
