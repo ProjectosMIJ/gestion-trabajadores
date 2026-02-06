@@ -268,29 +268,30 @@ def generate_pdf_report(request):
 def _generate_employee_pdf(filtros):
     """Genera el PDF de empleados."""
     Employee = apps.get_model('RAC', 'Employee')
-    
+
     queryset = Employee.objects.select_related(
         'sexoid',
         'estadoCivil'
     ).all()
-    
+
     # Aplicar filtros
     config = MAPA_REPORTES.get('empleados', {})
     filtros_permitidos = config.get('filtros_permitidos', {})
-    
+
     for filtro_key, filtro_value in filtros.items():
         if filtro_value is not None and filtro_key in filtros_permitidos:
             campo_db = filtros_permitidos[filtro_key]
             queryset = queryset.filter(**{campo_db: filtro_value})
-    
+
     queryset = queryset.order_by('apellidos', 'nombres')
-    
+
+    # Evitar duplicados asegurando que el título sea único y consistente
     generator = EmployeePDFGenerator(
         employees=queryset,
-        title="Reporte de Empleados",
+        title="MINISTERIO DEL PODER POPULAR PARA RELACIONES INTERIORES, JUSTICIA Y PAZ\nREPORTE DE TRABAJADORES",
         filters=filtros
     )
-    
+
     return generator.get_response(as_attachment=True)
 
 

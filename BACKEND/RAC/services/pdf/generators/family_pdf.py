@@ -5,6 +5,7 @@ Genera una tabla con información de empleados y sus familiares.
 from reportlab.platypus import Spacer, Paragraph, PageBreak
 from reportlab.lib.pagesizes import landscape, A4
 from reportlab.lib.units import mm
+from django.apps import apps
 
 from ..base_generator import BasePDFGenerator
 from ..templates.styles import PAGE_CONFIG, COLORS, get_paragraph_styles
@@ -337,3 +338,63 @@ class FamilyPDFGenerator(BasePDFGenerator):
         if isinstance(familiar, dict):
             return familiar.get('mismo_ente', False)
         return getattr(familiar, 'mismo_ente', False)
+    
+    def _draw_header(self, canvas, doc):
+        """Dibuja el header en el canvas."""
+        canvas.saveState()
+
+        if not hasattr(self, '_cached_header_elements'):
+            institucion = "MINISTERIO DEL PODER POPULAR PARA RELACIONES INTERIORES, "
+            institucion2 = "JUSTICIA Y PAZ"
+
+            # Determinar el título principal basado en el filtro
+            filtros = self.metadata.get('filters', {})
+            filtro_aplicado_id = filtros.get('nomina_id', None)
+
+            # Obtener el nombre del filtro basado en el ID (simulación de consulta o mapeo)
+            filtro_aplicado_nombre = self._get_nomina_nombre(filtro_aplicado_id) if filtro_aplicado_id else None
+
+            titulo_principal = f"Listado de {filtro_aplicado_nombre}" if filtro_aplicado_nombre else "REPORTE DE FAMILIARES"
+
+            # Formatear el título con un diseño más limpio y presentable
+            titulo_reporte = (
+                f"<font size='12'><b>{institucion} <br/> {institucion2}</b></font><br/><font size='14'><b><br/>{titulo_principal}</b></font>"
+            )
+
+            self._cached_header_elements = create_header(titulo_reporte, width=doc.width)
+
+        header_elements = self._cached_header_elements
+
+        # Posicionamiento vertical
+        y_offset = doc.pagesize[1] - self.page_config['topMargin'] + 10 * mm
+
+        for el in header_elements:
+            # wrap calcula el espacio necesario para el elemento
+            w, h = el.wrap(doc.width, doc.topMargin)
+            # drawOn "estampa" el elemento (tabla o spacer) en las coordenadas X, Y
+            el.drawOn(canvas, doc.leftMargin, y_offset)
+            y_offset -= h
+
+        canvas.restoreState()
+
+    def _get_nomina_nombre(self, nomina_id):
+        """Obtiene el nombre de la nómina basado en el ID."""
+        try:
+            # Simulación de consulta para obtener el nombre de la nómina
+            Nomina = apps.get_model('RAC', 'Tiponomina')
+            nomina = Nomina.objects.get(id=nomina_id)
+            return nomina.nomina
+        except Exception:
+            return "N/A"
+
+    def _sort_family_members(self):
+        """Ordena los miembros de la familia según criterios específicos."""
+        self.family_members.sort(
+            key=lambda f: (
+                self._get_dependencia(f).lower(),
+                self._get_tipo_nomina(f).lower(),
+                self._get_cargo(f).lower(),
+                int(self._get_cedula_familiar(f)) if self._get_cedula_familiar(f).isdigit() else 0,
+                int(self._get_cedula(f)) if self._get_cedula(f).isdigit() else 0
+            )
+        )

@@ -5,6 +5,7 @@ Genera una tabla con información de empleados egresados.
 from reportlab.platypus import Spacer, Paragraph, PageBreak
 from reportlab.lib.pagesizes import landscape, A4
 from reportlab.lib.units import mm
+from  django.apps import apps
 
 from ..base_generator import BasePDFGenerator
 from ..templates.styles import PAGE_CONFIG, COLORS, get_paragraph_styles
@@ -48,6 +49,14 @@ class GraduatePDFGenerator(BasePDFGenerator):
         )
         
         self.graduates = list(graduates) if hasattr(graduates, '__iter__') else []
+        self.graduates.sort(
+            key=lambda g: (
+                self._get_dependencia(g).lower(),
+                self._get_tipo_nomina(g).lower(),
+                self._get_cargo(g).lower(),
+                int(self._get_cedula(g)) if self._get_cedula(g).isdigit() else 0
+            )
+        )
         self.filters = filters or {}
         self.styles = get_paragraph_styles()
     
@@ -123,64 +132,69 @@ class GraduatePDFGenerator(BasePDFGenerator):
         return elements
     
     def _build_graduates_table(self):
-        """Construye la tabla de egresados."""
+        """Construye la tabla de egresados agrupados por dependencia."""
         elements = []
-        
-        elements.extend(create_section_title("Listado de Egresados"))
-        
-        if not self.graduates:
-            elements.append(Paragraph(
-                "No se encontraron egresados con los filtros aplicados.",
-                self.styles['Body']
-            ))
-            return elements
-        
-        # Definir encabezados
-        headers = [
-            '#',
-            'Cédula',
-            'Nombre Completo',
-            'F. Ingreso',
-            'F. Egreso',
-            'Motivo',
-            'Último Cargo',
-            'Dirección'
-        ]
-        
-        # Anchos de columna para landscape A4
-        col_widths = [
-            10 * mm,   # #
-            22 * mm,   # Cédula
-            50 * mm,   # Nombre
-            22 * mm,   # F. Ingreso
-            22 * mm,   # F. Egreso
-            35 * mm,   # Motivo
-            45 * mm,   # Último Cargo
-            45 * mm,   # Dirección
-        ]
-        
-        # Construir filas de datos
-        rows = []
-        
-        for idx, graduate in enumerate(self.graduates, start=1):
-            row = [
-                str(idx),
-                self._get_cedula(graduate),
-                self._get_nombre(graduate),
-                self._get_fecha_ingreso(graduate),
-                self._get_fecha_egreso(graduate),
-                self._get_motivo(graduate),
-                self._get_ultimo_cargo(graduate),
-                self._get_ultima_direccion(graduate),
+
+        # Agrupar egresados por dependencia
+        egresados_por_dependencia = {}
+        for graduate in self.graduates:
+            dependencia = self._get_ultima_direccion(graduate)
+            if dependencia not in egresados_por_dependencia:
+                egresados_por_dependencia[dependencia] = []
+            egresados_por_dependencia[dependencia].append(graduate)
+
+        # Ordenar las dependencias de forma alfabética
+        for dependencia in sorted(egresados_por_dependencia.keys()):
+            egresados = egresados_por_dependencia[dependencia]
+            elements.extend(create_section_title(dependencia))
+
+            headers = [
+                '#',
+                'Cédula',
+                'Nombre Completo',
+                'F. Ingreso',
+                'F. Egreso',
+                'Motivo',
+                'Último Cargo',
+                'Dirección'
             ]
-            rows.append(row)
-        
-        # Crear tabla
-        table = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
-        elements.append(table)
-        
+
+            col_widths = [
+                10 * mm,   # #
+                22 * mm,   # Cédula
+                50 * mm,   # Nombre
+                22 * mm,   # F. Ingreso
+                22 * mm,   # F. Egreso
+                35 * mm,   # Motivo
+                45 * mm,   # Último Cargo
+                45 * mm,   # Dirección
+            ]
+
+            rows = []
+            for idx, graduate in enumerate(egresados, start=1):
+                row = [
+                    str(idx),
+                    self._get_cedula(graduate),
+                    self._get_nombre(graduate),
+                    self._get_fecha_ingreso(graduate),
+                    self._get_fecha_egreso(graduate),
+                    self._get_motivo(graduate),
+                    self._get_ultimo_cargo(graduate),
+                    self._get_ultima_direccion(graduate),
+                ]
+                rows.append(row)
+
+            if not rows:
+                elements.append(Paragraph(
+                    "No se encontraron egresados con los filtros aplicados.",
+                    self.styles['Body']
+                ))
+            else:
+                table = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
+                elements.append(table)
+
         return elements
-    
+
     # =========================================================================
     # Métodos auxiliares para extraer datos
     # =========================================================================
@@ -270,26 +284,89 @@ class GraduatePDFGenerator(BasePDFGenerator):
         return 'N/A'
     
     def _get_ultima_direccion(self, graduate):
-        """Extrae la última dirección del egresado."""
-        if isinstance(graduate, dict):
-            cargos = graduate.get('cargos_historial', [])
-            if cargos and len(cargos) > 0:
-                cargo = cargos[0]
-                if isinstance(cargo, dict):
-                    direccion = cargo.get('DireccionGeneral', {})
-                    if isinstance(direccion, dict):
-                        return direccion.get('direccion_general', 'N/A')
-            return 'N/A'
-        
-        # Si es un modelo Django
+        """Obtiene la última dirección del egresado."""
         cargos = getattr(graduate, 'cargos_historial', None)
         if cargos:
             try:
-                first_cargo = cargos.first()
-                if first_cargo:
-                    direccion_obj = getattr(first_cargo, 'DireccionGeneral', None)
-                    if direccion_obj:
-                        return getattr(direccion_obj, 'direccion_general', 'N/A')
-            except:
+                # Ordenar los cargos por fecha de ingreso y obtener el más reciente
+                ultimo_cargo = cargos.order_by('-egreso__fecha_egreso').first()
+                if ultimo_cargo:
+                    direccion_general = getattr(ultimo_cargo, 'DireccionGeneral', None)
+                    if direccion_general:
+                        return getattr(direccion_general, 'direccion_general', 'N/A')
+            except Exception:
                 pass
         return 'N/A'
+
+    def _get_dependencia(self, graduate):
+        """Obtiene la dependencia asociada a la dirección general del egresado."""
+        cargos = getattr(graduate, 'cargos_historial', None)
+        if cargos:
+            try:
+                # Ordenar los cargos por fecha de egreso y obtener el más reciente
+                ultimo_cargo = cargos.order_by('-egreso__fecha_egreso').first()
+                if ultimo_cargo:
+                    direccion_general = getattr(ultimo_cargo, 'DireccionGeneral', None)
+                    if direccion_general and direccion_general.dependenciaId:
+                        return direccion_general.dependenciaId.dependencia
+            except Exception:
+                pass
+        return "N/A"
+
+    def _get_tipo_nomina(self, cargo):
+        """Obtiene el tipo de nómina del cargo."""
+        nomina_obj = getattr(cargo, 'tiponominaid', None)
+        return getattr(nomina_obj, 'nomina', 'N/A') if nomina_obj else 'N/A'
+
+    def _get_cargo(self, cargo):
+        """Obtiene la denominación del cargo."""
+        cargo_obj = getattr(cargo, 'denominacioncargoid', None)
+        return getattr(cargo_obj, 'cargo', 'N/A') if cargo_obj else 'N/A'
+
+    def _draw_header(self, canvas, doc):
+        """Dibuja el header en el canvas."""
+        canvas.saveState()
+
+        if not hasattr(self, '_cached_header_elements'):
+            institucion = "MINISTERIO DEL PODER POPULAR PARA RELACIONES INTERIORES, "
+            institucion2 = "JUSTICIA Y PAZ"
+
+            # Determinar el título principal basado en el filtro
+            filtros = self.metadata.get('filters', {})
+            filtro_aplicado_id = filtros.get('nomina_id', None)
+
+            # Obtener el nombre del filtro basado en el ID (simulación de consulta o mapeo)
+            filtro_aplicado_nombre = self._get_nomina_nombre(filtro_aplicado_id) if filtro_aplicado_id else None
+
+            titulo_principal = f"Listado de {filtro_aplicado_nombre}" if filtro_aplicado_nombre else "REPORTE DE EGRESADOS"
+
+            # Formatear el título con un diseño más limpio y presentable
+            titulo_reporte = (
+                f"<font size='12'><b>{institucion} <br/> {institucion2}</b></font><br/><font size='14'><b><br/>{titulo_principal}</b></font>"
+            )
+
+            self._cached_header_elements = create_header(titulo_reporte, width=doc.width)
+
+        header_elements = self._cached_header_elements
+
+        # Posicionamiento vertical
+        y_offset = doc.pagesize[1] - self.page_config['topMargin'] + 10 * mm
+
+        for el in header_elements:
+            # wrap calcula el espacio necesario para el elemento
+            w, h = el.wrap(doc.width, doc.topMargin)
+            # drawOn "estampa" el elemento (tabla o spacer) en las coordenadas X, Y
+            el.drawOn(canvas, doc.leftMargin, y_offset)
+            y_offset -= h
+
+        canvas.restoreState()
+
+    def _get_nomina_nombre(self, nomina_id):
+        """Obtiene el nombre de la nómina basado en el ID."""
+        try:
+            # Simulación de consulta para obtener el nombre de la nómina
+            Nomina = apps.get_model('RAC', 'Tiponomina')
+            nomina = Nomina.objects.get(id=nomina_id)
+            return nomina.nomina
+        except Exception:
+            return "N/A"

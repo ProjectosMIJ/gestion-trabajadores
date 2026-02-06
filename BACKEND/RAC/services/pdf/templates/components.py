@@ -97,7 +97,7 @@ def create_header(title, subtitle=None, width=None):
         ('ALIGN', (2, 0), (2, 0), 'RIGHT'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('TOPPADDING', (0, 0), (-1, -1), 0),
-        ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), -14),
     ]))
     
     elements.append(header_table)

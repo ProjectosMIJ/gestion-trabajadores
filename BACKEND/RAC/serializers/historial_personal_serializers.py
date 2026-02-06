@@ -131,7 +131,7 @@ class GestionStatusSerializer(BaseActionInputSerializer):
 class GestionEgreso_PasivoSerializer(BaseActionInputSerializer):
     motivo = serializers.PrimaryKeyRelatedField(queryset=Tipo_movimiento.objects.all())
     tiponominaid = serializers.IntegerField(required=False, allow_null=True)
-    codigo_nuevo = serializers.CharField(required=False, max_length=50)
+    codigo_nuevo = serializers.CharField(required=False, max_length=50, allow_blank=True, allow_null=True)
     liberar_activos = serializers.BooleanField(required=False, default=False)
     
     def validate(self, data):

@@ -468,7 +468,7 @@ class EmployeeCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerialize
             'cedulaidentidad': {'write_only': False}
         }
         
-        
+    
     def validate_cedulaidentidad(self, value):
         if self.instance and self.instance.cedulaidentidad != value:
             raise serializers.ValidationError("La cedula de identidad no puede ser modificada")

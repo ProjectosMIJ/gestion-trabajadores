@@ -211,7 +211,7 @@ class GrupoSanguineo(models.Model):
         app_label = 'RAC'
 
 class carreras(models.Model):
-    nombre_carrera = models.CharField(max_length=100, unique=True)
+    nombre_carrera = models.CharField(max_length=200, unique=True)
 
     class Meta:
         managed = True
@@ -219,7 +219,7 @@ class carreras(models.Model):
 
 class Menciones(models.Model):
     carrera_id = models.ForeignKey(carreras, models.DO_NOTHING, db_column='carreraId')
-    nombre_mencion = models.CharField(max_length=100, unique=True)
+    nombre_mencion = models.CharField(max_length=200, unique=True)
    
     class Meta:
         managed = True
