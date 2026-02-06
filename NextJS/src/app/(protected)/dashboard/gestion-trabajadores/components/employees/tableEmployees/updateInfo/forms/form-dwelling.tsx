@@ -6,10 +6,6 @@ import {
   getParish,
   getStates,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import {
-  DwellingType,
-  schemaDwelling,
-} from "@/app/(protected)/dashboard/gestion-trabajadores/personal/registrar/schemas/schema-dwelling";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -38,10 +34,10 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import useSWR from "swr";
-import updateInfoEmployee from "../actions/update-info";
 import { toast } from "sonner";
+import useSWR from "swr";
 import Loading from "../../../../loading/loading";
+import updateInfoEmployee from "../actions/update-info";
 import {
   DwellingUpdateType,
   schemaDwellingUpdate,

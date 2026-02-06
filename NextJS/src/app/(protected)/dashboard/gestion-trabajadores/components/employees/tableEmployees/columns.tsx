@@ -17,7 +17,7 @@ import { DataTableColumnHeader } from "./data-table-column-header";
 import ExportButton from "@/components/ui/ExportButtonPDF";
 import { ReportPDFEmployee } from "../../../reportes/empleados/pdf/reportEmployeePDF";
 import DetailInfoEmployee from "./detail-info";
-import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import useSWR from "swr";
 import { useMemo } from "react";
 import { imageProfileFn } from "../../../api/getInfoRac";
@@ -47,7 +47,7 @@ export const columns: ColumnDef<EmployeeData>[] = [
     cell: ({ getValue }) => {
       const fecha = getValue() as string;
       return (
-        <span> {fecha ? format(new Date(fecha), "dd/MM/yyy") : "N/A"}</span>
+        <span> {fecha ? formatInTimeZone(fecha,'UTC', "dd/MM/yyy") : "N/A"}</span>
       );
     },
   },
@@ -65,7 +65,7 @@ export const columns: ColumnDef<EmployeeData>[] = [
     cell: ({ getValue }) => {
       const fecha = getValue() as string;
       return (
-        <span> {fecha ? format(new Date(fecha), "dd/MM/yyy") : "N/A"}</span>
+        <span> {fecha ? formatInTimeZone(fecha,'UTC', "dd/MM/yyy") : "N/A"}</span>
       );
     },
   },

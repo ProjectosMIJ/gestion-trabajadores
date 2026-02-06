@@ -36,7 +36,7 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { BackgroundType, schemaBackground } from "../schemas/schema-background";
@@ -86,7 +86,7 @@ export default function FormBackground({ onSubmit, defaultValues }: Props) {
                       <FormControl>
                         <Button variant={"outline"} className="font-light">
                           {field.value ? (
-                            format(field.value, "dd/MM/yyyy")
+                            formatInTimeZone(field.value,'UTC', "dd/MM/yyy")
                           ) : (
                             <span>Selecciona una fecha</span>
                           )}
@@ -188,7 +188,7 @@ export default function FormBackground({ onSubmit, defaultValues }: Props) {
                                   className="w-48 justify-between font-normal"
                                 >
                                   {field.value ? (
-                                    format(field.value, "dd/MM/yyyy")
+                                    formatInTimeZone(field.value,'UTC', "dd/MM/yyy")
                                   ) : (
                                     <span>Selecciona una fecha</span>
                                   )}
@@ -235,7 +235,7 @@ export default function FormBackground({ onSubmit, defaultValues }: Props) {
                                   className="w-48 justify-between font-normal"
                                 >
                                   {field.value ? (
-                                    format(field.value, "dd/MM/yyyy")
+                                    formatInTimeZone(field.value,'UTC', "dd/MM/yyy")
                                   ) : (
                                     <span>Selecciona una fecha</span>
                                   )}

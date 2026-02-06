@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { MoreHorizontal } from "lucide-react";
 
 export const columnsLeavingReport: ColumnDef<Leaving>[] = [
@@ -85,7 +85,7 @@ export const columnsLeavingReport: ColumnDef<Leaving>[] = [
     cell: ({ getValue }) => {
       const fecha = getValue() as Date;
       if (!fecha) return <Badge className="bg-red-600">N/A</Badge>;
-      return format(new Date(fecha), "dd/mm/yyyy");
+      return formatInTimeZone(new Date(fecha),"UTC", "dd/mm/yyyy");
     },
   },
   {
@@ -94,7 +94,7 @@ export const columnsLeavingReport: ColumnDef<Leaving>[] = [
     cell: ({ getValue }) => {
       const fecha = getValue() as Date;
       if (!fecha) return <Badge className="bg-red-600">N/A</Badge>;
-      return format(new Date(fecha), "dd/mm/yyyy");
+      return formatInTimeZone(new Date(fecha),"UTC", "dd/mm/yyyy");
     },
   },
 ];

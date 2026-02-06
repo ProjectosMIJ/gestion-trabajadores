@@ -1,29 +1,14 @@
 "use client";
 
 import {
-  getCodeList,
   getCodeListSearch,
   getCoordination,
   getDependency,
   getDirectionGeneralById,
   getDirectionLine,
-  getNomina,
+  getNomina
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import useSWR from "swr";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../../../../../../components/ui/card";
-import TableCode from "../../cargos/listado-codigo/tableCodeInfo/page";
-import Loading from "../loading/loading";
-import { useSession } from "next-auth/react";
-import { useState, useTransition } from "react";
-import z from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -40,9 +25,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Eraser, Search } from "lucide-react";
-import { toast } from "sonner";
+import { useSession } from "next-auth/react";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import useSWR from "swr";
+import z from "zod";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../../../../../../components/ui/card";
+import TableCode from "../../cargos/listado-codigo/tableCodeInfo/page";
+import Loading from "../loading/loading";
 
 export function CodeListPage() {
   const { data: session } = useSession();

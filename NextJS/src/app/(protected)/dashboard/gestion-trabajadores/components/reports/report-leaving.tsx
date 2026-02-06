@@ -49,7 +49,7 @@ import {
 } from "../../reportes/egresados/schema/report-schema-leaving";
 import TableReportLeaving from "../../reportes/egresados/tableEmployeesReport/page";
 import Loading from "../loading/loading";
-import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { Download, Eraser, Search } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
@@ -557,7 +557,7 @@ export default function ReportLeaving() {
                 {reportListLeaving && (
                   <a
                     href={reportListLeaving}
-                    download={`Reporte_Egresados ${format(new Date(), "dd/MM/yyyy")}.pdf`}
+                    download={`Reporte_Egresados ${formatInTimeZone(new Date(),'UTC', "dd/MM/yyyy")}.pdf`}
                     className={`${buttonVariants({ variant: "outline" })} flex-1 cursor-pointer animate-pulse`}
                   >
                     Descargar Reporte

@@ -1,5 +1,5 @@
 import z from "zod";
-import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 export const patologiaCronica = z.object({
   value: z.string(),
 });
@@ -43,5 +43,5 @@ export const schemaEmployeeEdit = z.object({
   fecha_nacimiento: z
     .date()
     .or(z.string())
-    .transform((v) => String(format(v, "dd/MM/yyyy"))),
+    .transform((v) => String(formatInTimeZone(v,"UTC", "dd/MM/yyyy"))),
 });

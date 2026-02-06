@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
-import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import UpdateCode from "./detail-info";
 export const columnsCode: ColumnDef<Code>[] = [
@@ -132,7 +132,7 @@ export const columnsCode: ColumnDef<Code>[] = [
     cell: ({ getValue }) => {
       const date = getValue() as Date;
       if (!date) return "N/A";
-      return format(new Date(date), "dd/MM/YYY");
+      return formatInTimeZone(date,'UTC', "dd/MM/yyy");
     },
   },
 ];

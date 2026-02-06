@@ -1,7 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { useState } from "react";
 
 import {
@@ -229,7 +229,7 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
                                 className="font-light"
                               >
                                 {field.value ? (
-                                  format(field.value, "dd/MM/yyyy")
+                                  formatInTimeZone(field.value,'UTC', "dd/MM/yyy")
                                 ) : (
                                   <span>Selecciona una fecha</span>
                                 )}

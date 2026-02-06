@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { X, User } from "lucide-react";
-import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { useState } from "react";
 import { EmployeeData } from "@/app/types/types";
 import Image from "next/image";
@@ -275,7 +275,7 @@ export function EmployeeDetailDrawer({
               <div className="flex items-center gap-2">
                 <div className={`h-3 w-3 rounded-full bg-green-500`} />
                 <p className="font-semibold text-foreground">
-                  {format(employee.fecha_actualizacion, "dd/MM/yyyy")}
+                  {formatInTimeZone(employee.fecha_actualizacion,'UTC', "dd/MM/yyyy")}
                 </p>
               </div>
             </CardContent>

@@ -10,7 +10,7 @@ import {
   Text,
   View,
 } from "@react-pdf/renderer";
-import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { useSession } from "next-auth/react";
 
 // Crear estilos
@@ -190,7 +190,7 @@ export function ReportPDFEmployee({
           {/* Logos en la cabecera */}
           <Text style={{ fontSize: 8, textAlign: "right" }}>
             Usuario: {session?.data?.user.name}, Fecha De Generacion:{" "}
-            {format(new Date(), "dd/MM/yyyy HH:mm:ss")}
+            {formatInTimeZone(new Date(),"UTC", "dd/MM/yyyy HH:mm:ss")}
           </Text>
           <View style={styles.header} fixed>
             <Image style={styles.logoLeft} src={logoOAC.src} />
@@ -352,7 +352,7 @@ export function ReportPDFEmployee({
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Fecha de ingreso:</Text>
               <Text style={styles.infoValue}>
-                {format(employee?.fechaingresoorganismo, "dd/MM/yyyy") ?? "N/A"}
+                {formatInTimeZone(employee?.fechaingresoorganismo,"UTC", "dd/MM/yyyy") ?? "N/A"}
               </Text>
             </View>
             <View style={styles.infoRow}>

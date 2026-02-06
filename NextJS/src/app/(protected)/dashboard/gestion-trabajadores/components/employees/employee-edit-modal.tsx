@@ -17,7 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import z from "zod";
@@ -385,7 +385,7 @@ export function EmployeeEditModal({
                         <FormControl>
                           <Button variant={"outline"} className="font-light">
                             {field.value ? (
-                              format(field.value, "dd/MM/yyyy")
+                              formatInTimeZone(field.value,'UTC', "dd/MM/yyy")
                             ) : (
                               <span>Selecciona una fecha</span>
                             )}

@@ -57,7 +57,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
 import {
   ArrowBigDown,
   CalendarIcon,
@@ -890,7 +890,7 @@ export default function ReportEmployee() {
                                     className="font-light"
                                   >
                                     {field.value ? (
-                                      format(field.value, "dd/MM/yyyy")
+                                      formatInTimeZone(field.value,'UTC', "dd/MM/yyy")
                                     ) : (
                                       <span>Selecciona una fecha</span>
                                     )}
@@ -937,7 +937,7 @@ export default function ReportEmployee() {
                                     className="font-light"
                                   >
                                     {field.value ? (
-                                      format(field.value, "dd/MM/yyyy")
+                                      formatInTimeZone(field.value,'UTC', "dd/MM/yyy")
                                     ) : (
                                       <span>Selecciona una fecha</span>
                                     )}
@@ -984,7 +984,7 @@ export default function ReportEmployee() {
                                     className="font-light"
                                   >
                                     {field.value ? (
-                                      format(field.value, "dd/MM/yyyy")
+                                      formatInTimeZone(field.value,'UTC', "dd/MM/yyy")
                                     ) : (
                                       <span>Selecciona una fecha</span>
                                     )}
@@ -1031,7 +1031,7 @@ export default function ReportEmployee() {
                                     className="font-light"
                                   >
                                     {field.value ? (
-                                      format(field.value, "dd/MM/yyyy")
+                                      formatInTimeZone(field.value,'UTC', "dd/MM/yyy")
                                     ) : (
                                       <span>Selecciona una fecha</span>
                                     )}
@@ -1247,7 +1247,7 @@ export default function ReportEmployee() {
                 {reportListEmployee && (
                   <a
                     href={reportListEmployee}
-                    download={`Reporte_Empleados ${format(new Date(), "dd/MM/yyyy")}.pdf`}
+                    download={`Reporte_Empleados ${formatInTimeZone(new Date(),'UTC', "dd/MM/yyyy")}.pdf`}
                     className={`${buttonVariants({ variant: "outline" })} flex-1 cursor-pointer animate-pulse`}
                   >
                     Descargar Reporte <Download />
