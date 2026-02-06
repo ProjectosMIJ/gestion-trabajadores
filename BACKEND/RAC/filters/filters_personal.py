@@ -4,7 +4,7 @@ from ..models import Employee, AsigTrabajo
 
 class EmployeeFilter(django_filters.FilterSet):
     cedulaidentidad = django_filters.CharFilter( lookup_expr='icontains')
-    codigo = django_filters.CharFilter(field_name='assignments__codigo', lookup_expr='icontains')
+    codigo = django_filters.CharFilter(field_name='assignments__codigo', lookup_expr='exact')
     tipo_nomina = django_filters.NumberFilter(field_name='assignments__tiponominaid')
     dependencia_id = django_filters.NumberFilter(field_name='assignments__DireccionGeneral__dependenciaId')
     direccion_general_id = django_filters.NumberFilter(field_name='assignments__DireccionGeneral')
@@ -19,7 +19,7 @@ class EmployeeFilter(django_filters.FilterSet):
         
         
 class AsigTrabajoFilter(django_filters.FilterSet):
-    codigo = django_filters.CharFilter(lookup_expr='icontains')
+    codigo = django_filters.CharFilter(lookup_expr='exact')
     estatus_id = django_filters.NumberFilter(field_name='estatusid')
     tipo_nomina = django_filters.NumberFilter(field_name='tiponominaid')
     dependencia_id = django_filters.NumberFilter(field_name='DireccionGeneral__dependenciaId')
