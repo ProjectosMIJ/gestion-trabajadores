@@ -44,7 +44,7 @@ import { validateWeight } from "@/constants/fileSize";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
 import { useForm } from "react-hook-form";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import updateInfoEmployee from "../actions/update-info";
 import { toast } from "sonner";
 import Loading from "../../../../loading/loading";
@@ -62,6 +62,7 @@ export function FormBasicUpdateInfo({
   idEmployee,
   cedulaidentidad,
 }: Props) {
+  const { mutate } = useSWRConfig();
   const [isPending, startTransition] = useTransition();
   const [photoPreview, setPhotoPreview] = useState<string | null | undefined>(
     null,
@@ -97,6 +98,11 @@ export function FormBasicUpdateInfo({
       );
       if (response.success) {
         toast.success(response.message);
+        mutate(
+          (key) => Array.isArray(key) && key[0] === "LISTA_EMPLEADOS",
+          undefined,
+          { revalidate: true },
+        );
       } else {
         toast.error(response.message);
       }
@@ -244,7 +250,11 @@ export function FormBasicUpdateInfo({
                                   className="font-light"
                                 >
                                   {field.value ? (
-                                    formatInTimeZone(field.value,'UTC', "dd/MM/yyy")
+                                    formatInTimeZone(
+                                      field.value,
+                                      "UTC",
+                                      "dd/MM/yyy",
+                                    )
                                   ) : (
                                     <span>Selecciona una fecha</span>
                                   )}

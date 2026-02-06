@@ -6,6 +6,7 @@ import {
   getParish,
   getStates,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
+import useSWR, { useSWRConfig } from "swr";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -35,7 +36,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import useSWR from "swr";
 import Loading from "../../../../loading/loading";
 import updateInfoEmployee from "../actions/update-info";
 import {
@@ -51,6 +51,7 @@ export default function FormUpdateDwelling({
   defaultValues,
   idEmployee,
 }: Props) {
+  const { mutate } = useSWRConfig();
   const [isPending, startTransition] = useTransition();
   const [stateId, setStateId] = useState<string>();
   const [municipalityId, setMunicipalityId] = useState<string>();
@@ -80,6 +81,11 @@ export default function FormUpdateDwelling({
       const response = await updateInfoEmployee(values, idEmployee);
       if (response.success) {
         toast.success(response.message);
+        mutate(
+          (key) => Array.isArray(key) && key[0] === "LISTA_EMPLEADOS",
+          undefined,
+          { revalidate: true },
+        );
       } else {
         toast.error(response.message);
       }

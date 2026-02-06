@@ -37,7 +37,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { useState, useTransition } from "react";
 import { toast } from "sonner";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import Loading from "../../../../loading/loading";
 import updateInfoEmployee from "../actions/update-info";
 import {
@@ -53,6 +53,7 @@ export default function FormUpdateAcademyLevel({
   defaultValues,
   idEmployee,
 }: Props) {
+  const { mutate } = useSWRConfig();
   const [isPending, startTransition] = useTransition();
   const [mencionId, setMencionId] = useState<string>();
   const [showMoreDetails, setShowMoreDetails] = useState(false);
@@ -87,6 +88,11 @@ export default function FormUpdateAcademyLevel({
       const response = await updateInfoEmployee(values, idEmployee);
       if (response.success) {
         toast.success(response.message);
+        mutate(
+          (key) => Array.isArray(key) && key[0] === "LISTA_EMPLEADOS",
+          undefined,
+          { revalidate: true },
+        );
       } else {
         toast.error(response.message);
       }

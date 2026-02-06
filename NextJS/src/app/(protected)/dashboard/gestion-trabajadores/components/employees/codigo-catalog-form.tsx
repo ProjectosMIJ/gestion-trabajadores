@@ -54,8 +54,6 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
     useState<boolean>(false);
   const [activeCoordination, setActiveCoordination] = useState<boolean>(false);
   const [isPending, startTransition] = useTransition();
-  const [directionGeneralId, setDirectionGeneralId] = useState<string>();
-  const [directionLinelId, setDirectionLineId] = useState<string>();
 
   const validateDirectionLine = () => {
     if (!activeDirectionLine) form.setValue("DireccionLinea", 0);
@@ -93,15 +91,21 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
   const { data: grado, isLoading: isLoadingGrado } = useSWR("grado", async () =>
     getGrado(),
   );
+  const [selecteIdDirectionGeneral, setSelecteIdDirectionGeneral] =
+    useState<string>();
+  const [selecteIdDirectionLine, setSelecteIdDirectionLine] =
+    useState<string>();
   const { data: directionGeneral, isLoading: isLoadingDirectionGeneral } =
     useSWR("directionGeneral", async () => await getDirectionGeneral());
   const { data: directionLine, isLoading: isLoadingDirectionLine } = useSWR(
-    directionGeneralId ? ["directionLine", directionGeneralId] : null,
-    async () => await getDirectionLine(directionGeneralId!),
+    selecteIdDirectionGeneral
+      ? ["directionLine", selecteIdDirectionGeneral]
+      : "",
+    async () => await getDirectionLine(selecteIdDirectionGeneral!),
   );
   const { data: coordination, isLoading: isLoadingCoordination } = useSWR(
-    directionLinelId ? ["coordination", directionLinelId] : null,
-    async () => await getCoordination(directionGeneralId!),
+    selecteIdDirectionLine ? ["coordination", selecteIdDirectionLine] : null,
+    async () => await getCoordination(selecteIdDirectionLine!),
   );
 
   async function onSubmit(data: z.infer<typeof schemaCode>) {
@@ -295,7 +299,7 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
                         <Select
                           onValueChange={(values) => {
                             field.onChange(Number.parseInt(values));
-                            setDirectionGeneralId(values);
+                            setSelecteIdDirectionGeneral(values);
                           }}
                         >
                           <FormControl>
@@ -339,7 +343,7 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
                             <Select
                               onValueChange={(values) => {
                                 field.onChange(Number.parseInt(values));
-                                setDirectionLineId(values);
+                                setSelecteIdDirectionLine(values);
                               }}
                             >
                               <FormControl>

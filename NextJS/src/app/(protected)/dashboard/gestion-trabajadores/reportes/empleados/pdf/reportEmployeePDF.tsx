@@ -190,7 +190,7 @@ export function ReportPDFEmployee({
           {/* Logos en la cabecera */}
           <Text style={{ fontSize: 8, textAlign: "right" }}>
             Usuario: {session?.data?.user.name}, Fecha De Generacion:{" "}
-            {formatInTimeZone(new Date(),"UTC", "dd/MM/yyyy HH:mm:ss")}
+            {formatInTimeZone(new Date(), "UTC", "dd/MM/yyyy HH:mm:ss")}
           </Text>
           <View style={styles.header} fixed>
             <Image style={styles.logoLeft} src={logoOAC.src} />
@@ -234,7 +234,7 @@ export function ReportPDFEmployee({
 
                 <View style={styles.infoRow}>
                   <Text style={styles.infoLabel}>Sexo:</Text>
-                  <Text style={styles.infoValue}>{employee.sexo.sexo}</Text>
+                  <Text style={styles.infoValue}>{employee.sexo.sexo[0]}</Text>
                 </View>
 
                 <View style={styles.infoRow}>
@@ -352,7 +352,11 @@ export function ReportPDFEmployee({
             <View style={styles.infoRow}>
               <Text style={styles.infoLabel}>Fecha de ingreso:</Text>
               <Text style={styles.infoValue}>
-                {formatInTimeZone(employee?.fechaingresoorganismo,"UTC", "dd/MM/yyyy") ?? "N/A"}
+                {formatInTimeZone(
+                  employee?.fechaingresoorganismo,
+                  "UTC",
+                  "dd/MM/yyyy",
+                ) ?? "N/A"}
               </Text>
             </View>
             <View style={styles.infoRow}>

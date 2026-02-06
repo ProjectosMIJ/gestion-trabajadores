@@ -1,7 +1,6 @@
 "use client";
 import { EmployeeData } from "@/app/types/types";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,13 +14,13 @@ import { MoreHorizontal } from "lucide-react";
 import { DataTableColumnHeader } from "./data-table-column-header";
 
 import ExportButton from "@/components/ui/ExportButtonPDF";
+import { formatInTimeZone } from "date-fns-tz";
+import { useSession } from "next-auth/react";
+import { useMemo } from "react";
+import useSWR from "swr";
+import { imageProfileFn } from "../../../api/getInfoRac";
 import { ReportPDFEmployee } from "../../../reportes/empleados/pdf/reportEmployeePDF";
 import DetailInfoEmployee from "./detail-info";
-import { formatInTimeZone } from "date-fns-tz";
-import useSWR from "swr";
-import { useMemo } from "react";
-import { imageProfileFn } from "../../../api/getInfoRac";
-import { useSession } from "next-auth/react";
 export const columns: ColumnDef<EmployeeData>[] = [
   {
     accessorKey: "cedulaidentidad",
@@ -40,6 +39,10 @@ export const columns: ColumnDef<EmployeeData>[] = [
   {
     accessorKey: "sexo.sexo",
     header: "Sexo",
+    cell: ({ getValue }) => {
+      const sex = getValue() as string;
+      return <span>{sex[0]}</span>;
+    },
   },
   {
     accessorKey: "fecha_nacimiento",
@@ -47,7 +50,10 @@ export const columns: ColumnDef<EmployeeData>[] = [
     cell: ({ getValue }) => {
       const fecha = getValue() as string;
       return (
-        <span> {fecha ? formatInTimeZone(fecha,'UTC', "dd/MM/yyy") : "N/A"}</span>
+        <span>
+          {" "}
+          {fecha ? formatInTimeZone(fecha, "UTC", "dd/MM/yyy") : "N/A"}
+        </span>
       );
     },
   },
@@ -65,7 +71,10 @@ export const columns: ColumnDef<EmployeeData>[] = [
     cell: ({ getValue }) => {
       const fecha = getValue() as string;
       return (
-        <span> {fecha ? formatInTimeZone(fecha,'UTC', "dd/MM/yyy") : "N/A"}</span>
+        <span>
+          {" "}
+          {fecha ? formatInTimeZone(fecha, "UTC", "dd/MM/yyy") : "N/A"}
+        </span>
       );
     },
   },

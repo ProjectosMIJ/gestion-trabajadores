@@ -33,7 +33,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import Loading from "../../../../loading/loading";
 import updateInfoEmployee from "../actions/update-info";
 import {
@@ -50,7 +50,7 @@ export default function FormUpdatePhysical({
   idEmployee,
 }: Props) {
   const [isPending, startTransition] = useTransition();
-
+  const { mutate } = useSWRConfig();
   const form = useForm({
     resolver: zodResolver(schemaPhysicalProfileUpdate),
     defaultValues: {
@@ -78,6 +78,11 @@ export default function FormUpdatePhysical({
       const response = await updateInfoEmployee(values, idEmployee);
       if (response.success) {
         toast.success(response.message);
+        mutate(
+          (key) => Array.isArray(key) && key[0] === "LISTA_EMPLEADOS",
+          undefined,
+          { revalidate: true },
+        );
       } else {
         toast.error(response.message);
       }

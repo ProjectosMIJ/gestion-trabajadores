@@ -6,6 +6,8 @@ import {
 import { HealthType } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/registrar/schemas/schema-health_profile";
 import { DisabilitysType, PatologysType } from "@/app/types/types";
 import { Button } from "@/components/ui/button";
+import useSWR, { useSWRConfig } from "swr";
+
 import {
   Card,
   CardAction,
@@ -35,7 +37,7 @@ import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { useMemo, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import useSWR from "swr";
+
 import Loading from "../../../../loading/loading";
 import updateInfoEmployee from "../actions/update-info";
 import {
@@ -50,6 +52,7 @@ type Props = {
 
 export default function FormUpdateHealth({ defaultValues, idEmployee }: Props) {
   const [isPending, startTransition] = useTransition();
+  const { mutate } = useSWRConfig();
 
   const form = useForm({
     resolver: zodResolver(schemaHealthProfileUpdate),
@@ -72,6 +75,11 @@ export default function FormUpdateHealth({ defaultValues, idEmployee }: Props) {
       const response = await updateInfoEmployee(values, idEmployee);
       if (response.success) {
         toast.success(response.message);
+        mutate(
+          (key) => Array.isArray(key) && key[0] === "LISTA_EMPLEADOS",
+          undefined,
+          { revalidate: true },
+        );
       } else {
         toast.error(response.message);
       }

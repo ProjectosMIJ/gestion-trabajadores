@@ -83,7 +83,7 @@ export const columnsCode: ColumnDef<Code>[] = [
   },
   {
     accessorKey: "OrganismoAdscrito.Organismoadscrito",
-    header: "Grado",
+    header: "Org. Adscrito",
     cell: ({ getValue }) => {
       const orgAds = getValue();
       if (!orgAds) return "N/A";
@@ -132,7 +132,7 @@ export const columnsCode: ColumnDef<Code>[] = [
     cell: ({ getValue }) => {
       const date = getValue() as Date;
       if (!date) return "N/A";
-      return formatInTimeZone(date,'UTC', "dd/MM/yyy");
+      return formatInTimeZone(date, "UTC", "dd/MM/yyy");
     },
   },
 ];

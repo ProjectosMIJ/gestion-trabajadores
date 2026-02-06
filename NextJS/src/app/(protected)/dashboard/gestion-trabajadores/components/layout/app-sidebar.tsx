@@ -243,7 +243,7 @@ const items: MenuItem[] = [
     url: "#",
     subMenu: [
       {
-        title: "Consultar Empleados",
+        title: "Consultar Trabajador",
         url: "/dashboard/gestion-trabajadores/reportes/empleados",
         icon: IdCard,
         permission: {

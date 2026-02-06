@@ -70,8 +70,9 @@ export default function PersonalPage() {
     setSearchParams(params.toString());
   };
 
-  const { data: employeeData, isLoading } = useSWR(searchParams, () =>
-    getEmployeeDataSearch({ searchParams }),
+  const { data: employeeData, isLoading } = useSWR(
+    ["LISTA_EMPLEADOS", searchParams],
+    () => getEmployeeDataSearch({ searchParams }),
   );
   const cleanFields = () => {
     form.reset({

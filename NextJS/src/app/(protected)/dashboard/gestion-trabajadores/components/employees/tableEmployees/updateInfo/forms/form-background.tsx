@@ -48,7 +48,7 @@ import { z } from "zod";
 import Loading from "../../../../loading/loading";
 import updateInfoEmployee from "../actions/update-info";
 import { schemaBackgroundUpdate } from "../schema/schema-background";
-
+import useSWR, { useSWRConfig } from "swr";
 type Props = {
   defaultValues: BackgroundType;
   idEmployee: string;
@@ -57,6 +57,7 @@ export default function FormUpdateBackground({
   defaultValues,
   idEmployee,
 }: Props) {
+  const { mutate } = useSWRConfig();
   const [isPending, startTransition] = useTransition();
   const form = useForm({
     resolver: zodResolver(schemaBackgroundUpdate),
@@ -71,6 +72,11 @@ export default function FormUpdateBackground({
       const response = await updateInfoEmployee(values, idEmployee);
       if (response.success) {
         toast.success(response.message);
+        mutate(
+          (key) => Array.isArray(key) && key[0] === "LISTA_EMPLEADOS",
+          undefined,
+          { revalidate: true },
+        );
       } else {
         toast.error(response.message);
       }
@@ -106,7 +112,7 @@ export default function FormUpdateBackground({
                         <FormControl>
                           <Button variant={"outline"} className="font-light">
                             {field.value ? (
-                              formatInTimeZone(field.value,'UTC', "dd/MM/yyy")
+                              formatInTimeZone(field.value, "UTC", "dd/MM/yyy")
                             ) : (
                               <span>Selecciona una fecha</span>
                             )}
@@ -208,7 +214,11 @@ export default function FormUpdateBackground({
                                     className="w-48 justify-between font-normal"
                                   >
                                     {field.value ? (
-                                      formatInTimeZone(field.value,'UTC', "dd/MM/yyy")
+                                      formatInTimeZone(
+                                        field.value,
+                                        "UTC",
+                                        "dd/MM/yyy",
+                                      )
                                     ) : (
                                       <span>Selecciona una fecha</span>
                                     )}
@@ -255,7 +265,11 @@ export default function FormUpdateBackground({
                                     className="w-48 justify-between font-normal"
                                   >
                                     {field.value ? (
-                                      formatInTimeZone(field.value,'UTC', "dd/MM/yyy")
+                                      formatInTimeZone(
+                                        field.value,
+                                        "UTC",
+                                        "dd/MM/yyy",
+                                      )
                                     ) : (
                                       <span>Selecciona una fecha</span>
                                     )}
