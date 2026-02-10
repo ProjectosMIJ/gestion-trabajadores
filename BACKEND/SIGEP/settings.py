@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
-
+import os
+from decouple import config
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -89,12 +90,12 @@ WSGI_APPLICATION = 'SIGEP.wsgi.application'
 
 DATABASES = {
     'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            "NAME":"SIGEP",
-            "USER": "postgres",
-            "PASSWORD": "admin",
-            #  "HOST": "postgresdb",
-             "PORT": "5432"
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': config('DJANGO_DB_NAME', default='SIGEP'),
+        'USER': config('DJANGO_DB_USER', default='postgres'),
+        'PASSWORD': config('DJANGO_DB_PASSWORD', default='admin'),
+        'HOST': config('DJANGO_DB_HOST', default='localhost'),
+        'PORT': config('DJANGO_DB_PORT', default='5432'),
     }
 }
 
