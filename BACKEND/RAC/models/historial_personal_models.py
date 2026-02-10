@@ -36,7 +36,7 @@ class EmployeeMovementHistory(models.Model):
     tiponomina = models.ForeignKey(Tiponomina, on_delete=models.PROTECT)
     estatus = models.ForeignKey(Estatus, on_delete=models.PROTECT)
     tipo_personal = models.ForeignKey(Tipo_personal, on_delete=models.PROTECT)
-    
+    DependenciasId = models.ForeignKey(Dependencias, on_delete=models.PROTECT)
     DireccionGeneralid = models.ForeignKey(DireccionGeneral, on_delete=models.PROTECT, null=True)
     DireccionLineaid = models.ForeignKey(DireccionLinea, on_delete=models.PROTECT, null=True)
     Coordinacionid = models.ForeignKey(Coordinaciones, on_delete=models.PROTECT, null=True)
@@ -94,7 +94,7 @@ class CargoEgresado(models.Model):
     denominacioncargoespecificoid = models.ForeignKey(Denominacioncargoespecifico, models.DO_NOTHING, db_column='denominacionCargoEspecificoId')
     gradoid = models.ForeignKey(Grado, models.DO_NOTHING, db_column='gradoId', blank=True, null=True)
     tiponominaid = models.ForeignKey(Tiponomina, models.DO_NOTHING, db_column='tipoNominaId')
-
+    Dependencia =  models.ForeignKey(Dependencias, models.DO_NOTHING, db_column='dependenciaId')
     DireccionGeneral = models.ForeignKey(DireccionGeneral, models.DO_NOTHING, db_column='direccionGeneralId', null=True)
     DireccionLinea = models.ForeignKey(DireccionLinea, models.DO_NOTHING, db_column='direccionLineaId', null=True)
     Coordinacion = models.ForeignKey(Coordinaciones, models.DO_NOTHING, db_column='coordinacionId', null=True)

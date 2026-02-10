@@ -1935,3 +1935,33 @@ def list_management_statuses(request):
         }, status=status.HTTP_400_BAD_REQUEST)
         
         
+        
+@extend_schema(
+    tags=["Recursos Humanos - Gestion de estatus"],
+    summary="Listar Estatus para reportes",
+    description="Devuelve una lista de todos los tipos de estatus  disponibles.",
+    responses=EstatusSerializer
+)
+@api_view(['GET'])
+def list_status_reports(request):
+    try:
+        queryset = Estatus.objects.exclude(
+            estatus__in=ESTATUS_PERMITIDOS_EGRESOS
+        ).order_by('estatus')
+        
+        serializer = EstatusSerializer(queryset, many=True)
+        
+        return Response({
+            'status': "success",
+            'message': "Estatus de gestión obtenidos correctamente",
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
+
+    except Exception:
+
+        return Response({
+            'status': "error",
+            'message': "No se pudo recuperar la lista de estatus de gestión.",
+            'data': []
+        }, status=status.HTTP_400_BAD_REQUEST)
+        

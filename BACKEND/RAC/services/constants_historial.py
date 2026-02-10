@@ -12,6 +12,7 @@ def registrar_historial_movimiento(empleado, puesto, tipo_movimiento, motivo, us
         tiponomina=puesto.tiponominaid,
         estatus=puesto.estatusid,
         tipo_personal=puesto.Tipo_personal,
+        DependenciasId=puesto.Dependencia,
         DireccionGeneralid=puesto.DireccionGeneral, 
         DireccionLineaid=puesto.DireccionLinea,
         Coordinacionid=puesto.Coordinacion,

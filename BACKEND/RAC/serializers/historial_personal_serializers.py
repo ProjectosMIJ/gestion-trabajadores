@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from ..models.historial_personal_models import *
 
-from ..models.personal_models import DireccionLinea, Tiponomina, Estatus, AsigTrabajo, Tipo_personal, antecedentes_servicio
+from ..models.personal_models import DireccionLinea, Tiponomina, Estatus, AsigTrabajo, Tipo_personal, antecedentes_servicio, Dependencias
 
 from USER.models.user_models import cuenta as User
 
@@ -212,6 +212,7 @@ class GestionEgreso_PasivoSerializer(BaseActionInputSerializer):
             estatusid=estatus_activo,
             Tipo_personal=tipo_pasivo,
             gradoid=ultima_asig.gradoid,
+            Dependencia =  dg_admin.dependenciaId if dg_admin else Dependencias.objects.get(id=1),
             DireccionGeneral=dg_admin,
             DireccionLinea=dl_admin,
             Coordinacion=None,
@@ -265,6 +266,7 @@ class GestionEgreso_PasivoSerializer(BaseActionInputSerializer):
                 denominacioncargoespecificoid=asig.denominacioncargoespecificoid,
                 gradoid=asig.gradoid,
                 tiponominaid=asig.tiponominaid,
+                Dependencia = asig.Dependencia,
                 DireccionGeneral=asig.DireccionGeneral,
                 DireccionLinea=asig.DireccionLinea,
                 Coordinacion=None,
@@ -398,4 +400,3 @@ class EmployeeCargoHistorySerializer(serializers.ModelSerializer):
 
         if hasattr(self, '_prev_record_cache'):
             del self._prev_record_cache
- 
