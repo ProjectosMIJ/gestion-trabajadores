@@ -79,95 +79,71 @@ class AssignmentPDFGenerator(BasePDFGenerator):
 
     def _build_assignments_table(self):
         """
-        Construye la tabla agrupada por Dependencia y Dirección General.
-        Evita títulos huérfanos usando keepWithNext.
+        Construye la tabla agrupada corrigiendo los saltos de página excesivos.
         """
         from reportlab.platypus import KeepTogether
         elements = []
         empleados_por_dependencia = {}
 
-        # 1. Agrupar datos (se mantiene tu lógica de agrupación)
+        # 1. Agrupar datos
         for assignment in self.assignments.iterator():
             dependencia = self._get_dependencia(assignment)
             direccion_general = self._get_direccion(assignment)
 
             if dependencia not in empleados_por_dependencia:
                 empleados_por_dependencia[dependencia] = {}
-
             if direccion_general not in empleados_por_dependencia[dependencia]:
                 empleados_por_dependencia[dependencia][direccion_general] = []
-
             empleados_por_dependencia[dependencia][direccion_general].append(assignment)
 
         # 2. Iterar sobre Dependencias
         for dependencia_nombre in sorted(empleados_por_dependencia.keys()):
-            # Título de Dependencia con keepWithNext
+            
+            # Título de Dependencia - Usamos keepWithNext para que no quede solo
             titulo_dep = create_section_title(f"DEPENDENCIA: {dependencia_nombre.upper()}")
             for part in titulo_dep:
                 if isinstance(part, Paragraph):
-                    part.keepWithNext = True
+                    part.keepWithNext = True 
                 elements.append(part)
 
             direcciones = empleados_por_dependencia[dependencia_nombre]
-            for dg_nombre in sorted(direcciones.keys()):
-                # Bloque para mantener Título DG + Tabla juntos si es posible
-                bloque_direccion = []
-
-                # Título de Dirección General
+            direcciones_ordenadas = sorted(direcciones.keys())
+            
+            for i, dg_nombre in enumerate(direcciones_ordenadas):
+                # Bloque para Título de Dirección General
                 titulo_dg = create_section_title(f"    * {dg_nombre}")
                 for part in titulo_dg:
                     if isinstance(part, Paragraph):
                         part.keepWithNext = True
-                    bloque_direccion.append(part)
+                    elements.append(part)
 
                 # Configuración de Tabla
-                headers = [
-                    '#', 'Código', 'Cédula', 'Empleado', 'Cargo', 
-                    'Cargo Esp.', 'Grado', 'Nómina', 'Dirección', 'Estatus'
-                ]
+                headers = ['#', 'Código', 'Cédula', 'Empleado', 'Cargo', 'Cargo Esp.', 'Grado', 'Nómina', 'Estatus']
+                # Ajustamos anchos levemente para evitar que la tabla "desborde" y fuerce saltos
+                col_widths = [10*mm, 20*mm, 22*mm, 42*mm, 35*mm, 35*mm, 15*mm, 32*mm, 25*mm]
 
-                col_widths = [
-                    10*mm, 20*mm, 22*mm, 40*mm, 35*mm, 
-                    35*mm, 15*mm, 25*mm, 30*mm, 20*mm
-                ]
-
-                # Ordenamiento interno de los registros
                 assignments_sorted = sorted(
                     direcciones[dg_nombre],
-                    key=lambda a: (
-                        self._get_codigo(a).lower(),
-                        self._get_tipo_nomina(a).lower(),
-                        self._get_cargo(a).lower()
-                    )
+                    key=lambda a: (self._get_codigo(a).lower(), self._get_tipo_nomina(a).lower(), self._get_cargo(a).lower())
                 )
 
-                rows = []
-                for idx, assignment in enumerate(assignments_sorted, start=1):
-                    rows.append([
-                        str(idx),
-                        self._get_codigo(assignment),
-                        self._get_cedula_empleado(assignment),
-                        self._get_nombre_empleado(assignment),
-                        self._get_cargo(assignment),
-                        self._get_cargo_especifico(assignment),
-                        self._get_grado(assignment),
-                        self._get_tipo_nomina(assignment),
-                        self._get_estatus(assignment),
-                    ])
+                rows = [[str(idx), self._get_codigo(a), self._get_cedula_empleado(a), self._get_nombre_empleado(a), 
+                         self._get_cargo(a), self._get_cargo_especifico(a), self._get_grado(a), 
+                         self._get_tipo_nomina(a), self._get_estatus(a)] 
+                        for idx, a in enumerate(assignments_sorted, start=1)]
 
                 if rows:
                     table = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
-                    bloque_direccion.append(table)
-                    bloque_direccion.append(Spacer(1, 8 * mm))
                     
-                    # Usamos KeepTogether para el bloque Dirección + Tabla
-                    # Esto evita que el nombre de la dirección salga en una hoja y la tabla en otra
-                    elements.append(KeepTogether(bloque_direccion))
+                    # IMPORTANTE: NO envolvemos la tabla larga en un KeepTogether global.
+                    # Esto permite que la tabla fluya naturalmente entre páginas.
+                    elements.append(table)
+                    elements.append(Spacer(1, 8 * mm))
                 else:
-                    elements.append(Paragraph("No se encontraron registros.", self.styles['Body']))
+                    elements.append(Paragraph(f"    * {dg_nombre}: No se encontraron registros.", self.styles['Body']))
 
         return elements
-
+    
     def _draw_header(self, canvas, doc):
         """Dibuja el header en el canvas."""
         canvas.saveState()
