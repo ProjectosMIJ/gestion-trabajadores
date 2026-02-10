@@ -672,7 +672,7 @@ class ListerCodigosSerializer(serializers.ModelSerializer):
         source='OrganismoAdscritoid', read_only=True
     )
     
-   
+    Dependencia = DependenciaSerializer(read_only=True)
     DireccionGeneral = DireccionGeneralSerializer(read_only=True)
     DireccionLinea = DireccionLineaSerializer(read_only=True)
     Coordinacion = CoordinacionSerializer(read_only=True)
@@ -688,6 +688,7 @@ class ListerCodigosSerializer(serializers.ModelSerializer):
             'grado',
             'tiponomina',
             'OrganismoAdscrito',
+            'Dependencia',
             'DireccionGeneral',
             'DireccionLinea',
             'Coordinacion',

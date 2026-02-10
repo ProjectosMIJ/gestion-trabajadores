@@ -78,11 +78,15 @@ class AssignmentPDFGenerator(BasePDFGenerator):
         return elements
 
     def _build_assignments_table(self):
-        """Construye la tabla procesando registros agrupados y ordenados."""
+        """
+        Construye la tabla agrupada por Dependencia y Dirección General.
+        Evita títulos huérfanos usando keepWithNext.
+        """
+        from reportlab.platypus import KeepTogether
         elements = []
         empleados_por_dependencia = {}
 
-        # Agrupar empleados por dependencia y dirección general
+        # 1. Agrupar datos (se mantiene tu lógica de agrupación)
         for assignment in self.assignments.iterator():
             dependencia = self._get_dependencia(assignment)
             direccion_general = self._get_direccion(assignment)
@@ -95,13 +99,28 @@ class AssignmentPDFGenerator(BasePDFGenerator):
 
             empleados_por_dependencia[dependencia][direccion_general].append(assignment)
 
-        # Ordenar las dependencias y direcciones generales alfabéticamente
-        for dependencia in sorted(empleados_por_dependencia.keys()):
-            elements.extend(create_section_title(f"Dependencia: {dependencia}"))
+        # 2. Iterar sobre Dependencias
+        for dependencia_nombre in sorted(empleados_por_dependencia.keys()):
+            # Título de Dependencia con keepWithNext
+            titulo_dep = create_section_title(f"DEPENDENCIA: {dependencia_nombre.upper()}")
+            for part in titulo_dep:
+                if isinstance(part, Paragraph):
+                    part.keepWithNext = True
+                elements.append(part)
 
-            for direccion_general in sorted(empleados_por_dependencia[dependencia].keys()):
-                elements.extend(create_section_title(f"Dirección General: {direccion_general}"))
+            direcciones = empleados_por_dependencia[dependencia_nombre]
+            for dg_nombre in sorted(direcciones.keys()):
+                # Bloque para mantener Título DG + Tabla juntos si es posible
+                bloque_direccion = []
 
+                # Título de Dirección General
+                titulo_dg = create_section_title(f"    * {dg_nombre}")
+                for part in titulo_dg:
+                    if isinstance(part, Paragraph):
+                        part.keepWithNext = True
+                    bloque_direccion.append(part)
+
+                # Configuración de Tabla
                 headers = [
                     '#', 'Código', 'Cédula', 'Empleado', 'Cargo', 
                     'Cargo Esp.', 'Grado', 'Nómina', 'Dirección', 'Estatus'
@@ -112,22 +131,19 @@ class AssignmentPDFGenerator(BasePDFGenerator):
                     35*mm, 15*mm, 25*mm, 30*mm, 20*mm
                 ]
 
-                rows = []
+                # Ordenamiento interno de los registros
                 assignments_sorted = sorted(
-                    empleados_por_dependencia[dependencia][direccion_general],
+                    direcciones[dg_nombre],
                     key=lambda a: (
                         self._get_codigo(a).lower(),
-                        self._get_dependencia(a).lower(),
-                        self._get_direccion(a).lower(),
-                        
                         self._get_tipo_nomina(a).lower(),
-                        self._get_cargo(a).lower(),
-                        int(self._get_cedula_empleado(a)) if self._get_cedula_empleado(a).isdigit() else 0
+                        self._get_cargo(a).lower()
                     )
                 )
 
+                rows = []
                 for idx, assignment in enumerate(assignments_sorted, start=1):
-                    row = [
+                    rows.append([
                         str(idx),
                         self._get_codigo(assignment),
                         self._get_cedula_empleado(assignment),
@@ -136,16 +152,19 @@ class AssignmentPDFGenerator(BasePDFGenerator):
                         self._get_cargo_especifico(assignment),
                         self._get_grado(assignment),
                         self._get_tipo_nomina(assignment),
-                        self._get_direccion(assignment),
                         self._get_estatus(assignment),
-                    ]
-                    rows.append(row)
+                    ])
 
-                if not rows:
-                    elements.append(Paragraph("No se encontraron registros.", self.styles['Body']))
-                else:
+                if rows:
                     table = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
-                    elements.append(table)
+                    bloque_direccion.append(table)
+                    bloque_direccion.append(Spacer(1, 8 * mm))
+                    
+                    # Usamos KeepTogether para el bloque Dirección + Tabla
+                    # Esto evita que el nombre de la dirección salga en una hoja y la tabla en otra
+                    elements.append(KeepTogether(bloque_direccion))
+                else:
+                    elements.append(Paragraph("No se encontraron registros.", self.styles['Body']))
 
         return elements
 
@@ -242,8 +261,21 @@ class AssignmentPDFGenerator(BasePDFGenerator):
     
     
     def _get_dependencia(self, assignment):
-        """Obtiene la dependencia asociada a la dirección general del assignment."""
-        direccion_general = getattr(assignment, 'DireccionGeneral', None)
-        if direccion_general and direccion_general.dependenciaId:
-            return direccion_general.dependenciaId.dependencia
-        return "N/A"
+        """
+        Obtiene la dependencia asociada al assignment.
+        Sigue la misma lógica de nomenclatura que el reporte de empleados.
+        """
+        # Intentamos obtener la dependencia directamente o a través de la Dirección General
+        dependencia_obj = getattr(assignment, 'Dependencia', None)
+        
+        # Si el modelo Assignment no tiene relación directa, buscamos en DireccionGeneral
+        if not dependencia_obj:
+            dg = getattr(assignment, 'DireccionGeneral', None)
+            if dg:
+                dependencia_obj = getattr(dg, 'dependenciaId', None)
+
+        # Verificamos si logramos obtener el objeto y su atributo de nombre
+        if dependencia_obj and hasattr(dependencia_obj, 'dependencia'):
+            return dependencia_obj.dependencia
+            
+        return "DEPENDENCIA DESCONOCIDA"

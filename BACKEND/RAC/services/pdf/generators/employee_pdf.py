@@ -108,12 +108,12 @@ class EmployeePDFGenerator(BasePDFGenerator):
 
     def _build_employees_table(self):
         """
-        Construye la agrupación anidada. Usa KeepTogether para que el título 
-        de la Dirección General no se separe de su tabla.
+        Versión corregida: Usa keepWithNext para evitar saltos innecesarios
+        y mantiene la integridad de los títulos sin forzar páginas en blanco.
         """
         elements = []
 
-        # 1. Estructura anidada
+        # 1. Estructura de agrupación (se mantiene igual)
         agrupacion = {}
         for employee in self.employees:
             dep = self._get_dependencia(employee)
@@ -130,43 +130,28 @@ class EmployeePDFGenerator(BasePDFGenerator):
 
         # 2. Iterar sobre Dependencias
         for dep_nombre in sorted(agrupacion.keys()):
-            elements.extend(create_section_title(f"DEPENDENCIA: {dep_nombre.upper()}"))
+            # --- TÍTULO DE DEPENDENCIA ---
+            titulo_dep_parts = create_section_title(f"DEPENDENCIA: {dep_nombre.upper()}")
+            for part in titulo_dep_parts:
+                if isinstance(part, Paragraph):
+                    part.keepWithNext = True  # Obliga a que la dependencia no quede sola
+                elements.append(part)
             
             direcciones = agrupacion[dep_nombre]
             for dg_nombre in sorted(direcciones.keys()):
-                # Lista interna para mantener el bloque unido
-                bloque_direccion = []
+                # Creamos un pequeño grupo para el Título de DG + Tabla
+                bloque_dg = []
                 
-                # Título de la Dirección General con propiedad keepWithNext
-                titulo_dg = create_section_title(f"   * {dg_nombre}")
-                for part in titulo_dg:
+                # --- TÍTULO DE DIRECCIÓN GENERAL ---
+                titulo_dg_parts = create_section_title(f"    * {dg_nombre}")
+                for part in titulo_dg_parts:
                     if isinstance(part, Paragraph):
-                        part.keepWithNext = True
-                    bloque_direccion.append(part)
+                        part.keepWithNext = True # Atamos el título a la tabla
+                    bloque_dg.append(part)
 
-                # Tabla de datos
-                headers = [
-                    '#',
-                    'Cédula',
-                    'Nombres',
-                    'Apellidos', 
-                    'F. Ingreso', 
-                    'Años APN',
-                    'Sexo', 
-                    'Tipo de Nómina', 
-                    'Cargo'
-                    ]
-                col_widths = [
-                    10*mm, 
-                    22*mm, 
-                    45*mm, 
-                    45*mm, 
-                    22*mm, 
-                    22*mm,
-                    15*mm, 
-                    35*mm, 
-                    40*mm
-                    ]  
+                # --- CONFIGURACIÓN DE TABLA ---
+                headers = ['#', 'Cédula', 'Nombres', 'Apellidos', 'F. Ingreso', 'Años APN', 'Sexo', 'Tipo de Nómina', 'Cargo']
+                col_widths = [10*mm, 22*mm, 40*mm, 40*mm, 22*mm, 20*mm, 15*mm, 35*mm, 45*mm]
 
                 rows = []
                 for idx, employee in enumerate(direcciones[dg_nombre], start=1):
@@ -182,12 +167,19 @@ class EmployeePDFGenerator(BasePDFGenerator):
                         self._get__cargo(employee)
                     ])
 
+                # Creamos la tabla
                 table = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
-                bloque_direccion.append(table)
-                bloque_direccion.append(Spacer(1, 8 * mm))
+                
+                # IMPORTANTE: No metas toda la tabla en un KeepTogether si tiene muchos registros
+                # Solo agrupamos el Título con las primeras filas si es posible, 
+                # pero aquí usaremos el keepWithNext que ya definimos arriba.
+                
+                bloque_dg.append(table)
+                bloque_dg.append(Spacer(1, 8 * mm))
 
-                # Empaquetamos título y tabla. Si no caben al final de la página, saltan juntos.
-                elements.append(KeepTogether(bloque_direccion))
+                # Agregamos el bloque al story. 
+                # Si el bloque es muy grande, ReportLab lo manejará mejor sin un KeepTogether global.
+                elements.extend(bloque_dg)
 
         return elements
     
