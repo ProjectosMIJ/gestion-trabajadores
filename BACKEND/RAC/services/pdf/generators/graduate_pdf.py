@@ -132,69 +132,88 @@ class GraduatePDFGenerator(BasePDFGenerator):
         return elements
     
     def _build_graduates_table(self):
-        """Construye la tabla de egresados agrupados por dependencia."""
+        """
+        Construye la tabla de egresados con agrupación anidada por Dependencia 
+        y Dirección General, evitando títulos huérfanos.
+        """
+        from reportlab.platypus import KeepTogether
         elements = []
 
-        # Agrupar egresados por dependencia
-        egresados_por_dependencia = {}
+        # 1. Estructura de agrupación anidada
+        agrupacion = {}
         for graduate in self.graduates:
-            dependencia = self._get_ultima_direccion(graduate)
-            if dependencia not in egresados_por_dependencia:
-                egresados_por_dependencia[dependencia] = []
-            egresados_por_dependencia[dependencia].append(graduate)
+            dep = self._get_dependencia(graduate)
+            dg = self._get_ultima_direccion(graduate)
+            
+            if dep not in agrupacion:
+                agrupacion[dep] = {}
+            if dg not in agrupacion[dep]:
+                agrupacion[dep][dg] = []
+            agrupacion[dep][dg].append(graduate)
 
-        # Ordenar las dependencias de forma alfabética
-        for dependencia in sorted(egresados_por_dependencia.keys()):
-            egresados = egresados_por_dependencia[dependencia]
-            elements.extend(create_section_title(dependencia))
+        # 2. Iterar sobre Dependencias
+        for dep_nombre in sorted(agrupacion.keys()):
+            # Título de la Dependencia con protección
+            titulo_dep_parts = create_section_title(f"DEPENDENCIA: {dep_nombre.upper()}")
+            for part in titulo_dep_parts:
+                if isinstance(part, Paragraph):
+                    part.keepWithNext = True
+                elements.append(part)
+            
+            direcciones = agrupacion[dep_nombre]
+            for dg_nombre in sorted(direcciones.keys()):
+                bloque_direccion = []
+                
+                # Título de la Dirección General con protección
+                titulo_dg_parts = create_section_title(f"    * {dg_nombre}")
+                for part in titulo_dg_parts:
+                    if isinstance(part, Paragraph):
+                        part.keepWithNext = True
+                    bloque_direccion.append(part)
 
-            headers = [
-                '#',
-                'Cédula',
-                'Nombre Completo',
-                'F. Ingreso',
-                'F. Egreso',
-                'Motivo',
-                'Último Cargo',
-                'Dirección'
-            ]
-
-            col_widths = [
-                10 * mm,   # #
-                22 * mm,   # Cédula
-                50 * mm,   # Nombre
-                22 * mm,   # F. Ingreso
-                22 * mm,   # F. Egreso
-                35 * mm,   # Motivo
-                45 * mm,   # Último Cargo
-                45 * mm,   # Dirección
-            ]
-
-            rows = []
-            for idx, graduate in enumerate(egresados, start=1):
-                row = [
-                    str(idx),
-                    self._get_cedula(graduate),
-                    self._get_nombre(graduate),
-                    self._get_fecha_ingreso(graduate),
-                    self._get_fecha_egreso(graduate),
-                    self._get_motivo(graduate),
-                    self._get_ultimo_cargo(graduate),
-                    self._get_ultima_direccion(graduate),
+                # Configuración de Tabla
+                headers = [
+                    '#', 'Cédula', 'Nombre Completo', 'F. Ingreso', 
+                    'F. Egreso', 'Motivo', 'Último Cargo'
                 ]
-                rows.append(row)
 
-            if not rows:
-                elements.append(Paragraph(
-                    "No se encontraron egresados con los filtros aplicados.",
-                    self.styles['Body']
-                ))
-            else:
-                table = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
-                elements.append(table)
+                # Ajuste de anchos (Landscape ~277mm disponibles)
+                col_widths = [
+                    10 * mm,   # #
+                    22 * mm,   # Cédula
+                    55 * mm,   # Nombre
+                    25 * mm,   # F. Ingreso
+                    25 * mm,   # F. Egreso
+                    45 * mm,   # Motivo
+                    75 * mm,   # Último Cargo
+                ]
+
+                rows = []
+                # Ordenar internamente por nombre
+                egresados_ordenados = sorted(direcciones[dg_nombre], key=lambda x: self._get_nombre(x))
+                
+                for idx, graduate in enumerate(egresados_ordenados, start=1):
+                    rows.append([
+                        str(idx),
+                        self._get_cedula(graduate),
+                        self._get_nombre(graduate),
+                        self._get_fecha_ingreso(graduate),
+                        self._get_fecha_egreso(graduate),
+                        self._get_motivo(graduate),
+                        self._get_ultimo_cargo(graduate),
+                    ])
+
+                if rows:
+                    table = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
+                    bloque_direccion.append(table)
+                    bloque_direccion.append(Spacer(1, 8 * mm))
+                    
+                    # Agrupamos Título DG + Tabla para evitar que se separen
+                    elements.append(KeepTogether(bloque_direccion))
+                else:
+                    elements.append(Paragraph("No se encontraron registros.", self.styles['Body']))
 
         return elements
-
     # =========================================================================
     # Métodos auxiliares para extraer datos
     # =========================================================================
