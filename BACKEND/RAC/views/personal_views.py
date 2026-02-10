@@ -642,7 +642,34 @@ def create_dependencia(request):
         'status': "error",
         'message': "Errores de validación",
     }, status=status.HTTP_400_BAD_REQUEST)
-      
+  
+@extend_schema(
+    tags=["Recursos Humanos - Dependencia"],
+    summary="Actualizacion de Dependencia",
+    description="Permite la Actualizacion una dependencia",
+    request=DependenciaSerializer,
+)
+@api_view(['PATCH'])
+def update_dependencia(request, id):
+    dependencia = get_object_or_404(Dependencias, id=id)
+    serializer = DependenciaSerializer(dependencia, data=request.data, partial=True)
+    serializer.is_valid(raise_exception=True)
+    
+    try:
+        serializer.save()
+        return Response({
+            'status': "OK",
+            'message': "Dependencia actualizada correctamente",
+            'data': serializer.data            
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({
+            'status': "Error",
+            'message': str(e),
+            'data': []
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
 # direccion general creacion   
 @extend_schema(
     tags=["Recursos Humanos - Dependencia"],
@@ -672,8 +699,35 @@ def create_general_directorate(request):
         'status': "error",
         'message': "Errores de validación",
     }, status=status.HTTP_400_BAD_REQUEST)
+
     
+@extend_schema(
+    tags=["Recursos Humanos - Dependencia"],
+    summary="Actualizacion de Direccion General",
+    description="Permite actualizar una direccion general",
+    request=DireccionGeneralSerializer,
+)
+@api_view(['PATCH'])
+def update_direccion_general(request, id):
+    direccion_general = get_object_or_404(DireccionGeneral, id=id)
+    serializer = DireccionGeneralSerializer(direccion_general, data=request.data, partial=True)
+    serializer.is_valid(raise_exception=True)
     
+    try:
+        serializer.save()
+        return Response({
+            'status': "OK",
+            'message': "Dirección General actualizada correctamente",
+            'data': serializer.data            
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({
+            'status': "Error",
+            'message': str(e),
+            'data': []
+        }, status=status.HTTP_400_BAD_REQUEST)
+
     
     
  #  CREACION DE DIRECCION DE LINEA 
@@ -701,9 +755,38 @@ def create_line_directorate(request):
     except Exception as e:
         return Response({
             'status': "error",
-            'message': "No se pudo completar el registro de la Dirección de Línea",
-            'data': None
+            'message': str(e),
+        
+        }, status=status.HTTP_400_BAD_REQUEST)  
+        
+@extend_schema(
+    tags=["Recursos Humanos - Dependencia"],
+    summary="Actualizacion de Direccion de Linea",
+    description="Permite la Actualizacion una direccion de linea",
+    request=DireccionLineaSerializer,
+)     
+@api_view(['PATCH'])
+def update_line_directorate(request, id):
+    direccion_linea = get_object_or_404(DireccionLinea, id=id)
+    
+    serializer = DireccionLineaSerializer(direccion_linea, data=request.data, partial=True)
+    serializer.is_valid(raise_exception=True)
+    
+    try:
+        serializer.save()
+        return Response({
+            'status': "OK",
+            'message': "Dirección de Línea actualizada correctamente",
+            'data': serializer.data            
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({
+            'status': "Error",
+            'message': str(e),
+            'data': []
         }, status=status.HTTP_400_BAD_REQUEST)    
+          
 @extend_schema(
     tags=["Recursos Humanos - Dependencia"],
     summary="Creacion de Coordinacion",
@@ -727,11 +810,37 @@ def create_coordination(request):
     except Exception as e:
         return Response({
             'status': "error",
-            'message': "No se pudo completar el registro de la Coordinación",
-            'data': None
+            'message': str(e),
+        
         }, status=status.HTTP_400_BAD_REQUEST)
         
-  
+
+@extend_schema(
+    tags=["Recursos Humanos - Dependencia"],
+    summary="Creacion de Dependencia",
+    description="Permite registrar una dependencia",
+    request=CoordinacionSerializer,
+) 
+@api_view(['PATCH'])
+def update_coordinacion(request, id):
+    coordinacion = get_object_or_404(Coordinaciones, id=id)
+    serializer = CoordinacionSerializer(coordinacion, data=request.data, partial=True)
+    serializer.is_valid(raise_exception=True)
+    
+    try:
+        serializer.save()
+        return Response({
+            'status': "OK",
+            'message': "Coordinación actualizada correctamente",
+            'data': serializer.data            
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({
+            'status': "Error",
+            'message': str(e),
+            'data': []
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 # LISTAR Employee CON CARGOS 
 

@@ -235,14 +235,15 @@ class DireccionLineaSerializer(serializers.ModelSerializer):
     def validate_direccion_linea(self,value):
         value = value.upper()
         return value     
-class CoordinacionSerializer(serializers.ModelSerializer):
+class CoordinacionSerializer(CleanZerosMixin,serializers.ModelSerializer):
     class Meta:
         model = Coordinaciones
         fields = [
             'id',
             'Codigo',
             'coordinacion',
-            'direccionLinea'
+            'direccionLinea',
+            'direccionGeneral'
         ] 
     
         extra_kwargs = {
@@ -251,6 +252,19 @@ class CoordinacionSerializer(serializers.ModelSerializer):
     def validate_coordinacion(self,value):
         value = value.upper()
         return value
+    
+    def validate(self, data):
+
+        direccion_linea = data.get('direccionLinea')
+        direccion_general = data.get('direccionGeneral')
+
+        if direccion_linea and direccion_general:
+            raise serializers.ValidationError("No se puede asignar una Dirección de Línea y una Dirección General al mismo tiempo. Elija solo una")
+
+        if not direccion_linea and not direccion_general:
+            raise serializers.ValidationError("Debe asignar la coordinación a una Dirección de Línea o a una Dirección General")
+
+        return data
     
 
 

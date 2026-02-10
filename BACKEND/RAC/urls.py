@@ -77,9 +77,10 @@ urlpatterns = [
     path('register-Coordinacion/', views.create_coordination, name= "registro-coordinacion"), 
     
        #  ACTUALIZACION
-    # path('DireccionGeneral/<int:id>/',views.Actualizar_DireccionGeneral, name= "actualizar-direccion-general"),
-    # path('DireccionLinea/<int:id>/', views.Actualizar_DireccionLinea, name= "actualizar-direccion-linea "),
-    # path('Coordinaciones/<int:id>/', views.Actualizar_Coordinacion, name= "actualizar-coordinacion "),
+    path('Dependencia/<int:id>/', views.update_dependencia, name= "actualizar-dependencia"),
+    path('DireccionGeneral/<int:id>/',views.update_direccion_general, name= "actualizar-direccion-general"),
+    path('DireccionLinea/<int:id>/', views.update_line_directorate, name= "actualizar-direccion-linea "),
+    path('Coordinacion/<int:id>/', views.update_coordinacion, name= "actualizar-coordinacion "),
         
         #  LISTAR
     path('dependencias/', views.list_dependencies, name='lista de dependencias'),
