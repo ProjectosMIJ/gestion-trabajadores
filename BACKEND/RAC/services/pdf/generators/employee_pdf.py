@@ -1,8 +1,9 @@
 """
 Generador de PDF para reportes de empleados.
-Genera una tabla con información básica de empleados.
+Genera una tabla organizada por Dependencia y Dirección General.
+Evita títulos huérfanos mediante el uso de KeepTogether.
 """
-from reportlab.platypus import Spacer, Paragraph, PageBreak
+from reportlab.platypus import Spacer, Paragraph, PageBreak, KeepTogether
 from reportlab.lib.pagesizes import landscape, A4
 from reportlab.lib.units import mm
 from django.apps import apps
@@ -20,14 +21,11 @@ from ..templates.components import (
 
 
 class EmployeePDFGenerator(BasePDFGenerator):
-  
     
     # Número de empleados por página (aproximado)
     EMPLOYEES_PER_PAGE = 35
     
     def __init__(self, employees, title="Reporte de Empleados", filters=None):
-
- 
         super().__init__(
             data=employees,
             title=title,
@@ -35,15 +33,7 @@ class EmployeePDFGenerator(BasePDFGenerator):
             metadata={'filters': filters or {}}
         )
         
-        self.employees = list(employees) if hasattr(employees, '__iter__') else []
-        self.employees.sort(
-            key=lambda e: (
-                self._get_dependencia(e).lower(), 
-                self._get_tipo_nomina(e).lower(),
-                self._get__cargo(e).lower(),
-                int(self._get_cedula(e)) if self._get_cedula(e).isdigit() else 0 
-            )
-        )
+        self.employees = employees
         self.filters = filters or {}
         self.styles = get_paragraph_styles()
     
@@ -57,13 +47,10 @@ class EmployeePDFGenerator(BasePDFGenerator):
     
     def _build_content(self):
         story = []
-        width = self._get_available_width()
-
         story.append(Spacer(1, -5 * mm))
-
         story.extend(self._build_header_section())
 
-        # Tabla de empleados
+        # Tabla de empleados con agrupación anidada y protección de saltos de página
         story.extend(self._build_employees_table())
 
         return story
@@ -76,16 +63,12 @@ class EmployeePDFGenerator(BasePDFGenerator):
             institucion = "MINISTERIO DEL PODER POPULAR PARA RELACIONES INTERIORES, "
             institucion2 = "JUSTICIA Y PAZ"
 
-            # Determinar el título principal basado en el filtro
             filtros = self.metadata.get('filters', {})
             filtro_aplicado_id = filtros.get('nomina_id', None)
-
-            # Obtener el nombre del filtro basado en el ID (simulación de consulta o mapeo)
             filtro_aplicado_nombre = self._get_nomina_nombre(filtro_aplicado_id) if filtro_aplicado_id else None
 
             titulo_principal = f"Listado de {filtro_aplicado_nombre}" if filtro_aplicado_nombre else "REPORTE DE TRABAJADORES"
 
-            # Formatear el título con un diseño más limpio y presentable
             titulo_reporte = (
                 f"<font size='12'><b>{institucion} <br/> {institucion2}</b></font><br/><font size='14'><b><br/>{titulo_principal}</b></font>"
             )
@@ -93,14 +76,10 @@ class EmployeePDFGenerator(BasePDFGenerator):
             self._cached_header_elements = create_header(titulo_reporte, width=doc.width)
 
         header_elements = self._cached_header_elements
-
-        # Posicionamiento vertical
         y_offset = doc.pagesize[1] - self.page_config['topMargin'] + 10 * mm
 
         for el in header_elements:
-            # wrap calcula el espacio necesario para el elemento
             w, h = el.wrap(doc.width, doc.topMargin)
-            # drawOn "estampa" el elemento (tabla o spacer) en las coordenadas X, Y
             el.drawOn(canvas, doc.leftMargin, y_offset)
             y_offset -= h
 
@@ -108,14 +87,9 @@ class EmployeePDFGenerator(BasePDFGenerator):
     
     def _build_header_section(self):
         elements = []
-        
-        # Espaciado inicial
         elements.append(Spacer(1, 10))
         
-        # Estadísticas generales
         total_empleados = len(self.employees)
-        
-        # Contar por sexo
         masculino = sum(1 for e in self.employees if self._get_sexo(e) == 'M')
         femenino = sum(1 for e in self.employees if self._get_sexo(e) == 'F')
         
@@ -131,227 +105,153 @@ class EmployeePDFGenerator(BasePDFGenerator):
         elements.append(Spacer(1, 15))
         
         return elements
-    
-# forma de agrupacion
-    
+
     def _build_employees_table(self):
+        """
+        Construye la agrupación anidada. Usa KeepTogether para que el título 
+        de la Dirección General no se separe de su tabla.
+        """
         elements = []
 
-        empleados_por_dependencia = {}
+        # 1. Estructura anidada
+        agrupacion = {}
         for employee in self.employees:
-            dependencia = self._get_DireccionGeneral(employee)
-            if dependencia not in empleados_por_dependencia:
-                empleados_por_dependencia[dependencia] = []
-            empleados_por_dependencia[dependencia].append(employee)
+            dep = self._get_dependencia(employee)
+            dg = self._get_DireccionGeneral(employee)
+            
+            if dg == "SIN DIRECCIÓN ASIGNADA":
+                dg = "ASIGNACIÓN DIRECTA A LA DEPENDENCIA"
 
-        # Ordenar las dependencias de forma alfabética
-        for dependencia in sorted(empleados_por_dependencia.keys()):
-            empleados = empleados_por_dependencia[dependencia]
-            elements.extend(create_section_title(dependencia))
+            if dep not in agrupacion:
+                agrupacion[dep] = {}
+            if dg not in agrupacion[dep]:
+                agrupacion[dep][dg] = []
+            agrupacion[dep][dg].append(employee)
 
-            # Definir encabezados
-            headers = [
-                '#',
-                'Cédula',
-                'Nombres',
-                'Apellidos',
-                'F. Ingreso',
-                'Años APN',
-                'Sexo',
-                'Tipo de Nómina',
-                'Cargo',
-            ]
+        # 2. Iterar sobre Dependencias
+        for dep_nombre in sorted(agrupacion.keys()):
+            elements.extend(create_section_title(f"DEPENDENCIA: {dep_nombre.upper()}"))
+            
+            direcciones = agrupacion[dep_nombre]
+            for dg_nombre in sorted(direcciones.keys()):
+                # Lista interna para mantener el bloque unido
+                bloque_direccion = []
+                
+                # Título de la Dirección General con propiedad keepWithNext
+                titulo_dg = create_section_title(f"   * {dg_nombre}")
+                for part in titulo_dg:
+                    if isinstance(part, Paragraph):
+                        part.keepWithNext = True
+                    bloque_direccion.append(part)
 
-            # Definir anchos de columna (en mm, ajustados para landscape A4)
-            col_widths = [
-                12 * mm,   # #
-                22 * mm,   # Cédula
-                45 * mm,   # Nombres
-                45 * mm,   # Apellidos
-                22 * mm,   # F. Ingreso
-                18 * mm,   # Años APN
-                12 * mm,   # Sexo
-                40 * mm,   # Tipo de Nómina
-                40 * mm,   # Cargo
-            ]
+                # Tabla de datos
+                headers = [
+                    '#',
+                    'Cédula',
+                    'Nombres',
+                    'Apellidos', 
+                    'F. Ingreso', 
+                    'Años APN',
+                    'Sexo', 
+                    'Tipo de Nómina', 
+                    'Cargo'
+                    ]
+                col_widths = [
+                    10*mm, 
+                    22*mm, 
+                    45*mm, 
+                    45*mm, 
+                    22*mm, 
+                    22*mm,
+                    15*mm, 
+                    35*mm, 
+                    40*mm
+                    ]  
 
-            # Construir filas de datos para los empleados de esta dependencia
-            rows = []
-            for idx, employee in enumerate(empleados, start=1):
-                row = [
-                    str(idx),
-                    self._get_cedula(employee),
-                    self._get_nombres(employee),
-                    self._get_apellidos(employee),
-                    self._get_fecha_ingreso(employee),
-                    self._get_anos_apn(employee),
-                    self._get_sexo(employee),
-                    self._get_tipo_nomina(employee),
-                    self._get__cargo(employee)
-                    
-                ]
-                rows.append(row)
+                rows = []
+                for idx, employee in enumerate(direcciones[dg_nombre], start=1):
+                    rows.append([
+                        str(idx),
+                        self._get_cedula(employee),
+                        self._get_nombres(employee),
+                        self._get_apellidos(employee),
+                        self._get_fecha_ingreso(employee),
+                        self._get_anos_apn(employee),
+                        self._get_sexo(employee),
+                        self._get_tipo_nomina(employee),
+                        self._get__cargo(employee)
+                    ])
 
-            # Crear tabla para esta dependencia
-            table = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
-            elements.append(table)
+                table = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
+                bloque_direccion.append(table)
+                bloque_direccion.append(Spacer(1, 8 * mm))
+
+                # Empaquetamos título y tabla. Si no caben al final de la página, saltan juntos.
+                elements.append(KeepTogether(bloque_direccion))
 
         return elements
     
     # =========================================================================
-    # Métodos auxiliares para extraer datos del empleado
+    # Métodos auxiliares
     # =========================================================================
     
     def _get_cedula(self, employee):
-        if isinstance(employee, dict):
-            return str(employee.get('cedulaidentidad', 'N/A'))
         return str(getattr(employee, 'cedulaidentidad', 'N/A'))
     
     def _get_nombres(self, employee):
-        if isinstance(employee, dict):
-            return employee.get('nombres', 'N/A')
         return getattr(employee, 'nombres', 'N/A')
     
     def _get_apellidos(self, employee):
-        if isinstance(employee, dict):
-            return employee.get('apellidos', 'N/A')
         return getattr(employee, 'apellidos', 'N/A')
     
-    def _get_fecha_nacimiento(self, employee):
-        if isinstance(employee, dict):
-            fecha = employee.get('fecha_nacimiento')
-        else:
-            fecha = getattr(employee, 'fecha_nacimiento', None)
-        return format_date(fecha)
-    
     def _get_fecha_ingreso(self, employee):
-        if isinstance(employee, dict):
-            fecha = employee.get('fechaingresoorganismo')
-        else:
-            fecha = getattr(employee, 'fechaingresoorganismo', None)
+        fecha = getattr(employee, 'fechaingresoorganismo', None)
         return format_date(fecha)
     
-    
-    # con decimales 
-    # def _get_anos_apn(self, employee):
-    #     """Extrae los años en APN."""
-    #     if isinstance(employee, dict):
-    #         anos = employee.get('total_anos_apn', employee.get('anos_apn', 'N/A'))
-    #     else:
-    #         anos = getattr(employee, 'total_anos_apn', 'N/A')
-    #     return str(anos) if anos is not None else 'N/A'
-    
-    # sin decimales 
     def _get_anos_apn(self, employee):
-        if isinstance(employee, dict):
-            anos = employee.get('total_anos_apn', employee.get('anos_apn', 'N/A'))
-        else:
-            anos = getattr(employee, 'total_anos_apn', 'N/A') 
-    
+        anos = getattr(employee, 'total_anos_apn', 'N/A') 
         if anos is not None and anos != 'N/A':
             try:
                 return str(int(anos))  
             except (ValueError, TypeError):
                 return str(anos)
-                
         return 'N/A'
     
-    # def _get_n_contrato(self, employee):
-    #     """Extrae el número de contrato."""
-    #     if isinstance(employee, dict):
-    #         return str(employee.get('n_contrato', 'N/A') or 'N/A')
-    #     contrato = getattr(employee, 'n_contrato', None)
-    #     return str(contrato) if contrato else 'N/A'
-    
-      
     def _get_sexo(self, employee):
-        sexo_texto = 'N/A'
-        
-        if isinstance(employee, dict):
-            sexo = employee.get('sexo', {})
-            if isinstance(sexo, dict):
-                sexo_texto = sexo.get('sexo', 'N/A')
-            else:
-                sexo_texto = str(sexo) if sexo else 'N/A'
-        else:
-            # Si es un objeto modelo
-            sexo_obj = getattr(employee, 'sexoid', None)
-            if sexo_obj:
-                sexo_texto = getattr(sexo_obj, 'sexo', 'N/A')
-
-        # Lógica de abreviación
+        sexo_obj = getattr(employee, 'sexoid', None)
+        sexo_texto = getattr(sexo_obj, 'sexo', 'N/A') if sexo_obj else 'N/A'
         sexo_upper = str(sexo_texto).upper()
-        if 'MASCULINO' in sexo_upper:
-            return 'M'
-        elif 'FEMENINO' in sexo_upper:
-            return 'F'
-            
+        if 'MASCULINO' in sexo_upper: return 'M'
+        if 'FEMENINO' in sexo_upper: return 'F'
         return sexo_texto
     
     def _get_tipo_nomina(self, employee):
-        try:
-            if hasattr(employee, 'assignments'):
-                assignment = employee.assignments.first()
-                
-                if assignment and assignment.tiponominaid:
-                    return assignment.tiponominaid.nomina
-        except Exception:
-            pass
-            
+        filtered = getattr(employee, 'filtered_assignments', [])
+        if filtered and filtered[0].tiponominaid:
+            return filtered[0].tiponominaid.nomina
         return "N/A"
-    
+
     def _get_dependencia(self, employee):
- 
-        try:
-            if hasattr(employee, 'assignments'):
-                assignment = employee.assignments.first()
-                
-                if assignment and assignment.DireccionGeneral:
-                    dg = assignment.DireccionGeneral
-                    
-                    if dg.dependenciaId:
-                        return dg.dependenciaId.dependencia
-        except Exception:
-            pass
-            
-        return "N/A"
+        filtered = getattr(employee, 'filtered_assignments', [])
+        if filtered and filtered[0].Dependencia:
+            return filtered[0].Dependencia.dependencia
+        return "DEPENDENCIA DESCONOCIDA"
     
     def _get__cargo(self, employee):
-        try:
-            if hasattr(employee,'assignments'):
-                assignment = employee.assignments.first()
-                
-                if assignment and assignment.denominacioncargoid:
-                    return assignment.denominacioncargoid.cargo
-        except Exception:
-            pass
-            
-        return "N/A"
+        filtered = getattr(employee, 'filtered_assignments', [])
+        if filtered and filtered[0].denominacioncargoid:
+            return filtered[0].denominacioncargoid.cargo
+        return "SIN CARGO"
     
     def _get_DireccionGeneral(self, employee):
-        try:
-            
-            if hasattr(employee, 'assignments'):
-                assignment = employee.assignments.first()
-                
-                if assignment and assignment.DireccionGeneral:
-                    return assignment.DireccionGeneral.direccion_general
-        except Exception:
-            pass
-        
-        return "N/A"
+        filtered = getattr(employee, 'filtered_assignments', [])
+        if filtered and filtered[0].DireccionGeneral:
+            return filtered[0].DireccionGeneral.direccion_general
+        return "SIN DIRECCIÓN ASIGNADA"
     
     def _get_nomina_nombre(self, nomina_id):
-        """Obtiene el nombre de la nómina basado en el ID."""
         try:
-            # Simulación de consulta para obtener el nombre de la nómina
             Nomina = apps.get_model('RAC', 'Tiponomina')
-            nomina = Nomina.objects.get(id=nomina_id)
-            return nomina.nomina
+            return Nomina.objects.get(id=nomina_id).nomina
         except Exception:
-            return "N/A"
-
-
-
-
-
+            return None

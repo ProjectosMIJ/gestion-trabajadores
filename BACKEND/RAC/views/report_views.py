@@ -5,9 +5,9 @@ from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from drf_spectacular.utils import extend_schema,OpenApiExample
 from django.apps import apps
+from django.db.models import OuterRef, Subquery, Prefetch, Q
 
 from ..serializers.report_serializers import *
-from ..services.report_service import *
 from ..services.mapa_reporte import *
 from ..services.pdf.generators.employee_pdf import EmployeePDFGenerator
 from ..services.pdf.generators.family_pdf import FamilyPDFGenerator
@@ -266,34 +266,69 @@ def generate_pdf_report(request):
 
 
 def _generate_employee_pdf(filtros):
-    """Genera el PDF de empleados."""
     Employee = apps.get_model('RAC', 'Employee')
+    AsigTrabajo = apps.get_model('RAC', 'AsigTrabajo')
 
-    queryset = Employee.objects.select_related(
-        'sexoid',
-        'estadoCivil'
-    ).all()
+    # 1. Obtener lógica de jerarquía desde el Manager
+    logic = AsigTrabajo.objects.get_hierarchy_case()
 
-    # Aplicar filtros
+    # 2. Subconsulta: Determina la mejor prioridad del empleado para el orden general de las filas
+    # Usamos solo 'peso' para decidir la posición en el reporte
+    mejores_cargos = AsigTrabajo.objects.filter(
+        employee=OuterRef('cedulaidentidad')
+    ).annotate(
+        peso=logic
+    ).order_by('peso', '-fecha_actualizacion').values('peso')[:1]
+
+    # 3. Procesamiento de filtros
     config = MAPA_REPORTES.get('empleados', {})
     filtros_permitidos = config.get('filtros_permitidos', {})
+    query_filtros = {}
+    asignacion_filtros = {}
 
-    for filtro_key, filtro_value in filtros.items():
-        if filtro_value is not None and filtro_key in filtros_permitidos:
-            campo_db = filtros_permitidos[filtro_key]
-            queryset = queryset.filter(**{campo_db: filtro_value})
+    for k, v in filtros.items():
+        if v is not None and k in filtros_permitidos:
+            campo = filtros_permitidos[k]
+            query_filtros[campo] = v
+            if 'assignments__' in campo:
+                asignacion_filtros[campo.replace('assignments__', '')] = v
 
-    queryset = queryset.order_by('apellidos', 'nombres')
+    # 4. Construcción del QuerySet
+    queryset = Employee.objects.select_related(
+        'sexoid', 'estadoCivil'
+    ).filter(
+        **query_filtros
+    ).annotate(
+        prioridad_jerarquica=Subquery(mejores_cargos)
+    ).prefetch_related(
+        Prefetch(
+            'assignments',
+            queryset=AsigTrabajo.objects.filter(**asignacion_filtros).select_related(
+                'DireccionGeneral__dependenciaId', 
+                'denominacioncargoid', 
+                'tiponominaid'
+            ).annotate(
+                # Calculamos el peso jerárquico interno
+                peso_interno=logic
+            ).order_by('peso_interno', '-fecha_actualizacion'), # <--- EL CAMBIO: Manda el peso, luego la fecha
+            to_attr='filtered_assignments'
+        )
+    ).order_by(
+        'prioridad_jerarquica', # 1. Quién es jefe va primero
+        'apellidos',            # 2. Alfabético
+        'nombres',
+        'cedulaidentidad'
+    ).distinct()
 
-    # Evitar duplicados asegurando que el título sea único y consistente
+    # 5. Generación del reporte
+    # Convertimos a lista para que ReportLab no genere múltiples queries durante el renderizado
     generator = EmployeePDFGenerator(
-        employees=queryset,
-        title="MINISTERIO DEL PODER POPULAR PARA RELACIONES INTERIORES, JUSTICIA Y PAZ\nREPORTE DE TRABAJADORES",
+        employees=list(queryset),
+        title="REPORTE DE TRABAJADORES",
         filters=filtros
     )
 
     return generator.get_response(as_attachment=True)
-
 
 def _generate_family_pdf(filtros):
     """Genera el PDF de familiares."""
@@ -388,7 +423,7 @@ def _generate_graduate_pdf(filtros):
         'cargos_historial',
         'cargos_historial__denominacioncargoid',
         'cargos_historial__DireccionGeneral'
-    ).all()
+    ).all().distinct()
     
     # Aplicar filtros
     config = MAPA_REPORTES.get('egresados', {})

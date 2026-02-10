@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.db.models import Case, When, Value, IntegerField
 #importacion de aplicacion para las cuentas del personal usuario
 from USER.models import cuenta
 
@@ -87,6 +87,7 @@ class DireccionGeneral(models.Model):
 
 
     class Meta:
+        
         managed = True
         db_table = 'DireccionGeneral'
         app_label = 'RAC'
@@ -302,6 +303,27 @@ class antecedentes_servicio(models.Model):
         app_label = 'RAC'
     
 
+
+class AsigTrabajoManager(models.Manager):
+    def get_hierarchy_case(self, campo_prefijo=""):
+        """
+        Retorna la lógica de pesos para la jerarquía de cargos.
+        campo_prefijo: se usa cuando la consulta se hace desde otro modelo (ej. 'assignments__')
+        """
+        return Case(
+            When(**{f"{campo_prefijo}denominacioncargoid__cargo__icontains": 'DIRECTOR GENERAL'}, then=Value(1)),
+            When(**{f"{campo_prefijo}denominacioncargoid__cargo__icontains": 'DIRECTOR ADJUNTO'}, then=Value(2)),
+            When(**{f"{campo_prefijo}denominacioncargoid__cargo__startswith": 'DIRECTOR'}, then=Value(3)),
+            When(**{f"{campo_prefijo}denominacioncargoid__cargo__icontains": 'COORDINADOR'}, then=Value(4)),
+            When(**{f"{campo_prefijo}denominacioncargoid__cargo__icontains": 'ASISTENTE'}, then=Value(5)),
+            When(**{f"{campo_prefijo}denominacioncargoid__cargo__startswith": 'PROFESIONAL'}, then=Value(10)),
+            When(**{f"{campo_prefijo}denominacioncargoid__cargo__startswith": 'TECNICO'}, then=Value(20)),
+            When(**{f"{campo_prefijo}denominacioncargoid__cargo__startswith": 'BACHILLER'}, then=Value(30)),
+            When(**{f"{campo_prefijo}denominacioncargoid__cargo__icontains": 'SUPERVISOR'}, then=Value(40)),
+            When(**{f"{campo_prefijo}denominacioncargoid__cargo": 'PASANTE'}, then=Value(100)),
+            default=Value(50),
+            output_field=IntegerField(),
+        )
 class Employee(models.Model):
  
     cedulaidentidad = models.TextField(db_column='cedulaIdentidad', unique=True)
@@ -346,6 +368,7 @@ class AsigTrabajo(models.Model):
     OrganismoAdscritoid = models.ForeignKey('OrganismoAdscrito', models.DO_NOTHING, db_column='organismoAdscritoId', blank=True, null=True)
     gradoid = models.ForeignKey('Grado', models.DO_NOTHING, db_column='gradoId', blank=True, null=True) 
     tiponominaid = models.ForeignKey('Tiponomina', models.DO_NOTHING, db_column='tipoNominaId')
+    Dependencia = models.ForeignKey('Dependencias', models.DO_NOTHING, db_column='dependenciaId', blank=True, null=True)
     DireccionGeneral =  models.ForeignKey(DireccionGeneral, models.DO_NOTHING, db_column='direccionGeneralId', blank=True, null=True)
     DireccionLinea = models.ForeignKey(DireccionLinea, models.DO_NOTHING, db_column='direccionLineaId', blank=True, null=True)
     Coordinacion = models.ForeignKey(Coordinaciones, models.DO_NOTHING, db_column='coordinacionId', blank=True, null=True)
@@ -362,6 +385,9 @@ class AsigTrabajo(models.Model):
     @_history_user.setter
     def _history_user(self, value):
         self.changed_by = value
+        
+        
+    objects = AsigTrabajoManager()
     class Meta:
         managed = True
         db_table = 'AsigTrabajo'

@@ -118,22 +118,22 @@ class FamilyPDFGenerator(BasePDFGenerator):
         
         return elements
     
-    # def _build_filters_section(self):
-    #     """Construye la sección de filtros aplicados."""
-    #     elements = []
+    def _build_filters_section(self):
+        """Construye la sección de filtros aplicados."""
+        elements = []
         
-    #     filter_text_parts = []
-    #     for key, value in self.filters.items():
-    #         if value:
-    #             filter_text_parts.append(f"{key}: {value}")
+        filter_text_parts = []
+        for key, value in self.filters.items():
+            if value:
+                filter_text_parts.append(f"{key}: {value}")
         
-    #     if filter_text_parts:
-    #         elements.extend(create_section_title("Filtros Aplicados"))
-    #         filter_text = " | ".join(filter_text_parts)
-    #         elements.append(Paragraph(filter_text, self.styles['Small']))
-    #         elements.append(Spacer(1, 10))
+        # if filter_text_parts:
+        #     elements.extend(create_section_title("Filtros Aplicados"))
+        #     filter_text = " | ".join(filter_text_parts)
+        #     elements.append(Paragraph(filter_text, self.styles['Small']))
+        #     elements.append(Spacer(1, 10))
         
-    #     return elements
+        return elements
     
     def _build_family_table(self):
         """Construye la tabla de familiares."""

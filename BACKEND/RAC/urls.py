@@ -71,6 +71,7 @@ urlpatterns = [
 
      
        #  CREACION 
+    path('dependencias/', views.create_dependencia, name= "registro-dependencia"),
     path('register-direccionGeneral/', views.create_general_directorate, name= "registro-direccion-general"),
     path('register-direccionLinea/', views.create_line_directorate, name= "registro-direccion-linea"),  
     path('register-Coordinacion/', views.create_coordination, name= "registro-coordinacion"), 

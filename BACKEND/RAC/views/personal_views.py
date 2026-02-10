@@ -9,7 +9,7 @@ from ..models.personal_models import *
 from ..models.ubicacion_models import *
 from RAC.filters.filters_personal import EmployeeFilter, AsigTrabajoFilter
 from ..services.constants import *
-from ..services.report_service import *
+
 from drf_spectacular.utils import extend_schema
 
 
@@ -613,7 +613,36 @@ def create_subsidiary_organism(request):
             'data': None
         }, status=status.HTTP_400_BAD_REQUEST)
         
-        
+      
+@extend_schema(
+    tags=["Recursos Humanos - Dependencia"],
+    summary="Creacion de Dependencia",
+    description="Permite registrar una dependencia",
+    request=DependenciaSerializer,
+)
+@api_view(['POST'])
+def create_dependencia(request):
+    serializer = DependenciaSerializer(data=request.data)
+    
+    if serializer.is_valid():
+        try:
+            serializer.save()
+            return Response({
+                'status': "success",
+                "message": "Dependencia registrada correctamente",
+                "data": serializer.data
+            }, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({
+                'status': "error",
+                'message': str(e),
+            }, status=status.HTTP_400_BAD_REQUEST)
+    
+    return Response({
+        'status': "error",
+        'message': "Errores de validación",
+    }, status=status.HTTP_400_BAD_REQUEST)
+      
 # direccion general creacion   
 @extend_schema(
     tags=["Recursos Humanos - Dependencia"],
@@ -624,25 +653,32 @@ def create_subsidiary_organism(request):
 @api_view(['POST'])
 def create_general_directorate(request):
     serializer = DireccionGeneralSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
     
-    try:
-        serializer.save()
-        
-        return Response({
-            'status': "success",
-            "message": "Dirección General registrada correctamente",
-            "data": serializer.data
-        }, status=status.HTTP_201_CREATED)
-        
-    except Exception as e:
-        return Response({
-            'status': "error",
-            'message': "No se pudo completar el registro de la Dirección General.",
-            'data': None
-        }, status=status.HTTP_400_BAD_REQUEST)
-   
+    if serializer.is_valid():
+        try:
+            serializer.save()
+            return Response({
+                'status': "success",
+                "message": "Dirección General registrada correctamente",
+                "data": serializer.data
+            }, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({
+                'status': "error",
+                'message': str(e),
+            }, status=status.HTTP_400_BAD_REQUEST)
+    
+    return Response({
+        'status': "error",
+        'message': "Errores de validación",
+    }, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+    
+    
  #  CREACION DE DIRECCION DE LINEA 
+
+
 @extend_schema(
     tags=["Recursos Humanos - Dependencia"],
     summary="Creacion de Direccion de Linea",
@@ -771,7 +807,7 @@ def get_employee_by_id(request, cedulaidentidad):
             return Response({
                 'status': "error",
                 'message': "No se encontró el empleado o no posee cargos activos.",
-                'data': None
+                'data': []
             }, status=status.HTTP_404_NOT_FOUND)
 
         serializer = EmployeeDetailSerializer(empleado)

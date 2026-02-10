@@ -22,7 +22,26 @@ from ..services.constants_historial import registrar_historial_movimiento
 # -------------------------------------------------------------
 
 
+class CleanZerosMixin:
+    def to_internal_value(self, data):
+        def limpiar_recursivo(item):
+            if isinstance(item, dict):
+                return {k: limpiar_recursivo(v) for k, v in item.items() if v is not None}
+            
+            elif isinstance(item, list):
+                nueva_lista = []
+                for i in item:
+                    valor_limpio = limpiar_recursivo(i)
+                    if valor_limpio is not None:
+                        nueva_lista.append(valor_limpio)
+                return nueva_lista
+            
+            elif item == 0 or item == "0" or item == "None" or item is None:
+                return None
+            return item
 
+        data_limpia = limpiar_recursivo(data)
+        return super().to_internal_value(data_limpia)
  
     # DATOS PERFIL
 
@@ -235,26 +254,7 @@ class CoordinacionSerializer(serializers.ModelSerializer):
     
 
 
-class CleanZerosMixin:
-    def to_internal_value(self, data):
-        def limpiar_recursivo(item):
-            if isinstance(item, dict):
-                return {k: limpiar_recursivo(v) for k, v in item.items() if v is not None}
-            
-            elif isinstance(item, list):
-                nueva_lista = []
-                for i in item:
-                    valor_limpio = limpiar_recursivo(i)
-                    if valor_limpio is not None:
-                        nueva_lista.append(valor_limpio)
-                return nueva_lista
-            
-            elif item == 0 or item == "0" or item == "None" or item is None:
-                return None
-            return item
 
-        data_limpia = limpiar_recursivo(data)
-        return super().to_internal_value(data_limpia)
 # PERFIL / DATOS 
 class DatosViviendaSerializer(serializers.ModelSerializer):
     estado_id = serializers.PrimaryKeyRelatedField(queryset=direccion_models.Estado.objects.all(), write_only=True)
@@ -609,15 +609,22 @@ class CodigosCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer
     
     def validate(self, attrs):
         try:
-            attrs['estatusid'] = Estatus.objects.get(estatus__iexact=ESTATUS_VACANTE)
+            if not getattr(self, 'instance', None):
+               attrs['estatusid'] = Estatus.objects.get(estatus__iexact=ESTATUS_VACANTE)
             attrs['Tipo_personal'] = Tipo_personal.objects.get(tipo_personal__iexact=PERSONAL_ACTIVO)
         except (Estatus.DoesNotExist, Tipo_personal.DoesNotExist) as e:
             raise serializers.ValidationError(f"Error de datos: {str(e)}")     
         
+        dep = attrs.get('Dependencia', getattr(self.instance, 'Dependencia', None))
         dg = attrs.get('DireccionGeneral', getattr(self.instance, 'DireccionGeneral', None))
         dl = attrs.get('DireccionLinea', getattr(self.instance, 'DireccionLinea', None))
         coor = attrs.get('Coordinacion', getattr(self.instance, 'Coordinacion', None))
 
+
+        if dg and dep:
+            if dg.dependenciaId_id != dep.id:
+                raise serializers.ValidationError( "La Dirección General seleccionada no pertenece a la Dependencia indicada")
+            
         if dl and dg and dl.direccionGeneral_id != dg.id:
             raise serializers.ValidationError( "La Direccion de Linea seleccionada no pertenece a la Direccion General indicada")
 
