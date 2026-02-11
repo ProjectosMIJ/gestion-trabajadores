@@ -144,7 +144,7 @@ export function ChangeCodeForm() {
           </div>
           {employee && !Array.isArray(employee.data) && (
             <div className="space-y-5">
-              Buscar El Codigo
+              Buscar El Código
               <div className={"flex flex-col gap-2 jus"}>
                 <Select
                   onValueChange={(value) => {
@@ -153,7 +153,7 @@ export function ChangeCodeForm() {
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue
-                      placeholder={`${isLoadingDirectionGeneral ? "Cargando Direccioens Generales" : "Seleccionar Direccion General"}`}
+                      placeholder={`${isLoadingDirectionGeneral ? "Cargando Direccioens Generales" : "Seleccionar Dirección General"}`}
                     />
                   </SelectTrigger>
                   <SelectContent>
@@ -173,7 +173,7 @@ export function ChangeCodeForm() {
                     searchCodeByGeneral(selecteIdDirectionGeneral!)
                   }
                 >
-                  Buscar Codigo Por Direccion General
+                  Buscar Código Por Dirección General
                 </Button>
               </div>
               <div className={"flex flex-col gap-2 jus"}>
@@ -184,7 +184,7 @@ export function ChangeCodeForm() {
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue
-                      placeholder={` ${isLoadingDirectionLine ? "Cargando Direcciones de Linea" : "Seleccionar Direccion De Linea"}`}
+                      placeholder={` ${isLoadingDirectionLine ? "Cargando Direcciones de Linea" : "Seleccionar Dirección De Linea"}`}
                     />
                   </SelectTrigger>
                   <SelectContent>
@@ -202,7 +202,7 @@ export function ChangeCodeForm() {
                   className="cursor-pointer"
                   onClick={() => searchCodeByLine(selecteIdDirectionLine!)}
                 >
-                  Buscar Codigo Por Direccion De Linea
+                  Buscar Código Por Dirección De Linea
                 </Button>
               </div>
               <div className={"flex flex-col gap-2 jus"}>
@@ -211,7 +211,7 @@ export function ChangeCodeForm() {
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue
-                      placeholder={`${isLoadingCoordination ? "Cargando Coordinaciones" : "Seleccionar Coordinacion"} `}
+                      placeholder={`${isLoadingCoordination ? "Cargando Coordinaciones" : "Seleccionar Coordinación"} `}
                     />
                   </SelectTrigger>
                   <SelectContent>
@@ -228,7 +228,7 @@ export function ChangeCodeForm() {
                     className="cursor-pointer"
                     onClick={() => searchCodeByCoord(selecteIdCoordination!)}
                   >
-                    Buscar Codigo Por Coordinacion
+                    Buscar Código Por Coordinación
                   </Button>
                 </Select>
               </div>
@@ -306,7 +306,7 @@ export function ChangeCodeForm() {
                                   <FormControl>
                                     <SelectTrigger className="w-full truncate">
                                       <SelectValue
-                                        placeholder={"Seleccione Un Codigo"}
+                                        placeholder={"Seleccione Un Código"}
                                       />
                                     </SelectTrigger>
                                   </FormControl>
@@ -337,7 +337,7 @@ export function ChangeCodeForm() {
                                   <FormControl>
                                     <SelectTrigger className="w-full truncate">
                                       <SelectValue
-                                        placeholder={`${isLoadingMotionReason ? "Cargando Motivos De Cambio De Cargo" : "Seleccione Un Codigo"}`}
+                                        placeholder={`${isLoadingMotionReason ? "Cargando Motivos De Cambio De Cargo" : "Seleccione Un Código"}`}
                                       />
                                     </SelectTrigger>
                                   </FormControl>
@@ -362,7 +362,7 @@ export function ChangeCodeForm() {
                           ) && (
                             <div className="rounded-sm border-2 border-b-emerald-400-400/45 bg-emerald-200/40 p-2 mt-4">
                               <p>
-                                Direccion General:{" "}
+                                Dirección General:{" "}
                                 {
                                   selectedCode.data.find(
                                     (v) => v.id === selectedCodeId,
@@ -371,7 +371,7 @@ export function ChangeCodeForm() {
                               </p>
                               <p>
                                 {" "}
-                                Direccion De Linea:{" "}
+                                Dirección De Linea:{" "}
                                 {selectedCode.data.find(
                                   (v) => v.id === selectedCodeId,
                                 )?.DireccionLinea?.direccion_linea
@@ -420,7 +420,7 @@ export function ChangeCodeForm() {
                                 }
                               </p>
                               <p>
-                                Cargo Especifico:{" "}
+                                Cargo Específico:{" "}
                                 {
                                   selectedCode.data.find(
                                     (v) => v.id === selectedCodeId,
@@ -453,7 +453,7 @@ export function ChangeCodeForm() {
                         </Spinner>
                       )}
                       <Button className="w-full mt-2" disabled={isPending}>
-                        {isPending ? "Cargando..." : "Cambiar Codigo"}
+                        {isPending ? "Cargando..." : "Cambiar Código"}
                       </Button>
                     </>
                   )}
@@ -474,7 +474,7 @@ export function ChangeCodeForm() {
                 <>
                   <p>Nombres: {employee.data.nombres}</p>
                   <p>Apellidos: {employee.data.apellidos}</p>
-                  <p>Cedula: {employee.data.cedulaidentidad}</p>
+                  <p>Cédula: {employee.data.cedulaidentidad}</p>
                 </>
               ) : (
                 <p>

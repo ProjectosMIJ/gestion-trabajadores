@@ -77,7 +77,7 @@ export default function FormAcademyLevel({ onSubmit, defaultValues }: Props) {
         </CardHeader>
         <CardContent>
           <CardAction className="text-gray-500">
-            Paso 2: Informacion Academica
+            Paso 2: Información Academica
           </CardAction>
           <div>
             <Form {...form}>

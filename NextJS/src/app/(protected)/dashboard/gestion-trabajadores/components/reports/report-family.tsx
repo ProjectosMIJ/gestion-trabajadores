@@ -224,7 +224,7 @@ export default function ReportEmployee() {
                   <div className="grid grid-cols-2 gap-3">
                     <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-amber-700">
                       <legend className="text-amber-900 font-semibold">
-                        Informacion Basica Familiar
+                        Información Basica Familiar
                       </legend>
                       <FormField
                         control={form.control}
@@ -296,7 +296,7 @@ export default function ReportEmployee() {
                     </fieldset>
                     <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-violet-800">
                       <legend className="text-violet-900 font-semibold">
-                        Informacion De Salud
+                        Información De Salud
                       </legend>
                       <FormField
                         control={form.control}
@@ -507,7 +507,7 @@ export default function ReportEmployee() {
                           name="filtros.coordinacion_id"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Coordinacion</FormLabel>
+                              <FormLabel>Coordinación</FormLabel>
                               <Select
                                 onValueChange={(values) => {
                                   field.onChange(Number.parseInt(values));
@@ -538,7 +538,7 @@ export default function ReportEmployee() {
 
                     <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-red-800">
                       <legend className="text-red-900 font-semibold">
-                        Informacion De Cargo Del Empleado
+                        Información De Cargo Del Empleado
                       </legend>
 
                       <FormField
@@ -575,7 +575,7 @@ export default function ReportEmployee() {
 
                     <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-blue-900">
                       <legend className="text-blue-900 font-semibold">
-                        Informacion Academica
+                        Información Academica
                       </legend>
                       <FormField
                         control={form.control}
@@ -611,7 +611,7 @@ export default function ReportEmployee() {
                     </fieldset>
                     <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-black">
                       <legend className="text-black font-semibold">
-                        Informacion Basica Del Tabajador
+                        Información Basica Del Tabajador
                       </legend>
                       <FormField
                         control={form.control}
@@ -683,7 +683,7 @@ export default function ReportEmployee() {
                     </fieldset>
                     <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-emerald-800">
                       <legend className="text-emerald-800 font-semibold">
-                        Direccion De Habitaciones
+                        Dirección De Habitaciones
                       </legend>
                       <FormField
                         control={form.control}
@@ -700,7 +700,7 @@ export default function ReportEmployee() {
                               <FormControl>
                                 <SelectTrigger className="w-full truncate">
                                   <SelectValue
-                                    placeholder={`${isLoadingRegion ? "Cargando Regiones" : "Seleccione una Region"}`}
+                                    placeholder={`${isLoadingRegion ? "Cargando Regiones" : "Seleccione una Región"}`}
                                   />
                                 </SelectTrigger>
                               </FormControl>
@@ -820,7 +820,7 @@ export default function ReportEmployee() {
                         name="filtros.condicion_vivienda_id"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Condicion De Vivienda </FormLabel>
+                            <FormLabel>Condición De Vivienda </FormLabel>
                             <Select
                               onValueChange={(values) => {
                                 field.onChange(Number.parseInt(values));
@@ -829,7 +829,7 @@ export default function ReportEmployee() {
                               <FormControl>
                                 <SelectTrigger className="w-full truncate">
                                   <SelectValue
-                                    placeholder={`${isLoadingStatesConditionDwelling ? "Cargando Condiciones De Vivienda" : "Seleccione una Condicion De Vivienda"}`}
+                                    placeholder={`${isLoadingStatesConditionDwelling ? "Cargando Condiciones De Vivienda" : "Seleccione una Condición De Vivienda"}`}
                                   />
                                 </SelectTrigger>
                               </FormControl>

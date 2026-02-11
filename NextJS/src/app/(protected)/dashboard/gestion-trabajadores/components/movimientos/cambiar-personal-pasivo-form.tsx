@@ -198,11 +198,11 @@ export function PasivoForm() {
                         name="codigo_nuevo"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Ingrese El Codigo A Asignar</FormLabel>
+                            <FormLabel>Ingrese El Código A Asignar</FormLabel>
                             <FormControl>
                               <Input
                                 {...field}
-                                placeholder="Ingrese El Codigo"
+                                placeholder="Ingrese El Código"
                               />
                             </FormControl>
 
@@ -234,7 +234,7 @@ export function PasivoForm() {
                           <FormControl>
                             <SelectTrigger className="w-full truncate">
                               <SelectValue
-                                placeholder={`${isLoadingReasonLeaving ? "Cargando Motivos De Cambio De Cargo" : "Seleccione Un Codigo"}`}
+                                placeholder={`${isLoadingReasonLeaving ? "Cargando Motivos De Cambio De Cargo" : "Seleccione Un Código"}`}
                               />
                             </SelectTrigger>
                           </FormControl>
@@ -270,7 +270,7 @@ export function PasivoForm() {
                 <>
                   <p>Nombres: {employee.nombres}</p>
                   <p>Apellidos: {employee.apellidos}</p>
-                  <p>Cedula: {employee.cedulaidentidad}</p>
+                  <p>Cédula: {employee.cedulaidentidad}</p>
                 </>
               ) : (
                 <p>

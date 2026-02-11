@@ -181,7 +181,7 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Informacion De Familiares (Opcional si no posee)</CardTitle>
+        <CardTitle>Información De Familiares (Opcional si no posee)</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -336,7 +336,7 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                             render={({ field }) => (
                               <FormItem className="col-span-2">
                                 <FormLabel className="cursor-pointer">
-                                  Cedula Familiar
+                                  Cédula Familiar
                                 </FormLabel>
                                 <FormControl>
                                   <Input
@@ -854,7 +854,7 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                         </fieldset>
                         <fieldset className="border grid grid-cols-2 gap-2 space-y-4 col-span-2 p-2">
                           <legend className="flex flex-row gap-2">
-                            Informacion de Vestimenta <Shirt />
+                            Información de Vestimenta <Shirt />
                           </legend>
 
                           <FormField

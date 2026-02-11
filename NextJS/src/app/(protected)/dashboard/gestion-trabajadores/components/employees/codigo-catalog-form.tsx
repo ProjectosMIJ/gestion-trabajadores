@@ -129,7 +129,7 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
           toast.error(response.message);
         }
       } catch {
-        toast.error("Ocurrio Un Error Al Enviar La informacion");
+        toast.error("Ocurrio Un Error Al Enviar La información");
       }
     });
   }
@@ -157,7 +157,7 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
                     name="codigo"
                     render={({ field }) => (
                       <FormItem className="col-span-2">
-                        <FormLabel>Codigo</FormLabel>
+                        <FormLabel>Código</FormLabel>
                         <FormControl>
                           <Input placeholder="000" {...field} />
                         </FormControl>
@@ -168,10 +168,10 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
                   />
                   <FormField
                     control={form.control}
-                    name="denominacioncargoespecificoid"
+                    name="denominacioncargoid"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Denominacion De Cargo Especifico</FormLabel>
+                      <FormItem className=" ">
+                        <FormLabel>Denominación De Cargo</FormLabel>
                         <Select
                           onValueChange={(values) => {
                             field.onChange(Number.parseInt(values));
@@ -180,12 +180,12 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
                           <FormControl>
                             <SelectTrigger className="w-full truncate">
                               <SelectValue
-                                placeholder={`${isLoadingCargoEspecifico ? "Cargando Cargos Especificos" : "Seleccione una Denominacion De Cargo Especifico"}`}
+                                placeholder={`${isLoadingCargo ? "Cargando Denominaciones De Cargo" : "Seleccione una Denominación De Cargo"}`}
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {cargoEspecifico?.data.map((cargo, i) => (
+                            {cargo?.data.map((cargo, i) => (
                               <SelectItem key={i} value={`${cargo.id}`}>
                                 {cargo.cargo}
                               </SelectItem>
@@ -198,10 +198,10 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
                   />
                   <FormField
                     control={form.control}
-                    name="denominacioncargoid"
+                    name="denominacioncargoespecificoid"
                     render={({ field }) => (
-                      <FormItem className=" ">
-                        <FormLabel>Denominacion De Cargo</FormLabel>
+                      <FormItem>
+                        <FormLabel>Denominación De Cargo Específico</FormLabel>
                         <Select
                           onValueChange={(values) => {
                             field.onChange(Number.parseInt(values));
@@ -210,12 +210,12 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
                           <FormControl>
                             <SelectTrigger className="w-full truncate">
                               <SelectValue
-                                placeholder={`${isLoadingCargo ? "Cargando Denominaciones De Cargo" : "Seleccione una Denominacion De Cargo"}`}
+                                placeholder={`${isLoadingCargoEspecifico ? "Cargando Cargos Especificos" : "Seleccione una Denominación De Cargo Específico"}`}
                               />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {cargo?.data.map((cargo, i) => (
+                            {cargoEspecifico?.data.map((cargo, i) => (
                               <SelectItem key={i} value={`${cargo.id}`}>
                                 {cargo.cargo}
                               </SelectItem>
@@ -241,7 +241,7 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
                           <FormControl>
                             <SelectTrigger className="w-full truncate">
                               <SelectValue
-                                placeholder={`${isLoadingNomina ? "Cargando Nominas" : "Seleccione un Tipo de Nomina"}`}
+                                placeholder={`${isLoadingNomina ? "Cargando Nominas" : "Seleccione un Tipo de Nómina"}`}
                               />
                             </SelectTrigger>
                           </FormControl>
@@ -383,7 +383,7 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
                             name="Coordinacion"
                             render={({ field }) => (
                               <FormItem className="col-span-2">
-                                <FormLabel>Coordinacion</FormLabel>
+                                <FormLabel>Coordinación</FormLabel>
                                 <Select
                                   onValueChange={(values) => {
                                     field.onChange(Number.parseInt(values));
@@ -420,10 +420,10 @@ export function CodigoCatalogForm({ onSuccess }: CodigoCatalogFormProps) {
                     {isPending ? (
                       <>
                         <Spinner />
-                        Creando Nuevo Codigo...
+                        Creando Nuevo Código...
                       </>
                     ) : (
-                      "Crear Nuevo Codigo"
+                      "Crear Nuevo Código"
                     )}
                   </Button>
                 </div>

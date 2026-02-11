@@ -11,7 +11,7 @@ export default function DashboardRac() {
               <div className="grid grid-cols-2">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Informacion Usuario</CardTitle>
+                    <CardTitle>Información Usuario</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <h2>Usuario: {session?.user.name}</h2>

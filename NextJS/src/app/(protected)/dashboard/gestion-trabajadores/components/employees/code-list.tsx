@@ -6,7 +6,7 @@ import {
   getDependency,
   getDirectionGeneralById,
   getDirectionLine,
-  getNomina
+  getNomina,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
 import { Button } from "@/components/ui/button";
 import {
@@ -149,7 +149,7 @@ export function CodeListPage() {
                     control={form.control}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Buscar Codigo </FormLabel>
+                        <FormLabel>Buscar Código </FormLabel>
                         <FormControl>
                           <Input
                             type="text"
@@ -289,7 +289,7 @@ export function CodeListPage() {
                     name="coordinacion_id"
                     render={({ field }) => (
                       <FormItem className="col-span-2">
-                        <FormLabel>Coordinacion</FormLabel>
+                        <FormLabel>Coordinación</FormLabel>
                         <Select
                           onValueChange={(values) => {
                             field.onChange(Number.parseInt(values));

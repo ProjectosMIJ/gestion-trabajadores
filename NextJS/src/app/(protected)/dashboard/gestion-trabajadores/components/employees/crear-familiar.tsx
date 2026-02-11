@@ -281,7 +281,7 @@ export function CreateFamilyForm() {
                               render={({ field }) => (
                                 <FormItem className="col-span-2">
                                   <FormLabel className="cursor-pointer">
-                                    Cedula Familiar
+                                    Cédula Familiar
                                   </FormLabel>
                                   <FormControl>
                                     <Input
@@ -494,7 +494,7 @@ export function CreateFamilyForm() {
                           <fieldset className="border grid grid-cols-2 gap-2 space-y-4 col-span-2 p-2 border-amber-700 rounded-sm">
                             <legend className="flex gap-2 text-amber-700 font-bold">
                               {" "}
-                              Relacion Y Parentesco <Contact />{" "}
+                              Relación Y Parentesco <Contact />{" "}
                             </legend>
                             <FormField
                               control={form.control}
@@ -682,7 +682,7 @@ export function CreateFamilyForm() {
                                   </Select>
                                   <FormDescription className="flex flex-row gap-2 justify-end">
                                     <Label htmlFor="showInfo">
-                                      Mas Detalles De Formacion Academica
+                                      Mas Detalles De Formación Academica
                                     </Label>
                                     <Switch
                                       className="cursor-pointer"
@@ -752,7 +752,7 @@ export function CreateFamilyForm() {
                                         <FormControl>
                                           <SelectTrigger className="w-full truncate">
                                             <SelectValue
-                                              placeholder={`${isLoadingMencion ? "Cargando Mencion Academica" : "Seleccione una mencion academica"}`}
+                                              placeholder={`${isLoadingMencion ? "Cargando Mencion Academica" : "Seleccione una mención academica"}`}
                                             />
                                           </SelectTrigger>
                                         </FormControl>
@@ -778,7 +778,7 @@ export function CreateFamilyForm() {
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel className="cursor-pointer">
-                                        Capacitacion (Opcional)
+                                        Capacitación (Opcional)
                                       </FormLabel>
                                       <FormControl>
                                         <Input
@@ -797,7 +797,7 @@ export function CreateFamilyForm() {
                                   render={({ field }) => (
                                     <FormItem>
                                       <FormLabel className="cursor-pointer">
-                                        Institucion (Opcional)
+                                        Institución (Opcional)
                                       </FormLabel>
                                       <FormControl>
                                         <Input
@@ -815,7 +815,7 @@ export function CreateFamilyForm() {
                           </fieldset>
                           <fieldset className="border grid grid-cols-2 gap-2 space-y-4 col-span-2 p-2 border-purple-900 rounded-sm">
                             <legend className="flex flex-row gap-2 text-purple-900 font-bold">
-                              Informacion de Vestimenta <Shirt />
+                              Información de Vestimenta <Shirt />
                             </legend>
 
                             <FormField
@@ -962,7 +962,7 @@ export function CreateFamilyForm() {
                             <ScrollArea className="grid grid-cols-2 h-60 overflow-auto gap-4 p-4 border rounded-md col-span-2">
                               <div>
                                 <h2 className="font-bold">
-                                  Patologias (Opcional)
+                                  Patologías (Opcional)
                                 </h2>
                                 {patologyGroupList.map((patologys, index) => (
                                   <div key={index}>

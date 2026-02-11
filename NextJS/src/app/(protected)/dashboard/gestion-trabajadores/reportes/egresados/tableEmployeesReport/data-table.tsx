@@ -68,7 +68,7 @@ export function DataTableLeaving<TData, TValue>({
     <div>
       <div className="flex items-center py-4">
         <Input
-          placeholder="Filtrar Cedula..."
+          placeholder="Filtrar Cédula..."
           value={(table.getColumn("cedula")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("cedula")?.setFilterValue(event.target.value)

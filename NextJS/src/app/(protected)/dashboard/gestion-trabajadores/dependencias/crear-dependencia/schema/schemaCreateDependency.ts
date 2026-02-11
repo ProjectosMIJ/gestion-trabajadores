@@ -52,7 +52,7 @@ export const schemaCreateDirectionAdm = z
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "La Direccion General Es Requerida",
+        message: "La Dirección General Es Requerida",
         path: [
           "direction_general.Codigo",
           "direction_general.direccion_general",
@@ -65,7 +65,7 @@ export const schemaCreateDirectionAdm = z
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "La Direccion De Linea Es Requerida",
+        message: "La Dirección De LineaEs Requerida",
         path: ["direction_line.Codigo", "direction_line.direccion_general"],
       });
     }

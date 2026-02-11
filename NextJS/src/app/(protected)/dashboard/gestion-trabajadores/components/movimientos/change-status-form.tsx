@@ -148,7 +148,7 @@ export function ChangeStatusForm() {
                                   <FormControl>
                                     <SelectTrigger className="w-full truncate">
                                       <SelectValue
-                                        placeholder={"Seleccione Un Codigo"}
+                                        placeholder={"Seleccione Un Código"}
                                       />
                                     </SelectTrigger>
                                   </FormControl>
@@ -187,7 +187,7 @@ export function ChangeStatusForm() {
                                   <FormControl>
                                     <SelectTrigger className="w-full truncate">
                                       <SelectValue
-                                        placeholder={`${isLoadingStatusNomina ? "Cargando Estatus De Codigos" : "Seleccione Un Codigo"}`}
+                                        placeholder={`${isLoadingStatusNomina ? "Cargando Estatus De Codigos" : "Seleccione Un Código"}`}
                                       />
                                     </SelectTrigger>
                                   </FormControl>
@@ -221,7 +221,7 @@ export function ChangeStatusForm() {
                                   <FormControl>
                                     <SelectTrigger className="w-full truncate">
                                       <SelectValue
-                                        placeholder={`${isLoadingInternalReason ? "Cargando Motivos De Cambio De Cargo" : "Seleccione Un Codigo"}`}
+                                        placeholder={`${isLoadingInternalReason ? "Cargando Motivos De Cambio De Cargo" : "Seleccione Un Motivo De Cambio de Cargo"}`}
                                       />
                                     </SelectTrigger>
                                   </FormControl>
@@ -255,7 +255,7 @@ export function ChangeStatusForm() {
                     <Spinner className="m-auto w-32 h-32"> Cargando...</Spinner>
                   )}
                   <Button disabled={isPending} className="w-full mt-2">
-                    {isPending ? "Cargando" : "Asignar Codigo"}
+                    {isPending ? "Cargando..." : "Cambiar Estatus"}
                   </Button>
                 </form>
               </Form>
@@ -274,7 +274,7 @@ export function ChangeStatusForm() {
                 <>
                   <p>Nombres: {employee.data.nombres}</p>
                   <p>Apellidos: {employee.data.apellidos}</p>
-                  <p>Cedula: {employee.data.cedulaidentidad}</p>
+                  <p>Cédula: {employee.data.cedulaidentidad}</p>
                 </>
               )}
             </div>

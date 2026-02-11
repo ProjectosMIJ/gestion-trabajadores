@@ -310,7 +310,7 @@ export default function ReportLeaving() {
 
                     <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-red-800">
                       <legend className="text-red-900 font-semibold">
-                        Informacion De Cargo
+                        Información De Cargo
                       </legend>
                       <FormField
                         control={form.control}
@@ -318,7 +318,7 @@ export default function ReportLeaving() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>
-                              Denominacion De Cargo Especifico
+                              Denominación De Cargo Específico
                             </FormLabel>
                             <Select
                               onValueChange={(values) => {
@@ -328,7 +328,7 @@ export default function ReportLeaving() {
                               <FormControl>
                                 <SelectTrigger className="w-full truncate">
                                   <SelectValue
-                                    placeholder={`${isLoadingCargoEspecifico ? "Cargando Cargos Especificos" : "Seleccione una Denominacion De Cargo Especifico"}`}
+                                    placeholder={`${isLoadingCargoEspecifico ? "Cargando Cargos Especificos" : "Seleccione una Denominación De Cargo Específico"}`}
                                   />
                                 </SelectTrigger>
                               </FormControl>
@@ -349,7 +349,7 @@ export default function ReportLeaving() {
                         name="filtros.cargo_id"
                         render={({ field }) => (
                           <FormItem className=" ">
-                            <FormLabel>Denominacion De Cargo</FormLabel>
+                            <FormLabel>Denominación De Cargo</FormLabel>
                             <Select
                               onValueChange={(values) => {
                                 field.onChange(Number.parseInt(values));
@@ -358,7 +358,7 @@ export default function ReportLeaving() {
                               <FormControl>
                                 <SelectTrigger className="w-full truncate">
                                   <SelectValue
-                                    placeholder={`${isLoadingCargo ? "Cargando Denominaciones De Cargo" : "Seleccione una Denominacion De Cargo"}`}
+                                    placeholder={`${isLoadingCargo ? "Cargando Denominaciones De Cargo" : "Seleccione una Denominación De Cargo"}`}
                                   />
                                 </SelectTrigger>
                               </FormControl>
@@ -438,7 +438,7 @@ export default function ReportLeaving() {
 
                     <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-black">
                       <legend className="text-black font-semibold">
-                        Informacion Basica
+                        Información Basica
                       </legend>
                       <FormField
                         control={form.control}

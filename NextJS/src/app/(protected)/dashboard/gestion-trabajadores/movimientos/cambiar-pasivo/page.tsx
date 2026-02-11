@@ -10,7 +10,7 @@ export default function PasivoPage() {
           <div className="space-y-6 ">
             <div>
               <h1 className="text-3xl font-bold text-foreground">
-                Gestion De Personal
+                Gestión De Personal
               </h1>
               <p className="text-muted-foreground mt-1">
                 Gestionar El Personal Trabajador

@@ -198,7 +198,7 @@ export default function FormCreateDirectionDependency() {
                   </div>
                   {create === "create-direction-line" && (
                     <div className="space-y-2">
-                      <Label>Direccion General</Label>
+                      <Label>Dirección General</Label>
                       <Select
                         onValueChange={(value) => {
                           selectionDirectionGeneral(Number.parseInt(value));
@@ -206,7 +206,7 @@ export default function FormCreateDirectionDependency() {
                       >
                         <SelectTrigger className="w-full">
                           <SelectValue
-                            placeholder={`${isLoadingDirectionGeneral ? "Cargando Direcciones Generales" : "Seleccionar Direccion General"}`}
+                            placeholder={`${isLoadingDirectionGeneral ? "Cargando Direcciones Generales" : "Seleccionar Dirección General"}`}
                           />
                         </SelectTrigger>
                         <SelectContent>
@@ -225,7 +225,7 @@ export default function FormCreateDirectionDependency() {
                   {create === "create-coordination" && (
                     <>
                       <div className="space-y-2">
-                        <Label>Direccion General</Label>
+                        <Label>Dirección General</Label>
                         <Select
                           onValueChange={(value) => {
                             setSelectionDirectionGeneralId(value);
@@ -234,7 +234,7 @@ export default function FormCreateDirectionDependency() {
                         >
                           <SelectTrigger className="w-full">
                             <SelectValue
-                              placeholder={`${isLoadingDirectionGeneral ? "Cargando Direcciones Generales" : "Seleccionar Direccion General"}`}
+                              placeholder={`${isLoadingDirectionGeneral ? "Cargando Direcciones Generales" : "Seleccionar Dirección General"}`}
                             />
                           </SelectTrigger>
                           <SelectContent>
@@ -252,7 +252,7 @@ export default function FormCreateDirectionDependency() {
                         </Select>
                       </div>
                       <div className="space-y-2 col-span-2">
-                        <Label>Direccion De Linea</Label>
+                        <Label>Dirección De Linea</Label>
 
                         <Select
                           onValueChange={(value) => {
@@ -261,7 +261,7 @@ export default function FormCreateDirectionDependency() {
                         >
                           <SelectTrigger className="w-full">
                             <SelectValue
-                              placeholder={` ${isLoadingDirectionLine ? "Cargando Direcciones De Liena" : "Seleccionar Direccion De Linea"}`}
+                              placeholder={` ${isLoadingDirectionLine ? "Cargando Direcciones De Liena" : "Seleccionar Dirección De Linea"}`}
                             />
                           </SelectTrigger>
                           <SelectContent>
@@ -292,7 +292,7 @@ export default function FormCreateDirectionDependency() {
                       id="r1"
                     />
                     <Label className="cursor-pointer" htmlFor="r1">
-                      Crear Direccion General
+                      Crear Dirección General
                     </Label>
                   </div>
                   <div className="flex items-center gap-3">
@@ -302,7 +302,7 @@ export default function FormCreateDirectionDependency() {
                       id="r2"
                     />
                     <Label className="cursor-pointer" htmlFor="r2">
-                      Crear Direccion De Linea
+                      Crear Dirección De Linea
                     </Label>
                   </div>
                   <div className="flex items-center gap-3">
@@ -312,7 +312,7 @@ export default function FormCreateDirectionDependency() {
                       id="r3"
                     />
                     <Label className="cursor-pointer" htmlFor="r3">
-                      Crear Coordinacion De Linea
+                      Crear Coordinación
                     </Label>
                   </div>
                 </RadioGroup>
@@ -333,7 +333,7 @@ export default function FormCreateDirectionDependency() {
                           render={({ field }) => (
                             <FormItem className="w-full truncate p-0.5">
                               <FormLabel>
-                                Codigo de la Direccion General
+                                Codigo de la Dirección General
                               </FormLabel>
                               <FormControl>
                                 <Input {...field} type="number" />
@@ -348,7 +348,7 @@ export default function FormCreateDirectionDependency() {
                           render={({ field }) => (
                             <FormItem className="w-full truncate p-0.5">
                               <FormLabel>
-                                Nombre De La Direccion General
+                                Nombre De La Dirección General
                               </FormLabel>
                               <FormControl>
                                 <Input {...field} />
@@ -359,7 +359,7 @@ export default function FormCreateDirectionDependency() {
                         />
                       </div>
                       <Button className="w-full">
-                        Crear Direccion De Linea
+                        Crear Dirección De Linea
                       </Button>
                     </form>
                   </Form>
@@ -379,7 +379,7 @@ export default function FormCreateDirectionDependency() {
                           render={({ field }) => (
                             <FormItem className="w-full truncate p-0.5">
                               <FormLabel>
-                                Codigo De La Direccion De Linea
+                                Código De La Dirección De Linea
                               </FormLabel>
                               <FormControl>
                                 <Input {...field} type="number" />
@@ -394,7 +394,7 @@ export default function FormCreateDirectionDependency() {
                           render={({ field }) => (
                             <FormItem className="w-full truncate p-0.5">
                               <FormLabel>
-                                Nombre De La Direccion De Linea
+                                Nombre De La Dirección De Linea
                               </FormLabel>
                               <FormControl>
                                 <Input {...field} />
@@ -405,7 +405,7 @@ export default function FormCreateDirectionDependency() {
                         />
                       </div>
                       <Button className="w-full">
-                        Crear Direccion De Linea
+                        Crear Dirección De Linea
                       </Button>
                     </form>
                   </Form>
@@ -426,7 +426,7 @@ export default function FormCreateDirectionDependency() {
                           control={formCordination.control}
                           render={({ field }) => (
                             <FormItem className="w-full truncate p-0.5">
-                              <FormLabel>Codigo De La Coordinación</FormLabel>
+                              <FormLabel>Código De La Coordinación</FormLabel>
                               <FormControl>
                                 <Input {...field} type="number" />
                               </FormControl>
@@ -448,7 +448,7 @@ export default function FormCreateDirectionDependency() {
                           )}
                         />
                       </div>
-                      <Button className="w-full">Crear Coordinacion</Button>
+                      <Button className="w-full">Crear Coordinación</Button>
                     </form>
                   </Form>
                 </div>

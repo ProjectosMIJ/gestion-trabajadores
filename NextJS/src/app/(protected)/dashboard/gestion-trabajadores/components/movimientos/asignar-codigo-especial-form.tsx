@@ -204,10 +204,10 @@ export function CodigoCatalogEspecialForm({
             <div className="space-y-2 grid grid-cols-2 items-center gap-6 place-content-center">
               <FormField
                 control={form.control}
-                name="denominacioncargoespecificoid"
+                name="denominacioncargoid"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Denominacion De Cargo Especifico</FormLabel>
+                  <FormItem className=" ">
+                    <FormLabel>Denominación De Cargo</FormLabel>
                     <Select
                       onValueChange={(values) => {
                         field.onChange(Number.parseInt(values));
@@ -216,12 +216,12 @@ export function CodigoCatalogEspecialForm({
                       <FormControl>
                         <SelectTrigger className="w-full truncate">
                           <SelectValue
-                            placeholder={`${isLoadingCargoEspecifico ? "Cargando Cargos Especificos" : "Seleccione una Denominacion De Cargo Especifico"}`}
+                            placeholder={`${isLoadingCargo ? "Cargando Cargos" : "Seleccione una Denominación De Cargo"}`}
                           />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {cargoEspecifico?.data.map((cargo, i) => (
+                        {cargo?.data.map((cargo, i) => (
                           <SelectItem key={i} value={`${cargo.id}`}>
                             {cargo.cargo}
                           </SelectItem>
@@ -234,10 +234,10 @@ export function CodigoCatalogEspecialForm({
               />
               <FormField
                 control={form.control}
-                name="denominacioncargoid"
+                name="denominacioncargoespecificoid"
                 render={({ field }) => (
-                  <FormItem className=" ">
-                    <FormLabel>Denominacion De Cargo</FormLabel>
+                  <FormItem>
+                    <FormLabel>Denominación De Cargo Específico</FormLabel>
                     <Select
                       onValueChange={(values) => {
                         field.onChange(Number.parseInt(values));
@@ -246,12 +246,12 @@ export function CodigoCatalogEspecialForm({
                       <FormControl>
                         <SelectTrigger className="w-full truncate">
                           <SelectValue
-                            placeholder={`${isLoadingCargo ? "Cargando Cargos" : "Seleccione una Denominacion De Cargo"}`}
+                            placeholder={`${isLoadingCargoEspecifico ? "Cargando Cargos Especificos" : "Seleccione una Denominación De Cargo Específico"}`}
                           />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {cargo?.data.map((cargo, i) => (
+                        {cargoEspecifico?.data.map((cargo, i) => (
                           <SelectItem key={i} value={`${cargo.id}`}>
                             {cargo.cargo}
                           </SelectItem>
@@ -371,7 +371,7 @@ export function CodigoCatalogEspecialForm({
                       <FormControl>
                         <SelectTrigger className="w-full truncate">
                           <SelectValue
-                            placeholder={`${isLoadingDirectionGeneral ? "Cargando Direccion Generales" : "Seleccione una Dirección General"}`}
+                            placeholder={`${isLoadingDirectionGeneral ? "Cargando Direcciones Generales" : "Seleccione una Dirección General"}`}
                           />
                         </SelectTrigger>
                       </FormControl>
@@ -451,7 +451,7 @@ export function CodigoCatalogEspecialForm({
                     name="Coordinacion"
                     render={({ field }) => (
                       <FormItem className="col-span-2">
-                        <FormLabel>Coordinacion</FormLabel>
+                        <FormLabel>Coordinación</FormLabel>
                         <Select
                           onValueChange={(values) => {
                             field.onChange(Number.parseInt(values));
@@ -491,7 +491,7 @@ export function CodigoCatalogEspecialForm({
                   <>
                     <p>Nombres: {employee.nombres}</p>
                     <p>Apellidos: {employee.apellidos}</p>
-                    <p>Cedula: {employee.cedulaidentidad}</p>
+                    <p>Cédula: {employee.cedulaidentidad}</p>
                     <p>Estado Civil: {employee.estadoCivil.estadoCivil}</p>
                   </>
                 ) : (
@@ -510,10 +510,10 @@ export function CodigoCatalogEspecialForm({
                 {isPending ? (
                   <>
                     <Spinner />
-                    Creando Nuevo Codigo...
+                    Asignando Código Especial...
                   </>
                 ) : (
-                  "Crear Nuevo Codigo"
+                  "Asignar Código Especial"
                 )}
               </Button>
             </div>

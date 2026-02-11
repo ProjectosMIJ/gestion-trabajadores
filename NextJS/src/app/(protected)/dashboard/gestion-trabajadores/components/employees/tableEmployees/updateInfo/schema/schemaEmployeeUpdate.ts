@@ -40,7 +40,7 @@ export const schemaBasicUpdateInfo = z.object({
     .optional(),
   n_contrato: z
     .string({
-      message: "Debe Ingresar Informacion Valida",
+      message: "Debe Ingresar Información Valida",
     })
     .optional(),
   sexoid: z

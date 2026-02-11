@@ -11,7 +11,7 @@ export default function ReportEmployeePage() {
                 Reporte De Trabajadores
               </h1>
               <p className="text-muted-foreground mt-1">
-                Filtre La Informcacion de los trabajadores
+                Filtre La Información de los trabajadores
               </p>
             </div>
             <ReportEmployee />

@@ -69,7 +69,7 @@ export function LoginForm({
                 name="identification"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Cedula:</FormLabel>
+                    <FormLabel>Cédula:</FormLabel>
                     <FormControl>
                       <Input
                         type={"number"}

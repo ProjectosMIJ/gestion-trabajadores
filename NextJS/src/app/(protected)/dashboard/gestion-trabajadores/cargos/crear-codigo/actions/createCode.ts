@@ -36,12 +36,12 @@ export async function createCodeAction(values: z.infer<typeof schemaCode>) {
     if (!response.ok) {
       return {
         success: false,
-        message: "Error Al Crear El Codigo",
+        message: "Error Al Crear El Código",
       };
     }
     return {
       success: true,
-      message: "Codigo Registrado Exitosamente",
+      message: "Código Registrado Exitosamente",
     };
   } catch {
     return {

@@ -9,22 +9,22 @@ export const schemaAcademyUpdate = z.object({
       .optional(),
     carrera_id: z
       .number({
-        message: "Debe Ingresar Informacion Valida",
+        message: "Debe Ingresar Información Valida",
       })
       .optional(),
     mencion_id: z
       .number({
-        message: "Debe Ingresar Informacion Valida",
+        message: "Debe Ingresar Información Valida",
       })
       .optional(),
     capacitacion: z
       .string({
-        message: "Debe Ingresar Informacion Valida",
+        message: "Debe Ingresar Información Valida",
       })
       .optional(),
     institucion: z
       .string({
-        message: "Debe Ingresar Informacion Valida",
+        message: "Debe Ingresar Información Valida",
       })
       .optional(),
   }),

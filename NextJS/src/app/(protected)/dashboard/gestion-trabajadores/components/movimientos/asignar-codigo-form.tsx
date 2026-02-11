@@ -147,7 +147,7 @@ export function AsigCode() {
           </div>
           {employee && !Array.isArray(employee) && (
             <div className="space-y-5">
-              Buscar El Codigo
+              Buscar El Código
               <div className={"flex flex-col gap-2 jus"}>
                 <Select
                   onValueChange={(value) => {
@@ -176,7 +176,7 @@ export function AsigCode() {
                     searchCodeByGeneral(selecteIdDirectionGeneral!)
                   }
                 >
-                  Buscar Codigo Por Direccion General
+                  Buscar Código Por Dirección General
                 </Button>
               </div>
               <div className={"flex flex-col gap-2 jus"}>
@@ -187,7 +187,7 @@ export function AsigCode() {
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue
-                      placeholder={` ${isLoadingDirectionLine ? "Cargando Direcciones de Linea" : "Seleccionar Direccion De Linea"}`}
+                      placeholder={` ${isLoadingDirectionLine ? "Cargando Direcciones de Linea" : "Seleccionar Dirección De Linea"}`}
                     />
                   </SelectTrigger>
                   <SelectContent>
@@ -205,7 +205,7 @@ export function AsigCode() {
                   className="cursor-pointer"
                   onClick={() => searchCodeByLine(selecteIdDirectionLine!)}
                 >
-                  Buscar Codigo Por Direccion De Linea
+                  Buscar Código Por Dirección De Linea
                 </Button>
               </div>
               <div className={"flex flex-col gap-2 jus"}>
@@ -214,7 +214,7 @@ export function AsigCode() {
                 >
                   <SelectTrigger className="w-full">
                     <SelectValue
-                      placeholder={`${isLoadingCoordination ? "Cargando Coordinaciones" : "Seleccionar Coordinacion"} `}
+                      placeholder={`${isLoadingCoordination ? "Cargando Coordinaciones" : "Seleccionar Coordinación"} `}
                     />
                   </SelectTrigger>
                   <SelectContent>
@@ -231,7 +231,7 @@ export function AsigCode() {
                     className="cursor-pointer"
                     onClick={() => searchCodeByCoord(selecteIdCoordination!)}
                   >
-                    Buscar Codigo Por Coordinacion
+                    Buscar Código Por Coordinacion
                   </Button>
                 </Select>
               </div>
@@ -288,7 +288,7 @@ export function AsigCode() {
                           ) && (
                             <div className="rounded-sm border-2 border-b-emerald-400-400/45 bg-emerald-200/40 p-2 mt-4">
                               <p>
-                                Direccion General:{" "}
+                                Dirección General:{" "}
                                 {
                                   selectedCode.data.find(
                                     (v) => v.id === selectedCodeId,
@@ -297,7 +297,7 @@ export function AsigCode() {
                               </p>
                               <p>
                                 {" "}
-                                Direccion De Linea:{" "}
+                                Dirección De Linea:{" "}
                                 {selectedCode.data.find(
                                   (v) => v.id === selectedCodeId,
                                 )?.DireccionLinea?.direccion_linea
@@ -346,7 +346,7 @@ export function AsigCode() {
                                 }
                               </p>
                               <p>
-                                Cargo Especifico:{" "}
+                                Cargo Específico:{" "}
                                 {
                                   selectedCode.data.find(
                                     (v) => v.id === selectedCodeId,
@@ -382,7 +382,7 @@ export function AsigCode() {
                         className="w-full mt-2 cursor-pointer"
                         disabled={isPending}
                       >
-                        {isPending ? "Asignando Codigo" : "Asignar Codigo"}
+                        {isPending ? "Asignando Código" : "Asignar Código"}
                       </Button>
                     </>
                   )}
@@ -402,7 +402,7 @@ export function AsigCode() {
                 <>
                   <p>Nombres: {employee.nombres}</p>
                   <p>Apellidos: {employee.apellidos}</p>
-                  <p>Cedula: {employee.cedulaidentidad}</p>
+                  <p>Cédula: {employee.cedulaidentidad}</p>
                   <p>Estado Civil: {employee.estadoCivil.estadoCivil}</p>
                 </>
               ) : (

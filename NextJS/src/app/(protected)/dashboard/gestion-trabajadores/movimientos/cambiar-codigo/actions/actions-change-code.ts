@@ -34,12 +34,12 @@ export default async function ChangeCodeActions(
     if (response.ok) {
       return {
         success: true,
-        message: "Codigo Cambiado Exitosamente",
+        message: "Código Cambiado Exitosamente",
       };
     }
     return {
       success: false,
-      message: "Error Al Cambiar El Codigo",
+      message: "Error Al Cambiar El Código",
     };
   } catch {
     return {

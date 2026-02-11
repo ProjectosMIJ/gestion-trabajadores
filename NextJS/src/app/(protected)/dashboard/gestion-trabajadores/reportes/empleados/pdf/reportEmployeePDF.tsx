@@ -317,7 +317,7 @@ export function ReportPDFEmployee({
                 <Text style={[styles.tableCol, styles.col1]}>#</Text>
                 <Text style={[styles.tableCol, styles.col2]}>Código</Text>
                 <Text style={[styles.tableCol, styles.col3]}>
-                  Cargo Especifico
+                  Cargo Específico
                 </Text>
                 <Text style={[styles.tableCol, styles.col4]}>Grado</Text>
                 <Text style={[styles.tableCol, styles.col5]}>Nómina</Text>

@@ -31,12 +31,12 @@ export async function AsignCode(values: z.infer<typeof schemaAsignCode>) {
     if (response.ok) {
       return {
         success: true,
-        message: "Codigo Asingnado Exitosamente",
+        message: "Código Asingnado Exitosamente",
       };
     }
     return {
       success: false,
-      message: "Codigo No Asignado",
+      message: "Código No Asignado",
     };
   } catch {
     return {

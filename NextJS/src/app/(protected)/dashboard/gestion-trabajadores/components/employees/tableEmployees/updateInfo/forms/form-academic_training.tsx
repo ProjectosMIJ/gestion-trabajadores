@@ -107,10 +107,10 @@ export default function FormUpdateAcademyLevel({
         </CardHeader>
         <CardContent>
           <CardAction className="text-gray-500">
-            Informacion Academica
+            Información Academica
           </CardAction>
           {isPending ? (
-            <Loading promiseMessage="Actualizando Informacion" />
+            <Loading promiseMessage="Actualizando Información" />
           ) : (
             <div>
               <Form {...form}>
@@ -253,7 +253,7 @@ export default function FormUpdateAcademyLevel({
                   )}
                   <Button className="w-full col-span-2" disabled={isPending}>
                     {" "}
-                    {isPending ? "Actualizando Informacion" : "Actualizar"}
+                    {isPending ? "Actualizando Información" : "Actualizar"}
                   </Button>
                 </form>
               </Form>

@@ -86,14 +86,14 @@ export default function TableDependencys() {
             </div>
 
             <div className={`space-y-2 `}>
-              <Label>Direccion General</Label>
+              <Label>Dirección General</Label>
               <Select
                 onValueChange={(value) => {
                   setDirectionGeneralId(value);
                 }}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Seleccionar Direccion General" />
+                  <SelectValue placeholder="Seleccionar Dirección General" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
@@ -106,13 +106,13 @@ export default function TableDependencys() {
                   </SelectGroup>
                 </SelectContent>
                 <div className="text-sm text-gray-700 text-[12px]">
-                  Consultar Direcciones De Linea En La Direccion General
+                  Consultar Direcciones De Linea En La Dirección General
                 </div>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label>Direccion De Linea</Label>
+              <Label>Dirección De Linea</Label>
 
               <Select
                 onValueChange={(value) => {
@@ -129,7 +129,7 @@ export default function TableDependencys() {
                   }
                 >
                   <SelectValue
-                    placeholder={`${directionLine?.data !== undefined && directionLine!.data?.length > 0 ? "Seleccionar Direccion De Linea" : "No Posee Direcciones De Linea"}`}
+                    placeholder={`${directionLine?.data !== undefined && directionLine!.data?.length > 0 ? "Seleccionar Dirección De Linea" : "No Posee Direcciones De Linea"}`}
                   />
                 </SelectTrigger>
                 <SelectContent>
@@ -143,7 +143,7 @@ export default function TableDependencys() {
                   </SelectGroup>
                 </SelectContent>
                 <div className="text-[12px] text-gray-700">
-                  Consultar Coordinaciones De La Direccion de Linea
+                  Consultar Coordinaciones De La Dirección De Linea
                 </div>
               </Select>
             </div>
@@ -155,10 +155,10 @@ export default function TableDependencys() {
                 <TableHeader className="bg-blue-600">
                   <TableRow>
                     <TableHead className="w-[100px] font-bold text-white">
-                      Codigo
+                      Código
                     </TableHead>
                     <TableHead className="text-center font-bold text-white">
-                      Direccion General
+                      Dirección General
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -182,10 +182,10 @@ export default function TableDependencys() {
                 <TableHeader className="bg-blue-600 ">
                   <TableRow>
                     <TableHead className="w-[100px] font-bold text-white">
-                      Codigo
+                      Código
                     </TableHead>
                     <TableHead className="text-center font-bold text-white">
-                      Direccion De Linea
+                      Dirección De Linea
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -209,10 +209,10 @@ export default function TableDependencys() {
                 <TableHeader className="bg-blue-600">
                   <TableRow>
                     <TableHead className="w-[100px] font-bold text-white">
-                      Codigo
+                      Código
                     </TableHead>
                     <TableHead className="text-center font-bold text-white">
-                      Coordinacion
+                      Coordinación
                     </TableHead>
                   </TableRow>
                 </TableHeader>

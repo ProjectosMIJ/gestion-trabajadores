@@ -145,7 +145,7 @@ const items = [
       roleAccept: ["admin"],
       departmentAccept: ["Seguridad"],
     },
-    title: "Gestion de Usuarios",
+    title: "Gestión de Usuarios",
     url: "/dashboard/seguridad/Gestion-de-Usuario",
     icon: Calendar,
   },

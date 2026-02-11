@@ -96,7 +96,7 @@ export default function FormUpdatePhysical({
       <CardContent>
         <CardAction className="text-gray-600">Datos De Vestimenta</CardAction>
         {isPending ? (
-          <Loading promiseMessage="Actualizando Informacion" />
+          <Loading promiseMessage="Actualizando Información" />
         ) : (
           <Form {...form}>
             <form
@@ -195,7 +195,7 @@ export default function FormUpdatePhysical({
                 )}
               />
               <Button className="w-full col-span-2" disabled={isPending}>
-                {isPending ? "Actualizando Informacion" : "Actualizar"}
+                {isPending ? "Actualizando Información" : "Actualizar"}
               </Button>
             </form>
           </Form>

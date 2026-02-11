@@ -94,7 +94,7 @@ export default function FormUpdateBackground({
 
       <CardContent>
         {isPending ? (
-          <Loading promiseMessage="Actualizando Informacion" />
+          <Loading promiseMessage="Actualizando Información" />
         ) : (
           <Form {...form}>
             <form
@@ -331,7 +331,7 @@ export default function FormUpdateBackground({
                 className="mt-4 w-full cursor-pointer"
                 disabled={isPending}
               >
-                {isPending ? "Actualizando Informacion" : "Actualizar"}
+                {isPending ? "Actualizando Información" : "Actualizar"}
               </Button>
             </form>
           </Form>
