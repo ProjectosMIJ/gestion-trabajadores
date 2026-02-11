@@ -681,7 +681,7 @@ class ListerCodigosSerializer(serializers.ModelSerializer):
         source='denominacioncargoespecificoid', read_only=True
     )
     grado = gradoSerializer(source='gradoid', read_only=True)
-    tiponomina = TipoNominaSerializer(source='tiponominaid', read_only=True)
+    tiponomina =TipoNominaGeneralSerializer(source='tiponominaid', read_only=True)
     OrganismoAdscrito = OrganismoAdscritoSerializer(
         source='OrganismoAdscritoid', read_only=True
     )
