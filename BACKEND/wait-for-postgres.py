@@ -10,11 +10,11 @@ def wait_for_postgres():
     Espera hasta que PostgreSQL esté listo para aceptar conexiones
     """
     db_config = {
-        'host': os.environ.get('DB_HOST', 'postgresdb'),
-        'port': os.environ.get('DB_PORT', '5432'),
-        'database': os.environ.get('DB_NAME', 'SIGEP'),
-        'user': os.environ.get('DB_USER', 'postgres'),
-        'password': os.environ.get('DB_PASSWORD', '3054=HitM')
+        'host': os.environ.get('DJANGO_DB_HOST', 'localhost'),
+        'port': os.environ.get('DJANGO_DB_PORT', '5432'),
+        'database': os.environ.get('DJANGO_DB_NAME', 'SIGEP'),
+        'user': os.environ.get('DJANGO_DB_USER', 'postgres'),
+        'password': os.environ.get('DJANGO_DB_PASSWORD', '3054=HitM')
     }
     
     max_retries = 30

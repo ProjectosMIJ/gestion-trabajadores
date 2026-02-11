@@ -1,4 +1,23 @@
 import z from "zod";
+export const schemaCreateDirectionGeneralDp = z.object({
+  dependenciaId: z.number(),
+  Codigo: z
+    .string({
+      message: "Datos Incorrecos",
+      required_error: "Datos Invalidos",
+    })
+    .min(12, {
+      message: "Minimo 12 Caracteres",
+    }),
+  direccion_general: z
+    .string({
+      message: "Datos Incorrecos",
+      required_error: "Datos Invalidos",
+    })
+    .min(12, {
+      message: "Minimo 12 Caracteres",
+    }),
+});
 export const schemaCreateDirectionLineDirection = z.object({
   direccionGeneral: z.number(),
   Codigo: z

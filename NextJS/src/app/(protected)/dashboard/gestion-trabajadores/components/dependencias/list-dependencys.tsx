@@ -13,10 +13,10 @@ import { Label } from "../../../../../../components/ui/label";
 
 import {
   getCoordination,
-  getDirectionGeneral,
+  getDependency,
+  getDirectionGeneralById,
   getDirectionLine,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import { ApiResponse, Coordination } from "@/app/types/types";
 import {
   Select,
   SelectContent,
@@ -29,15 +29,21 @@ import {
 import { useState } from "react";
 import useSWR from "swr";
 export default function TableDependencys() {
+  const [dependencyId, setDependencyId] = useState<number | string>("");
   const [directionGeneralId, setDirectionGeneralId] = useState<string | null>(
     null,
   );
   const [coordinationId, setCoordinationId] = useState<string | null>(null);
 
-  const { data: directionGeneral } = useSWR(
-    "directionGeneral",
-    async () => await getDirectionGeneral(),
+  const { data: dependency, isLoading: isLoadingDependency } = useSWR(
+    "dependency",
+    async () => await getDependency(),
   );
+  const { data: directionGeneral, isLoading: isLoadingDirectionGeneral } =
+    useSWR(
+      dependencyId ? ["directionGeneral", dependencyId] : null,
+      async () => await getDirectionGeneralById(dependencyId),
+    );
 
   const { data: directionLine } = useSWR(
     directionGeneralId ? ["directionLine", directionGeneralId] : null,
@@ -52,82 +58,133 @@ export default function TableDependencys() {
     <>
       <Card>
         <CardContent>
-          <div className={"flex flex-col gap-2 "}>
-            <div className={`grid grid-cols-2 w-full gap-4 space-y-5`}>
-              <div className={`space-y-2 `}>
-                <Label>Direccion General</Label>
-                <Select
-                  onValueChange={(value) => {
-                    setDirectionGeneralId(value);
-                  }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Seleccionar Direccion General" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Direcciones De Generales</SelectLabel>
-                      {directionGeneral?.data.map((general, i) => (
-                        <SelectItem key={i} value={`${general.id}`}>
-                          {general.Codigo}-{general.direccion_general}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                  <div className="text-sm text-gray-700 text-[12px]">
-                    Consultar Direcciones De Linea En La Direccion General
-                  </div>
-                </Select>
-              </div>
+          <div className={`grid grid-cols-2 w-full gap-4 space-y-5`}>
+            <div className={`col-span-2 space-y-2`}>
+              <Label>Dependencia</Label>
+              <Select
+                onValueChange={(value) => {
+                  setDependencyId(value);
+                }}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Seleccionar Dependencia" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Direcciones De Generales</SelectLabel>
+                    {dependency?.data.map((dp, i) => (
+                      <SelectItem key={i} value={`${dp.id}`}>
+                        {dp.Codigo}-{dp.dependencia}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+                <div className="text-sm text-gray-700 text-[12px]">
+                  Consultar Direcciones De Generales En La Dependencia
+                </div>
+              </Select>
+            </div>
 
-              <div className="space-y-2">
-                <Label>Direccion De Linea</Label>
+            <div className={`space-y-2 `}>
+              <Label>Direccion General</Label>
+              <Select
+                onValueChange={(value) => {
+                  setDirectionGeneralId(value);
+                }}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Seleccionar Direccion General" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Direcciones De Generales</SelectLabel>
+                    {directionGeneral?.data.map((general, i) => (
+                      <SelectItem key={i} value={`${general.id}`}>
+                        {general.Codigo}-{general.direccion_general}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+                <div className="text-sm text-gray-700 text-[12px]">
+                  Consultar Direcciones De Linea En La Direccion General
+                </div>
+              </Select>
+            </div>
 
-                <Select
-                  onValueChange={(value) => {
-                    setCoordinationId(value);
-                  }}
+            <div className="space-y-2">
+              <Label>Direccion De Linea</Label>
+
+              <Select
+                onValueChange={(value) => {
+                  setCoordinationId(value);
+                }}
+              >
+                <SelectTrigger
+                  className="w-full"
+                  disabled={
+                    directionLine?.data !== undefined &&
+                    directionLine!.data?.length > 0
+                      ? false
+                      : true
+                  }
                 >
-                  <SelectTrigger
-                    className="w-full"
-                    disabled={
-                      directionLine?.data !== undefined &&
-                      directionLine!.data?.length > 0
-                        ? false
-                        : true
-                    }
-                  >
-                    <SelectValue
-                      placeholder={`${directionLine?.data !== undefined && directionLine!.data?.length > 0 ? "Seleccionar Direccion De Linea" : "No Posee Direcciones De Linea"}`}
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Direcciones De Linea</SelectLabel>
-                      {directionLine?.data.map((line, i) => (
-                        <SelectItem key={i} value={`${line.id}`}>
-                          {line.Codigo}-{line.direccion_linea}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                  <div className="text-[12px] text-gray-700">
-                    Consultar Coordinaciones De La Direccion de Linea
-                  </div>
-                </Select>
-              </div>
+                  <SelectValue
+                    placeholder={`${directionLine?.data !== undefined && directionLine!.data?.length > 0 ? "Seleccionar Direccion De Linea" : "No Posee Direcciones De Linea"}`}
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectLabel>Direcciones De Linea</SelectLabel>
+                    {directionLine?.data.map((line, i) => (
+                      <SelectItem key={i} value={`${line.id}`}>
+                        {line.Codigo}-{line.direccion_linea}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+                <div className="text-[12px] text-gray-700">
+                  Consultar Coordinaciones De La Direccion de Linea
+                </div>
+              </Select>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-5">
-            <div className="border rounded-2xl">
+            <div className="overflow-auto h-70  border border-blue-700 col-span-2 rounded-2xl">
               <Table>
-                <TableCaption>Direecciones De Linea</TableCaption>
-                <TableHeader>
+                <TableCaption>Direcciones Generales</TableCaption>
+                <TableHeader className="bg-blue-600">
                   <TableRow>
-                    <TableHead className="w-[100px] font-bold">
+                    <TableHead className="w-[100px] font-bold text-white">
                       Codigo
                     </TableHead>
-                    <TableHead className="text-center font-bold">
+                    <TableHead className="text-center font-bold text-white">
+                      Direccion General
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {directionGeneral?.data.map((general, i) => (
+                    <TableRow key={i}>
+                      <TableCell className="font-medium">
+                        {general.Codigo}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {general.direccion_general}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+            <div className="overflow-y-auto h-70  border border-blue-700  rounded-2xl">
+              <Table>
+                <TableCaption>Direcciones De Linea</TableCaption>
+                <TableHeader className="bg-blue-600 ">
+                  <TableRow>
+                    <TableHead className="w-[100px] font-bold text-white">
+                      Codigo
+                    </TableHead>
+                    <TableHead className="text-center font-bold text-white">
                       Direccion De Linea
                     </TableHead>
                   </TableRow>
@@ -146,15 +203,15 @@ export default function TableDependencys() {
                 </TableBody>
               </Table>
             </div>
-            <div className="border rounded-2xl">
+            <div className="overflow-auto h-70  border border-blue-700 rounded-2xl">
               <Table className="">
                 <TableCaption>Coordinaciones</TableCaption>
-                <TableHeader>
+                <TableHeader className="bg-blue-600">
                   <TableRow>
-                    <TableHead className="w-[100px] font-bold">
+                    <TableHead className="w-[100px] font-bold text-white">
                       Codigo
                     </TableHead>
-                    <TableHead className="text-center font-bold">
+                    <TableHead className="text-center font-bold text-white">
                       Coordinacion
                     </TableHead>
                   </TableRow>

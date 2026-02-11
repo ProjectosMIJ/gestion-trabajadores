@@ -128,6 +128,10 @@ export default function DetailInfoEmployee({ employee }: Props) {
                         <div>{v.denominacioncargoespecifico.cargo}</div>
                         <div>Tipo De Nomina:</div>
                         <div>{v.tiponomina.nomina}</div>
+                        <div>Dependencia:</div>
+                        <div>
+                          {v.Dependencia ? v.Dependencia.dependencia : "N/A"}
+                        </div>
                         <div>Direccion General:</div>
                         <div>
                           {v.DireccionGeneral
