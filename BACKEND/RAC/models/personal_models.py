@@ -22,7 +22,7 @@ class Denominacioncargo(models.Model):
         managed = True
         db_table = 'DenominacionCargo'
         app_label = 'RAC'
-        ordering = ['cargo']
+        ordering = ['orden_by']
 
 class Denominacioncargoespecifico(models.Model):
     cargo = models.CharField(max_length=200, unique=True)
@@ -232,6 +232,7 @@ class Menciones(models.Model):
     class Meta:
         managed = True
         app_label = 'RAC'
+        unique_together = ('carrera_id', 'nombre_mencion')
         ordering = ['nombre_mencion']
     
 
