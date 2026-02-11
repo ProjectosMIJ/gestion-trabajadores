@@ -29,7 +29,6 @@ import {
   getDirectionLine,
   getGrado,
   getNominaGeneral,
-  getReportConfigLeaving,
   getStatusNomina,
   postReport,
 } from "../../api/getInfoRac";
@@ -93,10 +92,7 @@ export default function ReportCode() {
   const { data: grado, isLoading: isLoadingGrado } = useSWR("grado", async () =>
     getGrado(),
   );
-  const { data: reportLeaving, isLoading: isLoadingReporLeaving } = useSWR(
-    "reportLeaving",
-    async () => await getReportConfigLeaving(),
-  );
+
   const form = useForm({
     resolver: zodResolver(schemaReportCode),
     defaultValues: {
@@ -173,7 +169,7 @@ export default function ReportCode() {
                     {session.user.role == "admin" && (
                       <fieldset className="flex flex-col w-full gap-3 border-2 p-2 rounded-sm border-green-600">
                         <legend className="text-green-800 font-semibold">
-                          Direcciones{" "}
+                          Dirección Administrativa{" "}
                         </legend>
                         <FormField
                           control={form.control}
@@ -247,7 +243,9 @@ export default function ReportCode() {
                           name="filtros.linea_id"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Dirección De Linea</FormLabel>
+                              <FormLabel>
+                                Dirección De Linea / Coordinación
+                              </FormLabel>
                               <Select
                                 onValueChange={(values) => {
                                   field.onChange(Number.parseInt(values));

@@ -79,10 +79,6 @@ export default function ReportEmployee() {
       async () => await getDirectionGeneralById(dependencyId),
     );
 
-  const { data: familyReports, isLoading: isLoadingFamilyReport } = useSWR(
-    "familyReport",
-    async () => await getReportConfigFamily(),
-  );
   const { data: directionLine, isLoading: isLoadingDirectionLine } = useSWR(
     directionGeneralId ? ["directionLine", directionGeneralId] : null,
     async () => await getDirectionLine(directionGeneralId!),
@@ -476,7 +472,9 @@ export default function ReportEmployee() {
                           name="filtros.direccion_linea_id"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Dirección De Linea</FormLabel>
+                              <FormLabel>
+                                Dirección De Linea / Coordinación{" "}
+                              </FormLabel>
                               <Select
                                 onValueChange={(values) => {
                                   field.onChange(Number.parseInt(values));

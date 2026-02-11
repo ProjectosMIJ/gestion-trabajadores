@@ -29,7 +29,6 @@ import {
   getDirectionLine,
   getGrado,
   getNominaGeneral,
-  getReportConfigLeaving,
   getSex,
   postReport,
 } from "../../api/getInfoRac";
@@ -174,7 +173,7 @@ export default function ReportLeaving() {
                     {session.user.role == "admin" && (
                       <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-green-600">
                         <legend className="text-green-800 font-semibold">
-                          Direcciones{" "}
+                          Dirección Administrativa{" "}
                         </legend>
                         <FormField
                           control={form.control}
@@ -248,7 +247,9 @@ export default function ReportLeaving() {
                           name="filtros.direccion_linea_id"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Dirección De Linea</FormLabel>
+                              <FormLabel>
+                                Dirección De Linea / Coordinación
+                              </FormLabel>
                               <Select
                                 onValueChange={(values) => {
                                   field.onChange(Number.parseInt(values));

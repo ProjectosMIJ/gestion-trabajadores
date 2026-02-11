@@ -327,7 +327,9 @@ export function AsigCode() {
                           name="direccion_linea_id"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Dirección De Linea</FormLabel>
+                              <FormLabel>
+                                Dirección De Linea / Coordinación
+                              </FormLabel>
                               <Select
                                 onValueChange={(values) => {
                                   field.onChange(Number.parseInt(values));
@@ -337,7 +339,7 @@ export function AsigCode() {
                                 <FormControl>
                                   <SelectTrigger className="w-full truncate">
                                     <SelectValue
-                                      placeholder={`${isLoadingDirectionLine ? "Cargando Direcciones De Linea" : "Seleccione una Dirección De Linea"}`}
+                                      placeholder={`${isLoadingDirectionLine ? "Cargando Dirección De Linea / Coordinación " : "Seleccione una Dirección De Linea"}`}
                                     />
                                   </SelectTrigger>
                                 </FormControl>
@@ -448,22 +450,16 @@ export function AsigCode() {
                           <div className="rounded-sm border-2 border-b-emerald-400-400/45 bg-emerald-200/40 p-2 mt-4">
                             <p>
                               Dirección General:{" "}
-                              {
-                                codeList?.data.find(
-                                  (v) => v.id === selectedCodeId,
-                                )?.DireccionGeneral.direccion_general
-                              }
+                              {codeList?.data.find(
+                                (v) => v.id === selectedCodeId,
+                              )?.DireccionGeneral?.direccion_general ?? "N/A"}
                             </p>
                             <p>
                               {" "}
                               Dirección De Linea:{" "}
                               {codeList?.data.find(
                                 (v) => v.id === selectedCodeId,
-                              )?.DireccionLinea?.direccion_linea
-                                ? codeList?.data.find(
-                                    (v) => v.id === selectedCodeId,
-                                  )?.DireccionLinea?.direccion_linea
-                                : "N/A"}
+                              )?.DireccionLinea?.direccion_linea ?? "N/A"}
                             </p>
                             <p>
                               {" "}
