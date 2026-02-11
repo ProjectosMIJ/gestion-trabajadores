@@ -201,4 +201,7 @@ urlpatterns = [
     
     # Generación de reportes PDF
     path('reports/pdf/', views.generate_pdf_report, name='reporte_pdf'),
+    
+    
+    path('menciones/create/', views.crear_menciones_view, name='menciones-creadas')
 ]

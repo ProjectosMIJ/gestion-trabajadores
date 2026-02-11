@@ -2074,3 +2074,32 @@ def list_status_reports(request):
             'data': []
         }, status=status.HTTP_400_BAD_REQUEST)
         
+        
+        
+        
+@api_view(['POST'])
+def crear_menciones_view(request):
+    is_many = isinstance(request.data, list)
+    
+    # Si no es una lista, convertimos a lista para uniformidad en el conteo
+    data_to_process = request.data if is_many else [request.data]
+    
+    serializer = MencionSerializer(data=data_to_process, many=True)
+    
+    if serializer.is_valid():
+        instancias_creadas = serializer.save()
+        total_creadas = len(instancias_creadas)
+        
+        return Response({
+            "status": "success",
+            "mensaje": f"Se han creado {total_creadas} menciones correctamente.",
+            "conteo": total_creadas,
+            "data": serializer.data
+        }, status=status.HTTP_201_CREATED)
+    
+    # En caso de error, DRF devuelve un diccionario o una lista de errores
+    return Response({
+        "status": "error",
+        "mensaje": "No se pudieron crear las menciones.",
+        "errores": serializer.errors
+    }, status=status.HTTP_400_BAD_REQUEST)
