@@ -43,6 +43,8 @@ export type Cargo = {
 export type Nomina = {
   id: number;
   nomina: string;
+  requiere_codig: boolean;
+  es_activo: boolean;
 };
 
 export type OrganismosAds = {
@@ -315,6 +317,8 @@ export interface Code {
   grado: Grado | null;
   tiponomina: Nomina;
   OrganismoAdscrito: OrganismosAds | null;
+  Dependencia: Dependency;
+
   DireccionGeneral: DireccionGeneral;
   DireccionLinea: DireccionLinea | null;
   Coordinacion: Coordinacion | null;

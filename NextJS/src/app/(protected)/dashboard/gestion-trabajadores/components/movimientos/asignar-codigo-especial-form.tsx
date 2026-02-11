@@ -3,7 +3,9 @@ import {
   getCargo,
   getCargoEspecifico,
   getCoordination,
+  getDependency,
   getDirectionGeneral,
+  getDirectionGeneralById,
   getDirectionLine,
   getEmployeeInfo,
   getGrado,
@@ -26,7 +28,9 @@ import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
+  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
@@ -56,6 +60,9 @@ interface CodigoCatalogFormProps {
 export function CodigoCatalogEspecialForm({
   onSuccess,
 }: CodigoCatalogFormProps) {
+  const [dependencyId, setDependencyId] = useState<number | string>("");
+  const [activeDirectionGeneral, setActiveDirectionGeneral] =
+    useState<boolean>(false);
   const [searchEmployee, setSearchEmployee] = useState<string | undefined>(
     undefined,
   );
@@ -70,11 +77,19 @@ export function CodigoCatalogEspecialForm({
   const [activeCoordination, setActiveCoordination] = useState<boolean>(false);
   const [isPending, startTransition] = useTransition();
 
+  const validateDirectionGeneral = () => {
+    if (!activeDirectionGeneral) form.setValue("DireccionGeneral", 0);
+  };
   const validateDirectionLine = () => {
-    if (!activeDirectionLine) form.setValue("DireccionLinea", 0);
+    if (!activeDirectionLine || !activeDirectionGeneral)
+      form.setValue("DireccionLinea", 0);
   };
   const validateCoordination = () => {
-    if (!activeCoordination || !activeDirectionLine) {
+    if (
+      !activeCoordination ||
+      !activeDirectionLine ||
+      !activeDirectionGeneral
+    ) {
       form.setValue("Coordinacion", 0);
     }
   };
@@ -90,8 +105,15 @@ export function CodigoCatalogEspecialForm({
     "nomina",
     async () => getNominaEspecial(),
   );
+  const { data: dependency, isLoading: isLoadingDependency } = useSWR(
+    "dependency",
+    async () => await getDependency(),
+  );
   const { data: directionGeneral, isLoading: isLoadingDirectionGeneral } =
-    useSWR("directionGeneral", async () => await getDirectionGeneral());
+    useSWR(
+      dependencyId ? ["directionGeneral", dependencyId] : null,
+      async () => await getDirectionGeneralById(dependencyId),
+    );
   const { data: directionLine, isLoading: isLoadingDirectionLine } = useSWR(
     selecteIdDirectionGeneral
       ? ["directionLine", selecteIdDirectionGeneral]
@@ -201,7 +223,7 @@ export function CodigoCatalogEspecialForm({
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-6 mt-3"
           >
-            <div className="space-y-2 grid grid-cols-2 items-center gap-6 place-content-center">
+            <div className="space-y-2 grid grid-cols-2 items-baseline gap-6 place-content-center">
               <FormField
                 control={form.control}
                 name="denominacioncargoid"
@@ -355,57 +377,112 @@ export function CodigoCatalogEspecialForm({
                 )}
               />
               <FormField
+                name="Dependencia"
                 control={form.control}
-                name="DireccionGeneral"
                 render={({ field }) => (
                   <FormItem
-                    className={`${!activeDirectionLine ? "col-span-2" : ""}`}
+                    className={`${!activeDirectionGeneral ? "col-span-2" : "truncate"}`}
                   >
-                    <FormLabel>Dirección General</FormLabel>
-                    <Select
-                      onValueChange={(values) => {
-                        field.onChange(Number.parseInt(values));
-                        setSelecteIdDirectionGeneral(values);
-                      }}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-full truncate">
+                    <FormLabel>Dependencia</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={(value) => {
+                          setDependencyId(value);
+                          field.onChange(Number.parseInt(value));
+                        }}
+                      >
+                        <SelectTrigger className="w-full ">
                           <SelectValue
-                            placeholder={`${isLoadingDirectionGeneral ? "Cargando Direcciones Generales" : "Seleccione una Dirección General"}`}
+                            placeholder={`Seleccionar Dependencia`}
                           />
                         </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {directionGeneral?.data.map((general, i) => (
-                          <SelectItem key={i} value={`${general.id}`}>
-                            {general.Codigo}-{general.direccion_general}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                        <SelectContent>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>
+                                Direcciones De Generales
+                              </SelectLabel>
+                              {dependency?.data.map((dp, i) => (
+                                <SelectItem key={i} value={`${dp.id}`}>
+                                  {dp.Codigo}-{dp.dependencia}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
                     <FormDescription>
                       <div className="flex flex-row items-center text-left gap-2 justify-center">
-                        ¿Desea Agregarle Una Dirección De Linea?
+                        ¿Desea Agregarle Una Dirección General?
                         <Switch
                           onCheckedChange={(bool) => {
-                            setActiveDirectionLine(bool);
-                            validateDirectionLine();
+                            setActiveDirectionGeneral(bool);
+                            validateDirectionGeneral();
                           }}
                         />
                       </div>
                     </FormDescription>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
-              {activeDirectionLine && (
+              {activeDirectionGeneral && directionGeneral?.data.length! > 0 && (
+                <>
+                  <FormField
+                    control={form.control}
+                    name="DireccionGeneral"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Dirección General</FormLabel>
+                        <Select
+                          onValueChange={(values) => {
+                            field.onChange(Number.parseInt(values));
+                            setSelecteIdDirectionGeneral(values);
+                          }}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full truncate">
+                              <SelectValue
+                                placeholder={`${isLoadingDirectionGeneral ? "Cargando Direcciones Generales" : "Seleccione una Dirección General"}`}
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {directionGeneral?.data.map((general, i) => (
+                              <SelectItem key={i} value={`${general.id}`}>
+                                {general.Codigo}-{general.direccion_general}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormDescription>
+                          <div className="flex flex-row items-center text-left gap-2 justify-center">
+                            ¿Desea Agregarle Una Dirección De Linea?
+                            <Switch
+                              onCheckedChange={(bool) => {
+                                setActiveDirectionLine(bool);
+                                validateDirectionLine();
+                              }}
+                            />
+                          </div>
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+
+              {activeDirectionLine && directionLine?.data?.length! > 0 && (
                 <>
                   <FormField
                     control={form.control}
                     name="DireccionLinea"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Dirección De Linea</FormLabel>
+                      <FormItem
+                        className={`${activeCoordination ? "" : "col-span-2"}`}
+                      >
+                        <FormLabel>Dirección De Linea / Coordinacion</FormLabel>
                         <Select
                           onValueChange={(values) => {
                             field.onChange(Number.parseInt(values));
@@ -415,7 +492,7 @@ export function CodigoCatalogEspecialForm({
                           <FormControl>
                             <SelectTrigger className="w-full truncate">
                               <SelectValue
-                                placeholder={`${isLoadingDirectionLine ? "Cargando Direccioens De Linea" : "Seleccione una Dirección De Linea"}`}
+                                placeholder={`${isLoadingDirectionLine ? "Cargando Direcciones De Linea" : "Seleccione una Dirección De Linea"}`}
                               />
                             </SelectTrigger>
                           </FormControl>
@@ -442,41 +519,41 @@ export function CodigoCatalogEspecialForm({
                       </FormItem>
                     )}
                   />
-                </>
-              )}
-              {activeCoordination && (
-                <>
-                  <FormField
-                    control={form.control}
-                    name="Coordinacion"
-                    render={({ field }) => (
-                      <FormItem className="col-span-2">
-                        <FormLabel>Coordinación</FormLabel>
-                        <Select
-                          onValueChange={(values) => {
-                            field.onChange(Number.parseInt(values));
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full truncate">
-                              <SelectValue
-                                placeholder={`${isLoadingCoordination ? "Cargando Coordinaciones" : "Seleccione una Coordinación"}`}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {coordination?.data.map((coord, i) => (
-                              <SelectItem key={i} value={`${coord.id}`}>
-                                {coord.Codigo}-{coord.coordinacion}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                  {activeCoordination && coordination?.data.length! > 0 && (
+                    <>
+                      <FormField
+                        control={form.control}
+                        name="Coordinacion"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Coordinación</FormLabel>
+                            <Select
+                              onValueChange={(values) => {
+                                field.onChange(Number.parseInt(values));
+                              }}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="w-full truncate">
+                                  <SelectValue
+                                    placeholder={`${isLoadingCoordination ? "Cargando Coordinaciones" : "Seleccione una Coordinación"}`}
+                                  />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {coordination?.data.map((coord, i) => (
+                                  <SelectItem key={i} value={`${coord.id}`}>
+                                    {coord.Codigo}-{coord.coordinacion}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
 
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </>
+                  )}
                 </>
               )}
             </div>

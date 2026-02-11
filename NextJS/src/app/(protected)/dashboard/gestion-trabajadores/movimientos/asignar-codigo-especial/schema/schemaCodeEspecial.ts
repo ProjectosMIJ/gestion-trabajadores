@@ -17,9 +17,10 @@ export const schemaCodeEspecial = z.object({
   tiponominaid: z.number().refine((v) => !(v < 1), {
     message: "Debe Seleccionar Un Valor",
   }),
-  DireccionGeneral: z.number().refine((v) => !(v < 1), {
+  Dependencia: z.number().refine((v) => !(v < 1), {
     message: "Debe Seleccionar Un Valor",
   }),
+  DireccionGeneral: z.number().default(0),
   DireccionLinea: z.number().default(0),
   Coordinacion: z.number().default(0),
 });

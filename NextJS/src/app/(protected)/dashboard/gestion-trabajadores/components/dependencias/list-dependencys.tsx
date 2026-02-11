@@ -112,7 +112,7 @@ export default function TableDependencys() {
             </div>
 
             <div className="space-y-2">
-              <Label>Dirección De Linea</Label>
+              <Label>Dirección De Linea / Coordinacion</Label>
 
               <Select
                 onValueChange={(value) => {
@@ -185,7 +185,7 @@ export default function TableDependencys() {
                       Código
                     </TableHead>
                     <TableHead className="text-center font-bold text-white">
-                      Dirección De Linea
+                      Dirección De Linea / Coordinacion
                     </TableHead>
                   </TableRow>
                 </TableHeader>

@@ -7,6 +7,7 @@ import {
   getDirectionGeneralById,
   getDirectionLine,
   getNomina,
+  getNominaGeneral,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
 import { Button } from "@/components/ui/button";
 import {
@@ -89,8 +90,8 @@ export function CodeListPage() {
     resolver: zodResolver(schemaSearch),
   });
   const { data: nomina, isLoading: isLoadingNomina } = useSWR(
-    "nomina",
-    async () => await getNomina(),
+    "nominaGeneral",
+    async () => await getNominaGeneral(),
   );
   const onSearch = (values: z.infer<typeof schemaSearch>) => {
     const isNotAdmin = session?.user?.role !== "admin";
