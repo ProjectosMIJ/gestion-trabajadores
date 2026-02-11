@@ -79,13 +79,13 @@ class AssignmentPDFGenerator(BasePDFGenerator):
 
     def _build_assignments_table(self):
         """
-        Construye la tabla agrupada corrigiendo los saltos de página excesivos.
+        Construye la tabla agrupada protegiendo títulos mediante segmentación estratégica.
         """
         from reportlab.platypus import KeepTogether
         elements = []
         empleados_por_dependencia = {}
 
-        # 1. Agrupar datos
+        # 1. Agrupar datos (se mantiene igual para preservar la lógica de negocio)
         for assignment in self.assignments.iterator():
             dependencia = self._get_dependencia(assignment)
             direccion_general = self._get_direccion(assignment)
@@ -98,28 +98,12 @@ class AssignmentPDFGenerator(BasePDFGenerator):
 
         # 2. Iterar sobre Dependencias
         for dependencia_nombre in sorted(empleados_por_dependencia.keys()):
-            
-            # Título de Dependencia - Usamos keepWithNext para que no quede solo
-            titulo_dep = create_section_title(f"DEPENDENCIA: {dependencia_nombre.upper()}")
-            for part in titulo_dep:
-                if isinstance(part, Paragraph):
-                    part.keepWithNext = True 
-                elements.append(part)
-
             direcciones = empleados_por_dependencia[dependencia_nombre]
             direcciones_ordenadas = sorted(direcciones.keys())
             
-            for i, dg_nombre in enumerate(direcciones_ordenadas):
-                # Bloque para Título de Dirección General
-                titulo_dg = create_section_title(f"    * {dg_nombre}")
-                for part in titulo_dg:
-                    if isinstance(part, Paragraph):
-                        part.keepWithNext = True
-                    elements.append(part)
-
-                # Configuración de Tabla
+            for dg_nombre in direcciones_ordenadas:
+                # --- PREPARACIÓN DE DATOS ---
                 headers = ['#', 'Código', 'Cédula', 'Empleado', 'Cargo', 'Cargo Esp.', 'Grado', 'Nómina', 'Estatus']
-                # Ajustamos anchos levemente para evitar que la tabla "desborde" y fuerce saltos
                 col_widths = [10*mm, 20*mm, 22*mm, 42*mm, 35*mm, 35*mm, 15*mm, 32*mm, 25*mm]
 
                 assignments_sorted = sorted(
@@ -132,15 +116,38 @@ class AssignmentPDFGenerator(BasePDFGenerator):
                          self._get_tipo_nomina(a), self._get_estatus(a)] 
                         for idx, a in enumerate(assignments_sorted, start=1)]
 
-                if rows:
-                    table = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
+                if not rows:
+                    continue
+
+                # --- LÓGICA DE PROTECCIÓN CONTRA TÍTULOS HUÉRFANOS ---
+                # Creamos el bloque de títulos
+                bloque_titulos = []
+                bloque_titulos.extend(create_section_title(f"DEPENDENCIA: {dependencia_nombre.upper()}"))
+                bloque_titulos.extend(create_section_title(f"    * {dg_nombre}"))
+
+                if len(rows) > 3:
+                    # Parte 1: Títulos + Primeras 2 filas (Protegidos)
+                    cabecera_protegida = []
+                    cabecera_protegida.extend(bloque_titulos)
                     
-                    # IMPORTANTE: NO envolvemos la tabla larga en un KeepTogether global.
-                    # Esto permite que la tabla fluya naturalmente entre páginas.
-                    elements.append(table)
-                    elements.append(Spacer(1, 8 * mm))
+                    tabla_inicio = create_data_table(headers, rows[:2], col_widths, with_alternating_rows=True)
+                    cabecera_protegida.append(tabla_inicio)
+                    
+                    # Evitamos que el título quede solo al final de la hoja
+                    elements.append(KeepTogether(cabecera_protegida))
+                    
+                    # Parte 2: Resto de la tabla (Libre flujo)
+                    # Se envían de nuevo los headers para evitar el error 'NoneType'
+                    tabla_resto = create_data_table(headers, rows[2:], col_widths, with_alternating_rows=True)
+                    elements.append(tabla_resto)
                 else:
-                    elements.append(Paragraph(f"    * {dg_nombre}: No se encontraron registros.", self.styles['Body']))
+                    # Para grupos pequeños, protegemos todo el conjunto
+                    bloque_completo = []
+                    bloque_completo.extend(bloque_titulos)
+                    bloque_completo.append(create_data_table(headers, rows, col_widths, with_alternating_rows=True))
+                    elements.append(KeepTogether(bloque_completo))
+
+                elements.append(Spacer(1, 8 * mm))
 
         return elements
     

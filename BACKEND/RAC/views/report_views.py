@@ -278,7 +278,7 @@ def _generate_employee_pdf(filtros):
         employee=OuterRef('cedulaidentidad')
     ).annotate(
         peso=logic
-    ).order_by('peso', '-fecha_actualizacion').values('peso')[:1]
+    ).order_by('peso','tiponominaid__nomina', '-fecha_actualizacion').values('peso')[:1]
 
     # 3. Procesamiento de filtros
     config = MAPA_REPORTES.get('empleados', {})
@@ -315,8 +315,7 @@ def _generate_employee_pdf(filtros):
         )
     ).order_by(
         'prioridad_jerarquica', # 1. Quién es jefe va primero
-        'apellidos',            # 2. Alfabético
-        'nombres',
+
         'cedulaidentidad'
     ).distinct()
 

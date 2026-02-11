@@ -141,6 +141,7 @@ urlpatterns = [
     path('listar-nomina-especial/', views.list_special_payroll_types, name='lista de tipos de nominas solo CS Y HP'),
     
     #  estatus de gestion (BLOQUEADO, SUSPENDIDO,ACTIVO)
+    path('estatus/reports/', views.list_status_reports, name="lista de estatus para los reportes"),
     path('estatus-gestion/',  views.list_management_statuses, name='lista de estatus para la gestion de cambio de estatus'),
    #  estatus de egreso (EGRESADO, PASIVO)
     path('estatus/',  views.list_exit_statuses, name='lista de estatus para egresar'),

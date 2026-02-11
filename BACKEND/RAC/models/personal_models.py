@@ -307,10 +307,7 @@ class antecedentes_servicio(models.Model):
 
 class AsigTrabajoManager(models.Manager):
     def get_hierarchy_case(self, campo_prefijo=""):
-        """
-        Retorna la lógica de pesos para la jerarquía de cargos.
-        campo_prefijo: se usa cuando la consulta se hace desde otro modelo (ej. 'assignments__')
-        """
+
         return Case(
             When(**{f"{campo_prefijo}denominacioncargoid__cargo__icontains": 'DIRECTOR GENERAL'}, then=Value(1)),
             When(**{f"{campo_prefijo}denominacioncargoid__cargo__icontains": 'DIRECTOR ADJUNTO'}, then=Value(2)),
@@ -325,6 +322,9 @@ class AsigTrabajoManager(models.Manager):
             default=Value(50),
             output_field=IntegerField(),
         )
+        
+        
+
 class Employee(models.Model):
  
     cedulaidentidad = models.TextField(db_column='cedulaIdentidad', unique=True)

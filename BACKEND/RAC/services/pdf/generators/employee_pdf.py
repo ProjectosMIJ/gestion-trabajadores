@@ -105,15 +105,10 @@ class EmployeePDFGenerator(BasePDFGenerator):
         elements.append(Spacer(1, 15))
         
         return elements
-
     def _build_employees_table(self):
-        """
-        Versión corregida: Usa keepWithNext para evitar saltos innecesarios
-        y mantiene la integridad de los títulos sin forzar páginas en blanco.
-        """
         elements = []
 
-        # 1. Estructura de agrupación (se mantiene igual)
+        # 1. Estructura de agrupación
         agrupacion = {}
         for employee in self.employees:
             dep = self._get_dependencia(employee)
@@ -130,29 +125,13 @@ class EmployeePDFGenerator(BasePDFGenerator):
 
         # 2. Iterar sobre Dependencias
         for dep_nombre in sorted(agrupacion.keys()):
-            # --- TÍTULO DE DEPENDENCIA ---
-            titulo_dep_parts = create_section_title(f"DEPENDENCIA: {dep_nombre.upper()}")
-            for part in titulo_dep_parts:
-                if isinstance(part, Paragraph):
-                    part.keepWithNext = True  # Obliga a que la dependencia no quede sola
-                elements.append(part)
-            
             direcciones = agrupacion[dep_nombre]
+            
             for dg_nombre in sorted(direcciones.keys()):
-                # Creamos un pequeño grupo para el Título de DG + Tabla
-                bloque_dg = []
-                
-                # --- TÍTULO DE DIRECCIÓN GENERAL ---
-                titulo_dg_parts = create_section_title(f"    * {dg_nombre}")
-                for part in titulo_dg_parts:
-                    if isinstance(part, Paragraph):
-                        part.keepWithNext = True # Atamos el título a la tabla
-                    bloque_dg.append(part)
-
-                # --- CONFIGURACIÓN DE TABLA ---
+                # --- DATOS DE LA TABLA ---
                 headers = ['#', 'Cédula', 'Nombres', 'Apellidos', 'F. Ingreso', 'Años APN', 'Sexo', 'Tipo de Nómina', 'Cargo']
                 col_widths = [10*mm, 22*mm, 40*mm, 40*mm, 22*mm, 20*mm, 15*mm, 35*mm, 45*mm]
-
+                
                 rows = []
                 for idx, employee in enumerate(direcciones[dg_nombre], start=1):
                     rows.append([
@@ -167,19 +146,37 @@ class EmployeePDFGenerator(BasePDFGenerator):
                         self._get__cargo(employee)
                     ])
 
-                # Creamos la tabla
-                table = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
-                
-                # IMPORTANTE: No metas toda la tabla en un KeepTogether si tiene muchos registros
-                # Solo agrupamos el Título con las primeras filas si es posible, 
-                # pero aquí usaremos el keepWithNext que ya definimos arriba.
-                
-                bloque_dg.append(table)
-                bloque_dg.append(Spacer(1, 8 * mm))
+                # --- LÓGICA DE PROTECCIÓN DE TÍTULOS ---
+                # Creamos el bloque de títulos
+                bloque_titulos = []
+                bloque_titulos.extend(create_section_title(f"DEPENDENCIA: {dep_nombre.upper()}"))
+                bloque_titulos.extend(create_section_title(f"    * {dg_nombre}"))
 
-                # Agregamos el bloque al story. 
-                # Si el bloque es muy grande, ReportLab lo manejará mejor sin un KeepTogether global.
-                elements.extend(bloque_dg)
+                # Siempre pasamos los headers a la función. 
+                # Si la tabla tiene más de 3 filas, protegemos los títulos + las primeras 2 filas.
+                if len(rows) > 3:
+                    # Parte 1: Títulos + Inicio de tabla (Cabecera + 2 filas de datos)
+                    cabecera_protegida = []
+                    cabecera_protegida.extend(bloque_titulos)
+                    
+                    tabla_inicio = create_data_table(headers, rows[:2], col_widths, with_alternating_rows=True)
+                    cabecera_protegida.append(tabla_inicio)
+                    
+                    # El KeepTogether solo envuelve los títulos y las primeras 2 filas
+                    elements.append(KeepTogether(cabecera_protegida))
+                    
+                    # Parte 2: El resto de la tabla (con su propia cabecera para que sea legible al saltar de página)
+                    # IMPORTANTE: Aquí pasamos headers de nuevo para evitar el error 'NoneType'
+                    tabla_resto = create_data_table(headers, rows[2:], col_widths, with_alternating_rows=True)
+                    elements.append(tabla_resto)
+                else:
+                    # Para tablas pequeñas, protegemos todo el bloque
+                    bloque_completo = []
+                    bloque_completo.extend(bloque_titulos)
+                    bloque_completo.append(create_data_table(headers, rows, col_widths, with_alternating_rows=True))
+                    elements.append(KeepTogether(bloque_completo))
+
+                elements.append(Spacer(1, 8 * mm))
 
         return elements
     
