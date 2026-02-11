@@ -978,7 +978,48 @@ def list_general_work_codes(request):
             'data': []
         }, status=status.HTTP_400_BAD_REQUEST)
  
- 
+
+@extend_schema(
+    tags=["Gestion de Cargos"],
+    summary="Listar Cargos Generales (Vacantes )",
+    description="Devuelve una lista de todos los cargos registrados",
+     request=ListerCodigosSerializer,
+)
+@api_view(['GET'])
+def list_general_vacants_codes(request):
+    try:
+        queryset = AsigTrabajo.objects.filter(
+            Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO,
+            estatusid__estatus__iexact=ESTATUS_VACANTE,
+            tiponominaid__requiere_codig=False
+            
+        )
+
+        filterset = AsigTrabajoFilter(request.GET, queryset=queryset)
+        
+        if not filterset.is_valid():
+            return Response({
+                'status': "error",
+                'message': "Los parámetros de filtro son inválidos.",
+                'data': []
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        codigos = filterset.qs.distinct()[:10]
+        
+        serializer = ListerCodigosSerializer(codigos, many=True)
+        
+        return Response({
+            'status': "success",
+            'message': "Códigos de trabajo listados correctamente",
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            'status': "error",
+            'message': f"No se pudo recuperar la lista de códigos: {str(e)}",
+            'data': []
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 # LISTA SOLO LOS CODIGOS VACANTES
 @extend_schema(

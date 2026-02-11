@@ -98,17 +98,18 @@ urlpatterns = [
     path('codigos/<int:id>/', views.update_position, name='codigos-edit'),
 
 #     # lista unicamente los codigos vacantes
-    path('listar-codigos/', views.list_vacant_work_codes, name='lista de codigos vacantes'),
-    path('cargo_DreccionGeneral/<int:general_id>/', views.list_vacant_codes_by_general_directorate, name='lista cargos por las direcciones generales '),
-    path('cargo_DreccionLinea/<int:line_id>/', views.list_vacant_codes_by_line_directorate, name='lista cargos por las direcciones de linea'),
-    path('cargo_coordinacion/<int:coordination_id>/', views.list_vacant_codes_by_coordination, name='lista  cargos por las coordinaciones'),
+    path('cargos/vacantes/',views.list_general_vacants_codes, name='lista todos los codigos vacantes'),
+    # path('listar-codigos/', views.list_vacant_work_codes, name='lista de codigos vacantes'),
+    # path('cargo_DreccionGeneral/<int:general_id>/', views.list_vacant_codes_by_general_directorate, name='lista cargos por las direcciones generales '),
+    # path('cargo_DreccionLinea/<int:line_id>/', views.list_vacant_codes_by_line_directorate, name='lista cargos por las direcciones de linea'),
+    # path('cargo_coordinacion/<int:coordination_id>/', views.list_vacant_codes_by_coordination, name='lista  cargos por las coordinaciones'),
 
 # lisar codigos tanto activos como vacantes por dependencia 
 #     # listar codigo  tanto activos como vacantes
     path('cargos/general/', views.list_general_work_codes, name='lista de codigos generales'),
-    path('cargos/Direccion_general/<int:general_id>/', views.list_all_codes_by_general_directorate, name='lista de codigos por direccion general activos y vacantes'),
-    path('cargos/Direccion_linea/<int:line_id>/', views.list_all_codes_by_line_directorate, name='lista de codigos por direccion de linea activos y vacantes'),
-    path('cargos/coordinacion/<int:coordination_id>/', views.list_all_codes_by_coordination, name='lista de codigos por coordinacion activos y vacantes'),
+    # path('cargos/Direccion_general/<int:general_id>/', views.list_all_codes_by_general_directorate, name='lista de codigos por direccion general activos y vacantes'),
+    # path('cargos/Direccion_linea/<int:line_id>/', views.list_all_codes_by_line_directorate, name='lista de codigos por direccion de linea activos y vacantes'),
+    # path('cargos/coordinacion/<int:coordination_id>/', views.list_all_codes_by_coordination, name='lista de codigos por coordinacion activos y vacantes'),
 # ------------------
 # ASIGNACION DE CARGO
 # -------------------
