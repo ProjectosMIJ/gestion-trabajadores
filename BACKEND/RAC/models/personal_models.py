@@ -106,7 +106,6 @@ class Coordinaciones(models.Model):
     Codigo = models.CharField(max_length=20, unique=True)
     coordinacion = models.CharField(max_length=200, unique=True)
     direccionLinea = models.ForeignKey('DireccionLinea', models.DO_NOTHING, null=True, blank=True,db_column='direccionLineaId')
-    direccionGeneral = models.ForeignKey('DireccionGeneral', models.DO_NOTHING, null=True, blank=True,db_column='direccionGeneralId')
     
     class Meta:
         managed = True

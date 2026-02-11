@@ -1019,7 +1019,45 @@ def list_vacant_work_codes(request):
         }, status=status.HTTP_400_BAD_REQUEST)
         
 
+@extend_schema(
+    tags=["Gestion de Cargos"],
+    summary="Listar Cargos unicamente Vacantes y activos por dependencia",
+    description="Devuelve una lista de todos los cargos  vacantes registrados",
+    request=ListerCodigosSerializer,
 
+)
+@api_view(['GET'])
+def list_all_codes_by_dependencia(request, dependencia_id):
+
+    get_object_or_404(Dependencias, pk=dependencia_id)
+
+    try:
+        queryset = AsigTrabajo.objects.filter(
+            Dependencia=dependencia_id,
+            Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO, 
+            tiponominaid__requiere_codig=False
+        ).select_related(
+            'Tipo_personal', 
+            'estatusid', 
+            'tiponominaid', 
+            'employee'
+        )
+        
+        serializer = ListerCodigosSerializer(queryset, many=True)
+        
+        return Response({
+            'status': "success",
+            'message': "Vacantes de la dependencia listado correctamente",
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
+
+    except Exception:
+        return Response({
+            'status': "error",
+            'message': "No se pudieron recuperar las vacantes de la dependencia.",
+            'data': []
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
 @extend_schema(
     tags=["Gestion de Cargos"],
     summary="Listar Cargos unicamente Vacantes y activos por direccion general",
@@ -1136,6 +1174,47 @@ def list_all_codes_by_coordination(request, coordination_id):
         return Response({
             'status': "error",
             'message': "No se pudieron recuperar las vacantes de esta coordinación.",
+            'data': []
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+@extend_schema(
+    tags=["Gestion de Cargos"],
+    summary="Listar Cargos unicamente Vacantes por dependencia",
+    description="Devuelve una lista de todos los cargos  vacantes registrados",
+    request=ListerCodigosSerializer,
+
+)
+@api_view(['GET'])
+def list_vacant_codes_by_dependencia(request, dependencia_id):
+
+    get_object_or_404(Dependencias, pk=dependencia_id)
+
+    try:
+        queryset = AsigTrabajo.objects.filter(
+            Dependencia=dependencia_id,
+            Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO, 
+            estatusid__estatus__iexact=ESTATUS_VACANTE,
+            tiponominaid__requiere_codig=False
+        ).select_related(
+            'Tipo_personal', 
+            'estatusid', 
+            'tiponominaid', 
+            'employee'
+        )
+        
+        serializer = ListerCodigosSerializer(queryset, many=True)
+        
+        return Response({
+            'status': "success",
+            'message': "Vacantes de la dependencia listadas correctamente",
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
+
+    except Exception:
+        return Response({
+            'status': "error",
+            'message': "No se pudieron recuperar las vacantes de la dependencia",
             'data': []
         }, status=status.HTTP_400_BAD_REQUEST)
 # lista de cargos vacantes por su direccion general
