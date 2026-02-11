@@ -1,6 +1,7 @@
 "use client";
 import {
   schemaCreateCoordinationDirection,
+  schemaCreateDirectionGeneralDp,
   schemaCreateDirectionLineDirection,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/dependencias/crear-dependencia-direccion/schema/schemaCreateDirectionDependency";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -11,6 +12,7 @@ import { Card, CardContent } from "../../../../../../components/ui/card";
 
 import {
   createDirectionCordination,
+  createDirectionGeneral,
   createDirectionLine,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/dependencias/crear-dependencia-direccion/action/createDirectionDependecy";
 import {
@@ -29,7 +31,12 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import z from "zod";
-import { getDirectionGeneral, getDirectionLine } from "../../api/getInfoRac";
+import {
+  getDependency,
+  getDirectionGeneral,
+  getDirectionGeneralById,
+  getDirectionLine,
+} from "../../api/getInfoRac";
 import Loading from "../loading/loading";
 import { Button } from "../../../../../../components/ui/button";
 import {
@@ -46,9 +53,20 @@ import useSWR from "swr";
 
 export default function FormCreateDirectionDependency() {
   const [isPending, startTransition] = useTransition();
-  const [create, setCreate] = useState<string>("create-direction-line");
+  const [create, setCreate] = useState<string>("create-direction-general");
+  const [dependencyId, setDependencyId] = useState<number | string>("");
+
   const [selectionDirectionGeneralId, setSelectionDirectionGeneralId] =
     useState<string>();
+
+  const formDirectionGeneral = useForm({
+    resolver: zodResolver(schemaCreateDirectionGeneralDp),
+    defaultValues: {
+      dependenciaId: 0,
+      Codigo: "",
+      direccion_general: "",
+    },
+  });
   const formDirection = useForm({
     resolver: zodResolver(schemaCreateDirectionLineDirection),
     defaultValues: {
@@ -65,9 +83,15 @@ export default function FormCreateDirectionDependency() {
       coordinacion: "",
     },
   });
-
+  const { data: dependency, isLoading: isLoadingDependency } = useSWR(
+    "dependency",
+    async () => await getDependency(),
+  );
   const { data: directionGeneral, isLoading: isLoadingDirectionGeneral } =
-    useSWR("directionGeneral", async () => await getDirectionGeneral());
+    useSWR(
+      dependencyId ? ["directionGeneral", dependencyId] : null,
+      async () => await getDirectionGeneralById(dependencyId),
+    );
 
   const { data: directionLine, isLoading: isLoadingDirectionLine } = useSWR(
     selectionDirectionGeneralId
@@ -75,7 +99,23 @@ export default function FormCreateDirectionDependency() {
       : null,
     async () => await getDirectionLine(selectionDirectionGeneralId!),
   );
-
+  const onSubmitDirectionGeneral = (
+    values: z.infer<typeof schemaCreateDirectionGeneralDp>,
+  ) => {
+    startTransition(async () => {
+      const response = await createDirectionGeneral(values);
+      if (response.success) {
+        toast.success(response.message);
+        formDirectionGeneral.reset({
+          Codigo: "",
+          direccion_general: "",
+          dependenciaId: 0,
+        });
+      } else {
+        toast.error(response.message);
+      }
+    });
+  };
   const onSubmitDirection = (
     values: z.infer<typeof schemaCreateDirectionLineDirection>,
   ) => {
@@ -110,7 +150,9 @@ export default function FormCreateDirectionDependency() {
       }
     });
   };
-
+  const selectionDependency = (id: number) => {
+    formDirectionGeneral.setValue("dependenciaId", id);
+  };
   const selectionDirectionGeneral = (id: number) => {
     formDirection.setValue("direccionGeneral", id);
   };
@@ -128,52 +170,51 @@ export default function FormCreateDirectionDependency() {
               <div className={"flex flex-col gap-2"}>
                 <div className={`grid grid-cols-2 w-full gap-4`}>
                   <div
-                    className={`space-y-2 ${create === "create-coordination" ? "" : "col-span-2"}`}
+                    className={`space-y-2 ${(create === "create-coordination" || "create-direction-line") && ""}  ${create === "create-direction-general" && "col-span-2"}`}
                   >
-                    <Label>Direccion General</Label>
+                    <Label>Dependencia</Label>
                     <Select
                       onValueChange={(value) => {
-                        setSelectionDirectionGeneralId(value);
-                        selectionDirectionGeneral(Number.parseInt(value));
+                        setDependencyId(value);
+                        selectionDependency(Number.parseInt(value));
                       }}
                     >
                       <SelectTrigger className="w-full">
                         <SelectValue
-                          placeholder={`${isLoadingDirectionGeneral ? "Cargando Direcciones Generales" : "Seleccionar Direccion General"}`}
+                          placeholder={`${isLoadingDependency ? "Cargando Dependencias" : "Seleccionar Dependencias"}`}
                         />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectGroup>
-                          <SelectLabel>Direcciones De Generales</SelectLabel>
-                          {directionGeneral?.data.map((general, i) => (
-                            <SelectItem key={i} value={`${general.id}`}>
-                              {general.Codigo}-{general.direccion_general}
+                          <SelectLabel>Dependencias</SelectLabel>
+                          {dependency?.data.map((dp, i) => (
+                            <SelectItem key={i} value={`${dp.id}`}>
+                              {dp.Codigo}-{dp.dependencia}
                             </SelectItem>
                           ))}
                         </SelectGroup>
                       </SelectContent>
                     </Select>
                   </div>
-                  {create === "create-coordination" && (
+                  {create === "create-direction-line" && (
                     <div className="space-y-2">
-                      <Label>Direccion De Linea</Label>
-
+                      <Label>Direccion General</Label>
                       <Select
                         onValueChange={(value) => {
-                          selectionDirectionLine(Number.parseInt(value));
+                          selectionDirectionGeneral(Number.parseInt(value));
                         }}
                       >
                         <SelectTrigger className="w-full">
                           <SelectValue
-                            placeholder={` ${isLoadingDirectionLine ? "Cargando Direcciones De Liena" : "Seleccionar Direccion De Linea"}`}
+                            placeholder={`${isLoadingDirectionGeneral ? "Cargando Direcciones Generales" : "Seleccionar Direccion General"}`}
                           />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
-                            <SelectLabel>Direcciones De Linea</SelectLabel>
-                            {directionLine?.data.map((line, i) => (
-                              <SelectItem key={i} value={`${line.id}`}>
-                                {line.Codigo}-{line.direccion_linea}
+                            <SelectLabel>Direcciones De Generales</SelectLabel>
+                            {directionGeneral?.data.map((general, i) => (
+                              <SelectItem key={i} value={`${general.id}`}>
+                                {general.Codigo}-{general.direccion_general}
                               </SelectItem>
                             ))}
                           </SelectGroup>
@@ -181,20 +222,86 @@ export default function FormCreateDirectionDependency() {
                       </Select>
                     </div>
                   )}
+                  {create === "create-coordination" && (
+                    <>
+                      <div className="space-y-2">
+                        <Label>Direccion General</Label>
+                        <Select
+                          onValueChange={(value) => {
+                            setSelectionDirectionGeneralId(value);
+                            selectionDirectionGeneral(Number.parseInt(value));
+                          }}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue
+                              placeholder={`${isLoadingDirectionGeneral ? "Cargando Direcciones Generales" : "Seleccionar Direccion General"}`}
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>
+                                Direcciones De Generales
+                              </SelectLabel>
+                              {directionGeneral?.data.map((general, i) => (
+                                <SelectItem key={i} value={`${general.id}`}>
+                                  {general.Codigo}-{general.direccion_general}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2 col-span-2">
+                        <Label>Direccion De Linea</Label>
+
+                        <Select
+                          onValueChange={(value) => {
+                            selectionDirectionLine(Number.parseInt(value));
+                          }}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue
+                              placeholder={` ${isLoadingDirectionLine ? "Cargando Direcciones De Liena" : "Seleccionar Direccion De Linea"}`}
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Direcciones De Linea</SelectLabel>
+                              {directionLine?.data.map((line, i) => (
+                                <SelectItem key={i} value={`${line.id}`}>
+                                  {line.Codigo}-{line.direccion_linea}
+                                </SelectItem>
+                              ))}
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </>
+                  )}
                 </div>
 
                 <RadioGroup
-                  defaultValue="create-direction-line"
+                  defaultValue="create-direction-general"
                   onValueChange={(e) => setCreate(e)}
                   className="flex "
                 >
                   <div className="flex items-center gap-3">
                     <RadioGroupItem
                       className="cursor-pointer"
-                      value="create-direction-line"
+                      value="create-direction-general"
                       id="r1"
                     />
                     <Label className="cursor-pointer" htmlFor="r1">
+                      Crear Direccion General
+                    </Label>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <RadioGroupItem
+                      className="cursor-pointer"
+                      value="create-direction-line"
+                      id="r2"
+                    />
+                    <Label className="cursor-pointer" htmlFor="r2">
                       Crear Direccion De Linea
                     </Label>
                   </div>
@@ -202,14 +309,62 @@ export default function FormCreateDirectionDependency() {
                     <RadioGroupItem
                       className="cursor-pointer"
                       value="create-coordination"
-                      id="r2"
+                      id="r3"
                     />
-                    <Label className="cursor-pointer" htmlFor="r2">
+                    <Label className="cursor-pointer" htmlFor="r3">
                       Crear Coordinacion De Linea
                     </Label>
                   </div>
                 </RadioGroup>
               </div>
+              {create === "create-direction-general" && (
+                <div>
+                  <Form {...formDirectionGeneral}>
+                    <form
+                      onSubmit={formDirectionGeneral.handleSubmit(
+                        onSubmitDirectionGeneral,
+                      )}
+                      className="space-y-5"
+                    >
+                      <div className="grid grid-cols-2  place-content-stretch place-items-start gap-3 w-full  ">
+                        <FormField
+                          name="Codigo"
+                          control={formDirectionGeneral.control}
+                          render={({ field }) => (
+                            <FormItem className="w-full truncate p-0.5">
+                              <FormLabel>
+                                Codigo de la Direccion General
+                              </FormLabel>
+                              <FormControl>
+                                <Input {...field} type="number" />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          name="direccion_general"
+                          control={formDirectionGeneral.control}
+                          render={({ field }) => (
+                            <FormItem className="w-full truncate p-0.5">
+                              <FormLabel>
+                                Nombre De La Direccion General
+                              </FormLabel>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <Button className="w-full">
+                        Crear Direccion De Linea
+                      </Button>
+                    </form>
+                  </Form>
+                </div>
+              )}
               {create === "create-direction-line" && (
                 <div>
                   <Form {...formDirection}>

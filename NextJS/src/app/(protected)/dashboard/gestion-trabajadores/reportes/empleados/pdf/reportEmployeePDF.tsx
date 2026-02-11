@@ -246,7 +246,7 @@ export function ReportPDFEmployee({
                 <View style={styles.infoRow}>
                   <Text style={styles.infoLabel}>Domicilio Fiscal:</Text>
                   <Text style={styles.infoValue}>
-                    {employee.datos_vivienda.direccion_exacta}
+                    {employee.datos_vivienda?.direccion_exacta ?? "N/A"}
                   </Text>
                 </View>
               </View>

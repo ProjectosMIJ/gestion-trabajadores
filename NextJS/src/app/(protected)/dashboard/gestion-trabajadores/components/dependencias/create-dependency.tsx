@@ -5,7 +5,10 @@ import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 import { CreateDependencyAction } from "../../dependencias/crear-dependencia/actions/create-dependencys";
-import { schemaCreateDependency } from "../../dependencias/crear-dependencia/schema/schemaCreateDependency";
+import {
+  schemaCreateDependency,
+  schemaCreateDirectionAdm,
+} from "../../dependencias/crear-dependencia/schema/schemaCreateDependency";
 import { Button } from "../../../../../../components/ui/button";
 import { Card, CardContent } from "../../../../../../components/ui/card";
 import {
@@ -22,12 +25,16 @@ export default function CreateDependency() {
   const [isPending, startTransition] = useTransition();
 
   const form = useForm({
-    resolver: zodResolver(schemaCreateDependency),
+    resolver: zodResolver(schemaCreateDirectionAdm),
     defaultValues: {
-      Codigo: "",
-      direccion_general: "",
-      activeCoordination: false,
-      activeDirectionLine: false,
+      dependency: {
+        Codigo: "",
+        dependencia: "",
+      },
+      direction_general: {
+        Codigo: "",
+        direccion_general: "",
+      },
       direction_line: {
         Codigo: "",
         direccion_linea: "",
@@ -36,9 +43,12 @@ export default function CreateDependency() {
         Codigo: "",
         coordinacion: "",
       },
+      activeCoordination: false,
+      activeDirectionLine: false,
+      activeDirectionGeneral: false,
     },
   });
-  const onSubmit = (data: z.infer<typeof schemaCreateDependency>) => {
+  const onSubmit = (data: z.infer<typeof schemaCreateDirectionAdm>) => {
     startTransition(async () => {
       const response = await CreateDependencyAction(data);
       if (response.success) {
@@ -48,13 +58,17 @@ export default function CreateDependency() {
       }
     });
   };
+  const activeDirectionGeneral = useWatch({
+    control: form.control,
+    name: "activeDirectionGeneral",
+  });
   const activeDirectionLine = useWatch({
     control: form.control,
     name: "activeDirectionLine",
   });
   const activeCoordination = useWatch({
     control: form.control,
-    name: "activeDirectionLine",
+    name: "activeCoordination",
   });
   return (
     <>
@@ -64,11 +78,11 @@ export default function CreateDependency() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 ">
               <div className="grid grid-cols-2  place-content-stretch place-items-start gap-3 w-full ">
                 <FormField
-                  name="Codigo"
+                  name="dependency.Codigo"
                   control={form.control}
                   render={({ field }) => (
                     <FormItem className="w-full truncate p-0.5">
-                      <FormLabel>Codigo De La Direccion General</FormLabel>
+                      <FormLabel>Codigo De La Dependencia</FormLabel>
                       <FormControl>
                         <Input {...field} type="number" />
                       </FormControl>
@@ -77,11 +91,11 @@ export default function CreateDependency() {
                   )}
                 />
                 <FormField
-                  name="direccion_general"
+                  name="dependency.dependencia"
                   control={form.control}
                   render={({ field }) => (
                     <FormItem className="w-full truncate p-0.5">
-                      <FormLabel>Nombre De La Direccion General</FormLabel>
+                      <FormLabel>Nombre De La Dependencia</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -93,12 +107,11 @@ export default function CreateDependency() {
               <div className="flex flex-row gap-2 items-center justify-end">
                 <FormField
                   control={form.control}
-                  name="activeDirectionLine"
+                  name="activeDirectionGeneral"
                   render={({ field }) => (
                     <FormItem className="flex flex-row">
                       <FormLabel>
-                        ¿Desea Asignarle una Direccion De Linea A La Direccion
-                        General?
+                        ¿Desea Asignarle una Direccion General a la Dependencia?
                       </FormLabel>
                       <FormControl>
                         <Switch onCheckedChange={field.onChange} />
@@ -107,7 +120,57 @@ export default function CreateDependency() {
                   )}
                 />
               </div>
-              {activeDirectionLine && (
+              {activeDirectionGeneral && (
+                <>
+                  <div className="grid grid-cols-2  place-content-stretch place-items-start gap-3 w-full ">
+                    <FormField
+                      name="direction_general.Codigo"
+                      control={form.control}
+                      render={({ field }) => (
+                        <FormItem className="w-full truncate p-0.5">
+                          <FormLabel>Codigo De La Direccion General</FormLabel>
+                          <FormControl>
+                            <Input {...field} type="number" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      name="direction_general.direccion_general"
+                      control={form.control}
+                      render={({ field }) => (
+                        <FormItem className="w-full truncate p-0.5">
+                          <FormLabel>Nombre De La Direccion General</FormLabel>
+                          <FormControl>
+                            <Input {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="flex flex-row gap-2 items-center justify-end">
+                    <FormField
+                      control={form.control}
+                      name="activeDirectionLine"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row">
+                          <FormLabel>
+                            ¿Desea Asignarle una Direccion De Linea A La
+                            Direccion General?
+                          </FormLabel>
+                          <FormControl>
+                            <Switch onCheckedChange={field.onChange} />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                </>
+              )}
+
+              {activeDirectionLine && activeDirectionGeneral && (
                 <>
                   <div className="grid grid-cols-2  place-content-stretch place-items-start gap-3 w-full ">
                     <FormField
@@ -156,38 +219,40 @@ export default function CreateDependency() {
                   </div>
                 </>
               )}
-              {activeCoordination && (
-                <>
-                  <div className="grid grid-cols-2  place-content-stretch place-items-start gap-3 w-full ">
-                    <FormField
-                      name="coordination.Codigo"
-                      control={form.control}
-                      render={({ field }) => (
-                        <FormItem className="w-full truncate p-0.5">
-                          <FormLabel>Codigo De La Coordinación</FormLabel>
-                          <FormControl>
-                            <Input {...field} type="number" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      name="coordination.coordinacion"
-                      control={form.control}
-                      render={({ field }) => (
-                        <FormItem className="w-full truncate p-0.5">
-                          <FormLabel>Nombre De La Coordinación</FormLabel>
-                          <FormControl>
-                            <Input {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-                </>
-              )}
+              {activeCoordination &&
+                activeDirectionLine &&
+                activeDirectionGeneral && (
+                  <>
+                    <div className="grid grid-cols-2  place-content-stretch place-items-start gap-3 w-full ">
+                      <FormField
+                        name="coordination.Codigo"
+                        control={form.control}
+                        render={({ field }) => (
+                          <FormItem className="w-full truncate p-0.5">
+                            <FormLabel>Codigo De La Coordinación</FormLabel>
+                            <FormControl>
+                              <Input {...field} type="number" />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        name="coordination.coordinacion"
+                        control={form.control}
+                        render={({ field }) => (
+                          <FormItem className="w-full truncate p-0.5">
+                            <FormLabel>Nombre De La Coordinación</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+                  </>
+                )}
               <Button className="w-full" disabled={isPending}>
                 {" "}
                 {isPending ? "Creando Depedencia" : "Crear Dependencia"}

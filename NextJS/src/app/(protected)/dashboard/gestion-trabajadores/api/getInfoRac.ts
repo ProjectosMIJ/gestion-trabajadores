@@ -573,7 +573,7 @@ export const getStateByRegion = async (
 };
 
 export const getDirectionGeneralById = async (
-  id: number,
+  id: number | string,
 ): Promise<ApiResponse<DirectionGeneral[]>> => {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}direccionGeneral/${id}/`,

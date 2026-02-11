@@ -168,6 +168,11 @@ export interface Coordination {
   Codigo: string;
   coordinacion: string;
 }
+export interface Dependency {
+  id: number;
+  Codigo: string;
+  dependencia: string;
+}
 
 export interface DireccionGeneral {
   id: number;
@@ -249,6 +254,7 @@ export interface InfoCode {
   grado: Grado;
   tiponomina: Nomina;
   OrganismoAdscrito: OrganismosAds | null;
+  Dependencia: Dependency;
   DireccionGeneral: DireccionGeneral | null;
   DireccionLinea: DireccionLinea | null;
   Coordinacion: Coordinacion | null;
