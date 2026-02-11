@@ -221,10 +221,11 @@ class carreras(models.Model):
 
 class Menciones(models.Model):
     carrera_id = models.ForeignKey(carreras, models.DO_NOTHING, db_column='carreraId')
-    nombre_mencion = models.CharField(max_length=200, unique=True)
+    nombre_mencion = models.CharField(max_length=200)
    
     class Meta:
         managed = True
+        unique_together = ('carrera_id', 'nombre_mencion')
         app_label = 'RAC'
     
 
