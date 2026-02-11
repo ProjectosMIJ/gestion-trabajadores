@@ -16,6 +16,8 @@ from simple_history.models import HistoricalRecords
 # cargos 
 class Denominacioncargo(models.Model):
     cargo = models.CharField(max_length=200, unique=True)
+    orden_by = models.PositiveIntegerField(default=30)
+
     class Meta:
         managed = True
         db_table = 'DenominacionCargo'
@@ -190,6 +192,7 @@ class Talla_Camisas(models.Model):
     class Meta:
         managed = True
         app_label = 'RAC'
+        ordering = ['id']
 
 class Talla_Pantalones(models.Model):
     talla = models.CharField(max_length=50, unique=True)
@@ -197,6 +200,7 @@ class Talla_Pantalones(models.Model):
     class Meta:
         managed = True
         app_label = 'RAC'
+        ordering = ['id']
 
 class Talla_Zapatos(models.Model):
     talla = models.CharField(max_length=50, unique=True)
@@ -204,6 +208,7 @@ class Talla_Zapatos(models.Model):
     class Meta:
         managed = True
         app_label = 'RAC'
+        ordering = ['id']
 
 class GrupoSanguineo(models.Model):
     GrupoSanguineo = models.CharField(max_length=50, unique=True, verbose_name='Descripción')
@@ -218,14 +223,16 @@ class carreras(models.Model):
     class Meta:
         managed = True
         app_label = 'RAC'
+        ordering = ['nombre_carrera']
 
 class Menciones(models.Model):
     carrera_id = models.ForeignKey(carreras, models.DO_NOTHING, db_column='carreraId')
-    nombre_mencion = models.CharField(max_length=200, unique=True)
+    nombre_mencion = models.CharField(max_length=200)
    
     class Meta:
         managed = True
         app_label = 'RAC'
+        ordering = ['nombre_mencion']
     
 
 
