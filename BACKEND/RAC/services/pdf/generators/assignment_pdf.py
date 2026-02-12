@@ -151,11 +151,11 @@ class AssignmentPDFGenerator(BasePDFGenerator):
                             last_dep, last_dg, last_dl = dep_nom, None, None
                         
                         if dg_nom != last_dg and dg_nom.upper() not in ignorar:
-                            titulos_bloque.extend(create_section_title(f"  > DG: {dg_nom}"))
+                            titulos_bloque.extend(create_section_title(f"  > DG / COORD: {dg_nom}"))
                             last_dg, last_dl = dg_nom, None
                         
                         if dl_nom != last_dl and dl_nom.upper() not in ignorar:
-                            titulos_bloque.extend(create_section_title(f"    - DL: {dl_nom}"))
+                            titulos_bloque.extend(create_section_title(f"    - DL / COORD: {dl_nom}"))
                             last_dl = dl_nom
                         
                         if coord_nom.upper() not in ignorar:

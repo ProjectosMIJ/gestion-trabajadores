@@ -368,7 +368,7 @@ class AsigTrabajo(models.Model):
     OrganismoAdscritoid = models.ForeignKey('OrganismoAdscrito', models.DO_NOTHING, db_column='organismoAdscritoId', blank=True, null=True)
     gradoid = models.ForeignKey('Grado', models.DO_NOTHING, db_column='gradoId', blank=True, null=True) 
     tiponominaid = models.ForeignKey('Tiponomina', models.DO_NOTHING, db_column='tipoNominaId')
-    Dependencia = models.ForeignKey('Dependencias', models.DO_NOTHING, db_column='dependenciaId', blank=True, null=True)
+    Dependencia = models.ForeignKey('Dependencias', models.DO_NOTHING, db_column='dependenciaId', blank=True,default=1, null=True)
     DireccionGeneral =  models.ForeignKey(DireccionGeneral, models.DO_NOTHING, db_column='direccionGeneralId', blank=True, null=True)
     DireccionLinea = models.ForeignKey(DireccionLinea, models.DO_NOTHING, db_column='direccionLineaId', blank=True, null=True)
     Coordinacion = models.ForeignKey(Coordinaciones, models.DO_NOTHING, db_column='coordinacionId', blank=True, null=True)
