@@ -172,7 +172,7 @@ class EmployeePDFGenerator(BasePDFGenerator):
                         
                         # 3. DIRECCIÓN DE LÍNEA (Solo si cambia y no es redundante)
                         if dl_nom != last_dl and dl_nom.upper() not in ignorar:
-                            titulos_bloque.extend(create_section_title(f"    - DL: {dl_nom}"))
+                            titulos_bloque.extend(create_section_title(f"    - DL / COORD: {dl_nom}"))
                             last_dl = dl_nom
                         
                         # 4. COORDINACIÓN (Solo si no es redundante)
