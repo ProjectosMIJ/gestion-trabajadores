@@ -77,85 +77,134 @@ class AssignmentPDFGenerator(BasePDFGenerator):
         
         return elements
 
-    
-    def _build_graduates_table(self):
+    def _build_content(self):
         """
-        Construye la tabla de egresados con agrupación anidada evitando títulos huérfanos.
+        IMPLEMENTACIÓN OBLIGATORIA: Construye el contenido del PDF.
         """
-        from reportlab.platypus import KeepTogether
+        story = []
+        
+        # 1. Agregar estadísticas (Header Section)
+        story.extend(self._build_header_section())
+        
+      
+        story.extend(self._build_assignments_table())
+        
+        return story
+
+    def _build_assignments_table(self):
+        """
+        Construye la tabla de cargos con agrupación de 4 niveles y ordenamiento jerárquico.
+        """
+        from reportlab.platypus import KeepTogether, Paragraph, Spacer
         elements = []
-
-        # 1. Estructura de agrupación anidada
         agrupacion = {}
-        for graduate in self.graduates:
-            dep = self._get_dependencia(graduate)
-            dg = self._get_ultima_direccion(graduate)
+
+        # 1. Agrupar datos en 4 niveles (Jerarquía Orgánica)
+        for asig in self.assignments.iterator():
+            dep = getattr(asig, 'Dependencia', None)
+            if not dep:
+                dg_obj = getattr(asig, 'DireccionGeneral', None)
+                dep = getattr(dg_obj, 'dependenciaId', "DEPENDENCIA DESCONOCIDA")
             
-            if dep not in agrupacion:
-                agrupacion[dep] = {}
-            if dg not in agrupacion[dep]:
-                agrupacion[dep][dg] = []
-            agrupacion[dep][dg].append(graduate)
+            dg = getattr(asig, 'DireccionGeneral', "ASIGNACIÓN DIRECTA")
+            dl = getattr(asig, 'DireccionLinea', "ASIGNACIÓN DIRECTA")
+            coord = getattr(asig, 'Coordinacion', "ASIGNACIÓN DIRECTA")
 
-        # 2. Iterar sobre Dependencias
-        for dep_nombre in sorted(agrupacion.keys()):
-            # --- CAMBIO CLAVE: Agrupar el título de Dep con el primer bloque de Dirección ---
-            dep_elements = []
-            titulo_dep_parts = create_section_title(f"DEPENDENCIA: {dep_nombre.upper()}")
-            for part in titulo_dep_parts:
-                if isinstance(part, Paragraph):
-                    part.keepWithNext = True # Indica que no debe haber salto de página después
-                dep_elements.append(part)
+            if dep not in agrupacion: agrupacion[dep] = {}
+            if dg not in agrupacion[dep]: agrupacion[dep][dg] = {}
+            if dl not in agrupacion[dep][dg]: agrupacion[dep][dg][dl] = {}
+            if coord not in agrupacion[dep][dg][dl]: agrupacion[dep][dg][dl][coord] = []
             
-            direcciones = agrupacion[dep_nombre]
-            sorted_dg_keys = sorted(direcciones.keys())
+            agrupacion[dep][dg][dl][coord].append(asig)
 
-            for i, dg_nombre in enumerate(sorted_dg_keys):
-                bloque_direccion = []
-                
-                # Si es la primera dirección de la dependencia, la unimos al título de la dependencia
-                if i == 0:
-                    bloque_direccion.extend(dep_elements)
+        # 2. PROCESO DE RENDERIZADO
+        last_dep, last_dg, last_dl = None, None, None
+        ignorar = ["ASIGNACIÓN DIRECTA", "ASIGNACIÓN DIRECTA A LA DEPENDENCIA", 
+                   "ASIGNACIÓN DIRECTA A LA DIRECCION GENERAL", 
+                   "ASIGNACIÓN DIRECTA A LA DIRECCION LINEA", "NONE", "N/A"]
 
-                # Título de la Dirección General
-                titulo_dg_parts = create_section_title(f"    * {dg_nombre}")
-                for part in titulo_dg_parts:
-                    if isinstance(part, Paragraph):
-                        part.keepWithNext = True
-                    bloque_direccion.append(part)
+        # Ordenamiento de Dependencias por ID
+        sorted_deps = sorted(agrupacion.keys(), key=lambda d: getattr(d, 'id', 999) if hasattr(d, 'id') else 999)
 
-                # Configuración de Tabla y Datos
-                headers = ['#', 'Cédula', 'Nombre Completo', 'F. Ingreso', 'F. Egreso', 'Motivo', 'Último Cargo']
-                col_widths = [10*mm, 22*mm, 55*mm, 25*mm, 25*mm, 45*mm, 75*mm]
+        for dep in sorted_deps:
+            dep_nom = getattr(dep, 'dependencia', str(dep))
+            dgs = agrupacion[dep]
+            sorted_dgs = sorted(dgs.keys(), key=lambda g: getattr(g, 'orden_by_direccion', 999) if hasattr(g, 'orden_by_direccion') else 999)
 
-                rows = []
-                egresados_ordenados = sorted(direcciones[dg_nombre], key=lambda x: self._get_nombre(x))
-                for idx, graduate in enumerate(egresados_ordenados, start=1):
-                    rows.append([
-                        str(idx),
-                        self._get_cedula(graduate),
-                        self._get_nombre(graduate),
-                        self._get_fecha_ingreso(graduate),
-                        self._get_fecha_egreso(graduate),
-                        self._get_motivo(graduate),
-                        self._get_ultimo_cargo(graduate),
-                    ])
+            for dg in sorted_dgs:
+                dg_nom = getattr(dg, 'direccion_general', str(dg))
+                dls = dgs[dg]
+                sorted_dls = sorted(dls.keys(), key=lambda l: getattr(l, 'orden_by_direccion', 999) if hasattr(l, 'orden_by_direccion') else 999)
 
-                if rows:
-                    table = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
-                    # IMPORTANTE: Permitir que la tabla se divida entre páginas si es muy larga
-                    # pero que el inicio de la tabla esté pegado al título
-                    bloque_direccion.append(table)
-                    bloque_direccion.append(Spacer(1, 8 * mm))
-                    
-                    # Usamos KeepTogether pero con lógica: 
-                    # Solo mantendrá juntos el título y las primeras filas de la tabla
-                    elements.append(KeepTogether(bloque_direccion))
-                else:
-                    elements.append(Paragraph("No se encontraron registros.", self.styles['Body']))
+                for dl in sorted_dls:
+                    dl_nom = getattr(dl, 'direccion_linea', str(dl))
+                    coords = dls[dl]
+                    sorted_coords = sorted(coords.keys(), key=lambda c: getattr(c, 'orden_by_coordinacion', 999) if hasattr(c, 'orden_by_coordinacion') else 999)
+
+                    for coord in sorted_coords:
+                        coord_nom = getattr(coord, 'coordinacion', str(coord))
+                        
+                        # --- TÍTULOS INTELIGENTES ---
+                        titulos_bloque = []
+                        if dep_nom != last_dep:
+                            titulos_bloque.extend(create_section_title(f"DEPENDENCIA: {dep_nom.upper()}"))
+                            last_dep, last_dg, last_dl = dep_nom, None, None
+                        
+                        if dg_nom != last_dg and dg_nom.upper() not in ignorar:
+                            titulos_bloque.extend(create_section_title(f"  > DG: {dg_nom}"))
+                            last_dg, last_dl = dg_nom, None
+                        
+                        if dl_nom != last_dl and dl_nom.upper() not in ignorar:
+                            titulos_bloque.extend(create_section_title(f"    - DL: {dl_nom}"))
+                            last_dl = dl_nom
+                        
+                        if coord_nom.upper() not in ignorar:
+                            titulos_bloque.extend(create_section_title(f"      * COORD: {coord_nom}"))
+
+                        # --- ORDENAMIENTO JERÁRQUICO SOLICITADO ---
+                        def get_cargo_weight(a):
+                            obj = getattr(a, 'denominacioncargoid', None)
+                            return getattr(obj, 'orden_by_cargo', 999)
+
+                        def get_cargo_esp_weight(a):
+                            obj = getattr(a, 'denominacioncargoespecificoid', None)
+                            return getattr(obj, 'orden_by_cargo', 999)
+
+                        def sort_cedula_val(a):
+                            c = self._get_cedula_empleado(a)
+                            try: return -int(c) # Descendente
+                            except: return 0
+
+                        # Ordenar usando los pesos de los modelos y cédula desc.
+                        assignments_sorted = sorted(
+                            coords[coord],
+                            key=lambda a: (
+                                get_cargo_weight(a),
+                                get_cargo_esp_weight(a),
+                                sort_cedula_val(a)
+                            )
+                        )
+
+                        rows = [[str(idx), self._get_codigo(a), self._get_cedula_empleado(a), 
+                                 self._get_nombre_empleado(a), self._get_cargo(a), 
+                                 self._get_cargo_especifico(a), self._get_grado(a), 
+                                 self._get_tipo_nomina(a), self._get_estatus(a)] 
+                                for idx, a in enumerate(assignments_sorted, start=1)]
+
+                        if rows:
+                            if titulos_bloque:
+                                for p in titulos_bloque:
+                                    if isinstance(p, Paragraph): p.keepWithNext = True
+                                elements.append(KeepTogether(titulos_bloque))
+                                elements.append(Spacer(1, 2*mm))
+
+                            headers = ['#', 'Código', 'Cédula', 'Empleado', 'Cargo', 'Cargo Esp.', 'Grado', 'Nómina', 'Estatus']
+                            col_widths = [10*mm, 20*mm, 22*mm, 42*mm, 35*mm, 35*mm, 15*mm, 32*mm, 25*mm]
+                            tabla = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
+                            elements.append(tabla)
+                            elements.append(Spacer(1, 6 * mm))
 
         return elements
-    
     def _draw_header(self, canvas, doc):
         """Dibuja el header en el canvas."""
         canvas.saveState()
