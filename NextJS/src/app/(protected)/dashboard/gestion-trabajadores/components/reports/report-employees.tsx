@@ -40,7 +40,6 @@ import {
   getParish,
   getPatologys,
   getRegion,
-  getReportConfigEmployee,
   getSex,
   getStateByRegion,
   postReport,
@@ -122,7 +121,7 @@ export default function ReportEmployee() {
     async () => await getCargo(),
   );
   const { data: nomina, isLoading: isLoadingNomina } = useSWR(
-    "nomina",
+    "nominaGeneral",
     async () => await getNominaGeneral(),
   );
   const { data: grado, isLoading: isLoadingGrado } = useSWR("grado", async () =>
@@ -158,10 +157,6 @@ export default function ReportEmployee() {
   const { data: parish, isLoading: isLoadingStatesParish } = useSWR(
     municipalityId ? ["parish", municipalityId] : null,
     async () => await getParish(municipalityId!),
-  );
-  const { data: reportEmployee, isLoading: isLoadingReportEmployee } = useSWR(
-    "reportEmployee",
-    async () => await getReportConfigEmployee(),
   );
 
   const {
@@ -263,7 +258,7 @@ export default function ReportEmployee() {
                   {session.user.role == "admin" && (
                     <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-green-600">
                       <legend className="text-green-800 font-semibold">
-                        Direcciones{" "}
+                        Dirección Administrativa{" "}
                       </legend>
                       <FormField
                         control={form.control}
@@ -336,7 +331,9 @@ export default function ReportEmployee() {
                         name="filtros.direccion_linea_id"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Dirección De Linea</FormLabel>
+                            <FormLabel>
+                              Dirección De Linea / Coordinación
+                            </FormLabel>
                             <Select
                               onValueChange={(values) => {
                                 field.onChange(Number.parseInt(values));

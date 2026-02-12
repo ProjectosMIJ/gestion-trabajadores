@@ -329,7 +329,9 @@ export function ChangeCodeForm() {
                           name="direccion_linea_id"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Dirección De Linea</FormLabel>
+                              <FormLabel>
+                                Dirección De Linea / Coordinación
+                              </FormLabel>
                               <Select
                                 onValueChange={(values) => {
                                   field.onChange(Number.parseInt(values));
@@ -517,23 +519,17 @@ export function ChangeCodeForm() {
                         ) && (
                           <div className="rounded-sm border-2 border-b-emerald-400-400/45 bg-emerald-200/40 p-2 mt-4">
                             <p>
-                              Direccion General:{" "}
-                              {
-                                codeList.data.find(
-                                  (v) => v.id === selectedCodeId,
-                                )?.DireccionGeneral.direccion_general
-                              }
+                              Dirección General:{" "}
+                              {codeList?.data.find(
+                                (v) => v.id === selectedCodeId,
+                              )?.DireccionGeneral?.direccion_general ?? "N/A"}
                             </p>
                             <p>
                               {" "}
-                              Direccion De Linea:{" "}
-                              {codeList.data.find(
+                              Dirección De Linea:{" "}
+                              {codeList?.data.find(
                                 (v) => v.id === selectedCodeId,
-                              )?.DireccionLinea?.direccion_linea
-                                ? codeList.data.find(
-                                    (v) => v.id === selectedCodeId,
-                                  )?.DireccionLinea?.direccion_linea
-                                : "N/A"}
+                              )?.DireccionLinea?.direccion_linea ?? "N/A"}
                             </p>
                             <p>
                               {" "}
