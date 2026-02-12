@@ -77,77 +77,82 @@ class AssignmentPDFGenerator(BasePDFGenerator):
         
         return elements
 
-    def _build_assignments_table(self):
+    
+    def _build_graduates_table(self):
         """
-        Construye la tabla agrupada protegiendo títulos mediante segmentación estratégica.
+        Construye la tabla de egresados con agrupación anidada evitando títulos huérfanos.
         """
         from reportlab.platypus import KeepTogether
         elements = []
-        empleados_por_dependencia = {}
 
-        # 1. Agrupar datos (se mantiene igual para preservar la lógica de negocio)
-        for assignment in self.assignments.iterator():
-            dependencia = self._get_dependencia(assignment)
-            direccion_general = self._get_direccion(assignment)
-
-            if dependencia not in empleados_por_dependencia:
-                empleados_por_dependencia[dependencia] = {}
-            if direccion_general not in empleados_por_dependencia[dependencia]:
-                empleados_por_dependencia[dependencia][direccion_general] = []
-            empleados_por_dependencia[dependencia][direccion_general].append(assignment)
+        # 1. Estructura de agrupación anidada
+        agrupacion = {}
+        for graduate in self.graduates:
+            dep = self._get_dependencia(graduate)
+            dg = self._get_ultima_direccion(graduate)
+            
+            if dep not in agrupacion:
+                agrupacion[dep] = {}
+            if dg not in agrupacion[dep]:
+                agrupacion[dep][dg] = []
+            agrupacion[dep][dg].append(graduate)
 
         # 2. Iterar sobre Dependencias
-        for dependencia_nombre in sorted(empleados_por_dependencia.keys()):
-            direcciones = empleados_por_dependencia[dependencia_nombre]
-            direcciones_ordenadas = sorted(direcciones.keys())
+        for dep_nombre in sorted(agrupacion.keys()):
+            # --- CAMBIO CLAVE: Agrupar el título de Dep con el primer bloque de Dirección ---
+            dep_elements = []
+            titulo_dep_parts = create_section_title(f"DEPENDENCIA: {dep_nombre.upper()}")
+            for part in titulo_dep_parts:
+                if isinstance(part, Paragraph):
+                    part.keepWithNext = True # Indica que no debe haber salto de página después
+                dep_elements.append(part)
             
-            for dg_nombre in direcciones_ordenadas:
-                # --- PREPARACIÓN DE DATOS ---
-                headers = ['#', 'Código', 'Cédula', 'Empleado', 'Cargo', 'Cargo Esp.', 'Grado', 'Nómina', 'Estatus']
-                col_widths = [10*mm, 20*mm, 22*mm, 42*mm, 35*mm, 35*mm, 15*mm, 32*mm, 25*mm]
+            direcciones = agrupacion[dep_nombre]
+            sorted_dg_keys = sorted(direcciones.keys())
 
-                assignments_sorted = sorted(
-                    direcciones[dg_nombre],
-                    key=lambda a: (self._get_codigo(a).lower(), self._get_tipo_nomina(a).lower(), self._get_cargo(a).lower())
-                )
+            for i, dg_nombre in enumerate(sorted_dg_keys):
+                bloque_direccion = []
+                
+                # Si es la primera dirección de la dependencia, la unimos al título de la dependencia
+                if i == 0:
+                    bloque_direccion.extend(dep_elements)
 
-                rows = [[str(idx), self._get_codigo(a), self._get_cedula_empleado(a), self._get_nombre_empleado(a), 
-                         self._get_cargo(a), self._get_cargo_especifico(a), self._get_grado(a), 
-                         self._get_tipo_nomina(a), self._get_estatus(a)] 
-                        for idx, a in enumerate(assignments_sorted, start=1)]
+                # Título de la Dirección General
+                titulo_dg_parts = create_section_title(f"    * {dg_nombre}")
+                for part in titulo_dg_parts:
+                    if isinstance(part, Paragraph):
+                        part.keepWithNext = True
+                    bloque_direccion.append(part)
 
-                if not rows:
-                    continue
+                # Configuración de Tabla y Datos
+                headers = ['#', 'Cédula', 'Nombre Completo', 'F. Ingreso', 'F. Egreso', 'Motivo', 'Último Cargo']
+                col_widths = [10*mm, 22*mm, 55*mm, 25*mm, 25*mm, 45*mm, 75*mm]
 
-                # --- LÓGICA DE PROTECCIÓN CONTRA TÍTULOS HUÉRFANOS ---
-                # Creamos el bloque de títulos
-                bloque_titulos = []
-                bloque_titulos.extend(create_section_title(f"DEPENDENCIA: {dependencia_nombre.upper()}"))
-                bloque_titulos.extend(create_section_title(f"    * {dg_nombre}"))
+                rows = []
+                egresados_ordenados = sorted(direcciones[dg_nombre], key=lambda x: self._get_nombre(x))
+                for idx, graduate in enumerate(egresados_ordenados, start=1):
+                    rows.append([
+                        str(idx),
+                        self._get_cedula(graduate),
+                        self._get_nombre(graduate),
+                        self._get_fecha_ingreso(graduate),
+                        self._get_fecha_egreso(graduate),
+                        self._get_motivo(graduate),
+                        self._get_ultimo_cargo(graduate),
+                    ])
 
-                if len(rows) > 3:
-                    # Parte 1: Títulos + Primeras 2 filas (Protegidos)
-                    cabecera_protegida = []
-                    cabecera_protegida.extend(bloque_titulos)
+                if rows:
+                    table = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
+                    # IMPORTANTE: Permitir que la tabla se divida entre páginas si es muy larga
+                    # pero que el inicio de la tabla esté pegado al título
+                    bloque_direccion.append(table)
+                    bloque_direccion.append(Spacer(1, 8 * mm))
                     
-                    tabla_inicio = create_data_table(headers, rows[:2], col_widths, with_alternating_rows=True)
-                    cabecera_protegida.append(tabla_inicio)
-                    
-                    # Evitamos que el título quede solo al final de la hoja
-                    elements.append(KeepTogether(cabecera_protegida))
-                    
-                    # Parte 2: Resto de la tabla (Libre flujo)
-                    # Se envían de nuevo los headers para evitar el error 'NoneType'
-                    tabla_resto = create_data_table(headers, rows[2:], col_widths, with_alternating_rows=True)
-                    elements.append(tabla_resto)
+                    # Usamos KeepTogether pero con lógica: 
+                    # Solo mantendrá juntos el título y las primeras filas de la tabla
+                    elements.append(KeepTogether(bloque_direccion))
                 else:
-                    # Para grupos pequeños, protegemos todo el conjunto
-                    bloque_completo = []
-                    bloque_completo.extend(bloque_titulos)
-                    bloque_completo.append(create_data_table(headers, rows, col_widths, with_alternating_rows=True))
-                    elements.append(KeepTogether(bloque_completo))
-
-                elements.append(Spacer(1, 8 * mm))
+                    elements.append(Paragraph("No se encontraron registros.", self.styles['Body']))
 
         return elements
     
@@ -222,6 +227,7 @@ class AssignmentPDFGenerator(BasePDFGenerator):
         cargo_obj = getattr(assignment, 'denominacioncargoid', None)
         return getattr(cargo_obj, 'cargo', 'N/A') if cargo_obj else 'N/A'
     
+
     def _get_cargo_especifico(self, assignment):
         cargo_obj = getattr(assignment, 'denominacioncargoespecificoid', None)
         return getattr(cargo_obj, 'cargo', 'N/A') if cargo_obj else 'N/A'

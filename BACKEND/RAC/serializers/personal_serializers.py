@@ -411,7 +411,10 @@ class denominacionCargoSerializer(serializers.ModelSerializer):
 class denominacionCargoEspecificoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Denominacioncargoespecifico
-        fields = '__all__'
+        fields = [
+            'id',
+            'cargo'
+        ]
 
 
 # NOMINA 

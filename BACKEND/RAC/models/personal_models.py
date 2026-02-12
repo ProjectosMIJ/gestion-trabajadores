@@ -16,22 +16,22 @@ from simple_history.models import HistoricalRecords
 # cargos 
 class Denominacioncargo(models.Model):
     cargo = models.CharField(max_length=200, unique=True)
-    orden_by = models.PositiveIntegerField(default=30)
+    orden_by_cargo = models.PositiveIntegerField(default=30)
 
     class Meta:
         managed = True
         db_table = 'DenominacionCargo'
         app_label = 'RAC'
-        ordering = ['orden_by']
+        ordering = ['orden_by_cargo']
 
 class Denominacioncargoespecifico(models.Model):
     cargo = models.CharField(max_length=200, unique=True)
-
+    orden_by_cargo = models.PositiveIntegerField(default=30)
     class Meta:
         managed = True
         db_table = 'DenominacionCargoEspecifico'
         app_label = 'RAC'
-        ordering = ['cargo']
+        ordering = ['orden_by_cargo']
         
  
 # organismos adscritos  
@@ -69,7 +69,9 @@ class Tiponomina(models.Model):
     class Meta:
         managed = True
         db_table = 'TipoNomina'
+        ordering = ['nomina']
         app_label = 'RAC'
+        
 
 
 class Dependencias(models.Model):
@@ -79,6 +81,7 @@ class Dependencias(models.Model):
     class Meta:
         managed = True
         db_table = 'Dependencias'
+        ordering = ['id']
         app_label = 'RAC'
 
 
@@ -86,22 +89,26 @@ class DireccionGeneral(models.Model):
     Codigo = models.CharField(max_length=20, unique=True)
     direccion_general = models.CharField(max_length=200, unique=True)
     dependenciaId = models.ForeignKey('Dependencias', models.DO_NOTHING,null=True, default=1, db_column='dependenciaId')
-
+    orden_by_direccion = models.PositiveIntegerField(default=30)
 
     class Meta:
         
         managed = True
         db_table = 'DireccionGeneral'
+        ordering = ['orden_by_direccion']
         app_label = 'RAC'
     
 class DireccionLinea(models.Model):
     Codigo = models.CharField(max_length=20, unique=True)
     direccion_linea = models.CharField(max_length=200, unique=True)
     direccionGeneral = models.ForeignKey('DireccionGeneral', models.DO_NOTHING, db_column='direccionGeneralId')
+    orden_by_direccion = models.PositiveIntegerField(default=30)
+    
 
     class Meta:
         managed = True
         db_table = 'DireccionLinea'
+        ordering = ['orden_by_direccion']
         app_label = 'RAC'
 
 class Coordinaciones(models.Model):
@@ -109,10 +116,11 @@ class Coordinaciones(models.Model):
     coordinacion = models.CharField(max_length=200, unique=True)
     direccionLinea = models.ForeignKey('DireccionLinea', models.DO_NOTHING, null=True, blank=True,db_column='direccionLineaId')
     direccionGeneral = models.ForeignKey('DireccionGeneral', models.DO_NOTHING, null=True, blank=True,db_column='direccionGeneralId')
-    
+    orden_by_coordinacion = models.PositiveIntegerField(default=30)
     class Meta:
         managed = True
         db_table = 'Coordinaciones'
+        ordering = ['orden_by_coordinacion']
         app_label = 'RAC'
 
 
@@ -313,23 +321,6 @@ class antecedentes_servicio(models.Model):
     
 
 
-class AsigTrabajoManager(models.Manager):
-    def get_hierarchy_case(self, campo_prefijo=""):
-
-        return Case(
-            When(**{f"{campo_prefijo}denominacioncargoid__cargo__icontains": 'DIRECTOR GENERAL'}, then=Value(1)),
-            When(**{f"{campo_prefijo}denominacioncargoid__cargo__icontains": 'DIRECTOR ADJUNTO'}, then=Value(2)),
-            When(**{f"{campo_prefijo}denominacioncargoid__cargo__startswith": 'DIRECTOR'}, then=Value(3)),
-            When(**{f"{campo_prefijo}denominacioncargoid__cargo__icontains": 'COORDINADOR'}, then=Value(4)),
-            When(**{f"{campo_prefijo}denominacioncargoid__cargo__icontains": 'ASISTENTE'}, then=Value(5)),
-            When(**{f"{campo_prefijo}denominacioncargoid__cargo__startswith": 'PROFESIONAL'}, then=Value(10)),
-            When(**{f"{campo_prefijo}denominacioncargoid__cargo__startswith": 'TECNICO'}, then=Value(20)),
-            When(**{f"{campo_prefijo}denominacioncargoid__cargo__startswith": 'BACHILLER'}, then=Value(30)),
-            When(**{f"{campo_prefijo}denominacioncargoid__cargo__icontains": 'SUPERVISOR'}, then=Value(40)),
-            When(**{f"{campo_prefijo}denominacioncargoid__cargo": 'PASANTE'}, then=Value(100)),
-            default=Value(50),
-            output_field=IntegerField(),
-        )
         
         
 
@@ -396,7 +387,7 @@ class AsigTrabajo(models.Model):
         self.changed_by = value
         
         
-    objects = AsigTrabajoManager()
+  
     class Meta:
         managed = True
         db_table = 'AsigTrabajo'

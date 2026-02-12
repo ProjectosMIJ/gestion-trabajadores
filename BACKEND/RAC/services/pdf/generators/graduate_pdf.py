@@ -2,7 +2,9 @@
 Generador de PDF para reportes de egresados.
 Genera una tabla con información de empleados egresados.
 """
-from reportlab.platypus import Spacer, Paragraph, PageBreak
+
+
+from reportlab.platypus import Spacer, Paragraph, PageBreak,KeepTogether
 from reportlab.lib.pagesizes import landscape, A4
 from reportlab.lib.units import mm
 from  django.apps import apps
@@ -129,14 +131,12 @@ class GraduatePDFGenerator(BasePDFGenerator):
     #         elements.append(Paragraph(filter_text, self.styles['Small']))
     #         elements.append(Spacer(1, 10))
         
-        return elements
+        # return elements
     
     def _build_graduates_table(self):
         """
-        Construye la tabla de egresados con agrupación anidada por Dependencia 
-        y Dirección General, evitando títulos huérfanos.
+        Construye la tabla de egresados con agrupación anidada evitando títulos huérfanos.
         """
-        from reportlab.platypus import KeepTogether
         elements = []
 
         # 1. Estructura de agrupación anidada
@@ -153,45 +153,37 @@ class GraduatePDFGenerator(BasePDFGenerator):
 
         # 2. Iterar sobre Dependencias
         for dep_nombre in sorted(agrupacion.keys()):
-            # Título de la Dependencia con protección
+            # --- CAMBIO CLAVE: Agrupar el título de Dep con el primer bloque de Dirección ---
+            dep_elements = []
             titulo_dep_parts = create_section_title(f"DEPENDENCIA: {dep_nombre.upper()}")
             for part in titulo_dep_parts:
                 if isinstance(part, Paragraph):
-                    part.keepWithNext = True
-                elements.append(part)
+                    part.keepWithNext = True # Indica que no debe haber salto de página después
+                dep_elements.append(part)
             
             direcciones = agrupacion[dep_nombre]
-            for dg_nombre in sorted(direcciones.keys()):
+            sorted_dg_keys = sorted(direcciones.keys())
+
+            for i, dg_nombre in enumerate(sorted_dg_keys):
                 bloque_direccion = []
                 
-                # Título de la Dirección General con protección
+                # Si es la primera dirección de la dependencia, la unimos al título de la dependencia
+                if i == 0:
+                    bloque_direccion.extend(dep_elements)
+
+                # Título de la Dirección General
                 titulo_dg_parts = create_section_title(f"    * {dg_nombre}")
                 for part in titulo_dg_parts:
                     if isinstance(part, Paragraph):
                         part.keepWithNext = True
                     bloque_direccion.append(part)
 
-                # Configuración de Tabla
-                headers = [
-                    '#', 'Cédula', 'Nombre Completo', 'F. Ingreso', 
-                    'F. Egreso', 'Motivo', 'Último Cargo'
-                ]
-
-                # Ajuste de anchos (Landscape ~277mm disponibles)
-                col_widths = [
-                    10 * mm,   # #
-                    22 * mm,   # Cédula
-                    55 * mm,   # Nombre
-                    25 * mm,   # F. Ingreso
-                    25 * mm,   # F. Egreso
-                    45 * mm,   # Motivo
-                    75 * mm,   # Último Cargo
-                ]
+                # Configuración de Tabla y Datos
+                headers = ['#', 'Cédula', 'Nombre Completo', 'F. Ingreso', 'F. Egreso', 'Motivo', 'Último Cargo']
+                col_widths = [10*mm, 22*mm, 55*mm, 25*mm, 25*mm, 45*mm, 75*mm]
 
                 rows = []
-                # Ordenar internamente por nombre
                 egresados_ordenados = sorted(direcciones[dg_nombre], key=lambda x: self._get_nombre(x))
-                
                 for idx, graduate in enumerate(egresados_ordenados, start=1):
                     rows.append([
                         str(idx),
@@ -205,15 +197,19 @@ class GraduatePDFGenerator(BasePDFGenerator):
 
                 if rows:
                     table = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
+                    # IMPORTANTE: Permitir que la tabla se divida entre páginas si es muy larga
+                    # pero que el inicio de la tabla esté pegado al título
                     bloque_direccion.append(table)
                     bloque_direccion.append(Spacer(1, 8 * mm))
                     
-                    # Agrupamos Título DG + Tabla para evitar que se separen
+                    # Usamos KeepTogether pero con lógica: 
+                    # Solo mantendrá juntos el título y las primeras filas de la tabla
                     elements.append(KeepTogether(bloque_direccion))
                 else:
                     elements.append(Paragraph("No se encontraron registros.", self.styles['Body']))
 
         return elements
+    
     # =========================================================================
     # Métodos auxiliares para extraer datos
     # =========================================================================
