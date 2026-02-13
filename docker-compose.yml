@@ -7,11 +7,11 @@ services:
         aliases:
           - postgresdb
     environment:
-      POSTGRES_PASSWORD: 3054=HitM
+      POSTGRES_PASSWORD: Manco29**
       POSTGRES_DB: SIGEP
       POSTGRES_USER: postgres
     volumes:
-      - "C:/pgdata:/var/lib/postgresql"
+      - "/var/www/backup/pgdata:/var/lib/postgresql"
     ports:
       - "5400:5432"
     healthcheck:
@@ -27,6 +27,8 @@ services:
     build:
       context: ./BACKEND
       dockerfile: django.dockerfile
+    env_file:
+       - ./BACKEND/.env
     networks:
       backend:
         aliases:
@@ -45,7 +47,7 @@ services:
       context: ./NestJS-Files
       dockerfile: nestjs.dockerfile
     volumes:
-      - "C:/uploads:/app/NestFS/uploads"
+      - "/var/www/backup/uploadsNestFS:/app/NestFS-Files/src/uploads"
     networks:
       file_manager:
         aliases:
@@ -79,8 +81,8 @@ services:
     networks:
       postgres:
     environment:
-      PGADMIN_DEFAULT_EMAIL: moisesmachado@gmail.com
-      PGADMIN_DEFAULT_PASSWORD: 3054=HitM
+      PGADMIN_DEFAULT_EMAIL: projectosMIJ@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: Manco29**
     depends_on:
       - postgres
     restart: always

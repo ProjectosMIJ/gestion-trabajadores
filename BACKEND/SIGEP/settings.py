@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-2vg*3_2nukjc_#ey_ufy_@xkyp5(pkpq34c@fsed28q!3uzxzs
 DEBUG = True
 
 # Dentro de Docker, otros servicios llegan a este contenedor por el hostname del servicio (por ej. "django").
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'django', 'djangoapp', 'django-App', 'postgresdb', 'nextjs-App']
+ALLOWED_HOSTS = ['172.16.10.209', '127.0.0.1', 'django', 'djangoapp', 'django-App', 'postgresdb', 'nextjs-App']
 
 # Application definition
 
@@ -61,7 +61,7 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'SIGEP.urls'
 CORS_ALLOWED_ORIGINS = [
     "http://djangoapp:3000", 
-    "http://localhost:3000",
+    "http://172.16.10.209:3000",
     "http://127.0.0.1:3000",
     "http://nextjs-App:3000",  # <- Agregar este
     "http://172.16.24.81:3000",
@@ -94,7 +94,7 @@ DATABASES = {
         'NAME': config('DJANGO_DB_NAME', default='SIGEP'),
         'USER': config('DJANGO_DB_USER', default='postgres'),
         'PASSWORD': config('DJANGO_DB_PASSWORD', default='admin'),
-        'HOST': config('DJANGO_DB_HOST', default='localhost'),
+        'HOST': config('DJANGO_DB_HOST', default='172.16.10.209'),
         'PORT': config('DJANGO_DB_PORT', default='5432'),
     }
 }
@@ -146,7 +146,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
     "http://192.168.1.5:3000", 
-    "http://localhost:3000",
+    "http://172.16.10.209:3000",
     "http://127.0.0.1:3000",
     "http://next-app:3000",
     "http://172.16.24.81:3000",
@@ -155,7 +155,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://172.16.24.56:3000",
     "http://192.168.137.22:3000",
     "http://172.22.112.1:3000",
-    "http://localhost:3000",
+    "http://172.16.10.209:3000",
 ]
 
 CORS_ALLOW_CREDENTIALS = True

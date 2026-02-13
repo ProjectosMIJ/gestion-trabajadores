@@ -10,7 +10,7 @@ def wait_for_postgres():
     Espera hasta que PostgreSQL esté listo para aceptar conexiones
     """
     db_config = {
-        'host': os.environ.get('DJANGO_DB_HOST', 'localhost'),
+        'host': os.environ.get('DJANGO_DB_HOST', '172.16.10.209'),
         'port': os.environ.get('DJANGO_DB_PORT', '5432'),
         'database': os.environ.get('DJANGO_DB_NAME', 'SIGEP'),
         'user': os.environ.get('DJANGO_DB_USER', 'postgres'),
