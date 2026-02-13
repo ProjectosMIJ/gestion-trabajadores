@@ -17,36 +17,6 @@ import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import UpdateCode from "./detail-info";
 export const columnsCode: ColumnDef<Code>[] = [
   {
-    id: "actions",
-    header: "Acciones",
-    cell: ({ row }) => {
-      const codigo = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Abrir Menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(codigo.codigo)}
-            >
-              Copiar Código
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <UpdateCode code={codigo} />
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
-  {
     accessorKey: "codigo",
     header: ({ column }) => {
       return (
@@ -133,6 +103,36 @@ export const columnsCode: ColumnDef<Code>[] = [
       const date = getValue() as Date;
       if (!date) return "N/A";
       return formatInTimeZone(date, "UTC", "dd/MM/yyy");
+    },
+  },
+  {
+    id: "actions",
+    header: "Acciones",
+    cell: ({ row }) => {
+      const codigo = row.original;
+
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Abrir Menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+            <DropdownMenuItem
+              onClick={() => navigator.clipboard.writeText(codigo.codigo)}
+            >
+              Copiar Código
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <UpdateCode code={codigo} />
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
     },
   },
 ];
