@@ -195,12 +195,7 @@ export function ChangeCodeForm() {
                     <p>Cedula: {employee.data.cedulaidentidad}</p>
                   </div>
                 ) : (
-                  <p>
-                    <span className="flex gap-4">
-                      El Trabajador No Posee Cargos{" "}
-                      <CircleAlert className="text-red-500" />
-                    </span>
-                  </p>
+                  <Error errorMessage="Trabajador No Posee Cargos" />
                 )}
               </div>
             )}

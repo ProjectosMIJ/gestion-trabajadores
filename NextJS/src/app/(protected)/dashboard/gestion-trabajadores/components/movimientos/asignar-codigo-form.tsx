@@ -106,6 +106,7 @@ export function AsigCode() {
   const handleSearch = async () => {
     if (!searchEmployee) return;
     const response = await getEmployeeInfo(searchEmployee);
+    console.log(response);
     if (
       response.data &&
       !Array.isArray(response.data) &&
@@ -116,6 +117,8 @@ export function AsigCode() {
         shouldValidate: true,
         shouldDirty: true,
       });
+    } else {
+      setEmployee(response.data);
     }
   };
   const schemaSearch = z.object({
@@ -193,12 +196,7 @@ export function AsigCode() {
                     <p>Cédula: {employee.cedulaidentidad}</p>
                   </div>
                 ) : (
-                  <p>
-                    <span className="flex gap-4">
-                      Trabajador No Encontrado{" "}
-                      <CircleAlert className="text-red-500" />
-                    </span>
-                  </p>
+                  <Error errorMessage="Trabajador No Encontrado" />
                 )}
               </div>
             )}

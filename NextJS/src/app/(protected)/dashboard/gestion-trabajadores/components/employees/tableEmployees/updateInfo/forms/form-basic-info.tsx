@@ -108,6 +108,7 @@ export function FormBasicUpdateInfo({
       }
     });
   };
+
   return (
     <Card className="w-full h-full">
       <CardHeader>

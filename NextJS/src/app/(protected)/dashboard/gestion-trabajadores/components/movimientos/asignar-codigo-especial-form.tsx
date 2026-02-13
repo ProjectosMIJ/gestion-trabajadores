@@ -52,6 +52,7 @@ import {
 } from "../../../../../../components/ui/form";
 import { Spinner } from "../../../../../../components/ui/spinner";
 import { Switch } from "../../../../../../components/ui/switch";
+import Error from "../error/error";
 
 interface CodigoCatalogFormProps {
   onSuccess?: (bool: boolean) => true | false;
@@ -186,6 +187,8 @@ export function CodigoCatalogEspecialForm({
         shouldValidate: true,
         shouldDirty: true,
       });
+    } else {
+      setEmployee(response.data);
     }
   };
   return (
@@ -572,12 +575,7 @@ export function CodigoCatalogEspecialForm({
                     <p>Estado Civil: {employee.estadoCivil.estadoCivil}</p>
                   </>
                 ) : (
-                  <p>
-                    <span className="flex gap-4">
-                      Trabajador No Encontrado{" "}
-                      <CircleAlert className="text-red-500" />
-                    </span>
-                  </p>
+                  <Error errorMessage="Trabajador No Encontrado" />
                 )}
               </div>
             )}
