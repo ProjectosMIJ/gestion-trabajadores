@@ -44,7 +44,7 @@ import {
   Shirt,
 } from "lucide-react";
 import { useMemo, useState, useTransition } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm ,useWatch} from "react-hook-form";
 import useSWR from "swr";
 import { Button } from "../../../../../../components/ui/button";
 import { Calendar } from "../../../../../../components/ui/calendar";
@@ -225,6 +225,10 @@ export function CreateFamilyForm() {
       });
     }
   };
+   const academyLevelId = useWatch({
+    control: form.control,
+    name: "formacion_academica_familiar.nivel_Academico_id",
+  });
   return (
     <>
       <Card>
@@ -680,16 +684,12 @@ export function CreateFamilyForm() {
                                       ))}
                                     </SelectContent>
                                   </Select>
-                                  <FormDescription className="flex flex-row gap-2 justify-end">
-                                    <Label htmlFor="showInfo">
-                                      Mas Detalles De Formación Academica
-                                    </Label>
-                                    <Switch
-                                      className="cursor-pointer"
-                                      id="showInfo"
-                                      onCheckedChange={setShowMoreDetails}
-                                    />
-                                  </FormDescription>
+                                 {!(academyLevelId == 1 || academyLevelId == 2) && (
+                        <FormDescription className="flex flex-row gap-2 justify-end">
+                          <Label>Mas Detalles De Formacion Academica</Label>
+                          <Switch onCheckedChange={setShowMoreDetails} />
+                        </FormDescription>
+                      )}
                                   <FormMessage />
                                 </FormItem>
                               )}

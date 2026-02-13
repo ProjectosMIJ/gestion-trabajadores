@@ -7,7 +7,7 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "250mb",
     },
   },
-  allowedDevOrigins: ["http://localhost:3000", "http://localhost:3000"],
+  allowedDevOrigins: ["http://172.16.10.209:3000", "http://172.16.10.209:3000"],
 
   // transpilePackages: ["@react-pdf/renderer"],
   // webpack: (config) => {
