@@ -96,7 +96,7 @@ export default function PersonalPage() {
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Buscar Cedula</FormLabel>
+                      <FormLabel>Buscar Cédula</FormLabel>
                       <FormControl>
                         <Input
                           type="text"
@@ -112,7 +112,7 @@ export default function PersonalPage() {
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Buscar Codigo De Trabajador</FormLabel>
+                      <FormLabel>Buscar Código De Trabajador</FormLabel>
                       <FormControl>
                         <Input
                           type="text"
@@ -169,7 +169,7 @@ export default function PersonalPage() {
             </form>
           </Form>
           {isLoading || isPending ? (
-            <Loading promiseMessage="Cargando Informacion"></Loading>
+            <Loading promiseMessage="Cargando Información"></Loading>
           ) : (
             <>
               <TableEmployee employeeData={employeeData?.data ?? []} />

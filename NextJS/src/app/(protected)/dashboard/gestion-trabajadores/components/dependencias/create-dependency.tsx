@@ -82,7 +82,7 @@ export default function CreateDependency() {
                   control={form.control}
                   render={({ field }) => (
                     <FormItem className="w-full truncate p-0.5">
-                      <FormLabel>Codigo De La Dependencia</FormLabel>
+                      <FormLabel>Código De La Dependencia</FormLabel>
                       <FormControl>
                         <Input {...field} type="number" />
                       </FormControl>
@@ -111,7 +111,7 @@ export default function CreateDependency() {
                   render={({ field }) => (
                     <FormItem className="flex flex-row">
                       <FormLabel>
-                        ¿Desea Asignarle una Direccion General a la Dependencia?
+                        ¿Desea Asignarle una Dirección General a la Dependencia?
                       </FormLabel>
                       <FormControl>
                         <Switch onCheckedChange={field.onChange} />
@@ -128,7 +128,7 @@ export default function CreateDependency() {
                       control={form.control}
                       render={({ field }) => (
                         <FormItem className="w-full truncate p-0.5">
-                          <FormLabel>Codigo De La Direccion General</FormLabel>
+                          <FormLabel>Código De La Dirección General</FormLabel>
                           <FormControl>
                             <Input {...field} type="number" />
                           </FormControl>
@@ -141,7 +141,7 @@ export default function CreateDependency() {
                       control={form.control}
                       render={({ field }) => (
                         <FormItem className="w-full truncate p-0.5">
-                          <FormLabel>Nombre De La Direccion General</FormLabel>
+                          <FormLabel>Nombre De La Dirección General</FormLabel>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
@@ -157,8 +157,8 @@ export default function CreateDependency() {
                       render={({ field }) => (
                         <FormItem className="flex flex-row">
                           <FormLabel>
-                            ¿Desea Asignarle una Direccion De Linea A La
-                            Direccion General?
+                            ¿Desea Asignarle una Dirección De Linea A La
+                            Dirección General?
                           </FormLabel>
                           <FormControl>
                             <Switch onCheckedChange={field.onChange} />
@@ -178,7 +178,7 @@ export default function CreateDependency() {
                       control={form.control}
                       render={({ field }) => (
                         <FormItem className="w-full truncate p-0.5">
-                          <FormLabel>Codigo De La Direccion De Linea</FormLabel>
+                          <FormLabel>Código De La Dirección De Linea</FormLabel>
                           <FormControl>
                             <Input {...field} type="number" />
                           </FormControl>
@@ -191,7 +191,7 @@ export default function CreateDependency() {
                       control={form.control}
                       render={({ field }) => (
                         <FormItem className="w-full truncate p-0.5">
-                          <FormLabel>Nombre De La Direccion De Linea</FormLabel>
+                          <FormLabel>Nombre De La Dirección De Linea</FormLabel>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
@@ -207,7 +207,7 @@ export default function CreateDependency() {
                       render={({ field }) => (
                         <FormItem className="flex flex-row">
                           <FormLabel>
-                            ¿Desea Asignarle una Coordinacion A La Direccion De
+                            ¿Desea Asignarle una Coordinación A La Dirección De
                             Linea?
                           </FormLabel>
                           <FormControl>
@@ -229,7 +229,7 @@ export default function CreateDependency() {
                         control={form.control}
                         render={({ field }) => (
                           <FormItem className="w-full truncate p-0.5">
-                            <FormLabel>Codigo De La Coordinación</FormLabel>
+                            <FormLabel>Código De La Coordinación</FormLabel>
                             <FormControl>
                               <Input {...field} type="number" />
                             </FormControl>

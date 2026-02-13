@@ -4,27 +4,27 @@ export const schemaDwellingUpdate = z.object({
   datos_vivienda: z.object({
     direccion_exacta: z
       .string({
-        message: "Debe Ingresar Informacion Valida",
+        message: "Debe Ingresar Información Valida",
       })
       .optional(),
     estado_id: z
       .number({
-        message: "Debe Ingresar Informacion Valida",
+        message: "Debe Ingresar Información Valida",
       })
       .optional(),
     municipio_id: z
       .number({
-        message: "Debe Ingresar Informacion Valida",
+        message: "Debe Ingresar Información Valida",
       })
       .optional(),
     parroquia: z
       .number({
-        message: "Debe Ingresar Informacion Valida",
+        message: "Debe Ingresar Información Valida",
       })
       .optional(),
     condicion_vivienda_id: z
       .number({
-        message: "Debe Ingresar Informacion Valida",
+        message: "Debe Ingresar Información Valida",
       })
       .optional(),
   }),

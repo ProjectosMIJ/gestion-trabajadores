@@ -69,7 +69,7 @@ export const columsReport: ColumnDef<EmployeeData>[] = [
   {
     accessorKey: "cedulaidentidad",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Cedula" />
+      <DataTableColumnHeader column={column} title="Cédula" />
     ),
   },
   {
@@ -130,7 +130,7 @@ export const columsReport: ColumnDef<EmployeeData>[] = [
                 navigator.clipboard.writeText(employee.cedulaidentidad)
               }
             >
-              Copiar Cedula De Identidad
+              Copiar Cédula De Identidad
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Extras</DropdownMenuLabel>
@@ -146,7 +146,7 @@ export const columsReport: ColumnDef<EmployeeData>[] = [
                   <ScrollArea className="h-screen">
                     <SheetHeaderUI>
                       <SheetTitleUI>
-                        Informacion Detallada Del Trabajador
+                        Información Detallada Del Trabajador
                       </SheetTitleUI>
                     </SheetHeaderUI>
                     <div className="flex flex-col m-auto justify-between h-full w-full gap-2">
@@ -179,29 +179,29 @@ export const columsReport: ColumnDef<EmployeeData>[] = [
                                   className="grid grid-cols-2 place-content-center"
                                   key={i}
                                 >
-                                  <div>Codigo:</div>
+                                  <div>Código:</div>
                                   <div>{v.codigo}</div>
                                   <div>Cargo:</div>
                                   <div>{v.denominacioncargo.cargo}</div>
-                                  <div>Cargo Especifico:</div>
+                                  <div>Cargo Específico:</div>
                                   <div>
                                     {v.denominacioncargoespecifico.cargo}
                                   </div>
                                   <div>Tipo De Nomina:</div>
                                   <div>{v.tiponomina.nomina}</div>
-                                  <div>Direccion General:</div>
+                                  <div>Dirección General:</div>
                                   <div>
                                     {v.DireccionGeneral
                                       ? v.DireccionGeneral.direccion_general
                                       : "N/A"}
                                   </div>
-                                  <div>Direccion De Linea:</div>
+                                  <div>Dirección De Linea:</div>
                                   <div>
                                     {v.DireccionLinea
                                       ? v.DireccionLinea?.direccion_linea
                                       : "N/A"}
                                   </div>
-                                  <div>Coordinacion</div>
+                                  <div>Coordinación</div>
                                   <div>
                                     {v.Coordinacion
                                       ? v.Coordinacion?.coordinacion
@@ -348,7 +348,7 @@ export const columsReport: ColumnDef<EmployeeData>[] = [
                       <Card>
                         <CardHeader>
                           <CardTitle className="flex flex-row items-center gap-3">
-                            Informacion De Vestimenta <Shirt />
+                            Información De Vestimenta <Shirt />
                           </CardTitle>
                         </CardHeader>
                         <CardContent>
@@ -378,7 +378,7 @@ export const columsReport: ColumnDef<EmployeeData>[] = [
                       <Card>
                         <CardHeader>
                           <CardTitle className="flex flex-row items-center gap-3">
-                            Informacion De Salud
+                            Información De Salud
                             <Ambulance />
                           </CardTitle>
                         </CardHeader>

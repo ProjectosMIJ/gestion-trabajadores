@@ -83,7 +83,7 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
 
       <CardContent>
         <CardAction className="text-gray-500">
-          Paso 1: Informacion Basica
+          Paso 1: Información Basica
         </CardAction>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmitFormity)}>
@@ -178,7 +178,7 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
                     render={({ field }) => (
                       <FormItem className="col-span-2">
                         <FormLabel className="flex flex-row items-center">
-                          Cedula de identidad * <Contact />
+                          Cédula de identidad * <Contact />
                         </FormLabel>
                         <FormControl>
                           <Input placeholder="000000000" {...field} />
@@ -229,7 +229,11 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
                                 className="font-light"
                               >
                                 {field.value ? (
-                                  formatInTimeZone(field.value,'UTC', "dd/MM/yyy")
+                                  formatInTimeZone(
+                                    field.value,
+                                    "UTC",
+                                    "dd/MM/yyy",
+                                  )
                                 ) : (
                                   <span>Selecciona una fecha</span>
                                 )}

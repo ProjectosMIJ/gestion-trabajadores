@@ -16,6 +16,8 @@ from simple_history.models import HistoricalRecords
 # cargos 
 class Denominacioncargo(models.Model):
     cargo = models.CharField(max_length=200, unique=True)
+    orden_by_cargo = models.PositiveIntegerField(default=30)
+
     class Meta:
         managed = True
         db_table = 'DenominacionCargo'
@@ -24,7 +26,7 @@ class Denominacioncargo(models.Model):
 
 class Denominacioncargoespecifico(models.Model):
     cargo = models.CharField(max_length=200, unique=True)
-
+    orden_by_cargo = models.PositiveIntegerField(default=30)
     class Meta:
         managed = True
         db_table = 'DenominacionCargoEspecifico'
@@ -67,7 +69,9 @@ class Tiponomina(models.Model):
     class Meta:
         managed = True
         db_table = 'TipoNomina'
+        ordering = ['nomina']
         app_label = 'RAC'
+        
 
 
 class Dependencias(models.Model):
@@ -77,6 +81,7 @@ class Dependencias(models.Model):
     class Meta:
         managed = True
         db_table = 'Dependencias'
+        ordering = ['id']
         app_label = 'RAC'
 
 
@@ -84,32 +89,38 @@ class DireccionGeneral(models.Model):
     Codigo = models.CharField(max_length=20, unique=True)
     direccion_general = models.CharField(max_length=200, unique=True)
     dependenciaId = models.ForeignKey('Dependencias', models.DO_NOTHING,null=True, default=1, db_column='dependenciaId')
-
+    orden_by_direccion = models.PositiveIntegerField(default=30)
 
     class Meta:
         
         managed = True
         db_table = 'DireccionGeneral'
+        ordering = ['orden_by_direccion']
         app_label = 'RAC'
     
 class DireccionLinea(models.Model):
     Codigo = models.CharField(max_length=20, unique=True)
     direccion_linea = models.CharField(max_length=200, unique=True)
     direccionGeneral = models.ForeignKey('DireccionGeneral', models.DO_NOTHING, db_column='direccionGeneralId')
+    orden_by_direccion = models.PositiveIntegerField(default=30)
+    
 
     class Meta:
         managed = True
         db_table = 'DireccionLinea'
+        ordering = ['orden_by_direccion']
         app_label = 'RAC'
 
 class Coordinaciones(models.Model):
     Codigo = models.CharField(max_length=20, unique=True)
     coordinacion = models.CharField(max_length=200, unique=True)
     direccionLinea = models.ForeignKey('DireccionLinea', models.DO_NOTHING, null=True, blank=True,db_column='direccionLineaId')
-    
+    direccionGeneral = models.ForeignKey('DireccionGeneral', models.DO_NOTHING, null=True, blank=True,db_column='direccionGeneralId')
+    orden_by_coordinacion = models.PositiveIntegerField(default=30)
     class Meta:
         managed = True
         db_table = 'Coordinaciones'
+        ordering = ['orden_by_coordinacion']
         app_label = 'RAC'
 
 
@@ -189,6 +200,7 @@ class Talla_Camisas(models.Model):
     class Meta:
         managed = True
         app_label = 'RAC'
+        ordering = ['id']
 
 class Talla_Pantalones(models.Model):
     talla = models.CharField(max_length=50, unique=True)
@@ -196,6 +208,7 @@ class Talla_Pantalones(models.Model):
     class Meta:
         managed = True
         app_label = 'RAC'
+        ordering = ['id']
 
 class Talla_Zapatos(models.Model):
     talla = models.CharField(max_length=50, unique=True)
@@ -203,6 +216,7 @@ class Talla_Zapatos(models.Model):
     class Meta:
         managed = True
         app_label = 'RAC'
+        ordering = ['id']
 
 class GrupoSanguineo(models.Model):
     GrupoSanguineo = models.CharField(max_length=50, unique=True, verbose_name='Descripción')
@@ -217,6 +231,7 @@ class carreras(models.Model):
     class Meta:
         managed = True
         app_label = 'RAC'
+        ordering = ['nombre_carrera']
 
 class Menciones(models.Model):
     carrera_id = models.ForeignKey(carreras, models.DO_NOTHING, db_column='carreraId')
@@ -226,6 +241,8 @@ class Menciones(models.Model):
         managed = True
         unique_together = ('carrera_id', 'nombre_mencion')
         app_label = 'RAC'
+        unique_together = ('carrera_id', 'nombre_mencion')
+        ordering = ['nombre_mencion']
     
 
 
@@ -305,23 +322,6 @@ class antecedentes_servicio(models.Model):
     
 
 
-class AsigTrabajoManager(models.Manager):
-    def get_hierarchy_case(self, campo_prefijo=""):
-
-        return Case(
-            When(**{f"{campo_prefijo}denominacioncargoid__cargo__icontains": 'DIRECTOR GENERAL'}, then=Value(1)),
-            When(**{f"{campo_prefijo}denominacioncargoid__cargo__icontains": 'DIRECTOR ADJUNTO'}, then=Value(2)),
-            When(**{f"{campo_prefijo}denominacioncargoid__cargo__startswith": 'DIRECTOR'}, then=Value(3)),
-            When(**{f"{campo_prefijo}denominacioncargoid__cargo__icontains": 'COORDINADOR'}, then=Value(4)),
-            When(**{f"{campo_prefijo}denominacioncargoid__cargo__icontains": 'ASISTENTE'}, then=Value(5)),
-            When(**{f"{campo_prefijo}denominacioncargoid__cargo__startswith": 'PROFESIONAL'}, then=Value(10)),
-            When(**{f"{campo_prefijo}denominacioncargoid__cargo__startswith": 'TECNICO'}, then=Value(20)),
-            When(**{f"{campo_prefijo}denominacioncargoid__cargo__startswith": 'BACHILLER'}, then=Value(30)),
-            When(**{f"{campo_prefijo}denominacioncargoid__cargo__icontains": 'SUPERVISOR'}, then=Value(40)),
-            When(**{f"{campo_prefijo}denominacioncargoid__cargo": 'PASANTE'}, then=Value(100)),
-            default=Value(50),
-            output_field=IntegerField(),
-        )
         
         
 
@@ -369,7 +369,7 @@ class AsigTrabajo(models.Model):
     OrganismoAdscritoid = models.ForeignKey('OrganismoAdscrito', models.DO_NOTHING, db_column='organismoAdscritoId', blank=True, null=True)
     gradoid = models.ForeignKey('Grado', models.DO_NOTHING, db_column='gradoId', blank=True, null=True) 
     tiponominaid = models.ForeignKey('Tiponomina', models.DO_NOTHING, db_column='tipoNominaId')
-    Dependencia = models.ForeignKey('Dependencias', models.DO_NOTHING, db_column='dependenciaId', blank=True, null=True)
+    Dependencia = models.ForeignKey('Dependencias', models.DO_NOTHING, db_column='dependenciaId', blank=True,default=1, null=True)
     DireccionGeneral =  models.ForeignKey(DireccionGeneral, models.DO_NOTHING, db_column='direccionGeneralId', blank=True, null=True)
     DireccionLinea = models.ForeignKey(DireccionLinea, models.DO_NOTHING, db_column='direccionLineaId', blank=True, null=True)
     Coordinacion = models.ForeignKey(Coordinaciones, models.DO_NOTHING, db_column='coordinacionId', blank=True, null=True)
@@ -388,7 +388,7 @@ class AsigTrabajo(models.Model):
         self.changed_by = value
         
         
-    objects = AsigTrabajoManager()
+  
     class Meta:
         managed = True
         db_table = 'AsigTrabajo'

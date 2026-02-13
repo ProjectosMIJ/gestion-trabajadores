@@ -978,365 +978,50 @@ def list_general_work_codes(request):
             'data': []
         }, status=status.HTTP_400_BAD_REQUEST)
  
- 
-
-# LISTA SOLO LOS CODIGOS VACANTES
+# LISTA DE CARGOS VACANTES  
 @extend_schema(
     tags=["Gestion de Cargos"],
-    summary="Listar Cargos unicamente Vacantes",
-    description="Devuelve una lista de todos los cargos  vacantes registrados",
-    request=ListerCodigosSerializer,
-
+    summary="Listar Cargos Generales (Vacantes)",
+    description="Devuelve una lista de todos los cargos registrados",
+     request=ListerCodigosSerializer,
 )
 @api_view(['GET'])
-def list_vacant_work_codes(request):
-
+def list_general_vacants_codes(request):
     try:
         queryset = AsigTrabajo.objects.filter(
-            Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO, 
+            Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO,
             estatusid__estatus__iexact=ESTATUS_VACANTE,
             tiponominaid__requiere_codig=False
-        ).select_related(
-            'Tipo_personal', 
-            'estatusid', 
-            'tiponominaid', 
-            'employee'
+            
         )
+
+        filterset = AsigTrabajoFilter(request.GET, queryset=queryset)
         
-        serializer = ListerCodigosSerializer(queryset, many=True)
+        if not filterset.is_valid():
+            return Response({
+                'status': "error",
+                'message': "Los parámetros de filtro son inválidos.",
+                'data': []
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        codigos = filterset.qs.distinct()[:10]
+        
+        serializer = ListerCodigosSerializer(codigos, many=True)
         
         return Response({
             'status': "success",
-            'message': "Se encontraron códigos de vacantes correctamente",
+            'message': "Códigos de trabajo listados correctamente",
             'data': serializer.data
         }, status=status.HTTP_200_OK)
 
-    except Exception:
+    except Exception as e:
         return Response({
             'status': "error",
-            'message': "No se pudo recuperar la lista de códigos de vacantes.",
+            'message': f"No se pudo recuperar la lista de códigos: {str(e)}",
             'data': []
         }, status=status.HTTP_400_BAD_REQUEST)
-        
-
-@extend_schema(
-    tags=["Gestion de Cargos"],
-    summary="Listar Cargos unicamente Vacantes y activos por dependencia",
-    description="Devuelve una lista de todos los cargos  vacantes registrados",
-    request=ListerCodigosSerializer,
-
-)
-@api_view(['GET'])
-def list_all_codes_by_dependencia(request, dependencia_id):
-
-    get_object_or_404(Dependencias, pk=dependencia_id)
-
-    try:
-        queryset = AsigTrabajo.objects.filter(
-            Dependencia=dependencia_id,
-            Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO, 
-            tiponominaid__requiere_codig=False
-        ).select_related(
-            'Tipo_personal', 
-            'estatusid', 
-            'tiponominaid', 
-            'employee'
-        )
-        
-        serializer = ListerCodigosSerializer(queryset, many=True)
-        
-        return Response({
-            'status': "success",
-            'message': "Vacantes de la dependencia listado correctamente",
-            'data': serializer.data
-        }, status=status.HTTP_200_OK)
-
-    except Exception:
-        return Response({
-            'status': "error",
-            'message': "No se pudieron recuperar las vacantes de la dependencia.",
-            'data': []
-        }, status=status.HTTP_400_BAD_REQUEST)
-        
-@extend_schema(
-    tags=["Gestion de Cargos"],
-    summary="Listar Cargos unicamente Vacantes y activos por direccion general",
-    description="Devuelve una lista de todos los cargos  vacantes registrados",
-    request=ListerCodigosSerializer,
-
-)
-@api_view(['GET'])
-def list_all_codes_by_general_directorate(request, general_id):
-
-    get_object_or_404(DireccionGeneral, pk=general_id)
-
-    try:
-        queryset = AsigTrabajo.objects.filter(
-            DireccionGeneral=general_id,
-            Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO, 
-            tiponominaid__requiere_codig=False
-        ).select_related(
-            'Tipo_personal', 
-            'estatusid', 
-            'tiponominaid', 
-            'employee'
-        )
-        
-        serializer = ListerCodigosSerializer(queryset, many=True)
-        
-        return Response({
-            'status': "success",
-            'message': "Vacantes de la dirección listadas correctamente",
-            'data': serializer.data
-        }, status=status.HTTP_200_OK)
-
-    except Exception:
-        return Response({
-            'status': "error",
-            'message': "No se pudieron recuperar las vacantes de la dirección.",
-            'data': []
-        }, status=status.HTTP_400_BAD_REQUEST)
-               
 
 
-@extend_schema(
-    tags=["Gestion de Cargos"],
-    summary="Listar Cargos unicamente Vacantes y activos por direccion de linea",
-    description="Devuelve una lista de todos los cargos  vacantes registrados",
-    request=ListerCodigosSerializer,
-) 
-@api_view(['GET'])
-def list_all_codes_by_line_directorate(request, line_id):
-
-    get_object_or_404(DireccionLinea, pk=line_id)
-
-    try:
-        queryset = AsigTrabajo.objects.filter(
-            DireccionLinea=line_id,
-            Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO, 
-
-            tiponominaid__requiere_codig=False
-        ).select_related(
-            'Tipo_personal', 
-            'estatusid', 
-            'tiponominaid', 
-            'employee'
-        )
-        
-        serializer = ListerCodigosSerializer(queryset, many=True)
-        
-        return Response({
-            'status': "success",
-            'message': "Vacantes de la dirección de línea obtenidas",
-            'data': serializer.data
-        }, status=status.HTTP_200_OK)
-
-    except Exception:
-        return Response({
-            'status': "error",
-            'message': "No se pudieron recuperar las vacantes de esta dirección de línea.",
-            'data': []
-        }, status=status.HTTP_400_BAD_REQUEST)  
-
-
-@extend_schema(
-    tags=["Gestion de Cargos"],
-    summary="Listar Cargos unicamente Vacantes y activos por coordinacion",
-    description="Devuelve una lista de todos los cargos  vacantes registrados",
-    request=ListerCodigosSerializer,
-) 
-@api_view(['GET'])
-def list_all_codes_by_coordination(request, coordination_id):
-
-    get_object_or_404(Coordinaciones, pk=coordination_id)
-
-    try:
-        queryset = AsigTrabajo.objects.filter(
-            Coordinacion=coordination_id,
-            Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO, 
-            tiponominaid__requiere_codig=False
-        ).select_related(
-            'Tipo_personal', 
-            'estatusid', 
-            'tiponominaid', 
-            'employee'
-        )
-        
-        serializer = ListerCodigosSerializer(queryset, many=True)
-        
-        return Response({
-            'status': "success",
-            'message': f"Vacantes de la coordinación obtenidas",
-            'data': serializer.data
-        }, status=status.HTTP_200_OK)
-
-    except Exception:
-        return Response({
-            'status': "error",
-            'message': "No se pudieron recuperar las vacantes de esta coordinación.",
-            'data': []
-        }, status=status.HTTP_400_BAD_REQUEST)
-        
-        
-@extend_schema(
-    tags=["Gestion de Cargos"],
-    summary="Listar Cargos unicamente Vacantes por dependencia",
-    description="Devuelve una lista de todos los cargos  vacantes registrados",
-    request=ListerCodigosSerializer,
-
-)
-@api_view(['GET'])
-def list_vacant_codes_by_dependencia(request, dependencia_id):
-
-    get_object_or_404(Dependencias, pk=dependencia_id)
-
-    try:
-        queryset = AsigTrabajo.objects.filter(
-            Dependencia=dependencia_id,
-            Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO, 
-            estatusid__estatus__iexact=ESTATUS_VACANTE,
-            tiponominaid__requiere_codig=False
-        ).select_related(
-            'Tipo_personal', 
-            'estatusid', 
-            'tiponominaid', 
-            'employee'
-        )
-        
-        serializer = ListerCodigosSerializer(queryset, many=True)
-        
-        return Response({
-            'status': "success",
-            'message': "Vacantes de la dependencia listadas correctamente",
-            'data': serializer.data
-        }, status=status.HTTP_200_OK)
-
-    except Exception:
-        return Response({
-            'status': "error",
-            'message': "No se pudieron recuperar las vacantes de la dependencia",
-            'data': []
-        }, status=status.HTTP_400_BAD_REQUEST)
-# lista de cargos vacantes por su direccion general
-@extend_schema(
-    tags=["Gestion de Cargos"],
-    summary="Listar Cargos unicamente Vacantes por direccion general",
-    description="Devuelve una lista de todos los cargos  vacantes registrados",
-    request=ListerCodigosSerializer,
-
-)
-@api_view(['GET'])
-def list_vacant_codes_by_general_directorate(request, general_id):
-
-    get_object_or_404(DireccionGeneral, pk=general_id)
-
-    try:
-        queryset = AsigTrabajo.objects.filter(
-            DireccionGeneral=general_id,
-            Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO, 
-            estatusid__estatus__iexact=ESTATUS_VACANTE,
-            tiponominaid__requiere_codig=False
-        ).select_related(
-            'Tipo_personal', 
-            'estatusid', 
-            'tiponominaid', 
-            'employee'
-        )
-        
-        serializer = ListerCodigosSerializer(queryset, many=True)
-        
-        return Response({
-            'status': "success",
-            'message': "Vacantes de la dirección listadas correctamente",
-            'data': serializer.data
-        }, status=status.HTTP_200_OK)
-
-    except Exception:
-        return Response({
-            'status': "error",
-            'message': "No se pudieron recuperar las vacantes de la dirección.",
-            'data': []
-        }, status=status.HTTP_400_BAD_REQUEST)
-        
-@extend_schema(
-    tags=["Gestion de Cargos"],
-    summary="Listar Cargos unicamente Vacantes por direccion de linea",
-    description="Devuelve una lista de todos los cargos  vacantes registrados",
-    request=ListerCodigosSerializer,
-) 
-@api_view(['GET'])
-def list_vacant_codes_by_line_directorate(request, line_id):
-
-    get_object_or_404(DireccionLinea, pk=line_id)
-
-    try:
-        queryset = AsigTrabajo.objects.filter(
-            DireccionLinea=line_id,
-            Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO, 
-            estatusid__estatus__iexact=ESTATUS_VACANTE,
-            tiponominaid__requiere_codig=False
-        ).select_related(
-            'Tipo_personal', 
-            'estatusid', 
-            'tiponominaid', 
-            'employee'
-        )
-        
-        serializer = ListerCodigosSerializer(queryset, many=True)
-        
-        return Response({
-            'status': "success",
-            'message': "Vacantes de la dirección de línea obtenidas",
-            'data': serializer.data
-        }, status=status.HTTP_200_OK)
-
-    except Exception:
-        return Response({
-            'status': "error",
-            'message': "No se pudieron recuperar las vacantes de esta dirección de línea.",
-            'data': []
-        }, status=status.HTTP_400_BAD_REQUEST)  
-
-@extend_schema(
-    tags=["Gestion de Cargos"],
-    summary="Listar Cargos unicamente Vacantes por coordinacion",
-    description="Devuelve una lista de todos los cargos  vacantes registrados",
-    request=ListerCodigosSerializer,
-) 
-@api_view(['GET'])
-def list_vacant_codes_by_coordination(request, coordination_id):
-
-    get_object_or_404(Coordinaciones, pk=coordination_id)
-
-    try:
-        queryset = AsigTrabajo.objects.filter(
-            Coordinacion=coordination_id,
-            Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO, 
-            estatusid__estatus__iexact=ESTATUS_VACANTE,
-            tiponominaid__requiere_codig=False
-        ).select_related(
-            'Tipo_personal', 
-            'estatusid', 
-            'tiponominaid', 
-            'employee'
-        )
-        
-        serializer = ListerCodigosSerializer(queryset, many=True)
-        
-        return Response({
-            'status': "success",
-            'message': f"Vacantes de la coordinación obtenidas",
-            'data': serializer.data
-        }, status=status.HTTP_200_OK)
-
-    except Exception:
-        return Response({
-            'status': "error",
-            'message': "No se pudieron recuperar las vacantes de esta coordinación.",
-            'data': []
-        }, status=status.HTTP_400_BAD_REQUEST)
-        
-             
 # DATOS PERFIL
 
 @extend_schema(

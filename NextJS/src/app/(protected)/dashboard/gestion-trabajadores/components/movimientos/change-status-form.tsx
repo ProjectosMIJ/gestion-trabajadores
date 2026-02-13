@@ -39,6 +39,7 @@ import {
 import { Input } from "../../../../../../components/ui/input";
 import { Label } from "../../../../../../components/ui/label";
 import { Spinner } from "../../../../../../components/ui/spinner";
+import Error from "../error/error";
 export function ChangeStatusForm() {
   const [searchEmployee, setSearchEmployee] = useState<string | undefined>(
     undefined,
@@ -130,6 +131,7 @@ export function ChangeStatusForm() {
                   {!isLoading ? (
                     <>
                       {employee.data !== null &&
+                      employee.data.asignaciones != undefined &&
                       employee.data.asignaciones.length > 0 ? (
                         <>
                           <FormField
@@ -148,7 +150,7 @@ export function ChangeStatusForm() {
                                   <FormControl>
                                     <SelectTrigger className="w-full truncate">
                                       <SelectValue
-                                        placeholder={"Seleccione Un Codigo"}
+                                        placeholder={"Seleccione Un Código"}
                                       />
                                     </SelectTrigger>
                                   </FormControl>
@@ -187,7 +189,7 @@ export function ChangeStatusForm() {
                                   <FormControl>
                                     <SelectTrigger className="w-full truncate">
                                       <SelectValue
-                                        placeholder={`${isLoadingStatusNomina ? "Cargando Estatus De Codigos" : "Seleccione Un Codigo"}`}
+                                        placeholder={`${isLoadingStatusNomina ? "Cargando Estatus De Codigos" : "Seleccione Un Código"}`}
                                       />
                                     </SelectTrigger>
                                   </FormControl>
@@ -221,7 +223,7 @@ export function ChangeStatusForm() {
                                   <FormControl>
                                     <SelectTrigger className="w-full truncate">
                                       <SelectValue
-                                        placeholder={`${isLoadingInternalReason ? "Cargando Motivos De Cambio De Cargo" : "Seleccione Un Codigo"}`}
+                                        placeholder={`${isLoadingInternalReason ? "Cargando Motivos De Cambio De Cargo" : "Seleccione Un Motivo De Cambio de Cargo"}`}
                                       />
                                     </SelectTrigger>
                                   </FormControl>
@@ -243,19 +245,14 @@ export function ChangeStatusForm() {
                           />
                         </>
                       ) : (
-                        <p>
-                          <span className="flex gap-4">
-                            Empleado No Posee Asignaciones De Cargo{" "}
-                            <CircleAlert className="text-red-500" />
-                          </span>
-                        </p>
+                        <Error errorMessage="El Trabajador No Posee Asignaciones De Cargo" />
                       )}
                     </>
                   ) : (
                     <Spinner className="m-auto w-32 h-32"> Cargando...</Spinner>
                   )}
                   <Button disabled={isPending} className="w-full mt-2">
-                    {isPending ? "Cargando" : "Asignar Codigo"}
+                    {isPending ? "Cargando..." : "Cambiar Estatus"}
                   </Button>
                 </form>
               </Form>
@@ -274,7 +271,7 @@ export function ChangeStatusForm() {
                 <>
                   <p>Nombres: {employee.data.nombres}</p>
                   <p>Apellidos: {employee.data.apellidos}</p>
-                  <p>Cedula: {employee.data.cedulaidentidad}</p>
+                  <p>Cédula: {employee.data.cedulaidentidad}</p>
                 </>
               )}
             </div>

@@ -3,18 +3,18 @@ export const schemaBackgroundDateUpdate = z
   .object({
     institucion: z
       .string({
-        message: "Debe Ingresar Informacion Valida",
+        message: "Debe Ingresar Información Valida",
       })
       .optional(),
     fecha_ingreso: z
       .date({
-        message: "Debe Ingresar Informacion Valida",
+        message: "Debe Ingresar Información Valida",
         required_error: "Este Campo Es Requerido",
       })
       .optional(),
     fecha_egreso: z
       .date({
-        message: "Debe Ingresar Informacion Valida",
+        message: "Debe Ingresar Información Valida",
         required_error: "Este Campo Es Requerido",
       })
       .optional(),
@@ -32,7 +32,7 @@ export const schemaBackgroundDateUpdate = z
       if (!data.institucion || data.institucion.trim() === "") {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          message: "Debe Ingresar Informacion Valida",
+          message: "Debe Ingresar Información Valida",
           path: ["institucion"],
         });
       }

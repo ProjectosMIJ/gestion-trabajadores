@@ -11,7 +11,7 @@ export default function ReportLeavingPage() {
                 Reporte De Egresados
               </h1>
               <p className="text-muted-foreground mt-1">
-                Filtre La Informacion de egresados
+                Filtre La Información de egresados
               </p>
             </div>
             <ReportLeaving />

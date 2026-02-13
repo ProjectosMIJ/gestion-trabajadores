@@ -12,10 +12,10 @@ export default function AsignarCodigoEspecialPage() {
           <div className="space-y-6 ">
             <div>
               <h1 className="text-3xl font-bold text-foreground">
-                Asignacion De Codigos A Nominas Especiales
+                Asignación De Codigos A Nominas Especiales
               </h1>
               <p className="text-muted-foreground mt-1">
-                Cree un nuevo codigo auto generable segun la nomina especial
+                Cree un nuevo codigo auto generable segun la nómina especial
               </p>
             </div>
             <CodigoCatalogEspecialForm />

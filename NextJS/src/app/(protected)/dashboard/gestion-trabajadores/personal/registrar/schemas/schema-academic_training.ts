@@ -12,25 +12,25 @@ export const schemaAcademy = z.object({
       }),
     carrera_id: z
       .number({
-        message: "Debe Ingresar Informacion Valida",
+        message: "Debe Ingresar Información Valida",
         required_error: "Este Campo Es Requerido",
       })
       .optional(),
     mencion_id: z
       .number({
-        message: "Debe Ingresar Informacion Valida",
+        message: "Debe Ingresar Información Valida",
         required_error: "Este Campo Es Requerido",
       })
       .optional(),
     capacitacion: z
       .string({
-        message: "Debe Ingresar Informacion Valida",
+        message: "Debe Ingresar Información Valida",
         required_error: "Este Campo Es Requerido",
       })
       .optional(),
     institucion: z
       .string({
-        message: "Debe Ingresar Informacion Valida",
+        message: "Debe Ingresar Información Valida",
         required_error: "Este Campo Es Requerido",
       })
       .optional(),

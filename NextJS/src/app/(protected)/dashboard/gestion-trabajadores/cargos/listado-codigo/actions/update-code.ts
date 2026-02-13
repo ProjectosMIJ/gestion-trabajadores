@@ -31,12 +31,12 @@ export async function updateCodeTable(values: UpdateCodeTable, id: number) {
     if (response.ok) {
       return {
         success: true,
-        message: "Codigo Actualizado Exitosamente",
+        message: "Código Actualizado Exitosamente",
       };
     }
     return {
       success: false,
-      message: "Codigo No Actualizado",
+      message: "Código No Actualizado",
     };
   } catch {
     return {

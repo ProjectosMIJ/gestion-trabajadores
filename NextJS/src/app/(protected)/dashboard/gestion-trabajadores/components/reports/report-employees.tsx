@@ -40,7 +40,6 @@ import {
   getParish,
   getPatologys,
   getRegion,
-  getReportConfigEmployee,
   getSex,
   getStateByRegion,
   postReport,
@@ -122,7 +121,7 @@ export default function ReportEmployee() {
     async () => await getCargo(),
   );
   const { data: nomina, isLoading: isLoadingNomina } = useSWR(
-    "nomina",
+    "nominaGeneral",
     async () => await getNominaGeneral(),
   );
   const { data: grado, isLoading: isLoadingGrado } = useSWR("grado", async () =>
@@ -158,10 +157,6 @@ export default function ReportEmployee() {
   const { data: parish, isLoading: isLoadingStatesParish } = useSWR(
     municipalityId ? ["parish", municipalityId] : null,
     async () => await getParish(municipalityId!),
-  );
-  const { data: reportEmployee, isLoading: isLoadingReportEmployee } = useSWR(
-    "reportEmployee",
-    async () => await getReportConfigEmployee(),
   );
 
   const {
@@ -263,7 +258,7 @@ export default function ReportEmployee() {
                   {session.user.role == "admin" && (
                     <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-green-600">
                       <legend className="text-green-800 font-semibold">
-                        Direcciones{" "}
+                        Dirección Administrativa{" "}
                       </legend>
                       <FormField
                         control={form.control}
@@ -336,7 +331,9 @@ export default function ReportEmployee() {
                         name="filtros.direccion_linea_id"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Dirección De Linea</FormLabel>
+                            <FormLabel>
+                              Dirección De Linea / Coordinación
+                            </FormLabel>
                             <Select
                               onValueChange={(values) => {
                                 field.onChange(Number.parseInt(values));
@@ -367,7 +364,7 @@ export default function ReportEmployee() {
                         name="filtros.coordinacion_id"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Coordinacion</FormLabel>
+                            <FormLabel>Coordinación</FormLabel>
                             <Select
                               onValueChange={(values) => {
                                 field.onChange(Number.parseInt(values));
@@ -399,7 +396,7 @@ export default function ReportEmployee() {
                   <div className="grid grid-cols-2 gap-3 ">
                     <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-red-800 ">
                       <legend className="text-red-900 font-semibold flex justify-between gap-2 items-center">
-                        Informacion De Cargo{" "}
+                        Información De Cargo{" "}
                       </legend>
 
                       <FormField
@@ -408,7 +405,7 @@ export default function ReportEmployee() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>
-                              Denominacion De Cargo Especifico
+                              Denominación De Cargo Específico
                             </FormLabel>
                             <Select
                               onValueChange={(values) => {
@@ -418,7 +415,7 @@ export default function ReportEmployee() {
                               <FormControl>
                                 <SelectTrigger className="w-full truncate">
                                   <SelectValue
-                                    placeholder={`${isLoadingCargoEspecifico ? "Cargando Cargos Especificos" : "Seleccione una Denominacion De Cargo Especifico"}`}
+                                    placeholder={`${isLoadingCargoEspecifico ? "Cargando Cargos Especificos" : "Seleccione una Denominación De Cargo Específico"}`}
                                   />
                                 </SelectTrigger>
                               </FormControl>
@@ -439,7 +436,7 @@ export default function ReportEmployee() {
                         name="filtros.cargo_id"
                         render={({ field }) => (
                           <FormItem className=" ">
-                            <FormLabel>Denominacion De Cargo</FormLabel>
+                            <FormLabel>Denominación De Cargo</FormLabel>
                             <Select
                               onValueChange={(values) => {
                                 field.onChange(Number.parseInt(values));
@@ -448,7 +445,7 @@ export default function ReportEmployee() {
                               <FormControl>
                                 <SelectTrigger className="w-full truncate">
                                   <SelectValue
-                                    placeholder={`${isLoadingCargo ? "Cargando Denominaciones De Cargo" : "Seleccione una Denominacion De Cargo"}`}
+                                    placeholder={`${isLoadingCargo ? "Cargando Denominaciones De Cargo" : "Seleccione una Denominación De Cargo"}`}
                                   />
                                 </SelectTrigger>
                               </FormControl>
@@ -527,7 +524,7 @@ export default function ReportEmployee() {
                     </fieldset>
                     <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-violet-800">
                       <legend className="text-violet-900 font-semibold">
-                        Informacion De Salud
+                        Información De Salud
                       </legend>
                       <FormField
                         control={form.control}
@@ -631,7 +628,7 @@ export default function ReportEmployee() {
                     </fieldset>
                     <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-blue-900">
                       <legend className="text-blue-900 font-semibold">
-                        Informacion Academica
+                        Información Academica
                       </legend>
                       <FormField
                         control={form.control}
@@ -728,7 +725,7 @@ export default function ReportEmployee() {
                     </fieldset>
                     <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-black">
                       <legend className="text-black font-semibold">
-                        Informacion Basica
+                        Información Basica
                       </legend>
                       <FormField
                         control={form.control}
@@ -1060,7 +1057,7 @@ export default function ReportEmployee() {
                               <FormControl>
                                 <SelectTrigger className="w-full truncate">
                                   <SelectValue
-                                    placeholder={`${isLoadingRegion ? "Cargando Regiones" : "Seleccione una Region"}`}
+                                    placeholder={`${isLoadingRegion ? "Cargando Regiones" : "Seleccione una Región"}`}
                                   />
                                 </SelectTrigger>
                               </FormControl>
@@ -1180,7 +1177,7 @@ export default function ReportEmployee() {
                         name="filtros.condicion_vivienda_id"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Condicion De Vivienda </FormLabel>
+                            <FormLabel>Condición De Vivienda </FormLabel>
                             <Select
                               onValueChange={(values) => {
                                 field.onChange(Number.parseInt(values));

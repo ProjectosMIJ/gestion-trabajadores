@@ -15,8 +15,8 @@ export default function ProtectedLayout({
       <AppSidebarEmployees />
       <SidebarInset className="bg-transparent">
         <HeaderLayout
-          title="Gestion de Trabajadores - RAC"
-          subtitle="Gestiona y Visualiza la Informacion de los Trabajadores MPPRIJP"
+          title="Gestión de Trabajadores - RAC"
+          subtitle="Gestiona y Visualiza la Información de los Trabajadores MPPRIJP"
         >
           <SidebarTrigger className="text-black-600   scale-110" />
         </HeaderLayout>

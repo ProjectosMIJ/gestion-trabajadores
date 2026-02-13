@@ -15,7 +15,7 @@ export default function AsignarCodigoPage() {
                 Listado De Codigos
               </h1>
               <p className="text-muted-foreground mt-1">
-                Informacion General y Detallada De los codigos
+                Información General y Detalles De los codigos
               </p>
             </div>
             <CodeListPage />

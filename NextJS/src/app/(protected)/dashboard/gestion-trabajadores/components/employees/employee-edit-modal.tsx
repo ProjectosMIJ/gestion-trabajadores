@@ -247,7 +247,7 @@ export function EmployeeEditModal({
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        Esta Informacion Sera Publica
+                        Esta Información Sera Publica
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -283,7 +283,7 @@ export function EmployeeEditModal({
                           </SelectContent>
                         </Select>
                         <FormDescription>
-                          Esta Informacion Sera Publica
+                          Esta Información Sera Publica
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -318,7 +318,7 @@ export function EmployeeEditModal({
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        Esta Informacion Sera Publica
+                        Esta Información Sera Publica
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -385,7 +385,7 @@ export function EmployeeEditModal({
                         <FormControl>
                           <Button variant={"outline"} className="font-light">
                             {field.value ? (
-                              formatInTimeZone(field.value,'UTC', "dd/MM/yyy")
+                              formatInTimeZone(field.value, "UTC", "dd/MM/yyy")
                             ) : (
                               <span>Selecciona una fecha</span>
                             )}

@@ -108,6 +108,7 @@ export function FormBasicUpdateInfo({
       }
     });
   };
+
   return (
     <Card className="w-full h-full">
       <CardHeader>
@@ -115,9 +116,9 @@ export function FormBasicUpdateInfo({
       </CardHeader>
 
       <CardContent>
-        <CardAction className="text-gray-500">Informacion Basica</CardAction>
+        <CardAction className="text-gray-500">Información Basica</CardAction>
         {isPending ? (
-          <Loading promiseMessage="Actualizando Informacion" />
+          <Loading promiseMessage="Actualizando Información" />
         ) : (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmitFormity)}>

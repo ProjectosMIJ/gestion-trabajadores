@@ -117,7 +117,7 @@ export function EmployeeDetailDrawer({
 
           <Card>
             <CardHeader>
-              <CardTitle>Direccion </CardTitle>
+              <CardTitle>Dirección </CardTitle>
             </CardHeader>
             <CardContent className="grid grid-cols-2 gap-4">
               <div>
@@ -190,7 +190,7 @@ export function EmployeeDetailDrawer({
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">
-                      Direccion General
+                      Dirección General
                     </p>
                     <p className="font-semibold text-foreground">
                       {/* {asignacion.DireccionGeneral.direccion_general || "N/A"} */}
@@ -198,7 +198,7 @@ export function EmployeeDetailDrawer({
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">
-                      Direccion De Linea
+                      Dirección De Linea
                     </p>
                     <p className="font-semibold text-foreground">
                       {asignacion.DireccionLinea?.direccion_linea || "N/A"}
@@ -206,7 +206,7 @@ export function EmployeeDetailDrawer({
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">
-                      Coordinacion
+                      Coordinación
                     </p>
                     <p className="font-semibold text-foreground">
                       {asignacion.Coordinacion?.coordinacion || "N/A"}
@@ -219,7 +219,7 @@ export function EmployeeDetailDrawer({
                     </p>
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Codigo</p>
+                    <p className="text-sm text-muted-foreground">Código</p>
                     <p className="font-semibold text-foreground">
                       {asignacion.codigo || "N/A"}
                     </p>
@@ -275,7 +275,11 @@ export function EmployeeDetailDrawer({
               <div className="flex items-center gap-2">
                 <div className={`h-3 w-3 rounded-full bg-green-500`} />
                 <p className="font-semibold text-foreground">
-                  {formatInTimeZone(employee.fecha_actualizacion,'UTC', "dd/MM/yyyy")}
+                  {formatInTimeZone(
+                    employee.fecha_actualizacion,
+                    "UTC",
+                    "dd/MM/yyyy",
+                  )}
                 </p>
               </div>
             </CardContent>

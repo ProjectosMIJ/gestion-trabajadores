@@ -15,7 +15,7 @@ export default function AsignarCodigoPage() {
                 Asignación De Cargos
               </h1>
               <p className="text-muted-foreground mt-1">
-                Asigne Un Nuevo Codigo Al Personal
+                Asigne Un Nuevo Código Al Personal
               </p>
             </div>
             <AsigCode />

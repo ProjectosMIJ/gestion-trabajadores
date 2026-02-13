@@ -101,7 +101,7 @@ export default function FormUpdateDwelling({
           <CardAction className="text-gray-500">Datos De Vivienda</CardAction>
           <div>
             {isPending ? (
-              <Loading promiseMessage="Actualizando Informacion" />
+              <Loading promiseMessage="Actualizando Información" />
             ) : (
               <Form {...form}>
                 <form
@@ -136,7 +136,7 @@ export default function FormUpdateDwelling({
                           </SelectContent>
                         </Select>
                         <FormDescription>
-                          Esta Informacion Sera Publica
+                          Esta Información Sera Publica
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -170,7 +170,7 @@ export default function FormUpdateDwelling({
                           </SelectContent>
                         </Select>
                         <FormDescription>
-                          Esta Informacion Sera Publica
+                          Esta Información Sera Publica
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -203,7 +203,7 @@ export default function FormUpdateDwelling({
                           </SelectContent>
                         </Select>
                         <FormDescription>
-                          Esta Informacion Sera Publica
+                          Esta Información Sera Publica
                         </FormDescription>
                         <FormMessage />
                       </FormItem>
@@ -241,7 +241,7 @@ export default function FormUpdateDwelling({
                           </SelectContent>
                         </Select>
                         <FormDescription>
-                          Esta Informacion Sera Publica
+                          Esta Información Sera Publica
                         </FormDescription>
                         <FormMessage />
                       </FormItem>

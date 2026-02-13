@@ -235,6 +235,18 @@ export const getCodeListSearch = async ({
   const getCodeList: ApiResponse<Code[]> = await responseCodeList.json();
   return getCodeList;
 };
+
+export const getCodeListSearchFree = async ({
+  searchParams,
+}: {
+  searchParams: string | undefined;
+}): Promise<ApiResponse<Code[]>> => {
+  const responseCodeList = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}cargos/vacantes/?${searchParams}`,
+  );
+  const getCodeList: ApiResponse<Code[]> = await responseCodeList.json();
+  return getCodeList;
+};
 export const getReportTypePerson = async (): Promise<
   ApiResponse<ReportTypePerson[]>
 > => {

@@ -60,7 +60,7 @@ import {
   Trash,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import {
   FamilyEmployeeType,
   schemaFamilyFormity,
@@ -78,6 +78,7 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
   const [expandedIndex, setExpandedIndex] = useState(0);
   const [down, setDown] = useState(false);
   const [mencionId, setMencionId] = useState<string>();
+  const [index, setIndex] = useState<number>(0);
 
   const [showMoreDetails, setShowMoreDetails] = useState(false);
   const [reload, setReload] = useState(false);
@@ -177,11 +178,14 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
     name: "familys",
     control: form.control,
   });
-
+  const academyLevelId = useWatch({
+    control: form.control,
+    name: `familys.${index}.formacion_academica_familiar.nivel_Academico_id`,
+  });
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Informacion De Familiares (Opcional si no posee)</CardTitle>
+        <CardTitle>Información De Familiares (Opcional si no posee)</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -336,7 +340,7 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                             render={({ field }) => (
                               <FormItem className="col-span-2">
                                 <FormLabel className="cursor-pointer">
-                                  Cedula Familiar
+                                  Cédula Familiar
                                 </FormLabel>
                                 <FormControl>
                                   <Input
@@ -700,12 +704,11 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                             name={`familys.${index}.formacion_academica_familiar.nivel_Academico_id`}
                             render={({ field }) => (
                               <FormItem className="col-span-2 cursor-pointer">
-                                <FormLabel className="cursor-pointer">
-                                  Nivel Academico
-                                </FormLabel>
+                                <FormLabel className="cursor-pointer"></FormLabel>
                                 <Select
                                   onValueChange={(values) => {
                                     field.onChange(Number.parseInt(values));
+                                    setIndex(index);
                                   }}
                                 >
                                   <FormControl>
@@ -723,16 +726,18 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                                     ))}
                                   </SelectContent>
                                 </Select>
-                                <FormDescription className="flex flex-row gap-2 justify-end">
-                                  <Label htmlFor="showInfo">
-                                    Mas Detalles De Formacion Academica
-                                  </Label>
-                                  <Switch
-                                    className="cursor-pointer"
-                                    id="showInfo"
-                                    onCheckedChange={setShowMoreDetails}
-                                  />
-                                </FormDescription>
+                                {!(
+                                  academyLevelId == 1 || academyLevelId == 2
+                                ) && (
+                                  <FormDescription className="flex flex-row gap-2 justify-end">
+                                    <Label>
+                                      Mas Detalles De Formacion Academica
+                                    </Label>
+                                    <Switch
+                                      onCheckedChange={setShowMoreDetails}
+                                    />
+                                  </FormDescription>
+                                )}
                                 <FormMessage />
                               </FormItem>
                             )}
@@ -854,7 +859,7 @@ export function FormFamilyEmployee({ onSubmit, defaultValues }: Props) {
                         </fieldset>
                         <fieldset className="border grid grid-cols-2 gap-2 space-y-4 col-span-2 p-2">
                           <legend className="flex flex-row gap-2">
-                            Informacion de Vestimenta <Shirt />
+                            Información de Vestimenta <Shirt />
                           </legend>
 
                           <FormField

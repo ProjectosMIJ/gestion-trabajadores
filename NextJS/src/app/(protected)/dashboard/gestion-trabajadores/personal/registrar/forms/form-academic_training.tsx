@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import {
   AcademyType,
   schemaAcademy,
@@ -68,7 +68,10 @@ export default function FormAcademyLevel({ onSubmit, defaultValues }: Props) {
   const onSubmitFormity = (values: AcademyType) => {
     onSubmit(values);
   };
-
+  const academyLevelId = useWatch({
+    control: form.control,
+    name: "formacion_academica.nivel_Academico_id",
+  });
   return (
     <>
       <Card>
@@ -77,7 +80,7 @@ export default function FormAcademyLevel({ onSubmit, defaultValues }: Props) {
         </CardHeader>
         <CardContent>
           <CardAction className="text-gray-500">
-            Paso 2: Informacion Academica
+            Paso 2: Información Academica
           </CardAction>
           <div>
             <Form {...form}>
@@ -111,10 +114,13 @@ export default function FormAcademyLevel({ onSubmit, defaultValues }: Props) {
                           ))}
                         </SelectContent>
                       </Select>
-                      <FormDescription className="flex flex-row gap-2 justify-end">
-                        <Label>Mas Detalles De Formacion Academica</Label>
-                        <Switch onCheckedChange={setShowMoreDetails} />
-                      </FormDescription>
+                      {!(academyLevelId == 1 || academyLevelId == 2) && (
+                        <FormDescription className="flex flex-row gap-2 justify-end">
+                          <Label>Mas Detalles De Formacion Academica</Label>
+                          <Switch onCheckedChange={setShowMoreDetails} />
+                        </FormDescription>
+                      )}
+
                       <FormMessage />
                     </FormItem>
                   )}

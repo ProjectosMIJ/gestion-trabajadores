@@ -63,7 +63,7 @@ export default function DetailInfoEmployee({ employee }: Props) {
       <SheetContentUI className="w-400">
         <ScrollArea className="h-screen">
           <SheetHeaderUI>
-            <SheetTitleUI>Informacion Detallada Del Trabajador</SheetTitleUI>
+            <SheetTitleUI>Información Detallada Del Trabajador</SheetTitleUI>
           </SheetHeaderUI>
           <div className="flex flex-col m-auto justify-between h-full w-full gap-2 ">
             <div className="w-60 h-fit m-auto rounded-sm flex flex-col">
@@ -83,7 +83,7 @@ export default function DetailInfoEmployee({ employee }: Props) {
                     type="button"
                     className="cursor-pointer bg-blue-700 hover:bg-blue-900"
                   >
-                    Actualizar Informacion Basica
+                    Actualizar Información Basica
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
@@ -120,11 +120,11 @@ export default function DetailInfoEmployee({ employee }: Props) {
                         className="grid grid-cols-2 place-content-center"
                         key={i}
                       >
-                        <div>Codigo:</div>
+                        <div>Código:</div>
                         <div>{v.codigo}</div>
                         <div>Cargo:</div>
                         <div>{v.denominacioncargo.cargo}</div>
-                        <div>Cargo Especifico:</div>
+                        <div>Cargo Específico:</div>
                         <div>{v.denominacioncargoespecifico.cargo}</div>
                         <div>Tipo De Nomina:</div>
                         <div>{v.tiponomina.nomina}</div>
@@ -132,19 +132,19 @@ export default function DetailInfoEmployee({ employee }: Props) {
                         <div>
                           {v.Dependencia ? v.Dependencia.dependencia : "N/A"}
                         </div>
-                        <div>Direccion General:</div>
+                        <div>Dirección General:</div>
                         <div>
                           {v.DireccionGeneral
                             ? v.DireccionGeneral.direccion_general
                             : "N/A"}
                         </div>
-                        <div>Direccion De Linea:</div>
+                        <div>Dirección De Linea:</div>
                         <div>
                           {v.DireccionLinea
                             ? v.DireccionLinea?.direccion_linea
                             : "N/A"}
                         </div>
-                        <div>Coordinacion</div>
+                        <div>Coordinación</div>
                         <div>
                           {v.Coordinacion
                             ? v.Coordinacion?.coordinacion
@@ -187,7 +187,7 @@ export default function DetailInfoEmployee({ employee }: Props) {
                         </TableHead>
                         <TableHead>Fecha De Egreso</TableHead>
                         <TableHead className="text-left">
-                          Intitucion/Ente
+                          Intitución/Ente
                         </TableHead>
                       </TableRow>
                     </TableHeader>
@@ -377,7 +377,7 @@ export default function DetailInfoEmployee({ employee }: Props) {
                     {employee.formacion_academica?.mension?.nombre_mencion ??
                       "N/A"}
                   </div>
-                  <div>Institucion:</div>
+                  <div>Institución:</div>
                   <div>
                     {employee.formacion_academica?.institucion ?? "N/A"}
                   </div>
@@ -394,7 +394,7 @@ export default function DetailInfoEmployee({ employee }: Props) {
               <CardHeader>
                 <CardTitle className="flex flex-row items-center gap-3 justify-between">
                   <div className="flex flex-row items-center gap-2">
-                    Informacion De Vestimenta <Shirt />
+                    Información De Vestimenta <Shirt />
                   </div>
                   <Dialog>
                     <DialogTrigger asChild>
@@ -449,7 +449,7 @@ export default function DetailInfoEmployee({ employee }: Props) {
               <CardHeader>
                 <CardTitle className="flex flex-row items-center gap-3 justify-between">
                   <div className="flex flex-row items-center gap-2">
-                    Informacion De Salud
+                    Información De Salud
                     <Ambulance />
                   </div>
                   <Dialog>

@@ -72,16 +72,10 @@ export async function CreateDependencyAction(
         return {
           success: true,
           message:
-            "Dependencias Creada Exitosamente y Direccion General Asiganada Exitosamente",
+            "Dependencias Creada Exitosamente y Dirección General Asiganada Exitosamente",
         };
       }
       if (responseDirectionGeneral.ok && values.direction_line) {
-        console.log("registrando direccion de linea", {
-          Codigo: values.direction_line?.Codigo,
-          direccion_linea: values.direction_line?.direccion_linea,
-          direccionGeneral: getDirectionGeneral.data.id,
-        });
-
         const responseDirectionLinea = await fetch(
           `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}register-direccionLinea/`,
           {
@@ -102,7 +96,7 @@ export async function CreateDependencyAction(
           return {
             success: true,
             message:
-              "Direccion General Y Direccion De Linea Creada Exitosamente",
+              "Dirección General Y Dirección De LineaCreada Exitosamente",
           };
         }
         if (

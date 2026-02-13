@@ -11,7 +11,7 @@ export default function ReportCodePage() {
                 Reporte De Cargos
               </h1>
               <p className="text-muted-foreground mt-1">
-                Filtre La Informcacion de los Cargos
+                Filtre La Información de los Cargos
               </p>
             </div>
             <ReportCode />

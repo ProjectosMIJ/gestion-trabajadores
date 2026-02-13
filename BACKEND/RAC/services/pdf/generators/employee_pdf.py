@@ -1,16 +1,7 @@
-"""
-Generador de PDF para reportes de empleados.
-Genera una tabla organizada por Dependencia y Dirección General.
-Evita títulos huérfanos mediante el uso de KeepTogether.
-"""
-from reportlab.platypus import Spacer, Paragraph, PageBreak, KeepTogether
-from reportlab.lib.pagesizes import landscape, A4
+from reportlab.platypus import Spacer, Paragraph, KeepTogether
 from reportlab.lib.units import mm
 from django.apps import apps
-
-from RAC.services.mapa_reporte import MAPA_REPORTES
-from ..base_generator import BasePDFGenerator
-from ..templates.styles import PAGE_CONFIG, COLORS, get_paragraph_styles
+from ..templates.styles import get_paragraph_styles
 from ..templates.components import (
     create_header, 
     create_section_title, 
@@ -18,12 +9,9 @@ from ..templates.components import (
     create_stats_box,
     format_date
 )
-
+from ..base_generator import BasePDFGenerator
 
 class EmployeePDFGenerator(BasePDFGenerator):
-    
-    # Número de empleados por página (aproximado)
-    EMPLOYEES_PER_PAGE = 35
     
     def __init__(self, employees, title="Reporte de Empleados", filters=None):
         super().__init__(
@@ -32,215 +20,196 @@ class EmployeePDFGenerator(BasePDFGenerator):
             orientation='landscape',  
             metadata={'filters': filters or {}}
         )
-        
         self.employees = employees
         self.filters = filters or {}
         self.styles = get_paragraph_styles()
-    
+
     def _get_footer_text(self):
         total = len(self.employees)
         return f"Total de empleados: {total} | Generado: {self.generated_at.strftime('%d/%m/%Y %H:%M')}"
-    
+
     def _generate_filename(self):
         date_str = self.generated_at.strftime('%Y%m%d_%H%M')
         return f"reporte_empleados_{date_str}.pdf"
-    
+
     def _build_content(self):
         story = []
-        story.append(Spacer(1, -5 * mm))
         story.extend(self._build_header_section())
-
-        # Tabla de empleados con agrupación anidada y protección de saltos de página
         story.extend(self._build_employees_table())
-
         return story
-    
-    def _draw_header(self, canvas, doc):
-        """Dibuja el header en el canvas."""
-        canvas.saveState()
 
+    def _draw_header(self, canvas, doc):
+        canvas.saveState()
         if not hasattr(self, '_cached_header_elements'):
             institucion = "MINISTERIO DEL PODER POPULAR PARA RELACIONES INTERIORES, "
             institucion2 = "JUSTICIA Y PAZ"
-
             filtros = self.metadata.get('filters', {})
             filtro_aplicado_id = filtros.get('nomina_id', None)
             filtro_aplicado_nombre = self._get_nomina_nombre(filtro_aplicado_id) if filtro_aplicado_id else None
-
             titulo_principal = f"Listado de {filtro_aplicado_nombre}" if filtro_aplicado_nombre else "REPORTE DE TRABAJADORES"
-
             titulo_reporte = (
                 f"<font size='12'><b>{institucion} <br/> {institucion2}</b></font><br/><font size='14'><b><br/>{titulo_principal}</b></font>"
             )
-
             self._cached_header_elements = create_header(titulo_reporte, width=doc.width)
 
         header_elements = self._cached_header_elements
         y_offset = doc.pagesize[1] - self.page_config['topMargin'] + 10 * mm
-
         for el in header_elements:
             w, h = el.wrap(doc.width, doc.topMargin)
             el.drawOn(canvas, doc.leftMargin, y_offset)
             y_offset -= h
-
         canvas.restoreState()
-    
+
     def _build_header_section(self):
         elements = []
         elements.append(Spacer(1, 10))
-        
         total_empleados = len(self.employees)
         masculino = sum(1 for e in self.employees if self._get_sexo(e) == 'M')
         femenino = sum(1 for e in self.employees if self._get_sexo(e) == 'F')
-        
-        stats = {
-            'Total Empleados': total_empleados,
-            'Masculino': masculino,
-            'Femenino': femenino,
-        }
-        
+        stats = {'Total Empleados': total_empleados, 'Masculino': masculino, 'Femenino': femenino}
         width = self._get_available_width()
-        stats_box = create_stats_box(stats, width)
-        elements.append(stats_box)
+        elements.append(create_stats_box(stats, width))
         elements.append(Spacer(1, 15))
-        
         return elements
+
     def _build_employees_table(self):
         elements = []
 
-        # 1. Estructura de agrupación
-        agrupacion = {}
+        # 1. Agrupación Jerárquica
+        agrupacion = {} 
         for employee in self.employees:
-            dep = self._get_dependencia(employee)
-            dg = self._get_DireccionGeneral(employee)
-            
-            if dg == "SIN DIRECCIÓN ASIGNADA":
-                dg = "ASIGNACIÓN DIRECTA A LA DEPENDENCIA"
+            assignments = getattr(employee, 'filtered_assignments', [])
+            if not assignments:
+                self._registrar_en_agrupacion(agrupacion, "S/D", "S/D", "S/D", "S/D", employee)
+                continue
+            asig = assignments[0]
+            dep = getattr(asig, 'Dependencia', None) or "DEPENDENCIA DESCONOCIDA"
+            dg = getattr(asig, 'DireccionGeneral', None) or "ASIGNACIÓN DIRECTA"
+            dl = getattr(asig, 'DireccionLinea', None) or "ASIGNACIÓN DIRECTA"
+            coord = getattr(asig, 'Coordinacion', None) or "ASIGNACIÓN DIRECTA"
+            self._registrar_en_agrupacion(agrupacion, dep, dg, dl, coord, employee)
 
-            if dep not in agrupacion:
-                agrupacion[dep] = {}
-            if dg not in agrupacion[dep]:
-                agrupacion[dep][dg] = []
-            agrupacion[dep][dg].append(employee)
+        # 2. Control de Renderizado
+        impreso_dep, impreso_dg, impreso_dl = None, None, None
+        
+        ignorar = {
+            "ASIGNACIÓN DIRECTA", "ASIGNACIÓN DIRECTA A LA DEPENDENCIA", 
+            "ASIGNACIÓN DIRECTA A LA DIRECCION GENERAL", "ASIGNACIÓN DIRECTA A LA DIRECCION LINEA",
+            "NONE", "N/A", "SIN DIRECCIÓN ASIGNADA", "S/D"
+        }
 
-        # 2. Iterar sobre Dependencias
-        for dep_nombre in sorted(agrupacion.keys()):
-            direcciones = agrupacion[dep_nombre]
-            
-            for dg_nombre in sorted(direcciones.keys()):
-                # --- DATOS DE LA TABLA ---
-                headers = ['#', 'Cédula', 'Nombres', 'Apellidos', 'F. Ingreso', 'Años APN', 'Sexo', 'Tipo de Nómina', 'Cargo']
-                col_widths = [10*mm, 22*mm, 40*mm, 40*mm, 22*mm, 20*mm, 15*mm, 35*mm, 45*mm]
-                
-                rows = []
-                for idx, employee in enumerate(direcciones[dg_nombre], start=1):
-                    rows.append([
-                        str(idx),
-                        self._get_cedula(employee),
-                        self._get_nombres(employee),
-                        self._get_apellidos(employee),
-                        self._get_fecha_ingreso(employee),
-                        self._get_anos_apn(employee),
-                        self._get_sexo(employee),
-                        self._get_tipo_nomina(employee),
-                        self._get__cargo(employee)
-                    ])
+        def get_order(item, attr):
+            if isinstance(item, str): return 0
+            return getattr(item, attr, 999) or 999
 
-                # --- LÓGICA DE PROTECCIÓN DE TÍTULOS ---
-                # Creamos el bloque de títulos
-                bloque_titulos = []
-                bloque_titulos.extend(create_section_title(f"DEPENDENCIA: {dep_nombre.upper()}"))
-                bloque_titulos.extend(create_section_title(f"    * {dg_nombre}"))
+        sorted_deps = sorted(agrupacion.keys(), key=lambda d: getattr(d, 'id', 999) if not isinstance(d, str) else 999)
 
-                # Siempre pasamos los headers a la función. 
-                # Si la tabla tiene más de 3 filas, protegemos los títulos + las primeras 2 filas.
-                if len(rows) > 3:
-                    # Parte 1: Títulos + Inicio de tabla (Cabecera + 2 filas de datos)
-                    cabecera_protegida = []
-                    cabecera_protegida.extend(bloque_titulos)
-                    
-                    tabla_inicio = create_data_table(headers, rows[:2], col_widths, with_alternating_rows=True)
-                    cabecera_protegida.append(tabla_inicio)
-                    
-                    # El KeepTogether solo envuelve los títulos y las primeras 2 filas
-                    elements.append(KeepTogether(cabecera_protegida))
-                    
-                    # Parte 2: El resto de la tabla (con su propia cabecera para que sea legible al saltar de página)
-                    # IMPORTANTE: Aquí pasamos headers de nuevo para evitar el error 'NoneType'
-                    tabla_resto = create_data_table(headers, rows[2:], col_widths, with_alternating_rows=True)
-                    elements.append(tabla_resto)
-                else:
-                    # Para tablas pequeñas, protegemos todo el bloque
-                    bloque_completo = []
-                    bloque_completo.extend(bloque_titulos)
-                    bloque_completo.append(create_data_table(headers, rows, col_widths, with_alternating_rows=True))
-                    elements.append(KeepTogether(bloque_completo))
+        for dep in sorted_deps:
+            dep_nom = getattr(dep, 'dependencia', str(dep))
+            dgs = agrupacion[dep]
+            sorted_dgs = sorted(dgs.keys(), key=lambda g: get_order(g, 'orden_by_direccion'))
 
-                elements.append(Spacer(1, 8 * mm))
+            for dg in sorted_dgs:
+                dg_nom = getattr(dg, 'direccion_general', str(dg))
+                dls = dgs[dg]
+                sorted_dls = sorted(dls.keys(), key=lambda l: get_order(l, 'orden_by_direccion'))
+
+                for dl in sorted_dls:
+                    dl_nom = getattr(dl, 'direccion_linea', str(dl))
+                    coords = dls[dl]
+                    sorted_coords = sorted(coords.keys(), key=lambda c: get_order(c, 'orden_by_coordinacion'))
+
+                    for coord in sorted_coords:
+                        coord_nom = getattr(coord, 'coordinacion', str(coord))
+                        
+                        headers = ['#', 'Cédula', 'Nombres', 'Apellidos', 'F. Ingreso', 'Años APN', 'Sexo', 'Tipo de Nómina', 'Cargo']
+                        col_widths = [10*mm, 22*mm, 40*mm, 40*mm, 22*mm, 20*mm, 15*mm, 35*mm, 53*mm]
+                        
+                        def sort_cedula_desc(e):
+                            c = self._get_cedula(e)
+                            try: return -int(c)
+                            except: return 0
+
+                        empleados = sorted(coords[coord], key=lambda e: (self._get_orden_cargo(e), sort_cedula_desc(e)))
+                        rows = [[str(idx), self._get_cedula(e), self._get_nombres(e), self._get_apellidos(e), 
+                                 self._get_fecha_ingreso(e), self._get_anos_apn(e), self._get_sexo(e), 
+                                 self._get_tipo_nomina(e), self._get__cargo(e)] 
+                                for idx, e in enumerate(empleados, start=1)]
+
+                        if rows:
+                            # Títulos del bloque
+                            titulos_bloque = []
+                            if dep_nom != impreso_dep:
+                                titulos_bloque.extend(create_section_title(f"DEPENDENCIA: {dep_nom.upper()}"))
+                                impreso_dg, impreso_dl = None, None 
+                            if dg_nom != impreso_dg and dg_nom.upper().strip() not in ignorar:
+                                titulos_bloque.extend(create_section_title(f"  > DG / COORD: {dg_nom}"))
+                                impreso_dl = None 
+                            if dl_nom != impreso_dl and dl_nom.upper().strip() not in ignorar:
+                                titulos_bloque.extend(create_section_title(f"    - DL / COORD: {dl_nom}"))
+                            if coord_nom.upper().strip() not in ignorar:
+                                titulos_bloque.extend(create_section_title(f"      * COORD: {coord_nom}"))
+
+                            # Asegurar que los títulos no queden solos
+                            for p in titulos_bloque:
+                                if isinstance(p, Paragraph): p.keepWithNext = True
+
+                            # --- SOLUCIÓN: SEGMENTACIÓN SIN DUPLICAR HEADERS ---
+                            # Si la tabla es extensa, creamos una sola tabla para que ReportLab 
+                            # maneje el flujo y la repetición de encabezados internamente.
+                            
+                            bloque_atado = []
+                            bloque_atado.extend(titulos_bloque)
+                            bloque_atado.append(Spacer(1, 2*mm))
+                            
+                            # Si hay más de 5 filas, atamos los títulos con las primeras 5
+                            # pero enviamos la tabla COMPLETA para que no se duplique el header.
+                            tabla_completa = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
+                            
+                            if len(rows) > 5:
+                                # KeepTogether solo con los títulos y un espacio para asegurar que 
+                                # la tabla comience inmediatamente después sin saltar de página.
+                                elements.extend(titulos_bloque)
+                                elements.append(Spacer(1, 2*mm))
+                                elements.append(tabla_completa)
+                            else:
+                                # Para bloques pequeños, mantenemos la unión atómica
+                                bloque_atado.append(tabla_completa)
+                                elements.append(KeepTogether(bloque_atado))
+
+                            elements.append(Spacer(1, 6 * mm))
+                            impreso_dep, impreso_dg, impreso_dl = dep_nom, dg_nom, dl_nom
 
         return elements
     
-    # =========================================================================
-    # Métodos auxiliares
-    # =========================================================================
-    
-    def _get_cedula(self, employee):
-        return str(getattr(employee, 'cedulaidentidad', 'N/A'))
-    
-    def _get_nombres(self, employee):
-        return getattr(employee, 'nombres', 'N/A')
-    
-    def _get_apellidos(self, employee):
-        return getattr(employee, 'apellidos', 'N/A')
-    
-    def _get_fecha_ingreso(self, employee):
-        fecha = getattr(employee, 'fechaingresoorganismo', None)
-        return format_date(fecha)
-    
+    # Métodos auxiliares (sin cambios)
+    def _get_cedula(self, employee): return str(getattr(employee, 'cedulaidentidad', 'N/A'))
+    def _get_nombres(self, employee): return getattr(employee, 'nombres', 'N/A')
+    def _get_apellidos(self, employee): return getattr(employee, 'apellidos', 'N/A')
+    def _get_fecha_ingreso(self, employee): return format_date(getattr(employee, 'fechaingresoorganismo', None))
     def _get_anos_apn(self, employee):
         anos = getattr(employee, 'total_anos_apn', 'N/A') 
-        if anos is not None and anos != 'N/A':
-            try:
-                return str(int(anos))  
-            except (ValueError, TypeError):
-                return str(anos)
-        return 'N/A'
-    
+        try: return str(int(anos)) if anos not in [None, 'N/A'] else 'N/A'
+        except: return str(anos)
     def _get_sexo(self, employee):
         sexo_obj = getattr(employee, 'sexoid', None)
-        sexo_texto = getattr(sexo_obj, 'sexo', 'N/A') if sexo_obj else 'N/A'
-        sexo_upper = str(sexo_texto).upper()
-        if 'MASCULINO' in sexo_upper: return 'M'
-        if 'FEMENINO' in sexo_upper: return 'F'
-        return sexo_texto
-    
+        sexo_texto = str(getattr(sexo_obj, 'sexo', 'N/A')).upper()
+        return 'M' if 'MASCULINO' in sexo_texto else 'F' if 'FEMENINO' in sexo_texto else sexo_texto
     def _get_tipo_nomina(self, employee):
-        filtered = getattr(employee, 'filtered_assignments', [])
-        if filtered and filtered[0].tiponominaid:
-            return filtered[0].tiponominaid.nomina
-        return "N/A"
-
-    def _get_dependencia(self, employee):
-        filtered = getattr(employee, 'filtered_assignments', [])
-        if filtered and filtered[0].Dependencia:
-            return filtered[0].Dependencia.dependencia
-        return "DEPENDENCIA DESCONOCIDA"
-    
+        f = getattr(employee, 'filtered_assignments', [])
+        return f[0].tiponominaid.nomina if f and f[0].tiponominaid else "N/A"
     def _get__cargo(self, employee):
-        filtered = getattr(employee, 'filtered_assignments', [])
-        if filtered and filtered[0].denominacioncargoid:
-            return filtered[0].denominacioncargoid.cargo
-        return "SIN CARGO"
-    
-    def _get_DireccionGeneral(self, employee):
-        filtered = getattr(employee, 'filtered_assignments', [])
-        if filtered and filtered[0].DireccionGeneral:
-            return filtered[0].DireccionGeneral.direccion_general
-        return "SIN DIRECCIÓN ASIGNADA"
-    
+        f = getattr(employee, 'filtered_assignments', [])
+        return f[0].denominacioncargoid.cargo if f and f[0].denominacioncargoid else "SIN CARGO"
     def _get_nomina_nombre(self, nomina_id):
-        try:
-            Nomina = apps.get_model('RAC', 'Tiponomina')
-            return Nomina.objects.get(id=nomina_id).nomina
-        except Exception:
-            return None
+        try: return apps.get_model('RAC', 'Tiponomina').objects.get(id=nomina_id).nomina
+        except: return None
+    def _get_orden_cargo(self, employee):
+        f = getattr(employee, 'filtered_assignments', [])
+        return getattr(f[0].denominacioncargoid, 'orden_by_cargo', 999) if f and f[0].denominacioncargoid else 999
+    def _registrar_en_agrupacion(self, dic, dep, dg, dl, coord, emp):
+        if dep not in dic: dic[dep] = {}
+        if dg not in dic[dep]: dic[dep][dg] = {}
+        if dl not in dic[dep][dg]: dic[dep][dg][dl] = {}
+        if coord not in dic[dep][dg][dl]: dic[dep][dg][dl][coord] = []
+        dic[dep][dg][dl][coord].append(emp)

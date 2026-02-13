@@ -1,39 +1,33 @@
 "use client";
 
 import {
-  getCodeByCoordination,
-  getCodeByDirectionGeneral,
-  getCodeByDirectionLine,
+  getCodeListSearchFree,
   getCoordination,
-  getDirectionGeneral,
+  getDependency,
+  getDirectionGeneralById,
   getDirectionLine,
   getEmployeeInfo,
+  getNomina,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
 import { AsignCode } from "@/app/(protected)/dashboard/gestion-trabajadores/movimientos/asignar-codigo/actions/asign-code";
 import { schemaAsignCode } from "@/app/(protected)/dashboard/gestion-trabajadores/movimientos/asignar-codigo/schema/schema-asign-code";
-import { ApiResponse, Code, EmployeeInfo } from "@/app/types/types";
+import { EmployeeInfo } from "@/app/types/types";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CircleAlert, Search } from "lucide-react";
+import { CircleAlert, Eraser, Search } from "lucide-react";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import useSWR from "swr";
 import z from "zod";
 import { Button } from "../../../../../../components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-} from "../../../../../../components/ui/card";
+import { Card, CardContent } from "../../../../../../components/ui/card";
 import {
   Form,
   FormControl,
@@ -44,24 +38,31 @@ import {
 } from "../../../../../../components/ui/form";
 import { Input } from "../../../../../../components/ui/input";
 import { Label } from "../../../../../../components/ui/label";
-import { Spinner } from "../../../../../../components/ui/spinner";
+import Error from "../error/error";
+import Loading from "../loading/loading";
 export function AsigCode() {
   const [searchEmployee, setSearchEmployee] = useState<string | undefined>(
     undefined,
   );
 
   const [selectedCodeId, setSelectedCodeId] = useState<number>();
-  const [isLoading, setIsloading] = useState<boolean>(false);
-  const [selectedCode, setSelectedCode] = useState<ApiResponse<Code[]>>();
   const [selecteIdDirectionGeneral, setSelecteIdDirectionGeneral] =
     useState<string>();
   const [selecteIdDirectionLine, setSelecteIdDirectionLine] =
     useState<string>();
-  const [selecteIdCoordination, setSelecteIdCoordination] = useState<string>();
   const [employee, setEmployee] = useState<EmployeeInfo | []>();
   const [isPending, startTransition] = useTransition();
+  const [dependencyId, setDependencyId] = useState<number>(0);
+
   const { data: directionGeneral, isLoading: isLoadingDirectionGeneral } =
-    useSWR("directionGeneral", async () => await getDirectionGeneral());
+    useSWR(
+      dependencyId ? ["directionGeneral", dependencyId] : null,
+      async () => await getDirectionGeneralById(dependencyId),
+    );
+  const { data: dependency, isLoading: isLoadingDependency } = useSWR(
+    "dependency",
+    async () => await getDependency(),
+  );
   const { data: directionLine, isLoading: isLoadingDirectionLine } = useSWR(
     selecteIdDirectionGeneral
       ? ["directionLine", selecteIdDirectionGeneral]
@@ -72,21 +73,17 @@ export function AsigCode() {
     selecteIdDirectionLine ? ["coordination", selecteIdDirectionLine] : null,
     async () => await getCoordination(selecteIdDirectionLine!),
   );
+  const [searchParams, setSearchParams] = useState<string>();
+  const { data: codeList, isLoading: isLoadingSearchCode } = useSWR(
+    searchParams,
+    async () => await getCodeListSearchFree({ searchParams }),
+  );
+  const { data: nomina, isLoading: isLoadingNomina } = useSWR(
+    "nominaGeneral",
+    async () => await getNomina(),
+  );
 
-  const searchCodeByGeneral = async (id: string) => {
-    const code = await getCodeByDirectionGeneral(id);
-    setSelectedCode(code);
-  };
-  const searchCodeByLine = async (id: string) => {
-    const code = await getCodeByDirectionLine(id);
-    setSelectedCode(code);
-  };
-  const searchCodeByCoord = async (id: string) => {
-    const code = await getCodeByCoordination(id);
-    setSelectedCode(code);
-  };
-
-  const form = useForm({
+  const formAsig = useForm({
     resolver: zodResolver(schemaAsignCode),
     defaultValues: {
       code: 0,
@@ -109,314 +106,442 @@ export function AsigCode() {
   const handleSearch = async () => {
     if (!searchEmployee) return;
     const response = await getEmployeeInfo(searchEmployee);
+    console.log(response);
     if (
       response.data &&
       !Array.isArray(response.data) &&
       !(response.data && "message" in response.data)
     ) {
       setEmployee(response.data);
-      form.setValue("employee", response.data.cedulaidentidad, {
+      formAsig.setValue("employee", response.data.cedulaidentidad, {
         shouldValidate: true,
         shouldDirty: true,
       });
+    } else {
+      setEmployee(response.data);
     }
   };
-
+  const schemaSearch = z.object({
+    tipo_nomina: z.coerce.number().optional(),
+    codigo: z.string().optional(),
+    dependencia_id: z.coerce.number().optional(),
+    direccion_general_id: z.coerce.number().optional(),
+    direccion_linea_id: z.coerce.number().optional(),
+    coordinacion_id: z.coerce.number().optional(),
+  });
+  const onSearch = (values: z.infer<typeof schemaSearch>) => {
+    const filteredEntries = Object.entries(values).filter(
+      ([_, v]) => v !== "" && v !== 0 && v !== undefined && v !== null,
+    );
+    const params = new URLSearchParams(filteredEntries as unknown as string);
+    setSearchParams(params.toString());
+  };
+  const form = useForm({
+    defaultValues: {
+      codigo: "",
+      tipo_nomina: undefined,
+      dependencia_id: 0,
+      direccion_general_id: 0,
+      direccion_linea_id: 0,
+      coordinacion_id: 0,
+    },
+    resolver: zodResolver(schemaSearch),
+  });
+  const cleanFields = () => {
+    form.reset({
+      codigo: "",
+      tipo_nomina: undefined,
+      coordinacion_id: undefined,
+      dependencia_id: undefined,
+      direccion_general_id: undefined,
+      direccion_linea_id: undefined,
+    });
+  };
   return (
     <>
-      <Card>
-        <CardContent className="space-y-5">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="search-employee">Buscar Trabajador</Label>
-            <div className="flex flex-row gap-2">
-              <Input
-                id="search-employee"
-                placeholder="00000000"
-                type="number"
-                value={searchEmployee}
-                onChange={(e) => setSearchEmployee(e.target.value)}
-              />
-              <Button
-                type="button"
-                variant={"outline"}
-                onClick={() => handleSearch()}
+      {isPending ? (
+        <Loading promiseMessage="Asigando Cargo" />
+      ) : (
+        <Card>
+          <CardContent className="space-y-5">
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="search-employee">Buscar Trabajador</Label>
+              <div className="flex flex-row gap-2">
+                <Input
+                  id="search-employee"
+                  placeholder="00000000"
+                  type="number"
+                  value={searchEmployee}
+                  onChange={(e) => setSearchEmployee(e.target.value)}
+                />
+                <Button
+                  type="button"
+                  variant={"outline"}
+                  onClick={() => handleSearch()}
+                >
+                  <Search className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            {employee && (
+              <div
+                className={` ${
+                  !Array.isArray(employee) &&
+                  "border-2 border-blue-400/45 bg-blue-200/40"
+                }  rounded-sm p-2 `}
               >
-                <Search className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-          {employee && !Array.isArray(employee) && (
-            <div className="space-y-5">
-              Buscar El Codigo
-              <div className={"flex flex-col gap-2 jus"}>
-                <Select
-                  onValueChange={(value) => {
-                    setSelecteIdDirectionGeneral(value);
-                  }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue
-                      placeholder={`${isLoadingDirectionGeneral ? "Cargando Direccioens Generales" : "Seleccionar Direccion General"}`}
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Direcciones De Generales</SelectLabel>
-                      {directionGeneral?.data.map((general, i) => (
-                        <SelectItem key={i} value={`${general.id}`}>
-                          {general.Codigo}-{general.direccion_general}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                <Button
-                  className="cursor-pointer"
-                  onClick={() =>
-                    searchCodeByGeneral(selecteIdDirectionGeneral!)
-                  }
-                >
-                  Buscar Codigo Por Direccion General
-                </Button>
+                {!Array.isArray(employee) ? (
+                  <div className="flex flex-row gap-2">
+                    <p>Nombres: {employee.nombres}</p>
+                    <p>Cédula: {employee.cedulaidentidad}</p>
+                  </div>
+                ) : (
+                  <Error errorMessage="Trabajador No Encontrado" />
+                )}
               </div>
-              <div className={"flex flex-col gap-2 jus"}>
-                <Select
-                  onValueChange={(value) => {
-                    setSelecteIdDirectionLine(value);
-                  }}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue
-                      placeholder={` ${isLoadingDirectionLine ? "Cargando Direcciones de Linea" : "Seleccionar Direccion De Linea"}`}
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Direcciones De Linea</SelectLabel>
-                      {directionLine?.data.map((line, i) => (
-                        <SelectItem key={i} value={`${line.id}`}>
-                          {line.Codigo}-{line.direccion_linea}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-                <Button
-                  className="cursor-pointer"
-                  onClick={() => searchCodeByLine(selecteIdDirectionLine!)}
-                >
-                  Buscar Codigo Por Direccion De Linea
-                </Button>
-              </div>
-              <div className={"flex flex-col gap-2 jus"}>
-                <Select
-                  onValueChange={(value) => setSelecteIdCoordination(value)}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue
-                      placeholder={`${isLoadingCoordination ? "Cargando Coordinaciones" : "Seleccionar Coordinacion"} `}
-                    />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectLabel>Coordinaciones</SelectLabel>
-                      {coordination?.data.map((coord, i) => (
-                        <SelectItem key={i} value={`${coord.id}`}>
-                          {coord.Codigo}-{coord.coordinacion}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                  <Button
-                    className="cursor-pointer"
-                    onClick={() => searchCodeByCoord(selecteIdCoordination!)}
-                  >
-                    Buscar Codigo Por Coordinacion
-                  </Button>
-                </Select>
-              </div>
-            </div>
-          )}
-          {employee && !Array.isArray(employee) && (
-            <div>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)}>
-                  {selectedCode && (
-                    <>
-                      {!isLoading ? (
-                        <>
-                          <FormField
-                            control={form.control}
-                            name="code"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>
-                                  Listado De Codigos Disponibles
-                                </FormLabel>
-                                <Select
-                                  onValueChange={(values) => {
-                                    field.onChange(Number.parseInt(values));
-                                    setSelectedCodeId(Number.parseInt(values));
-                                  }}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger className="w-full truncate">
-                                      <SelectValue
-                                        placeholder={"Seleccione Un Codigo"}
-                                      />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    {selectedCode.data.map((codes, i) => (
-                                      <SelectItem key={i} value={`${codes.id}`}>
-                                        {codes.codigo} -{" "}
-                                        {
-                                          codes.denominacioncargoespecifico
-                                            .cargo
-                                        }
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          {selectedCode.data.find(
-                            (v) => v.id === selectedCodeId,
-                          ) && (
-                            <div className="rounded-sm border-2 border-b-emerald-400-400/45 bg-emerald-200/40 p-2 mt-4">
-                              <p>
-                                Direccion General:{" "}
-                                {
-                                  selectedCode.data.find(
-                                    (v) => v.id === selectedCodeId,
-                                  )?.DireccionGeneral.direccion_general
-                                }
-                              </p>
-                              <p>
-                                {" "}
-                                Direccion De Linea:{" "}
-                                {selectedCode.data.find(
-                                  (v) => v.id === selectedCodeId,
-                                )?.DireccionLinea?.direccion_linea
-                                  ? selectedCode.data.find(
-                                      (v) => v.id === selectedCodeId,
-                                    )?.DireccionLinea?.direccion_linea
-                                  : "N/A"}
-                              </p>
-                              <p>
-                                {" "}
-                                Coordinacion:{" "}
-                                {selectedCode.data.find(
-                                  (v) => v.id === selectedCodeId,
-                                )?.Coordinacion?.coordinacion
-                                  ? selectedCode.data.find(
-                                      (v) => v.id === selectedCodeId,
-                                    )?.Coordinacion?.coordinacion
-                                  : "N/A"}
-                              </p>
-                              <p>
-                                Organismo Adscrito:{" "}
-                                {selectedCode.data.find(
-                                  (v) => v.id === selectedCodeId,
-                                )?.OrganismoAdscrito
-                                  ? selectedCode.data.find(
-                                      (v) => v.id === selectedCodeId,
-                                    )?.OrganismoAdscrito?.Organismoadscrito
-                                  : "N/A"}
-                              </p>
-                              <p>
-                                Grado:{" "}
-                                {selectedCode.data.find(
-                                  (v) => v.id === selectedCodeId,
-                                )?.grado?.grado
-                                  ? selectedCode.data.find(
-                                      (v) => v.id === selectedCodeId,
-                                    )?.grado?.grado
-                                  : "N/A"}
-                              </p>
-                              <p>
-                                Cargo:{" "}
-                                {
-                                  selectedCode.data.find(
-                                    (v) => v.id === selectedCodeId,
-                                  )?.denominacioncargo.cargo
-                                }
-                              </p>
-                              <p>
-                                Cargo Especifico:{" "}
-                                {
-                                  selectedCode.data.find(
-                                    (v) => v.id === selectedCodeId,
-                                  )?.denominacioncargoespecifico.cargo
-                                }
-                              </p>
-                              <p>
-                                Estatus:{" "}
-                                {
-                                  selectedCode.data.find(
-                                    (v) => v.id === selectedCodeId,
-                                  )?.estatusid.estatus
-                                }
-                              </p>
-                              <p>
-                                Tipo De Nomina:{" "}
-                                {
-                                  selectedCode.data.find(
-                                    (v) => v.id === selectedCodeId,
-                                  )?.tiponomina.nomina
-                                }
-                              </p>
-                            </div>
+            )}
+            {employee && !Array.isArray(employee) && (
+              <div className="space-y-5">
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSearch)}>
+                    <div className="flex flex-row items-center gap-2 w-full flex-1">
+                      <div className="grid grid-cols-2 gap-2 w-full">
+                        <FormField
+                          name="codigo"
+                          control={form.control}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Buscar Código </FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="text"
+                                  placeholder="buscar codigo..."
+                                  {...field}
+                                />
+                              </FormControl>
+                            </FormItem>
                           )}
-                        </>
-                      ) : (
-                        <Spinner className="m-auto w-32 h-32">
-                          {" "}
-                          Cargando...
-                        </Spinner>
-                      )}
-                      <Button
-                        className="w-full mt-2 cursor-pointer"
-                        disabled={isPending}
-                      >
-                        {isPending ? "Asignando Codigo" : "Asignar Codigo"}
-                      </Button>
-                    </>
-                  )}
-                </form>
-              </Form>
-            </div>
-          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="tipo_nomina"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Tipo de Nomina</FormLabel>
+                              <Select
+                                onValueChange={(values) => {
+                                  field.onChange(Number.parseInt(values));
+                                }}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="w-full truncate">
+                                    <SelectValue
+                                      placeholder={`${isLoadingNomina ? "Cargando Nominas" : "Seleccione un Tipo de Nomina"}`}
+                                    />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectItem value="0">Ninguno</SelectItem>
+                                  {nomina?.data.map((nomina, i) => (
+                                    <SelectItem key={i} value={`${nomina.id}`}>
+                                      {nomina.nomina}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />{" "}
+                        <FormField
+                          control={form.control}
+                          name="dependencia_id"
+                          render={({ field }) => (
+                            <FormItem className="col-span-2">
+                              <FormLabel>Dependencia</FormLabel>
+                              <Select
+                                onValueChange={(values) => {
+                                  field.onChange(Number.parseInt(values));
+                                  setDependencyId(Number.parseInt(values));
+                                }}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="w-full truncate">
+                                    <SelectValue
+                                      placeholder={`${isLoadingDependency ? "Cargando Depedencias" : "Seleccione una Dependencia"}`}
+                                    />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {dependency?.data.map((dependencia, i) => (
+                                    <SelectItem
+                                      key={i}
+                                      value={`${dependencia.id}`}
+                                    >
+                                      {dependencia.Codigo}-
+                                      {dependencia.dependencia}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="direccion_general_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Dirección General</FormLabel>
+                              <Select
+                                onValueChange={(values) => {
+                                  field.onChange(Number.parseInt(values));
+                                  setSelecteIdDirectionGeneral(values);
+                                }}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="w-full truncate">
+                                    <SelectValue
+                                      placeholder={`${isLoadingDirectionGeneral ? "Cargando Direcciones Generales" : "Seleccione una Dirección General"}`}
+                                    />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {directionGeneral?.data.map((general, i) => (
+                                    <SelectItem key={i} value={`${general.id}`}>
+                                      {general.Codigo}-
+                                      {general.direccion_general}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="direccion_linea_id"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>
+                                Dirección De Linea / Coordinación
+                              </FormLabel>
+                              <Select
+                                onValueChange={(values) => {
+                                  field.onChange(Number.parseInt(values));
+                                  setSelecteIdDirectionLine(values);
+                                }}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="w-full truncate">
+                                    <SelectValue
+                                      placeholder={`${isLoadingDirectionLine ? "Cargando Dirección De Linea / Coordinación " : "Seleccione una Dirección De Linea"}`}
+                                    />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {directionLine?.data.map((line, i) => (
+                                    <SelectItem key={i} value={`${line.id}`}>
+                                      {line.Codigo}-{line.direccion_linea}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="coordinacion_id"
+                          render={({ field }) => (
+                            <FormItem className="col-span-2">
+                              <FormLabel>Coordinación</FormLabel>
+                              <Select
+                                onValueChange={(values) => {
+                                  field.onChange(Number.parseInt(values));
+                                }}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="w-full truncate">
+                                    <SelectValue
+                                      placeholder={`${isLoadingCoordination ? "Cargando Coordinaciones" : "Seleccione una Coordinación"}`}
+                                    />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {coordination?.data.map((coord, i) => (
+                                    <SelectItem key={i} value={`${coord.id}`}>
+                                      {coord.Codigo}-{coord.coordinacion}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
 
-          {employee && (
-            <div
-              className={` ${
-                !Array.isArray(employee) &&
-                "border-2 border-blue-400/45 bg-blue-200/40"
-              }  rounded-sm p-2 `}
-            >
-              {!Array.isArray(employee) ? (
-                <>
-                  <p>Nombres: {employee.nombres}</p>
-                  <p>Apellidos: {employee.apellidos}</p>
-                  <p>Cedula: {employee.cedulaidentidad}</p>
-                  <p>Estado Civil: {employee.estadoCivil.estadoCivil}</p>
-                </>
-              ) : (
-                <p>
-                  <span className="flex gap-4">
-                    Trabajador No Encontrado{" "}
-                    <CircleAlert className="text-red-500" />
-                  </span>
-                </p>
-              )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <Button className="cursor-pointer self-baseline-last">
+                          Buscar <Search />
+                        </Button>
+                        <Button
+                          variant={"outline"}
+                          className="cursor-pointer self-baseline-last"
+                          type="button"
+                          onClick={cleanFields}
+                        >
+                          Limpiar <Eraser />
+                        </Button>
+                      </div>
+                    </div>
+                  </form>
+                </Form>
+              </div>
+            )}
+            {employee && !Array.isArray(employee) && (
+              <div>
+                <Form {...formAsig}>
+                  <form onSubmit={formAsig.handleSubmit(onSubmit)}>
+                    {codeList?.data.length! > 0 ? (
+                      <>
+                        <FormField
+                          control={formAsig.control}
+                          name="code"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>
+                                Listado De Codigos Disponibles
+                              </FormLabel>
+                              <Select
+                                onValueChange={(values) => {
+                                  field.onChange(Number.parseInt(values));
+                                  setSelectedCodeId(Number.parseInt(values));
+                                }}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="w-full truncate">
+                                    <SelectValue
+                                      placeholder={"Seleccione Un Codigo"}
+                                    />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {codeList?.data.map((codes, i) => (
+                                    <SelectItem key={i} value={`${codes.id}`}>
+                                      {codes.codigo} -{" "}
+                                      {codes.denominacioncargoespecifico.cargo}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        {codeList?.data.find(
+                          (v) => v.id === selectedCodeId,
+                        ) && (
+                          <div className="rounded-sm border-2 border-b-emerald-400-400/45 bg-emerald-200/40 p-2 mt-4">
+                            <p>
+                              Dirección General:{" "}
+                              {codeList?.data.find(
+                                (v) => v.id === selectedCodeId,
+                              )?.DireccionGeneral?.direccion_general ?? "N/A"}
+                            </p>
+                            <p>
+                              {" "}
+                              Dirección De Linea:{" "}
+                              {codeList?.data.find(
+                                (v) => v.id === selectedCodeId,
+                              )?.DireccionLinea?.direccion_linea ?? "N/A"}
+                            </p>
+                            <p>
+                              {" "}
+                              Coordinacion:{" "}
+                              {codeList?.data.find(
+                                (v) => v.id === selectedCodeId,
+                              )?.Coordinacion?.coordinacion
+                                ? codeList?.data.find(
+                                    (v) => v.id === selectedCodeId,
+                                  )?.Coordinacion?.coordinacion
+                                : "N/A"}
+                            </p>
+                            <p>
+                              Organismo Adscrito:{" "}
+                              {codeList?.data.find(
+                                (v) => v.id === selectedCodeId,
+                              )?.OrganismoAdscrito
+                                ? codeList?.data.find(
+                                    (v) => v.id === selectedCodeId,
+                                  )?.OrganismoAdscrito?.Organismoadscrito
+                                : "N/A"}
+                            </p>
+                            <p>
+                              Grado:{" "}
+                              {codeList?.data.find(
+                                (v) => v.id === selectedCodeId,
+                              )?.grado?.grado
+                                ? codeList?.data.find(
+                                    (v) => v.id === selectedCodeId,
+                                  )?.grado?.grado
+                                : "N/A"}
+                            </p>
+                            <p>
+                              Cargo:{" "}
+                              {
+                                codeList?.data.find(
+                                  (v) => v.id === selectedCodeId,
+                                )?.denominacioncargo.cargo
+                              }
+                            </p>
+                            <p>
+                              Cargo Específico:{" "}
+                              {
+                                codeList?.data.find(
+                                  (v) => v.id === selectedCodeId,
+                                )?.denominacioncargoespecifico.cargo
+                              }
+                            </p>
+                            <p>
+                              Estatus:{" "}
+                              {
+                                codeList?.data.find(
+                                  (v) => v.id === selectedCodeId,
+                                )?.estatusid.estatus
+                              }
+                            </p>
+                            <p>
+                              Tipo De Nomina:{" "}
+                              {
+                                codeList?.data.find(
+                                  (v) => v.id === selectedCodeId,
+                                )?.tiponomina.nomina
+                              }
+                            </p>
+                          </div>
+                        )}
+
+                        <Button
+                          className="w-full mt-2 cursor-pointer"
+                          disabled={isPending}
+                        >
+                          {isPending ? "Asignando Código" : "Asignar Código"}
+                        </Button>
+                      </>
+                    ) : (
+                      <Error errorMessage="Direccion Administrativa No Posee Cargos Vacantes" />
+                    )}
+                  </form>
+                </Form>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </>
   );
 }

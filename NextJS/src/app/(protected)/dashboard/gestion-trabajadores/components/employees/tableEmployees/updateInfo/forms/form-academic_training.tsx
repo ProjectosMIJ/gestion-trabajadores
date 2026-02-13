@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 
 import {
   getAcademyLevel,
@@ -98,7 +98,10 @@ export default function FormUpdateAcademyLevel({
       }
     });
   };
-
+  const academyLevelId = useWatch({
+    control: form.control,
+    name: "formacion_academica.nivel_Academico_id",
+  });
   return (
     <>
       <Card>
@@ -107,10 +110,10 @@ export default function FormUpdateAcademyLevel({
         </CardHeader>
         <CardContent>
           <CardAction className="text-gray-500">
-            Informacion Academica
+            Información Academica
           </CardAction>
           {isPending ? (
-            <Loading promiseMessage="Actualizando Informacion" />
+            <Loading promiseMessage="Actualizando Información" />
           ) : (
             <div>
               <Form {...form}>
@@ -144,10 +147,12 @@ export default function FormUpdateAcademyLevel({
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormDescription className="flex flex-row gap-2 justify-end">
-                          <Label>Mas Detalles De Formacion Academica</Label>
-                          <Switch onCheckedChange={setShowMoreDetails} />
-                        </FormDescription>
+                        {!(academyLevelId == 1 || academyLevelId == 2) && (
+                          <FormDescription className="flex flex-row gap-2 justify-end">
+                            <Label>Mas Detalles De Formacion Academica</Label>
+                            <Switch onCheckedChange={setShowMoreDetails} />
+                          </FormDescription>
+                        )}
                         <FormMessage />
                       </FormItem>
                     )}
@@ -253,7 +258,7 @@ export default function FormUpdateAcademyLevel({
                   )}
                   <Button className="w-full col-span-2" disabled={isPending}>
                     {" "}
-                    {isPending ? "Actualizando Informacion" : "Actualizar"}
+                    {isPending ? "Actualizando Información" : "Actualizar"}
                   </Button>
                 </form>
               </Form>

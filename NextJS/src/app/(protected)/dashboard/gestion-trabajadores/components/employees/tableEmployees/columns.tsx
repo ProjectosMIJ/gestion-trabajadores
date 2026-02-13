@@ -25,7 +25,7 @@ export const columns: ColumnDef<EmployeeData>[] = [
   {
     accessorKey: "cedulaidentidad",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Cedula" />
+      <DataTableColumnHeader column={column} title="Cédula" />
     ),
   },
   {
@@ -107,7 +107,7 @@ export const columns: ColumnDef<EmployeeData>[] = [
                 navigator.clipboard.writeText(employee.cedulaidentidad)
               }
             >
-              Copiar Cedula De Identidad
+              Copiar Cédula De Identidad
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Extras</DropdownMenuLabel>

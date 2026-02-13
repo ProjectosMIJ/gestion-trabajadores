@@ -17,36 +17,6 @@ import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import UpdateCode from "./detail-info";
 export const columnsCode: ColumnDef<Code>[] = [
   {
-    id: "actions",
-    header: "Acciones",
-    cell: ({ row }) => {
-      const codigo = row.original;
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Abrir Menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(codigo.codigo)}
-            >
-              Copiar Codigo
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <UpdateCode code={codigo} />
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
-  {
     accessorKey: "codigo",
     header: ({ column }) => {
       return (
@@ -54,7 +24,7 @@ export const columnsCode: ColumnDef<Code>[] = [
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Codigo
+          Código
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       );
@@ -66,7 +36,7 @@ export const columnsCode: ColumnDef<Code>[] = [
   },
   {
     accessorKey: "denominacioncargoespecifico.cargo",
-    header: "D.  Cargo Especifico",
+    header: "D.  Cargo Específico",
   },
   {
     accessorKey: "grado.grado",
@@ -92,11 +62,11 @@ export const columnsCode: ColumnDef<Code>[] = [
   },
   {
     accessorKey: "DireccionGeneral.direccion_general",
-    header: "Direccion General",
+    header: "Dirección General",
   },
   {
     accessorKey: "DireccionLinea.direccion_linea",
-    header: "Direccion De Linea",
+    header: "Dirección De Linea",
     cell: ({ getValue }) => {
       const dirLine = getValue();
       if (!dirLine) return "N/A";
@@ -105,7 +75,7 @@ export const columnsCode: ColumnDef<Code>[] = [
   },
   {
     accessorKey: "Coordinacion.coordinacion",
-    header: "Coordinacion",
+    header: "Coordinación",
     cell: ({ getValue }) => {
       const coord = getValue();
       if (!coord) return "N/A";
@@ -128,11 +98,41 @@ export const columnsCode: ColumnDef<Code>[] = [
   },
   {
     accessorKey: "fecha_actualizacion",
-    header: "F. Actualizacion",
+    header: "F. Actualización",
     cell: ({ getValue }) => {
       const date = getValue() as Date;
       if (!date) return "N/A";
       return formatInTimeZone(date, "UTC", "dd/MM/yyy");
+    },
+  },
+  {
+    id: "actions",
+    header: "Acciones",
+    cell: ({ row }) => {
+      const codigo = row.original;
+
+      return (
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="h-8 w-8 p-0">
+              <span className="sr-only">Abrir Menu</span>
+              <MoreHorizontal className="h-4 w-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuLabel>Acciones</DropdownMenuLabel>
+            <DropdownMenuItem
+              onClick={() => navigator.clipboard.writeText(codigo.codigo)}
+            >
+              Copiar Código
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <UpdateCode code={codigo} />
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      );
     },
   },
 ];

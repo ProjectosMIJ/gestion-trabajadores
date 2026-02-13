@@ -6,7 +6,8 @@ export const schemaCode = z.object({
   denominacioncargoespecificoid: z.number(),
   gradoid: z.number().optional(),
   tiponominaid: z.number(),
-  DireccionGeneral: z.number(),
+  Dependencia: z.number(),
+  DireccionGeneral: z.number().default(0),
   DireccionLinea: z.number().default(0),
   Coordinacion: z.number().default(0),
 });

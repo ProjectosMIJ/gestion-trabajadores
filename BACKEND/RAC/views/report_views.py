@@ -269,16 +269,7 @@ def _generate_employee_pdf(filtros):
     Employee = apps.get_model('RAC', 'Employee')
     AsigTrabajo = apps.get_model('RAC', 'AsigTrabajo')
 
-    # 1. Obtener lógica de jerarquía desde el Manager
-    logic = AsigTrabajo.objects.get_hierarchy_case()
-
-    # 2. Subconsulta: Determina la mejor prioridad del empleado para el orden general de las filas
-    # Usamos solo 'peso' para decidir la posición en el reporte
-    mejores_cargos = AsigTrabajo.objects.filter(
-        employee=OuterRef('cedulaidentidad')
-    ).annotate(
-        peso=logic
-    ).order_by('peso','tiponominaid__nomina', '-fecha_actualizacion').values('peso')[:1]
+ 
 
     # 3. Procesamiento de filtros
     config = MAPA_REPORTES.get('empleados', {})
@@ -293,34 +284,29 @@ def _generate_employee_pdf(filtros):
             if 'assignments__' in campo:
                 asignacion_filtros[campo.replace('assignments__', '')] = v
 
-    # 4. Construcción del QuerySet
     queryset = Employee.objects.select_related(
         'sexoid', 'estadoCivil'
     ).filter(
         **query_filtros
-    ).annotate(
-        prioridad_jerarquica=Subquery(mejores_cargos)
     ).prefetch_related(
         Prefetch(
             'assignments',
             queryset=AsigTrabajo.objects.filter(**asignacion_filtros).select_related(
-                'DireccionGeneral__dependenciaId', 
+                'Dependencia',           # Trae el nombre de la Dependencia (ej: MINISTERIO)
+                'DireccionGeneral',
                 'denominacioncargoid', 
+                
                 'tiponominaid'
-            ).annotate(
-                # Calculamos el peso jerárquico interno
-                peso_interno=logic
-            ).order_by('peso_interno', '-fecha_actualizacion'), # <--- EL CAMBIO: Manda el peso, luego la fecha
+                
+            
+            ).order_by('denominacioncargoid__orden_by_cargo','-fecha_actualizacion'),
             to_attr='filtered_assignments'
         )
     ).order_by(
-        'prioridad_jerarquica', # 1. Quién es jefe va primero
-
+       'assignments__denominacioncargoid__orden_by_cargo',
         'cedulaidentidad'
     ).distinct()
 
-    # 5. Generación del reporte
-    # Convertimos a lista para que ReportLab no genere múltiples queries durante el renderizado
     generator = EmployeePDFGenerator(
         employees=list(queryset),
         title="REPORTE DE TRABAJADORES",
@@ -328,6 +314,9 @@ def _generate_employee_pdf(filtros):
     )
 
     return generator.get_response(as_attachment=True)
+
+
+
 
 def _generate_family_pdf(filtros):
     """Genera el PDF de familiares."""
@@ -399,7 +388,7 @@ def _generate_assignment_pdf(filtros):
             campo_db = filtros_permitidos[filtro_key]
             query_filtros &= Q(**{campo_db: filtro_value})
     
-    queryset = queryset.filter(query_filtros).order_by('codigo')
+    queryset = queryset.filter(query_filtros).order_by('employee__cedulaidentidad','tiponominaid__nomina')
 
     generator = AssignmentPDFGenerator(
         assignments=queryset,

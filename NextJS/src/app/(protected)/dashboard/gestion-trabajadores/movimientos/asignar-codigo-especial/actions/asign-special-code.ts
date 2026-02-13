@@ -28,12 +28,12 @@ export async function AsignSpecialCode(
     if (response.ok) {
       return {
         success: true,
-        message: "Codigo Especial Asignado",
+        message: "Código Especial Asignado",
       };
     }
     return {
       success: false,
-      message: "Ocurrio Un Error Al Asignar El Codigo Especial",
+      message: "Ocurrio Un Error Al Asignar El Código Especial",
     };
   } catch {
     return {

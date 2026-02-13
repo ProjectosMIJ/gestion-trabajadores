@@ -130,7 +130,7 @@ export default function FormUpdateHealth({ defaultValues, idEmployee }: Props) {
         <CardContent>
           <CardAction className="text-gray-500">Perfil De Salud</CardAction>
           {isPending ? (
-            <Loading promiseMessage="Actualizando Informacion" />
+            <Loading promiseMessage="Actualizando Información" />
           ) : (
             <div>
               <Form {...form}>
@@ -298,7 +298,7 @@ export default function FormUpdateHealth({ defaultValues, idEmployee }: Props) {
                   </ScrollArea>
 
                   <Button className="w-full" disabled={isPending}>
-                    {isPending ? "Actualizando Informacion" : "Actualizar"}
+                    {isPending ? "Actualizando Información" : "Actualizar"}
                   </Button>
                 </form>
               </Form>

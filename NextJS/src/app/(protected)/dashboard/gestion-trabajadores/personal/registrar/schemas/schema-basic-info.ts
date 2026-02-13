@@ -5,7 +5,7 @@ export const schemaBasicInfo = z.object({
   cedulaidentidad: z
     .string({
       message: "Debe Ingresar Numeros",
-      required_error: "Cedula De Identidad Es Requerido",
+      required_error: "Cédula De Identidad Es Requerido",
     })
     .min(7, { message: "Debe Ingresar Al Menos 7 Digitos" })
     .max(12, { message: "Debe Maximo 12 Digitos" }),
@@ -57,7 +57,7 @@ export const schemaBasicInfo = z.object({
 
   n_contrato: z
     .string({
-      message: "Debe Ingresar Informacion Valida",
+      message: "Debe Ingresar Información Valida",
       required_error: "Este Campo Es Requerido",
     })
     .min(3, { message: "Debe Ingresar Al Menos 3 Caracteres" }),

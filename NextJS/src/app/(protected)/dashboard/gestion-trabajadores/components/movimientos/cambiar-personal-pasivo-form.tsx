@@ -40,6 +40,7 @@ import {
 import { Input } from "../../../../../../components/ui/input";
 import { Label } from "../../../../../../components/ui/label";
 import { Switch } from "../../../../../../components/ui/switch";
+import Error from "../error/error";
 export function PasivoForm() {
   const [searchEmployee, setSearchEmployee] = useState<string | undefined>(
     undefined,
@@ -198,11 +199,11 @@ export function PasivoForm() {
                         name="codigo_nuevo"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Ingrese El Codigo A Asignar</FormLabel>
+                            <FormLabel>Ingrese El Código A Asignar</FormLabel>
                             <FormControl>
                               <Input
                                 {...field}
-                                placeholder="Ingrese El Codigo"
+                                placeholder="Ingrese El Código"
                               />
                             </FormControl>
 
@@ -234,7 +235,7 @@ export function PasivoForm() {
                           <FormControl>
                             <SelectTrigger className="w-full truncate">
                               <SelectValue
-                                placeholder={`${isLoadingReasonLeaving ? "Cargando Motivos De Cambio De Cargo" : "Seleccione Un Codigo"}`}
+                                placeholder={`${isLoadingReasonLeaving ? "Cargando Motivos De Cambio De Cargo" : "Seleccione Un Código"}`}
                               />
                             </SelectTrigger>
                           </FormControl>
@@ -270,15 +271,10 @@ export function PasivoForm() {
                 <>
                   <p>Nombres: {employee.nombres}</p>
                   <p>Apellidos: {employee.apellidos}</p>
-                  <p>Cedula: {employee.cedulaidentidad}</p>
+                  <p>Cédula: {employee.cedulaidentidad}</p>
                 </>
               ) : (
-                <p>
-                  <span className="flex gap-4">
-                    Trabajador No Encontrado{" "}
-                    <CircleAlert className="text-red-500" />
-                  </span>
-                </p>
+                <Error errorMessage="Trabajador No Encontrado" />
               )}
             </div>
           )}

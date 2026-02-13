@@ -112,7 +112,7 @@ export default function FormDwelling({ onSubmit, defaultValues }: Props) {
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        Esta Informacion Sera Publica
+                        Esta Información Sera Publica
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -146,7 +146,7 @@ export default function FormDwelling({ onSubmit, defaultValues }: Props) {
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        Esta Informacion Sera Publica
+                        Esta Información Sera Publica
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -179,7 +179,7 @@ export default function FormDwelling({ onSubmit, defaultValues }: Props) {
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        Esta Informacion Sera Publica
+                        Esta Información Sera Publica
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -217,7 +217,7 @@ export default function FormDwelling({ onSubmit, defaultValues }: Props) {
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        Esta Informacion Sera Publica
+                        Esta Información Sera Publica
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

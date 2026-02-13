@@ -6,7 +6,8 @@ import {
   getDependency,
   getDirectionGeneralById,
   getDirectionLine,
-  getNomina
+  getNomina,
+  getNominaGeneral,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
 import { Button } from "@/components/ui/button";
 import {
@@ -89,8 +90,8 @@ export function CodeListPage() {
     resolver: zodResolver(schemaSearch),
   });
   const { data: nomina, isLoading: isLoadingNomina } = useSWR(
-    "nomina",
-    async () => await getNomina(),
+    "nominaGeneral",
+    async () => await getNominaGeneral(),
   );
   const onSearch = (values: z.infer<typeof schemaSearch>) => {
     const isNotAdmin = session?.user?.role !== "admin";
@@ -149,7 +150,7 @@ export function CodeListPage() {
                     control={form.control}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Buscar Codigo </FormLabel>
+                        <FormLabel>Buscar Código </FormLabel>
                         <FormControl>
                           <Input
                             type="text"
@@ -289,7 +290,7 @@ export function CodeListPage() {
                     name="coordinacion_id"
                     render={({ field }) => (
                       <FormItem className="col-span-2">
-                        <FormLabel>Coordinacion</FormLabel>
+                        <FormLabel>Coordinación</FormLabel>
                         <Select
                           onValueChange={(values) => {
                             field.onChange(Number.parseInt(values));

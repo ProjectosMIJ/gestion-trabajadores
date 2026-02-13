@@ -73,12 +73,12 @@ export default async function updateInfoEmployee(
     if (response.ok) {
       return {
         success: true,
-        message: "Informacion Actualizada Exitosamente",
+        message: "Información Actualizada Exitosamente",
       };
     }
     return {
       success: false,
-      message: "Error Al Actualizar la informacion",
+      message: "Error Al Actualizar la información",
     };
   } catch (e) {
     console.log(e);

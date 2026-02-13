@@ -5,6 +5,7 @@ export const schemaUpdateCodeTable = z.object({
   denominacioncargoespecificoid: z.number().optional(),
   gradoid: z.number().optional(),
   tiponominaid: z.number().optional(),
+  Dependencia: z.number().optional(),
   DireccionGeneral: z.number().optional(),
   DireccionLinea: z.number().optional(),
   Coordinacion: z.number().optional(),

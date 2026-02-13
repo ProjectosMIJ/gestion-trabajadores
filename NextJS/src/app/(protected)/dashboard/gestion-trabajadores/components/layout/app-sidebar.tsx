@@ -153,12 +153,12 @@ const items: MenuItem[] = [
       roleAccept: ["admin"],
       departmentAccept: ["RAC"],
     },
-    title: "Gestion De Codigos",
+    title: "Gestión De Codigos",
     url: "#",
     icon: SignpostBig,
     subMenu: [
       {
-        title: "Crear Nuevo Codigo",
+        title: "Crear Nuevo Código",
         url: "/dashboard/gestion-trabajadores/cargos/crear-codigo",
         icon: BadgePlus,
         permission: {
