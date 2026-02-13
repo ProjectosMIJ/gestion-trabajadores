@@ -39,6 +39,7 @@ import {
   getDirectionLine,
   getGrado,
   getNomina,
+  getNominaGeneral,
 } from "../../../api/getInfoRac";
 import Loading from "../../../components/loading/loading";
 import { updateCodeTable } from "../actions/update-code";
@@ -85,8 +86,8 @@ export default function UpdateCode({ code }: Props) {
     async () => await getCargo(),
   );
   const { data: nomina, isLoading: isLoadingNomina } = useSWR(
-    "nomina",
-    async () => await getNomina(),
+    "nominaGeneral",
+    async () => await getNominaGeneral(),
   );
   const { data: grado, isLoading: isLoadingGrado } = useSWR("grado", async () =>
     getGrado(),
@@ -201,48 +202,43 @@ export default function UpdateCode({ code }: Props) {
                       </FormItem>
                     )}
                   />
-                  {!code.tiponomina.requiere_codig && (
-                    <>
-                      <FormField
-                        control={form.control}
-                        name="tiponominaid"
-                        render={({ field }) => (
-                          <FormItem className=" ">
-                            <FormLabel>Tipo de Nomina</FormLabel>
-                            <Select
-                              onValueChange={(values) => {
-                                field.onChange(Number.parseInt(values));
-                              }}
-                            >
-                              <FormControl>
-                                <SelectTrigger className="w-full truncate">
-                                  <SelectValue
-                                    placeholder={`${isLoadingNomina ? "Cargando Nominas" : "Seleccione un Tipo de Nómina"}`}
-                                  />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {nomina?.data.map((nomina, i) => (
-                                  <SelectItem key={i} value={`${nomina.id}`}>
-                                    {nomina.nomina}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </>
-                  )}
+
+                  <FormField
+                    control={form.control}
+                    name="tiponominaid"
+                    render={({ field }) => (
+                      <FormItem className=" ">
+                        <FormLabel>Tipo de Nomina</FormLabel>
+                        <Select
+                          onValueChange={(values) => {
+                            field.onChange(Number.parseInt(values));
+                          }}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full truncate">
+                              <SelectValue
+                                placeholder={`${isLoadingNomina ? "Cargando Nominas" : "Seleccione un Tipo de Nómina"}`}
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {nomina?.data.map((nomina, i) => (
+                              <SelectItem key={i} value={`${nomina.id}`}>
+                                {nomina.nomina}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                   <FormField
                     control={form.control}
                     name="gradoid"
                     render={({ field }) => (
-                      <FormItem
-                        className={`${code.tiponomina.requiere_codig && "col-span-2"}`}
-                      >
+                      <FormItem>
                         <FormLabel>Grado</FormLabel>
                         <Select
                           onValueChange={(values) => {
@@ -408,6 +404,7 @@ export default function UpdateCode({ code }: Props) {
                     )}
                   />
                 </div>
+
                 <Button className="flex-1">
                   Actualizar Cargo <Airplay />
                 </Button>
