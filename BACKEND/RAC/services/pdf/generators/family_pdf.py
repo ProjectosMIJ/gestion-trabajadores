@@ -166,12 +166,12 @@ class FamilyPDFGenerator(BasePDFGenerator):
         col_widths = [
             10 * mm,   # #
             22 * mm,   # Cédula Emp.
-            45 * mm,   # Empleado
+            40 * mm,   # Empleado
             22 * mm,   # Cédula Fam.
             45 * mm,   # Familiar
             28 * mm,   # Parentesco
             22 * mm,   # F. Nacimiento
-            18 * mm,   # Sexo
+            22 * mm,   # Sexo
             18 * mm,   # Heredero
             22 * mm,   # Mismo Ente
         ]

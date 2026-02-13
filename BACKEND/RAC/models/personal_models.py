@@ -22,7 +22,7 @@ class Denominacioncargo(models.Model):
         managed = True
         db_table = 'DenominacionCargo'
         app_label = 'RAC'
-        ordering = ['orden_by_cargo']
+        ordering = ['cargo']
 
 class Denominacioncargoespecifico(models.Model):
     cargo = models.CharField(max_length=200, unique=True)
@@ -31,7 +31,7 @@ class Denominacioncargoespecifico(models.Model):
         managed = True
         db_table = 'DenominacionCargoEspecifico'
         app_label = 'RAC'
-        ordering = ['orden_by_cargo']
+        ordering = ['cargo']
         
  
 # organismos adscritos  
