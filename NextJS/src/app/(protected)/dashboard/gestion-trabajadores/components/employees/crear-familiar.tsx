@@ -44,7 +44,7 @@ import {
   Shirt,
 } from "lucide-react";
 import { useMemo, useState, useTransition } from "react";
-import { useFieldArray, useForm ,useWatch} from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import useSWR from "swr";
 import { Button } from "../../../../../../components/ui/button";
 import { Calendar } from "../../../../../../components/ui/calendar";
@@ -72,6 +72,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import createFamilyActions from "../../familiares/agregar-familiar/actions/create-family-actions";
 import { toast } from "sonner";
+import Error from "../error/error";
 export function CreateFamilyForm() {
   const [searchEmployee, setSearchEmployee] = useState<string | undefined>(
     undefined,
@@ -225,7 +226,7 @@ export function CreateFamilyForm() {
       });
     }
   };
-   const academyLevelId = useWatch({
+  const academyLevelId = useWatch({
     control: form.control,
     name: "formacion_academica_familiar.nivel_Academico_id",
   });
@@ -235,13 +236,23 @@ export function CreateFamilyForm() {
         <CardContent className="space-y-5">
           <div className="flex flex-col gap-2">
             <Label htmlFor="search-employee">Buscar Trabajador</Label>
-            <div className="flex flex-row gap-2">
+            <form
+              className="flex flex-row gap-2"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSearch();
+              }}
+            >
               <Input
                 id="search-employee"
                 placeholder="00000000"
                 type="number"
                 value={searchEmployee}
-                onChange={(e) => setSearchEmployee(e.target.value)}
+                onChange={(e) =>
+                  e.target.value.length > 5
+                    ? setSearchEmployee(e.target.value)
+                    : setSearchEmployee(undefined)
+                }
               />
               <Button
                 type="button"
@@ -252,19 +263,14 @@ export function CreateFamilyForm() {
               >
                 <Search className="h-4 w-4" />
               </Button>
-            </div>
+            </form>
             {employee && !Array.isArray(employee) ? (
               <div className="rounded-sm p-2 border-2 border-green-500/25 bg-green-400/25">
                 {" "}
                 Empleado: {employee.nombres} {employee.cedulaidentidad}
               </div>
             ) : (
-              <p>
-                <span className="flex gap-4">
-                  Trabajador No Encontrado{" "}
-                  <CircleAlert className="text-red-500" />
-                </span>
-              </p>
+              <Error errorMessage="Trabajador No Encontrado" />
             )}
           </div>
           {employee && !Array.isArray(employee) && (
@@ -684,12 +690,18 @@ export function CreateFamilyForm() {
                                       ))}
                                     </SelectContent>
                                   </Select>
-                                 {!(academyLevelId == 1 || academyLevelId == 2) && (
-                        <FormDescription className="flex flex-row gap-2 justify-end">
-                          <Label>Mas Detalles De Formacion Academica</Label>
-                          <Switch onCheckedChange={setShowMoreDetails} />
-                        </FormDescription>
-                      )}
+                                  {!(
+                                    academyLevelId == 1 || academyLevelId == 2
+                                  ) && (
+                                    <FormDescription className="flex flex-row gap-2 justify-end">
+                                      <Label>
+                                        Mas Detalles De Formacion Academica
+                                      </Label>
+                                      <Switch
+                                        onCheckedChange={setShowMoreDetails}
+                                      />
+                                    </FormDescription>
+                                  )}
                                   <FormMessage />
                                 </FormItem>
                               )}

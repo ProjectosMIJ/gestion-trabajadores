@@ -5,6 +5,7 @@ import {
   schemaCreateDirectionGeneralDp,
   schemaCreateDirectionLineDirection,
 } from "../schema/schemaCreateDirectionDependency";
+import { ApiResponse } from "@/app/types/types";
 export async function createDirectionGeneral(
   values: z.infer<typeof schemaCreateDirectionGeneralDp>,
 ) {
@@ -25,15 +26,16 @@ export async function createDirectionGeneral(
       body: JSON.stringify({ ...values }),
     },
   );
+  const apiResponse: ApiResponse<never> = await response.json();
   if (response.ok) {
     return {
       success: true,
-      message: "Direccion Creada Exitosamente",
+      message: apiResponse.message,
     };
   }
   return {
     success: false,
-    message: "Error Al Crear La Direccion",
+    message: apiResponse.message,
   };
 }
 
@@ -58,15 +60,17 @@ export async function createDirectionLine(
         body: JSON.stringify({ ...values }),
       },
     );
+    const apiResponse: ApiResponse<never> = await response.json();
+
     if (response.ok) {
       return {
         success: true,
-        message: "Direccion Creada Exitosamente",
+        message: apiResponse.message,
       };
     }
     return {
       success: false,
-      message: "Error Al Crear La Direccion",
+      message: apiResponse.message,
     };
   } catch {
     return {
@@ -85,24 +89,33 @@ export async function createDirectionCordination(
       message: "Error Al Validar Los Datos",
     };
   }
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}register-Coordinacion/`,
-    {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}register-Coordinacion/`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ...values }),
       },
-      body: JSON.stringify({ ...values }),
-    },
-  );
-  if (response.ok) {
+    );
+    const apiResponse: ApiResponse<never> = await response.json();
+
+    if (response.ok) {
+      return {
+        success: true,
+        message: apiResponse.message,
+      };
+    }
     return {
-      success: true,
-      message: "Cordinacion Creada Exitosamente",
+      success: false,
+      message: apiResponse.message,
+    };
+  } catch {
+    return {
+      success: false,
+      message: "Ocurrio Un Error",
     };
   }
-  return {
-    success: false,
-    message: "Error Al Crear La Cordinacion",
-  };
 }

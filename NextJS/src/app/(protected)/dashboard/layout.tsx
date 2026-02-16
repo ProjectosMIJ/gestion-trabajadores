@@ -1,3 +1,4 @@
+"use server";
 import { Toaster } from "@/components/ui/sonner";
 import { SessionProvider } from "next-auth/react";
 import {
@@ -7,11 +8,13 @@ import {
   LoaderCircle,
   ShieldAlert,
 } from "lucide-react";
-export default function ProtectedLayout({
+import { auth } from "#/auth";
+export default async function ProtectedLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
   return (
     <main className="flex flex-col justify-center items-center m-auto ">
       <Toaster
@@ -42,7 +45,7 @@ export default function ProtectedLayout({
           },
         }}
       />
-      <SessionProvider>{children}</SessionProvider>
+      <SessionProvider session={session}>{children}</SessionProvider>
     </main>
   );
 }

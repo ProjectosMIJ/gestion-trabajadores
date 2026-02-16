@@ -11,8 +11,8 @@ export function AuthController() {
   const logoutTimerRef = useRef<NodeJS.Timeout | null>(null);
   const warningTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const TOTAL_TIME = 30 * 1000; // 30s
-  const WARNING_TIME = 10 * 1000; // 10s antes
+  const TOTAL_TIME = 5 * 60 * 1000; // 5m
+  const WARNING_TIME = 4 * 60 * 1000; // 4m antes
 
   const handleLogout = useCallback(() => {
     console.log("🔴 Ejecutando Logout...");
@@ -21,34 +21,16 @@ export function AuthController() {
 
   useEffect(() => {
     if (!session) return;
-
     const resetTimer = () => {
-      // 1. Limpiar timers anteriores
       if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
       if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-
-      // 2. Solo actualizar el estado si la alerta estaba visible
-      // Esto evita re-renders innecesarios cada milímetro que mueves el mouse
-      setShowAlert((prev) => {
-        if (prev)
-          console.log(
-            "🟢 Actividad detectada: Ocultando alerta y reiniciando contadores",
-          );
-        return false;
-      });
-
-      // 3. Timer para la alerta
       warningTimerRef.current = setTimeout(() => {
-        console.log("🟡 Alerta: Quedan 10 segundos");
         setShowAlert(true);
       }, TOTAL_TIME - WARNING_TIME);
-
-      // 4. Timer para el logout
       logoutTimerRef.current = setTimeout(() => {
         handleLogout();
       }, TOTAL_TIME);
     };
-
     const events = [
       "mousedown",
       "mousemove",
@@ -57,11 +39,7 @@ export function AuthController() {
       "touchstart",
     ];
     events.forEach((event) => document.addEventListener(event, resetTimer));
-
-    // CORRECCIÓN VITAL: Iniciar el timer apenas carga el componente
-    console.log("🚀 AuthController activo: Iniciando contadores de 30s");
     resetTimer();
-
     return () => {
       events.forEach((event) =>
         document.removeEventListener(event, resetTimer),
@@ -76,7 +54,6 @@ export function AuthController() {
   return (
     <Dialog open={showAlert} onOpenChange={setShowAlert}>
       <DialogContent
-        // Evita que el usuario cierre el modal con ESC o clic fuera si quieres ser estricto
         onPointerDownOutside={(e) => e.preventDefault()}
         className="sm:max-w-[425px] border-none bg-transparent shadow-none p-0"
       >

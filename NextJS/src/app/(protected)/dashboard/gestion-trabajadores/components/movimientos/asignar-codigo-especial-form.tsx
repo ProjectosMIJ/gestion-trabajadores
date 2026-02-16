@@ -71,7 +71,7 @@ export function CodigoCatalogEspecialForm({
     useState<string>();
   const [selecteIdDirectionLine, setSelecteIdDirectionLine] =
     useState<string>();
-  const [employee, setEmployee] = useState<EmployeeInfo | []>([]);
+  const [employee, setEmployee] = useState<EmployeeInfo | []>();
 
   const [activeDirectionLine, setActiveDirectionLine] =
     useState<boolean>(false);
@@ -180,15 +180,16 @@ export function CodigoCatalogEspecialForm({
     if (
       response.data &&
       !Array.isArray(response.data) &&
-      !(response.data && "message" in employee)
+      !(response.data && "message" in response.data ? response.data : null)
     ) {
       setEmployee(response.data);
       form.setValue("employee", response.data.cedulaidentidad, {
         shouldValidate: true,
         shouldDirty: true,
       });
-    } else {
-      setEmployee(response.data);
+    }
+    if (Array.isArray(response.data) && response.data.length === 0) {
+      setEmployee([]);
     }
   };
   return (
@@ -202,13 +203,23 @@ export function CodigoCatalogEspecialForm({
       <CardContent>
         <div className="flex flex-col gap-2">
           <Label htmlFor="search-employee">Buscar Trabajador</Label>
-          <div className="flex flex-row gap-2">
+          <form
+            className="flex flex-row gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSearch();
+            }}
+          >
             <Input
               id="search-employee"
               placeholder="00000000"
               type="number"
               value={searchEmployee}
-              onChange={(e) => setSearchEmployee(e.target.value)}
+              onChange={(e) =>
+                e.target.value.length > 5
+                  ? setSearchEmployee(e.target.value)
+                  : setSearchEmployee(undefined)
+              }
             />
             <Button
               type="button"
@@ -219,7 +230,7 @@ export function CodigoCatalogEspecialForm({
             >
               <Search className="h-4 w-4" />
             </Button>
-          </div>
+          </form>
         </div>
         <Form {...form}>
           <form

@@ -198,7 +198,7 @@ export default function FormCreateDirectionDependency() {
                   </div>
                   {create === "create-direction-line" && (
                     <div className="space-y-2">
-                      <Label>Dirección General</Label>
+                      <Label>Dirección General / Coordinación</Label>
                       <Select
                         onValueChange={(value) => {
                           selectionDirectionGeneral(Number.parseInt(value));
@@ -211,7 +211,7 @@ export default function FormCreateDirectionDependency() {
                         </SelectTrigger>
                         <SelectContent>
                           <SelectGroup>
-                            <SelectLabel>Direcciones De Generales</SelectLabel>
+                            <SelectLabel>Direcciones De Generales </SelectLabel>
                             {directionGeneral?.data.map((general, i) => (
                               <SelectItem key={i} value={`${general.id}`}>
                                 {general.Codigo}-{general.direccion_general}
@@ -225,7 +225,7 @@ export default function FormCreateDirectionDependency() {
                   {create === "create-coordination" && (
                     <>
                       <div className="space-y-2">
-                        <Label>Dirección General</Label>
+                        <Label>Dirección General / Coordinación</Label>
                         <Select
                           onValueChange={(value) => {
                             setSelectionDirectionGeneralId(value);
@@ -240,7 +240,7 @@ export default function FormCreateDirectionDependency() {
                           <SelectContent>
                             <SelectGroup>
                               <SelectLabel>
-                                Direcciones De Generales
+                                Direcciones De Generales / Coordinación
                               </SelectLabel>
                               {directionGeneral?.data.map((general, i) => (
                                 <SelectItem key={i} value={`${general.id}`}>
@@ -252,7 +252,7 @@ export default function FormCreateDirectionDependency() {
                         </Select>
                       </div>
                       <div className="space-y-2 col-span-2">
-                        <Label>Dirección De Linea</Label>
+                        <Label>Dirección De Linea / Coordinación</Label>
 
                         <Select
                           onValueChange={(value) => {
@@ -266,7 +266,9 @@ export default function FormCreateDirectionDependency() {
                           </SelectTrigger>
                           <SelectContent>
                             <SelectGroup>
-                              <SelectLabel>Direcciones De Linea</SelectLabel>
+                              <SelectLabel>
+                                Direcciones De Linea / Coordinaciones
+                              </SelectLabel>
                               {directionLine?.data.map((line, i) => (
                                 <SelectItem key={i} value={`${line.id}`}>
                                   {line.Codigo}-{line.direccion_linea}
@@ -333,7 +335,7 @@ export default function FormCreateDirectionDependency() {
                           render={({ field }) => (
                             <FormItem className="w-full truncate p-0.5">
                               <FormLabel>
-                                Codigo de la Dirección General
+                                Codigo de la Dirección General / Coordinación
                               </FormLabel>
                               <FormControl>
                                 <Input {...field} type="number" />
@@ -348,7 +350,7 @@ export default function FormCreateDirectionDependency() {
                           render={({ field }) => (
                             <FormItem className="w-full truncate p-0.5">
                               <FormLabel>
-                                Nombre De La Dirección General
+                                Nombre De La Dirección General / Coordinación
                               </FormLabel>
                               <FormControl>
                                 <Input {...field} />
@@ -359,7 +361,7 @@ export default function FormCreateDirectionDependency() {
                         />
                       </div>
                       <Button className="w-full">
-                        Crear Dirección De Linea
+                        Crear Dirección General / Coordinación
                       </Button>
                     </form>
                   </Form>
@@ -379,7 +381,7 @@ export default function FormCreateDirectionDependency() {
                           render={({ field }) => (
                             <FormItem className="w-full truncate p-0.5">
                               <FormLabel>
-                                Código De La Dirección De Linea
+                                Código De La Dirección De Linea / Coordinación
                               </FormLabel>
                               <FormControl>
                                 <Input {...field} type="number" />
@@ -394,7 +396,7 @@ export default function FormCreateDirectionDependency() {
                           render={({ field }) => (
                             <FormItem className="w-full truncate p-0.5">
                               <FormLabel>
-                                Nombre De La Dirección De Linea
+                                Nombre De La Dirección De Linea / Coordinación
                               </FormLabel>
                               <FormControl>
                                 <Input {...field} />
@@ -405,7 +407,7 @@ export default function FormCreateDirectionDependency() {
                         />
                       </div>
                       <Button className="w-full">
-                        Crear Dirección De Linea
+                        Crear Dirección De Linea / Coordinación
                       </Button>
                     </form>
                   </Form>
