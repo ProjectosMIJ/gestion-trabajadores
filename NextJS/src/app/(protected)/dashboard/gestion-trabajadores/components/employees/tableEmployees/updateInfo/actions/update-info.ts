@@ -42,6 +42,7 @@ export default async function updateInfoEmployee(
         }),
       },
     );
+    const getResponse = await response.json();
     if ("file" in data && data.file !== null && data.file !== undefined) {
       const formData = new FormData();
       formData.append("file", data.file!);
@@ -73,15 +74,16 @@ export default async function updateInfoEmployee(
     if (response.ok) {
       return {
         success: true,
-        message: "Información Actualizada Exitosamente",
+        message: getResponse.message,
       };
     }
     return {
       success: false,
-      message: "Error Al Actualizar la información",
+      message:
+        getResponse.message ||
+        "Error al actualizar la información del empleado.",
     };
-  } catch (e) {
-    console.log(e);
+  } catch {
     return {
       success: false,
       message: "Ocurrio Un Error",

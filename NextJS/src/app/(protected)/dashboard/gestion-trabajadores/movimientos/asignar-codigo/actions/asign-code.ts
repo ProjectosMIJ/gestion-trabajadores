@@ -3,6 +3,7 @@
 import z from "zod";
 import { schemaAsignCode } from "../schema/schema-asign-code";
 import { auth } from "#/auth";
+import { ApiResponse } from "@/app/types/types";
 
 export async function AsignCode(values: z.infer<typeof schemaAsignCode>) {
   try {
@@ -28,15 +29,16 @@ export async function AsignCode(values: z.infer<typeof schemaAsignCode>) {
         body: JSON.stringify({ ...payload }),
       },
     );
+    const getResponse: ApiResponse<never> = await response.json();
     if (response.ok) {
       return {
         success: true,
-        message: "Código Asingnado Exitosamente",
+        message: getResponse.message,
       };
     }
     return {
       success: false,
-      message: "Código No Asignado",
+      message: getResponse.message,
     };
   } catch {
     return {

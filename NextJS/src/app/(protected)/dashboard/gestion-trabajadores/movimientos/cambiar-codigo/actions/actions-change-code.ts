@@ -3,6 +3,7 @@
 import z from "zod";
 import { schemaChangeCode } from "../schema/schemaChangeCode";
 import { auth } from "#/auth";
+import { ApiResponse } from "@/app/types/types";
 
 export default async function ChangeCodeActions(
   values: z.infer<typeof schemaChangeCode>,
@@ -31,15 +32,17 @@ export default async function ChangeCodeActions(
         }),
       },
     );
+    const getResponse: ApiResponse<never> = await response.json();
+
     if (response.ok) {
       return {
         success: true,
-        message: "Codigo Cambiado Exitosamente",
+        message: getResponse.message,
       };
     }
     return {
       success: false,
-      message: "Error Al Cambiar El Codigo",
+      message: getResponse.message,
     };
   } catch {
     return {
