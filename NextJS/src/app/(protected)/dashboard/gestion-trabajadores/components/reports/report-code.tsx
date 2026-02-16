@@ -30,6 +30,7 @@ import {
   getGrado,
   getNominaGeneral,
   getStatusNomina,
+  getStatusReport,
   postReport,
 } from "../../api/getInfoRac";
 
@@ -51,8 +52,8 @@ export default function ReportCode() {
   const { data: session } = useSession();
   const [dependencyId, setDependencyId] = useState<number>(0);
   const { data: statusNomina, isLoading: isLoadingStatusNomina } = useSWR(
-    "statusNomina",
-    async () => await getStatusNomina(),
+    "statusReport",
+    async () => await getStatusReport(),
   );
   const [directionGeneralId, setDirectionGeneralId] = useState<string | null>(
     null,

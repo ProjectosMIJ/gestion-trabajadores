@@ -72,6 +72,13 @@ export const getStatusNomina = async (): Promise<ApiResponse<Status[]>> => {
   const responseStatus: ApiResponse<Status[]> = await status.json();
   return responseStatus;
 };
+export const getStatusReport = async (): Promise<ApiResponse<Status[]>> => {
+  const status = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}estatus/reports/`,
+  );
+  const responseStatus: ApiResponse<Status[]> = await status.json();
+  return responseStatus;
+};
 export const getStatusEmployee = async (): Promise<ApiResponse<Status[]>> => {
   const statusEmployee = await fetch(
     `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}estatus/`,
