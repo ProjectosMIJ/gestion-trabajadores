@@ -3,6 +3,7 @@ import { SessionProvider } from "next-auth/react";
 // import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { AuthController } from "@/components/auth-timer";
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
 //   subsets: ["latin"],
@@ -29,6 +30,7 @@ export default function RootLayout({
         className={` antialiased  bg-no-repeat  bg-[url('/bg.png')] backdrop-blur-[8px] bg-cover object-center overflow-hidden  h-full`}
       >
         <SessionProvider>
+          <AuthController />
           <ScrollArea className="h-full w-full rounded-md">
             {children}
           </ScrollArea>

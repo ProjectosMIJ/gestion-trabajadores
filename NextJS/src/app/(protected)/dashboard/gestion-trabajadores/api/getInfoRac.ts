@@ -39,7 +39,6 @@ import {
   States,
   Status,
 } from "@/app/types/types";
-import { Blob } from "buffer";
 
 export const getAcademyLevel = async (): Promise<
   ApiResponse<AcademyLevel[]>

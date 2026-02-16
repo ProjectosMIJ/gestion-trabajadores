@@ -69,11 +69,9 @@ export default function Dashboard() {
   const { data: session, status } = useSession();
   const router = useRouter();
   if (status === "unauthenticated") {
-    router.refresh();
     return <Loading promiseMessage="Intentando Auntenticar" />;
   }
   if (status === "loading") {
-    router.refresh();
     return <Loading promiseMessage="Cargando Sesion" />;
   }
 
