@@ -1,6 +1,7 @@
 
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
+from rest_framework.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.response import Response
 from ..serializers.personal_serializers import *
@@ -365,6 +366,7 @@ class ImportEmployeesView(APIView):
 @api_view(['POST'])
 def create_employee(request):
     serializer = EmployeeCreateUpdateSerializer(data=request.data)
+    
     if serializer.is_valid():
         try:
             serializer.save()
@@ -374,15 +376,21 @@ def create_employee(request):
                 "data": serializer.data
             }, status=status.HTTP_201_CREATED)
         except Exception as e:
-            return  Response ({
+            return Response({
                 'status': "Error",
                 'message': str(e),
-            }, status = status.HTTP_400_BAD_REQUEST)
+                
+            }, status=status.HTTP_400_BAD_REQUEST)
     else:
+        error_dict = serializer.errors 
+        first_error_field = list(error_dict.values())[0] 
+        clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+
         return Response({
             'status': "Error",
-            'message': serializer.errors,
-        }, status = status.HTTP_400_BAD_REQUEST)
+            'message': clean_message, 
+      
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 #  ACTUALIZACION DE DATOS PERSONALES DEL EMPLEADO       
 @extend_schema(
@@ -394,24 +402,35 @@ def create_employee(request):
 @api_view(['PATCH'])
 def update_employee(request, id):
     empleado = get_object_or_404(Employee, id=id)
-
     serializer = EmployeeCreateUpdateSerializer(empleado, data=request.data, partial=True)
-    serializer.is_valid(raise_exception=True)
     
     try:
+        serializer.is_valid(raise_exception=True)
         serializer.save()
+        
         return Response({
             'status': "OK",
             'message': "Empleado actualizado correctamente",
             'data': serializer.data            
         }, status=status.HTTP_200_OK)
         
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_field = list(error_dict.values())[0]
+        clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+        
+        return Response({
+            'status': "Error",
+            'message': clean_message,
+            'data': None
+        }, status=status.HTTP_400_BAD_REQUEST)
+
     except Exception as e:
         return Response({
             'status': "Error",
             'message': "No se pudo actualizar el registro.",
             'debug': str(e),
-            'data': []
+         
         }, status=status.HTTP_400_BAD_REQUEST)
     
 # LISTADO DE EMPLEADOS
@@ -479,25 +498,33 @@ def retrieve_employee(request, cedulaidentidad):
 )
 @api_view(['POST'])
 def create_position(request):
-
     serializer = CodigosCreateUpdateSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
     
     try:
+        serializer.is_valid(raise_exception=True)
         serializer.save()
+        
         return Response({
             'status': "success",
             "message": "Cargo registrado correctamente",
             "data": serializer.data
         }, status=status.HTTP_201_CREATED)
         
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_value = list(error_dict.values())[0]
+        clean_message = first_error_value[0] if isinstance(first_error_value, list) else first_error_value
+        return Response({
+            'status': "error",
+            'message': clean_message, 
+            'data': None
+        }, status=status.HTTP_400_BAD_REQUEST)
+
     except Exception as e:
         return Response({
             'status': "error",
-            'message': "No se pudo completar el registro del cargo",
-            'error': str(e),
-        
-
+            'message': str(e),
+            'data': None
         }, status=status.HTTP_400_BAD_REQUEST)
         
 @extend_schema(
@@ -509,22 +536,33 @@ def create_position(request):
 @api_view(['PATCH'])
 def update_position(request, id):
     codigo = get_object_or_404(AsigTrabajo, id=id)
-
     serializer = CodigosCreateUpdateSerializer(codigo, data=request.data, partial=True)
-    serializer.is_valid(raise_exception=True)
+    
     
     try:
+        serializer.is_valid(raise_exception=True)
         serializer.save()
+        
         return Response({
             'status': "success",
             'message': "Cargo actualizado correctamente",
             'data': serializer.data            
         }, status=status.HTTP_200_OK)
-        
+
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_field = list(error_dict.values())[0]
+        clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+
+        return Response({
+            'status': "error",
+            'message': clean_message,
+            'data': None
+        }, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         return Response({
             'status': "error",
-            'message': "No se pudo actualizar el cargo debido a un error interno.",
+            'message': str(e),
             'data': None
         }, status=status.HTTP_400_BAD_REQUEST)
         
@@ -538,24 +576,33 @@ def update_position(request, id):
 @api_view(['PATCH'])
 def assign_employee(request, id):       
     puesto = get_object_or_404(AsigTrabajo, id=id)
-    
-
     serializer = EmployeeAssignmentSerializer(puesto, data=request.data, partial=True)
-    serializer.is_valid(raise_exception=True)
     
     try:
+        serializer.is_valid(raise_exception=True)
         serializer.save()
+        
         return Response({
             'status': "success",
             'message': "Cargo asignado correctamente",
             'data': serializer.data            
         }, status=status.HTTP_200_OK)
         
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_field = list(error_dict.values())[0]
+        clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+
+        return Response({
+            'status': "error",
+            'message': clean_message, 
+            'data': None
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
     except Exception as e:
         return Response({
             'status': "error",
-            'message': "No se pudo completar la asignación del empleado.",
-      
+            'message': str(e) ,
         }, status=status.HTTP_400_BAD_REQUEST)
         
 @extend_schema(
@@ -567,9 +614,9 @@ def assign_employee(request, id):
 @api_view(['POST'])
 def assign_employee_special(request):
     serializer = SpecialPositionAutoCreateSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
     
     try:
+        serializer.is_valid(raise_exception=True)
         serializer.save()
         
         return Response({
@@ -578,11 +625,21 @@ def assign_employee_special(request):
             "data": serializer.data
         }, status=status.HTTP_201_CREATED)
         
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_field = list(error_dict.values())[0]
+        clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+
+        return Response({
+            'status': "error",
+            'message': clean_message,
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
     except Exception as e:
         return Response({
             'status': "error",
-            'message': "No se pudo completar la asignación especial.",
-            'data': []
+            'message':str(e), 
+         
         }, status=status.HTTP_400_BAD_REQUEST)
         
 
@@ -595,9 +652,8 @@ def assign_employee_special(request):
 @api_view(['POST'])
 def create_subsidiary_organism(request):
     serializer = OrganismoAdscritoSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    
     try:
+        serializer.is_valid(raise_exception=True)
         serializer.save()
         
         return Response({
@@ -606,11 +662,22 @@ def create_subsidiary_organism(request):
             "data": serializer.data
         }, status=status.HTTP_201_CREATED)
         
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_field = list(error_dict.values())[0]
+        clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+
+        return Response({
+            'status': "error",
+            'message': clean_message, 
+            'data': None
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
     except Exception as e:
         return Response({
             'status': "error",
-            'message': "No se pudo completar el registro del organismo.",
-            'data': None
+            'message': str(e),
+
         }, status=status.HTTP_400_BAD_REQUEST)
         
       
@@ -623,7 +690,6 @@ def create_subsidiary_organism(request):
 @api_view(['POST'])
 def create_dependencia(request):
     serializer = DependenciaSerializer(data=request.data)
-    
     if serializer.is_valid():
         try:
             serializer.save()
@@ -636,11 +702,15 @@ def create_dependencia(request):
             return Response({
                 'status': "error",
                 'message': str(e),
+                'data': None
             }, status=status.HTTP_400_BAD_REQUEST)
-    
+    error_dict = serializer.errors
+    first_error_field = list(error_dict.values())[0]
+    clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
     return Response({
         'status': "error",
-        'message': "Errores de validación",
+        'message': clean_message, 
+        'data': None
     }, status=status.HTTP_400_BAD_REQUEST)
   
 @extend_schema(
@@ -693,11 +763,16 @@ def create_general_directorate(request):
             return Response({
                 'status': "error",
                 'message': str(e),
+                'data': None
             }, status=status.HTTP_400_BAD_REQUEST)
     
+    error_dict = serializer.errors
+    first_error_field = list(error_dict.values())[0]
+    clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
     return Response({
         'status': "error",
-        'message': "Errores de validación",
+        'message': clean_message, 
+        'data': None
     }, status=status.HTTP_400_BAD_REQUEST)
 
     
@@ -742,22 +817,31 @@ def update_direccion_general(request, id):
 @api_view(['POST'])
 def create_line_directorate(request):
     serializer = DireccionLineaSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    
     try:
+        serializer.is_valid(raise_exception=True)
         serializer.save()
+        
         return Response({
             'status': "success",
             "message": "Dirección de Línea registrada correctamente",
             "data": serializer.data
         }, status=status.HTTP_201_CREATED)
         
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_field = list(error_dict.values())[0]
+        clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+
+        return Response({
+            'status': "error",
+            'message': clean_message,
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
     except Exception as e:
         return Response({
             'status': "error",
-            'message': str(e),
-        
-        }, status=status.HTTP_400_BAD_REQUEST)  
+            'message': str(e)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
 @extend_schema(
     tags=["Recursos Humanos - Dependencia"],
@@ -768,7 +852,6 @@ def create_line_directorate(request):
 @api_view(['PATCH'])
 def update_line_directorate(request, id):
     direccion_linea = get_object_or_404(DireccionLinea, id=id)
-    
     serializer = DireccionLineaSerializer(direccion_linea, data=request.data, partial=True)
     serializer.is_valid(raise_exception=True)
     
@@ -796,9 +879,9 @@ def update_line_directorate(request, id):
 @api_view(['POST'])
 def create_coordination(request):
     serializer = CoordinacionSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    
+     
     try:
+        serializer.is_valid(raise_exception=True)
         serializer.save()
         
         return Response({
@@ -807,11 +890,20 @@ def create_coordination(request):
             "data": serializer.data
         }, status=status.HTTP_201_CREATED)
         
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_field = list(error_dict.values())[0]
+        clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+
+        return Response({
+            'status': "error",
+            'message': clean_message,
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
     except Exception as e:
         return Response({
             'status': "error",
-            'message': str(e),
-        
+            'message': str(e)
         }, status=status.HTTP_400_BAD_REQUEST)
         
 
