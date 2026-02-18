@@ -94,6 +94,7 @@ class CargoEgresado(models.Model):
     denominacioncargoespecificoid = models.ForeignKey(Denominacioncargoespecifico, models.DO_NOTHING, db_column='denominacionCargoEspecificoId')
     gradoid = models.ForeignKey(Grado, models.DO_NOTHING, db_column='gradoId', blank=True, null=True)
     tiponominaid = models.ForeignKey(Tiponomina, models.DO_NOTHING, db_column='tipoNominaId')
+    TipoPersonalId = models.ForeignKey(Tipo_personal, models.DO_NOTHING, db_column='tipoPersonalId')
     Dependencia =  models.ForeignKey(Dependencias, models.DO_NOTHING, db_column='dependenciaId')
     DireccionGeneral = models.ForeignKey(DireccionGeneral, models.DO_NOTHING, db_column='direccionGeneralId', null=True)
     DireccionLinea = models.ForeignKey(DireccionLinea, models.DO_NOTHING, db_column='direccionLineaId', null=True)

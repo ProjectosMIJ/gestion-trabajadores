@@ -155,10 +155,10 @@ class FamilyPDFGenerator(BasePDFGenerator):
         # Definir encabezados
         headers = [
             '#',
-            'Cédula Emp.',
-            'Empleado',
-            'Cédula Fam.',
-            'Familiar',
+            'Cédula Empleado',
+            'Nombre Empleado',
+            'Cédula Familiar',
+            'Nombre Familiar',
             'Parentesco',
             'F. Nacimiento',
             'Sexo',
@@ -173,7 +173,7 @@ class FamilyPDFGenerator(BasePDFGenerator):
             22 * mm,   # Cédula Fam.
             45 * mm,   # Familiar
             28 * mm,   # Parentesco
-            22 * mm,   # F. Nacimiento
+            26 * mm,   # F. Nacimiento
             22 * mm,   # Sexo
        
         ]

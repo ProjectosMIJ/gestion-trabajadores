@@ -5,6 +5,23 @@ from RAC.models.personal_models import Employee
 from RAC.services.mapa_reporte import MAPA_REPORTES
 
 
+
+
+class FiltrosReporteSerializer(serializers.Serializer):
+    fecha_ingreso_Desde = serializers.DateField(required=False, allow_null=True, 
+                                               input_formats=['iso-8601', '%Y-%m-%dT%H:%M:%S.%fZ', '%Y-%m-%d'])
+    fecha_ingreso_Hasta = serializers.DateField(required=False, allow_null=True, 
+                                               input_formats=['iso-8601', '%Y-%m-%dT%H:%M:%S.%fZ', '%Y-%m-%d'])
+    fecha_apn_Desde = serializers.DateField(required=False, allow_null=True, 
+                                           input_formats=['iso-8601', '%Y-%m-%dT%H:%M:%S.%fZ', '%Y-%m-%d'])
+    fecha_apn_Hasta = serializers.DateField(required=False, allow_null=True, 
+                                           input_formats=['iso-8601', '%Y-%m-%dT%H:%M:%S.%fZ', '%Y-%m-%d'])
+    
+    def get_fields(self):
+        fields = super().get_fields()
+      
+        return fields
+
 def transformar_edad_a_fecha(valor_edad):
     try:
         edad = int(valor_edad)
@@ -35,6 +52,13 @@ class ReportePDFSerializer(serializers.Serializer):
         
         if not config:
             raise serializers.ValidationError("Categoría no configurada")
+        
+        
+        filtros_serializer = FiltrosReporteSerializer(data=filtros)
+        if filtros_serializer.is_valid():
+            filtros.update(filtros_serializer.validated_data)
+        else:
+            raise serializers.ValidationError({"filtros": filtros_serializer.errors})
             
         campos_edad = [
             'edad_min', 'edad_max', 

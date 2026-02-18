@@ -204,24 +204,28 @@ class DependenciaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dependencias
         fields = '__all__'
+    
+    def validate_dependencia(self,value):
+        value = value.upper()
+        return value
+# class DireccionGeneralSerializer(serializers.ModelSerializer):
+#     Dependencia = DependenciaSerializer(source='dependenciaId', read_only=True)
+#     dependenciaId = serializers.PrimaryKeyRelatedField(
+#         queryset=Dependencias.objects.all(), 
+#         write_only=True, 
+#         required=False
+#     )
 
-class DireccionGeneralSerializer(serializers.ModelSerializer):
-    Dependencia = DependenciaSerializer(source='dependenciaId', read_only=True)
-    dependenciaId = serializers.PrimaryKeyRelatedField(
-        queryset=Dependencias.objects.all(), 
-        write_only=True, 
-        required=False
-    )
-
-    class Meta:
-        model = DireccionGeneral
-        fields = [
-            'id',
-            'Codigo',
-            'direccion_general',
-            'Dependencia',   
-            'dependenciaId'  
-        ]
+#     class Meta:
+#         model = DireccionGeneral
+#         fields = [
+#             'id',
+#             'Codigo',
+#             'direccion_general',
+#             'Dependencia',   
+#             'dependenciaId'  
+#         ]
+    
 class DireccionGeneralSerializer(serializers.ModelSerializer):
     class Meta:
         model = DireccionGeneral
@@ -394,6 +398,13 @@ class AntecedentesServicioSerializer(serializers.ModelSerializer):
     class Meta:
         model = antecedentes_servicio
         exclude = ['empleado_id']   
+        
+    
+    def validate_institucion(self,value):
+        value = value.upper()
+        return value
+        
+    
         
 # CARGOS 
 class denominacionCargoSerializer(serializers.ModelSerializer):

@@ -49,8 +49,8 @@ MAPA_REPORTES = {
             "tipo_personal": "assignments__Tipo_personal",
             "apn_min": "total_anos_apn__gte",
             "apn_max": "total_anos_apn__lte",
-            "edad_min": "edad_trabajador__gte",
-            "edad_max": "edad_trabajador__lte",
+            "edad_min": "fecha_nacimiento__lte",
+            "edad_max": "fecha_nacimiento__gte",
             "fecha_ingreso_Desde": "fechaingresoorganismo__gte",
             "fecha_ingreso_Hasta": "fechaingresoorganismo__lte",
             "fecha_apn_Desde": "antecedentes_servicio__fecha_ingreso__gte",
@@ -134,8 +134,8 @@ MAPA_REPORTES = {
             "direccion_linea_id": "cargos_historial__DireccionLinea",
             "coordinacion_id": "cargos_historial__Coordinacion",
             "organismo_id": "cargos_historial__OrganismoAdscritoid",
-            "edad_min": "employee__fecha_nacimiento__gte",
-            "edad_max": "employee__fecha_nacimiento__lte",
+            "edad_min": "employee__fecha_nacimiento__lte",
+            "edad_max": "employee__fecha_nacimiento__gte",
             "sexo_id": "employee__sexoid",
             
         }
