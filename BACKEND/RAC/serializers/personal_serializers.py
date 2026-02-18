@@ -204,24 +204,28 @@ class DependenciaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Dependencias
         fields = '__all__'
+    
+    def validate_dependencia(self,value):
+        value = value.upper()
+        return value
+# class DireccionGeneralSerializer(serializers.ModelSerializer):
+#     Dependencia = DependenciaSerializer(source='dependenciaId', read_only=True)
+#     dependenciaId = serializers.PrimaryKeyRelatedField(
+#         queryset=Dependencias.objects.all(), 
+#         write_only=True, 
+#         required=False
+#     )
 
-class DireccionGeneralSerializer(serializers.ModelSerializer):
-    Dependencia = DependenciaSerializer(source='dependenciaId', read_only=True)
-    dependenciaId = serializers.PrimaryKeyRelatedField(
-        queryset=Dependencias.objects.all(), 
-        write_only=True, 
-        required=False
-    )
-
-    class Meta:
-        model = DireccionGeneral
-        fields = [
-            'id',
-            'Codigo',
-            'direccion_general',
-            'Dependencia',   
-            'dependenciaId'  
-        ]
+#     class Meta:
+#         model = DireccionGeneral
+#         fields = [
+#             'id',
+#             'Codigo',
+#             'direccion_general',
+#             'Dependencia',   
+#             'dependenciaId'  
+#         ]
+    
 class DireccionGeneralSerializer(serializers.ModelSerializer):
     class Meta:
         model = DireccionGeneral
@@ -394,6 +398,13 @@ class AntecedentesServicioSerializer(serializers.ModelSerializer):
     class Meta:
         model = antecedentes_servicio
         exclude = ['empleado_id']   
+        
+    
+    def validate_institucion(self,value):
+        value = value.upper()
+        return value
+        
+    
         
 # CARGOS 
 class denominacionCargoSerializer(serializers.ModelSerializer):
@@ -602,7 +613,7 @@ class CodigosCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer
     usuario_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(),write_only=True )     
     
     class Meta:
-        model =AsigTrabajo   
+        model = AsigTrabajo   
         exclude = ['employee', 'OrganismoAdscritoid', 'Tipo_personal', 'estatusid', 'observaciones']  
         
     def __init__(self, *args, **kwargs):
@@ -645,6 +656,10 @@ class CodigosCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer
             if parent_dl_id and parent_dl_id != dl.id:
                 raise serializers.ValidationError("La coordinación no pertenece a la Dirección de Línea seleccionada")
 
+        if self.instance and self.instance.tiponominaid and self.instance.tiponominaid.requiere_codig:
+            if 'grado' in attrs or 'tiponominaid' in attrs:
+                raise serializers.ValidationError("No se permite actualizar el grado o el tipo de nómina cuando es un cargo especial")
+
         return attrs
     
     @transaction.atomic
@@ -663,7 +678,7 @@ class CodigosCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer
         usuario = validated_data.pop('usuario_id')
         instance._history_user = usuario
         return super().update(instance, validated_data)
-    
+      
 # -------------------------------------------------------------
 # serializers para listar datos de cargo
 # -------------------------------------------------------------   

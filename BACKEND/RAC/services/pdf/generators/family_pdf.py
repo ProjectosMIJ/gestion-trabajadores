@@ -94,21 +94,25 @@ class FamilyPDFGenerator(BasePDFGenerator):
         total_empleados = len(self.employees)
         total_familiares = sum(self._get_familiares_count(e) for e in self.employees)
         
-        # Contar herederos
-        herederos = 0
-        mismo_ente = 0
+      
+        masculino_count = 0
+        femenino_count = 0
+
         for emp in self.employees:
             for fam in self._get_familiares(emp):
-                if self._get_heredero(fam):
-                    herederos += 1
-                if self._get_mismo_ente(fam):
-                    mismo_ente += 1
-        
+                
+                sexo = self._get_sexo(fam)
+                if sexo == 'M':
+                    masculino_count += 1
+                elif sexo == 'F':
+                    femenino_count += 1
+
         stats = {
             'Total Empleados': total_empleados,
             'Total Familiares': total_familiares,
-            'Herederos': herederos,
-            'Mismo Ente': mismo_ente,
+      
+            'Masculino': masculino_count,
+            'Femenino': femenino_count,
         }
         
         width = self._get_available_width()
@@ -151,15 +155,14 @@ class FamilyPDFGenerator(BasePDFGenerator):
         # Definir encabezados
         headers = [
             '#',
-            'Cédula Emp.',
-            'Empleado',
-            'Cédula Fam.',
-            'Familiar',
+            'Cédula Empleado',
+            'Nombre Empleado',
+            'Cédula Familiar',
+            'Nombre Familiar',
             'Parentesco',
             'F. Nacimiento',
             'Sexo',
-            'Heredero',
-            'Mismo Ente'
+          
         ]
         
         # Anchos de columna para landscape A4
@@ -170,10 +173,9 @@ class FamilyPDFGenerator(BasePDFGenerator):
             22 * mm,   # Cédula Fam.
             45 * mm,   # Familiar
             28 * mm,   # Parentesco
-            22 * mm,   # F. Nacimiento
+            26 * mm,   # F. Nacimiento
             22 * mm,   # Sexo
-            18 * mm,   # Heredero
-            22 * mm,   # Mismo Ente
+       
         ]
         
         # Construir filas de datos
@@ -200,8 +202,7 @@ class FamilyPDFGenerator(BasePDFGenerator):
                     self._get_parentesco(familiar),
                     self._get_fecha_nacimiento(familiar),
                     self._get_sexo(familiar),
-                    'Sí' if self._get_heredero(familiar) else 'No',
-                    'Sí' if self._get_mismo_ente(familiar) else 'No',
+                   
                 ]
                 rows.append(row)
         
@@ -306,13 +307,14 @@ class FamilyPDFGenerator(BasePDFGenerator):
         if isinstance(familiar, dict):
             sexo = familiar.get('sexo', {})
             if isinstance(sexo, dict):
-                return sexo.get('sexo', 'N/A')
-            return str(sexo) if sexo else 'N/A'
-        
-        sexo_obj = getattr(familiar, 'sexo', None)
-        if sexo_obj:
-            return getattr(sexo_obj, 'sexo', 'N/A')
-        return 'N/A'
+                sexo_texto = str(sexo.get('sexo', 'N/A')).upper()
+            else:
+                sexo_texto = str(sexo).upper() if sexo else 'N/A'
+        else:
+            sexo_obj = getattr(familiar, 'sexo', None)
+            sexo_texto = str(getattr(sexo_obj, 'sexo', 'N/A')).upper() if sexo_obj else 'N/A'
+
+        return 'M' if 'MASCULINO' in sexo_texto else 'F' if 'FEMENINO' in sexo_texto else sexo_texto
     
     def _get_estado_civil(self, familiar):
         """Extrae el estado civil del familiar."""

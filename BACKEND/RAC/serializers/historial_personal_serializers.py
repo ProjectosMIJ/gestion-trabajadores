@@ -185,10 +185,10 @@ class GestionEgreso_PasivoSerializer(BaseActionInputSerializer):
     
     def _procesar_pasivo(self, empleado, validated_data, motivo_obj, usuario, estatus_vacante):
         try:
-            dl_admin = DireccionLinea.objects.get(direccion_linea__iexact="DIRECCION DE ADMINISTRACION DE PERSONAL")
-            dg_admin = dl_admin.direccionGeneral
-        except DireccionLinea.DoesNotExist:
-            raise serializers.ValidationError("DIRECCION DE ADMINISTRACION DE PERSONAL no encontrada")
+            dg_humana = DireccionGeneral.objects.get(direccion_general__iexact="OFICINA DE GESTION HUMANA")
+            dl_humana = DireccionLinea.objects.filter(direccionGeneral=dg_humana).first()
+        except DireccionGeneral.DoesNotExist:
+            raise serializers.ValidationError("OFICINA DE GESTION HUMANA no encontrada")
 
         ultima_asig = AsigTrabajo.objects.filter(employee=empleado).first()
         if not ultima_asig:
@@ -212,9 +212,9 @@ class GestionEgreso_PasivoSerializer(BaseActionInputSerializer):
             estatusid=estatus_activo,
             Tipo_personal=tipo_pasivo,
             gradoid=ultima_asig.gradoid,
-            Dependencia =  dg_admin.dependenciaId if dg_admin else Dependencias.objects.get(id=1),
-            DireccionGeneral=dg_admin,
-            DireccionLinea=dl_admin,
+            Dependencia =  dg_humana.dependenciaId if dg_humana else Dependencias.objects.get(id=1),
+            DireccionGeneral=dg_humana,
+            DireccionLinea=dl_humana,
             Coordinacion=None,
             OrganismoAdscritoid=ultima_asig.OrganismoAdscritoid,
             observaciones=f"Cargo pasivo generado. {motivo_obj.movimiento}"
@@ -266,6 +266,7 @@ class GestionEgreso_PasivoSerializer(BaseActionInputSerializer):
                 denominacioncargoespecificoid=asig.denominacioncargoespecificoid,
                 gradoid=asig.gradoid,
                 tiponominaid=asig.tiponominaid,
+                TipoPersonalId= asig.Tipo_personal,
                 Dependencia = asig.Dependencia,
                 DireccionGeneral=asig.DireccionGeneral,
                 DireccionLinea=asig.DireccionLinea,
