@@ -205,7 +205,7 @@ export function AsigCode() {
                     <p>Cédula: {employee.cedulaidentidad}</p>
                   </div>
                 ) : (
-                  <Error errorMessage="Cedula Invalida" />
+                  <Error errorMessage="Cédula Invalida" />
                 )}
               </div>
             )}

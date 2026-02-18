@@ -579,7 +579,7 @@ export function CodigoCatalogEspecialForm({
                     <p>Estado Civil: {employee.estadoCivil.estadoCivil}</p>
                   </>
                 ) : (
-                  <Error errorMessage="Cedula Invalida" />
+                  <Error errorMessage="Cédula Invalida" />
                 )}
               </div>
             )}

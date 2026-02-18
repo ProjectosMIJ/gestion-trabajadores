@@ -80,7 +80,6 @@ export function PasivoForm() {
   const handleSearch = async (values: z.infer<typeof schemaSearchEmployee>) => {
     if (!values.searchEmployeeForm) return;
     const response = await getEmployeeInfo(values.searchEmployeeForm);
-    console.log(response);
     if (response.data && response.data !== undefined) {
       setEmployee(response.data);
     }
@@ -146,7 +145,7 @@ export function PasivoForm() {
                   <p>Cedula: {employee.cedulaidentidad}</p>
                 </div>
               ) : (
-                <Error errorMessage="Cedula Invalida" />
+                <Error errorMessage="Cédula Invalida" />
               )}
             </div>
           )}

@@ -74,6 +74,7 @@ import createFamilyActions from "../../familiares/agregar-familiar/actions/creat
 import { toast } from "sonner";
 import Error from "../error/error";
 import z from "zod";
+import Loading from "../loading/loading";
 export function CreateFamilyForm() {
   const [employee, setEmployee] = useState<EmployeeInfo | []>();
   const [isPending, startTransition] = useTransition();
@@ -266,815 +267,792 @@ export function CreateFamilyForm() {
             {employee && (
               <div className="rounded-sm p-2 ">
                 {!Array.isArray(employee) ? (
-                  <div className="flex flex-row gap-2 border-2 border-blue-400/45 bg-blue-200/40">
+                  <div className="flex flex-row gap-2 border-2 border-blue-400/45 bg-blue-200/40 p-3 rounded-sm">
                     <p>Nombres: {employee.nombres}</p>
                     <p>Cédula: {employee.cedulaidentidad}</p>
                   </div>
                 ) : (
-                  <Error errorMessage="Cedula Invalida" />
+                  <Error errorMessage="Cédula Invalida" />
                 )}
               </div>
             )}
           </div>
           {employee && !Array.isArray(employee) && (
             <>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)}>
-                  <fieldset className="p-3 " dir="rtl">
-                    <div dir="ltr">
-                      <div>
-                        <div className={`grid grid-cols-2 gap-2 space-y-4 `}>
-                          <fieldset className="border grid grid-cols-2 gap-2 space-y-4 col-span-2 p-2 border-green-600 rounded-sm">
-                            <legend className="flex gap-2 text-green-700 font-bold">
-                              Datos Personales <Database />
-                            </legend>
-                            <FormField
-                              control={form.control}
-                              name={`cedulaFamiliar`}
-                              render={({ field }) => (
-                                <FormItem className="col-span-2">
-                                  <FormLabel className="cursor-pointer">
-                                    Cédula Familiar
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      type="text"
-                                      {...field}
-                                      disabled={down}
-                                      placeholder={`${down ? "Se tomara la cedula del trabajador como representante del menor de edad" : ""}`}
-                                    />
-                                  </FormControl>
-                                  <FormDescription>
-                                    <Label className="flex justify-end cursor-pointer">
-                                      ¿El Familiar Es Menor De 9 años?{" "}
-                                      <Switch
-                                        className="cursor-pointer"
-                                        onCheckedChange={(bool) => {
-                                          setDown(bool);
-                                          field.onChange(down ? "" : undefined);
-                                        }}
+              {isPending ? (
+                <Loading promiseMessage="Agregando Familiar" />
+              ) : (
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(onSubmit)}>
+                    <fieldset className="p-3 " dir="rtl">
+                      <div dir="ltr">
+                        <div>
+                          <div className={`grid grid-cols-2 gap-2 space-y-4 `}>
+                            <fieldset className="border grid grid-cols-2 gap-2 space-y-4 col-span-2 p-2 border-green-600 rounded-sm">
+                              <legend className="flex gap-2 text-green-700 font-bold">
+                                Datos Personales <Database />
+                              </legend>
+                              <FormField
+                                control={form.control}
+                                name={`cedulaFamiliar`}
+                                render={({ field }) => (
+                                  <FormItem className="col-span-2">
+                                    <FormLabel className="cursor-pointer">
+                                      Cédula Familiar
+                                    </FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="text"
+                                        {...field}
+                                        disabled={down}
+                                        placeholder={`${down ? "Se tomara la cedula del trabajador como representante del menor de edad" : ""}`}
                                       />
-                                    </Label>
-                                  </FormDescription>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            <FormField
-                              control={form.control}
-                              name={`primer_nombre`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="cursor-pointer">
-                                    Primer Nombre
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input type="text" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={form.control}
-                              name={`segundo_nombre`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="cursor-pointer">
-                                    Segundo Nombre
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input type="text" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={form.control}
-                              name={`primer_apellido`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="cursor-pointer">
-                                    Primer Apellido
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input type="text" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={form.control}
-                              name={`segundo_apellido`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="cursor-pointer">
-                                    Segundo Apellido
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input type="text" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={form.control}
-                              name={`sexo`}
-                              render={({ field }) => (
-                                <FormItem className=" cursor-pointer">
-                                  <FormLabel className="cursor-pointer">
-                                    Sexo *
-                                  </FormLabel>
-                                  <Select
-                                    onValueChange={(values) => {
-                                      field.onChange(Number.parseInt(values));
-                                    }}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger className="w-full truncate">
-                                        <SelectValue
-                                          placeholder={`${isLoadingSex ? "Cargando Generos" : "Seleccione un Genero"}`}
-                                        />
-                                      </SelectTrigger>
                                     </FormControl>
-                                    <SelectContent>
-                                      {sex?.data.map((v, i) => (
-                                        <SelectItem value={`${v.id}`} key={i}>
-                                          {v.sexo}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={form.control}
-                              name={`fechanacimiento`}
-                              render={({ field }) => (
-                                <FormItem className="flex flex-col  grow shrink basis-40 cursor-pointer">
-                                  <FormLabel className="cursor-pointer">
-                                    {" "}
-                                    Fecha de Nacimiento *
-                                  </FormLabel>
-                                  <Popover>
-                                    <PopoverTrigger asChild>
-                                      <FormControl>
-                                        <Button
-                                          variant={"outline"}
-                                          className="font-light"
-                                        >
-                                          {field.value ? (
-                                            formatDate(
-                                              field.value,
-                                              "dd/MM/yyyy",
-                                            )
-                                          ) : (
-                                            <span>Selecciona una fecha</span>
-                                          )}
-                                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                        </Button>
-                                      </FormControl>
-                                    </PopoverTrigger>
-                                    <PopoverContent
-                                      className="w-auto p-0"
-                                      align="start"
-                                    >
-                                      <Calendar
-                                        selected={
-                                          field.value
-                                            ? new Date(field.value)
-                                            : undefined
-                                        }
-                                        mode="single"
-                                        onSelect={(date) =>
-                                          field.onChange(date)
-                                        }
-                                        disabled={(date: Date) =>
-                                          date > new Date() ||
-                                          date < new Date("1900-01-01")
-                                        }
-                                        captionLayout="dropdown"
-                                      />
-                                    </PopoverContent>
-                                  </Popover>
-
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            <FormField
-                              control={form.control}
-                              name={`estadoCivil`}
-                              render={({ field }) => (
-                                <FormItem className="cursor-pointer col-span-2 w-full">
-                                  <FormLabel className="cursor-pointer ">
-                                    Estado Civil{" "}
-                                  </FormLabel>
-                                  <Select
-                                    onValueChange={(values) => {
-                                      field.onChange(Number.parseInt(values));
-                                    }}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger className="w-full truncate">
-                                        <SelectValue
-                                          placeholder={`${isLoadingMaritalStatus ? "Cargando Estado Civil" : "Seleccione Un Estado Civil"}`}
-                                        />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      {maritalStatus?.data.map((status, i) => (
-                                        <SelectItem
-                                          key={i}
-                                          value={`${status.id}`}
-                                        >
-                                          {status.estadoCivil}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                </FormItem>
-                              )}
-                            />
-                          </fieldset>
-                          <fieldset className="border grid grid-cols-2 gap-2 space-y-4 col-span-2 p-2 border-amber-700 rounded-sm">
-                            <legend className="flex gap-2 text-amber-700 font-bold">
-                              {" "}
-                              Relación Y Parentesco <Contact />{" "}
-                            </legend>
-                            <FormField
-                              control={form.control}
-                              name={`parentesco`}
-                              render={({ field }) => (
-                                <FormItem className="cursor-pointer">
-                                  <FormLabel className="cursor-pointer">
-                                    Parentesco *
-                                  </FormLabel>
-                                  <Select
-                                    onValueChange={(values) => {
-                                      field.onChange(Number.parseInt(values));
-                                    }}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger className="w-full truncate">
-                                        <SelectValue
-                                          placeholder={
-                                            "Seleccione un Parentesco"
-                                          }
-                                        />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      {parent?.data.map((parent, i) => (
-                                        <SelectItem
-                                          key={i}
-                                          value={`${parent.id}`}
-                                        >
-                                          {parent.descripcion_parentesco}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            {form.watch(`parentesco`) ==
-                              parent?.data.find(
-                                (v) => v.descripcion_parentesco === "HIJO (A)",
-                              )?.id && (
-                              <>
-                                <FormField
-                                  control={form.control}
-                                  name={`orden_hijo`}
-                                  render={({ field }) => (
-                                    <FormItem className="cursor-pointer">
-                                      <FormLabel className="cursor-pointer">
-                                        Orden de nacimiento
-                                      </FormLabel>
-                                      <Select
-                                        onValueChange={(values) => {
-                                          field.onChange(
-                                            Number.parseInt(values),
-                                          );
-                                        }}
-                                      >
-                                        <FormControl>
-                                          <SelectTrigger className="w-full truncate">
-                                            <SelectValue
-                                              placeholder={
-                                                "Seleccione Un Orden De Nacimiento"
-                                              }
-                                            />
-                                          </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                          <SelectItem value="1">1</SelectItem>
-                                          <SelectItem value="2">2</SelectItem>
-                                          <SelectItem value="3">3</SelectItem>
-                                          <SelectItem value="4">4</SelectItem>
-                                          <SelectItem value="5">5</SelectItem>
-                                          <SelectItem value="6">6</SelectItem>
-                                          <SelectItem value="7">7</SelectItem>
-                                          <SelectItem value="8">8</SelectItem>
-                                          <SelectItem value="9">9</SelectItem>
-                                          <SelectItem value="10">10</SelectItem>
-                                          <SelectItem value="11">11</SelectItem>
-                                          <SelectItem value="12">12</SelectItem>
-                                          <SelectItem value="13">13</SelectItem>
-                                          <SelectItem value="14">14</SelectItem>
-                                          <SelectItem value="15">15</SelectItem>
-                                          <SelectItem value="16">16</SelectItem>
-                                          <SelectItem value="17">17</SelectItem>
-                                          <SelectItem value="18">18</SelectItem>
-                                          <SelectItem value="19">19</SelectItem>
-                                          <SelectItem value="20">20</SelectItem>
-                                          <SelectItem value="21">21</SelectItem>
-                                          <SelectItem value="22">22</SelectItem>
-                                          <SelectItem value="23">23</SelectItem>
-                                          <SelectItem value="24">24</SelectItem>
-                                          <SelectItem value="25">25</SelectItem>
-                                          <SelectItem value="26">26</SelectItem>
-                                          <SelectItem value="27">27</SelectItem>
-                                        </SelectContent>
-                                      </Select>
-                                    </FormItem>
-                                  )}
-                                />
-                              </>
-                            )}
-
-                            <FormField
-                              name={`mismo_ente`}
-                              control={form.control}
-                              render={({ field }) => (
-                                <>
-                                  <FormItem className="flex flex-row items-center  m-auto">
-                                    <Label
-                                      htmlFor="work"
-                                      className="text-center cursor-pointer"
-                                    >
-                                      ¿El Familar Trabaja En Este Ente?
-                                    </Label>
-                                    <Switch
-                                      id="work"
-                                      onCheckedChange={field.onChange}
-                                      className="scale-100 cursor-pointer"
-                                    />
-                                  </FormItem>
-                                  <FormMessage />
-                                </>
-                              )}
-                            />
-
-                            <FormField
-                              name={`heredero`}
-                              control={form.control}
-                              render={({ field }) => (
-                                <>
-                                  <FormItem className="flex flex-row items-center  m-auto">
-                                    <Label
-                                      htmlFor="soon"
-                                      className="cursor-pointer"
-                                    >
-                                      ¿El Familiar Es Heredero?
-                                    </Label>
-                                    <Switch
-                                      id="soon"
-                                      onCheckedChange={field.onChange}
-                                      className="scale-100 cursor-pointer"
-                                    />
-                                  </FormItem>
-                                  <FormMessage />
-                                </>
-                              )}
-                            />
-                          </fieldset>
-                          <fieldset className="border grid grid-cols-2 gap-2 space-y-4 col-span-2 p-2  border-blue-700 rounded-sm">
-                            <legend className="flex gap-2 text-blue-700 font-bold">
-                              Información Academica <BookAIcon />
-                            </legend>
-                            <FormField
-                              control={form.control}
-                              name={`formacion_academica_familiar.nivel_Academico_id`}
-                              render={({ field }) => (
-                                <FormItem className="col-span-2 cursor-pointer">
-                                  <FormLabel className="cursor-pointer">
-                                    Nivel Academico
-                                  </FormLabel>
-                                  <Select
-                                    onValueChange={(values) => {
-                                      field.onChange(Number.parseInt(values));
-                                    }}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger className="w-full truncate">
-                                        <SelectValue
-                                          placeholder={`${isLoadingAcademyLevel ? "Cargando Niveles Academicos" : "Seleccione un Nivel Academico"}`}
-                                        />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      {academyLevel?.data.map((nivel, i) => (
-                                        <SelectItem
-                                          key={i}
-                                          value={`${nivel.id}`}
-                                        >
-                                          {nivel.nivelacademico}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  {!(
-                                    academyLevelId == 1 || academyLevelId == 2
-                                  ) && (
-                                    <FormDescription className="flex flex-row gap-2 justify-end">
-                                      <Label>
-                                        Mas Detalles De Formacion Academica
-                                      </Label>
-                                      <Switch
-                                        onCheckedChange={setShowMoreDetails}
-                                      />
-                                    </FormDescription>
-                                  )}
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            {showMoreDetails && (
-                              <>
-                                <FormField
-                                  control={form.control}
-                                  name={`formacion_academica_familiar.carrera_id`}
-                                  render={({ field }) => (
-                                    <FormItem className="cursor-pointer ">
-                                      <FormLabel className="cursor-pointer">
-                                        Carrera (Opcional)
-                                      </FormLabel>
-                                      <Select
-                                        onValueChange={(values) => {
-                                          field.onChange(
-                                            Number.parseInt(values),
-                                          );
-                                          setMencionId(values);
-                                        }}
-                                      >
-                                        <FormControl>
-                                          <SelectTrigger className="w-full truncate">
-                                            <SelectValue
-                                              placeholder={`${isLoadingCarrera ? "Cargando Carreras" : "Seleccione una carrera"}`}
-                                            />
-                                          </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                          {carrera?.data.map((carrera, i) => (
-                                            <SelectItem
-                                              key={i}
-                                              value={`${carrera.id}`}
-                                            >
-                                              {carrera.nombre_carrera}
-                                            </SelectItem>
-                                          ))}
-                                        </SelectContent>
-                                      </Select>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                                <FormField
-                                  control={form.control}
-                                  name={`formacion_academica_familiar.mencion_id`}
-                                  render={({ field }) => (
-                                    <FormItem className=" cursor-pointer">
-                                      <FormLabel className="cursor-pointer">
-                                        Mención (Opcional)
-                                      </FormLabel>
-                                      <Select
-                                        onValueChange={(values) => {
-                                          field.onChange(
-                                            Number.parseInt(values),
-                                          );
-                                        }}
-                                      >
-                                        <FormControl>
-                                          <SelectTrigger className="w-full truncate">
-                                            <SelectValue
-                                              placeholder={`${isLoadingMencion ? "Cargando Mencion Academica" : "Seleccione una mención academica"}`}
-                                            />
-                                          </SelectTrigger>
-                                        </FormControl>
-                                        <SelectContent>
-                                          {mencion?.data.map((mencion, i) => (
-                                            <SelectItem
-                                              key={i}
-                                              value={`${mencion.id}`}
-                                            >
-                                              {mencion.nombre_mencion}
-                                            </SelectItem>
-                                          ))}
-                                        </SelectContent>
-                                      </Select>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-
-                                <FormField
-                                  name={`formacion_academica_familiar.capacitacion`}
-                                  control={form.control}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel className="cursor-pointer">
-                                        Capacitación (Opcional)
-                                      </FormLabel>
-                                      <FormControl>
-                                        <Input
-                                          type="text"
-                                          placeholder="Capacitado En..."
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                                <FormField
-                                  name={`formacion_academica_familiar.institucion`}
-                                  control={form.control}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel className="cursor-pointer">
-                                        Institución (Opcional)
-                                      </FormLabel>
-                                      <FormControl>
-                                        <Input
-                                          type="text"
-                                          placeholder="Universidad Nacional..."
-                                          {...field}
-                                        />
-                                      </FormControl>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </>
-                            )}
-                          </fieldset>
-                          <fieldset className="border grid grid-cols-2 gap-2 space-y-4 col-span-2 p-2 border-purple-900 rounded-sm">
-                            <legend className="flex flex-row gap-2 text-purple-900 font-bold">
-                              Información de Vestimenta <Shirt />
-                            </legend>
-
-                            <FormField
-                              control={form.control}
-                              name={`perfil_fisico_familiar.tallaCamisa`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Talla De Camisa</FormLabel>
-                                  <Select
-                                    onValueChange={(values) => {
-                                      field.onChange(Number.parseInt(values));
-                                    }}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger className="w-full truncate">
-                                        <SelectValue
-                                          placeholder={`${isLoadingShirtSize ? "Cargando tallas De Camisa" : "Seleccione una Talla De Camisa"}`}
-                                        />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      {shirtSize?.data.map((shirt, i) => (
-                                        <SelectItem
-                                          key={i}
-                                          value={`${shirt.id}`}
-                                        >
-                                          {shirt.talla}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={form.control}
-                              name={`perfil_fisico_familiar.tallaPantalon`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Talla De Pantalón</FormLabel>
-                                  <Select
-                                    onValueChange={(values) => {
-                                      field.onChange(Number.parseInt(values));
-                                    }}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger className="w-full truncate">
-                                        <SelectValue
-                                          placeholder={`${isLoadingPantsSize ? "Cargando tallas de pantalon" : "Seleccione una Talla De Pantalón"}`}
-                                        />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      {pantsSize?.data.map((pants, i) => (
-                                        <SelectItem
-                                          key={i}
-                                          value={`${pants.id}`}
-                                        >
-                                          {pants.talla}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            <FormField
-                              control={form.control}
-                              name={`perfil_fisico_familiar.tallaZapatos`}
-                              render={({ field }) => (
-                                <FormItem className="col-span-2">
-                                  <FormLabel>Talla De Zapatos</FormLabel>
-                                  <Select
-                                    onValueChange={(values) => {
-                                      field.onChange(Number.parseInt(values));
-                                    }}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger className="w-full truncate">
-                                        <SelectValue
-                                          placeholder={`${isLoadingShoesSize ? "Cargando Talla de Zapatos" : "Seleccione una Talla de Zapatos"}`}
-                                        />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      {shoesSize?.data.map((shoes, i) => (
-                                        <SelectItem
-                                          key={i}
-                                          value={`${shoes.id}`}
-                                        >
-                                          {shoes.talla}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </fieldset>
-                          <fieldset className="border grid grid-cols-2 gap-2 space-y-4 col-span-2 p-2 border-red-700 rounded-sm">
-                            <legend className="flex gap-2 text-red-700 font-bold">
-                              Datos De Salud <HeartPulse />
-                            </legend>
-                            <FormField
-                              control={form.control}
-                              name={`perfil_salud_familiar.grupoSanguineo`}
-                              render={({ field }) => (
-                                <FormItem className="col-span-2 cursor-pointer">
-                                  <FormLabel className="cursor-pointer">
-                                    Grupo Sanguineo{" "}
-                                  </FormLabel>
-                                  <Select
-                                    onValueChange={(values) => {
-                                      field.onChange(Number.parseInt(values));
-                                    }}
-                                  >
-                                    <FormControl>
-                                      <SelectTrigger className="w-full truncate">
-                                        <SelectValue
-                                          placeholder={`${isLoadingBloodGroup ? "Cargando Grupos Sanguineo" : "Seleccione un Grupo Sanguineo"}`}
-                                        />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent>
-                                      {bloodGroup?.data.map((bloodGroup, i) => (
-                                        <SelectItem
-                                          key={i}
-                                          value={`${bloodGroup.id}`}
-                                        >
-                                          {bloodGroup.GrupoSanguineo}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-
-                            <ScrollArea className="grid grid-cols-2 h-60 overflow-auto gap-4 p-4 border rounded-md col-span-2">
-                              <div>
-                                <h2 className="font-bold">
-                                  Patologías (Opcional)
-                                </h2>
-                                {patologyGroupList.map((patologys, index) => (
-                                  <div key={index}>
-                                    <h2 className="p-2 text-sm">
-                                      * {patologys.categoria.toUpperCase()}
-                                    </h2>
-                                    {patologys.datos.map((patologyItem, i) => (
-                                      <div
-                                        className="flex flex-col justify-start gap-2 "
-                                        key={i}
-                                      >
-                                        <FormField
-                                          control={form.control}
-                                          name={`perfil_salud_familiar.patologiaCronica`}
-                                          render={({ field }) => {
-                                            const currentValues = Array.isArray(
-                                              field.value,
-                                            )
-                                              ? field.value
-                                              : [];
-                                            return (
-                                              <FormItem className="flex flex-row items-center space-y-2">
-                                                <FormControl>
-                                                  <Checkbox
-                                                    className="border-black cursor-pointer"
-                                                    checked={currentValues.includes(
-                                                      patologyItem.id,
-                                                    )}
-                                                    onCheckedChange={(
-                                                      checked,
-                                                    ) => {
-                                                      const newValue = checked
-                                                        ? [
-                                                            ...currentValues,
-                                                            patologyItem.id,
-                                                          ]
-                                                        : currentValues.filter(
-                                                            (id) =>
-                                                              id !==
-                                                              patologyItem.id,
-                                                          );
-
-                                                      field.onChange(newValue);
-                                                    }}
-                                                  />
-                                                </FormControl>
-                                                <FormLabel className="font-normal cursor-pointer text-gray-500">
-                                                  {patologyItem.patologia}
-                                                </FormLabel>
-                                              </FormItem>
+                                    <FormDescription>
+                                      <Label className="flex justify-end cursor-pointer">
+                                        ¿El Familiar Es Menor De 9 años?{" "}
+                                        <Switch
+                                          className="cursor-pointer"
+                                          onCheckedChange={(bool) => {
+                                            setDown(bool);
+                                            field.onChange(
+                                              down ? "" : undefined,
                                             );
                                           }}
                                         />
-                                      </div>
-                                    ))}
-                                  </div>
-                                ))}
-                              </div>
-                              <Separator
-                                className="h-full w-2 absolute m-auto top-0 bottom-0 left-0 right-0"
-                                orientation="vertical"
+                                      </Label>
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
                               />
-                              <div>
-                                <h2 className="font-bold">
-                                  {" "}
-                                  Dispacidades (Opcional)
-                                </h2>
-                                {disabilityGroupList.map(
-                                  (disability, index) => (
-                                    <>
-                                      <h2 className="p-2 text-sm" key={index}>
-                                        * {disability.categoria.toUpperCase()}
+
+                              <FormField
+                                control={form.control}
+                                name={`primer_nombre`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="cursor-pointer">
+                                      Primer Nombre
+                                    </FormLabel>
+                                    <FormControl>
+                                      <Input type="text" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name={`segundo_nombre`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="cursor-pointer">
+                                      Segundo Nombre
+                                    </FormLabel>
+                                    <FormControl>
+                                      <Input type="text" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name={`primer_apellido`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="cursor-pointer">
+                                      Primer Apellido
+                                    </FormLabel>
+                                    <FormControl>
+                                      <Input type="text" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name={`segundo_apellido`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel className="cursor-pointer">
+                                      Segundo Apellido
+                                    </FormLabel>
+                                    <FormControl>
+                                      <Input type="text" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name={`sexo`}
+                                render={({ field }) => (
+                                  <FormItem className=" cursor-pointer">
+                                    <FormLabel className="cursor-pointer">
+                                      Sexo *
+                                    </FormLabel>
+                                    <Select
+                                      onValueChange={(values) => {
+                                        field.onChange(Number.parseInt(values));
+                                      }}
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger className="w-full truncate">
+                                          <SelectValue
+                                            placeholder={`${isLoadingSex ? "Cargando Generos" : "Seleccione un Genero"}`}
+                                          />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        {sex?.data.map((v, i) => (
+                                          <SelectItem value={`${v.id}`} key={i}>
+                                            {v.sexo}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name={`fechanacimiento`}
+                                render={({ field }) => (
+                                  <FormItem className="flex flex-col  grow shrink basis-40 cursor-pointer">
+                                    <FormLabel className="cursor-pointer">
+                                      {" "}
+                                      Fecha de Nacimiento *
+                                    </FormLabel>
+                                    <Popover>
+                                      <PopoverTrigger asChild>
+                                        <FormControl>
+                                          <Button
+                                            variant={"outline"}
+                                            className="font-light"
+                                          >
+                                            {field.value ? (
+                                              formatDate(
+                                                field.value,
+                                                "dd/MM/yyyy",
+                                              )
+                                            ) : (
+                                              <span>Selecciona una fecha</span>
+                                            )}
+                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                          </Button>
+                                        </FormControl>
+                                      </PopoverTrigger>
+                                      <PopoverContent
+                                        className="w-auto p-0"
+                                        align="start"
+                                      >
+                                        <Calendar
+                                          selected={
+                                            field.value
+                                              ? new Date(field.value)
+                                              : undefined
+                                          }
+                                          mode="single"
+                                          onSelect={(date) =>
+                                            field.onChange(date)
+                                          }
+                                          disabled={(date: Date) =>
+                                            date > new Date() ||
+                                            date < new Date("1900-01-01")
+                                          }
+                                          captionLayout="dropdown"
+                                        />
+                                      </PopoverContent>
+                                    </Popover>
+
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              <FormField
+                                control={form.control}
+                                name={`estadoCivil`}
+                                render={({ field }) => (
+                                  <FormItem className="cursor-pointer col-span-2 w-full">
+                                    <FormLabel className="cursor-pointer ">
+                                      Estado Civil{" "}
+                                    </FormLabel>
+                                    <Select
+                                      onValueChange={(values) => {
+                                        field.onChange(Number.parseInt(values));
+                                      }}
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger className="w-full truncate">
+                                          <SelectValue
+                                            placeholder={`${isLoadingMaritalStatus ? "Cargando Estado Civil" : "Seleccione Un Estado Civil"}`}
+                                          />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        {maritalStatus?.data.map(
+                                          (status, i) => (
+                                            <SelectItem
+                                              key={i}
+                                              value={`${status.id}`}
+                                            >
+                                              {status.estadoCivil}
+                                            </SelectItem>
+                                          ),
+                                        )}
+                                      </SelectContent>
+                                    </Select>
+                                  </FormItem>
+                                )}
+                              />
+                            </fieldset>
+                            <fieldset className="border grid grid-cols-2 gap-2 space-y-4 col-span-2 p-2 border-amber-700 rounded-sm">
+                              <legend className="flex gap-2 text-amber-700 font-bold">
+                                {" "}
+                                Relación Y Parentesco <Contact />{" "}
+                              </legend>
+                              <FormField
+                                control={form.control}
+                                name={`parentesco`}
+                                render={({ field }) => (
+                                  <FormItem className="cursor-pointer">
+                                    <FormLabel className="cursor-pointer">
+                                      Parentesco *
+                                    </FormLabel>
+                                    <Select
+                                      onValueChange={(values) => {
+                                        field.onChange(Number.parseInt(values));
+                                      }}
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger className="w-full truncate">
+                                          <SelectValue
+                                            placeholder={
+                                              "Seleccione un Parentesco"
+                                            }
+                                          />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        {parent?.data.map((parent, i) => (
+                                          <SelectItem
+                                            key={i}
+                                            value={`${parent.id}`}
+                                          >
+                                            {parent.descripcion_parentesco}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              {form.watch(`parentesco`) ==
+                                parent?.data.find(
+                                  (v) =>
+                                    v.descripcion_parentesco === "HIJO (A)",
+                                )?.id && (
+                                <>
+                                  <FormField
+                                    control={form.control}
+                                    name={`orden_hijo`}
+                                    render={({ field }) => (
+                                      <FormItem className="cursor-pointer">
+                                        <FormLabel className="cursor-pointer">
+                                          Orden de nacimiento
+                                        </FormLabel>
+                                        <Select
+                                          onValueChange={(values) => {
+                                            field.onChange(
+                                              Number.parseInt(values),
+                                            );
+                                          }}
+                                        >
+                                          <FormControl>
+                                            <SelectTrigger className="w-full truncate">
+                                              <SelectValue
+                                                placeholder={
+                                                  "Seleccione Un Orden De Nacimiento"
+                                                }
+                                              />
+                                            </SelectTrigger>
+                                          </FormControl>
+                                          <SelectContent>
+                                            <SelectItem value="1">1</SelectItem>
+                                            <SelectItem value="2">2</SelectItem>
+                                            <SelectItem value="3">3</SelectItem>
+                                            <SelectItem value="4">4</SelectItem>
+                                            <SelectItem value="5">5</SelectItem>
+                                            <SelectItem value="6">6</SelectItem>
+                                            <SelectItem value="7">7</SelectItem>
+                                            <SelectItem value="8">8</SelectItem>
+                                            <SelectItem value="9">9</SelectItem>
+                                            <SelectItem value="10">
+                                              10
+                                            </SelectItem>
+                                            <SelectItem value="11">
+                                              11
+                                            </SelectItem>
+                                            <SelectItem value="12">
+                                              12
+                                            </SelectItem>
+                                            <SelectItem value="13">
+                                              13
+                                            </SelectItem>
+                                            <SelectItem value="14">
+                                              14
+                                            </SelectItem>
+                                            <SelectItem value="15">
+                                              15
+                                            </SelectItem>
+                                            <SelectItem value="16">
+                                              16
+                                            </SelectItem>
+                                            <SelectItem value="17">
+                                              17
+                                            </SelectItem>
+                                            <SelectItem value="18">
+                                              18
+                                            </SelectItem>
+                                            <SelectItem value="19">
+                                              19
+                                            </SelectItem>
+                                            <SelectItem value="20">
+                                              20
+                                            </SelectItem>
+                                            <SelectItem value="21">
+                                              21
+                                            </SelectItem>
+                                            <SelectItem value="22">
+                                              22
+                                            </SelectItem>
+                                            <SelectItem value="23">
+                                              23
+                                            </SelectItem>
+                                            <SelectItem value="24">
+                                              24
+                                            </SelectItem>
+                                            <SelectItem value="25">
+                                              25
+                                            </SelectItem>
+                                            <SelectItem value="26">
+                                              26
+                                            </SelectItem>
+                                            <SelectItem value="27">
+                                              27
+                                            </SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                      </FormItem>
+                                    )}
+                                  />
+                                </>
+                              )}
+
+                              <FormField
+                                name={`mismo_ente`}
+                                control={form.control}
+                                render={({ field }) => (
+                                  <>
+                                    <FormItem className="flex flex-row items-center  m-auto">
+                                      <Label
+                                        htmlFor="work"
+                                        className="text-center cursor-pointer"
+                                      >
+                                        ¿El Familar Trabaja En Este Ente?
+                                      </Label>
+                                      <Switch
+                                        id="work"
+                                        onCheckedChange={field.onChange}
+                                        className="scale-100 cursor-pointer"
+                                      />
+                                    </FormItem>
+                                    <FormMessage />
+                                  </>
+                                )}
+                              />
+
+                              <FormField
+                                name={`heredero`}
+                                control={form.control}
+                                render={({ field }) => (
+                                  <>
+                                    <FormItem className="flex flex-row items-center  m-auto">
+                                      <Label
+                                        htmlFor="soon"
+                                        className="cursor-pointer"
+                                      >
+                                        ¿El Familiar Es Heredero?
+                                      </Label>
+                                      <Switch
+                                        id="soon"
+                                        onCheckedChange={field.onChange}
+                                        className="scale-100 cursor-pointer"
+                                      />
+                                    </FormItem>
+                                    <FormMessage />
+                                  </>
+                                )}
+                              />
+                            </fieldset>
+                            <fieldset className="border grid grid-cols-2 gap-2 space-y-4 col-span-2 p-2  border-blue-700 rounded-sm">
+                              <legend className="flex gap-2 text-blue-700 font-bold">
+                                Información Academica <BookAIcon />
+                              </legend>
+                              <FormField
+                                control={form.control}
+                                name={`formacion_academica_familiar.nivel_Academico_id`}
+                                render={({ field }) => (
+                                  <FormItem className="col-span-2 cursor-pointer">
+                                    <FormLabel className="cursor-pointer">
+                                      Nivel Academico
+                                    </FormLabel>
+                                    <Select
+                                      onValueChange={(values) => {
+                                        field.onChange(Number.parseInt(values));
+                                      }}
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger className="w-full truncate">
+                                          <SelectValue
+                                            placeholder={`${isLoadingAcademyLevel ? "Cargando Niveles Academicos" : "Seleccione un Nivel Academico"}`}
+                                          />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        {academyLevel?.data.map((nivel, i) => (
+                                          <SelectItem
+                                            key={i}
+                                            value={`${nivel.id}`}
+                                          >
+                                            {nivel.nivelacademico}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    {!(
+                                      academyLevelId == 1 || academyLevelId == 2
+                                    ) && (
+                                      <FormDescription className="flex flex-row gap-2 justify-end">
+                                        <Label>
+                                          Mas Detalles De Formacion Academica
+                                        </Label>
+                                        <Switch
+                                          onCheckedChange={setShowMoreDetails}
+                                        />
+                                      </FormDescription>
+                                    )}
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              {showMoreDetails && (
+                                <>
+                                  <FormField
+                                    control={form.control}
+                                    name={`formacion_academica_familiar.carrera_id`}
+                                    render={({ field }) => (
+                                      <FormItem className="cursor-pointer ">
+                                        <FormLabel className="cursor-pointer">
+                                          Carrera (Opcional)
+                                        </FormLabel>
+                                        <Select
+                                          onValueChange={(values) => {
+                                            field.onChange(
+                                              Number.parseInt(values),
+                                            );
+                                            setMencionId(values);
+                                          }}
+                                        >
+                                          <FormControl>
+                                            <SelectTrigger className="w-full truncate">
+                                              <SelectValue
+                                                placeholder={`${isLoadingCarrera ? "Cargando Carreras" : "Seleccione una carrera"}`}
+                                              />
+                                            </SelectTrigger>
+                                          </FormControl>
+                                          <SelectContent>
+                                            {carrera?.data.map((carrera, i) => (
+                                              <SelectItem
+                                                key={i}
+                                                value={`${carrera.id}`}
+                                              >
+                                                {carrera.nombre_carrera}
+                                              </SelectItem>
+                                            ))}
+                                          </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    control={form.control}
+                                    name={`formacion_academica_familiar.mencion_id`}
+                                    render={({ field }) => (
+                                      <FormItem className=" cursor-pointer">
+                                        <FormLabel className="cursor-pointer">
+                                          Mención (Opcional)
+                                        </FormLabel>
+                                        <Select
+                                          onValueChange={(values) => {
+                                            field.onChange(
+                                              Number.parseInt(values),
+                                            );
+                                          }}
+                                        >
+                                          <FormControl>
+                                            <SelectTrigger className="w-full truncate">
+                                              <SelectValue
+                                                placeholder={`${isLoadingMencion ? "Cargando Mencion Academica" : "Seleccione una mención academica"}`}
+                                              />
+                                            </SelectTrigger>
+                                          </FormControl>
+                                          <SelectContent>
+                                            {mencion?.data.map((mencion, i) => (
+                                              <SelectItem
+                                                key={i}
+                                                value={`${mencion.id}`}
+                                              >
+                                                {mencion.nombre_mencion}
+                                              </SelectItem>
+                                            ))}
+                                          </SelectContent>
+                                        </Select>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+
+                                  <FormField
+                                    name={`formacion_academica_familiar.capacitacion`}
+                                    control={form.control}
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel className="cursor-pointer">
+                                          Capacitación (Opcional)
+                                        </FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            type="text"
+                                            placeholder="Capacitado En..."
+                                            {...field}
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                  <FormField
+                                    name={`formacion_academica_familiar.institucion`}
+                                    control={form.control}
+                                    render={({ field }) => (
+                                      <FormItem>
+                                        <FormLabel className="cursor-pointer">
+                                          Institución (Opcional)
+                                        </FormLabel>
+                                        <FormControl>
+                                          <Input
+                                            type="text"
+                                            placeholder="Universidad Nacional..."
+                                            {...field}
+                                          />
+                                        </FormControl>
+                                        <FormMessage />
+                                      </FormItem>
+                                    )}
+                                  />
+                                </>
+                              )}
+                            </fieldset>
+                            <fieldset className="border grid grid-cols-2 gap-2 space-y-4 col-span-2 p-2 border-purple-900 rounded-sm">
+                              <legend className="flex flex-row gap-2 text-purple-900 font-bold">
+                                Información de Vestimenta <Shirt />
+                              </legend>
+
+                              <FormField
+                                control={form.control}
+                                name={`perfil_fisico_familiar.tallaCamisa`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Talla De Camisa</FormLabel>
+                                    <Select
+                                      onValueChange={(values) => {
+                                        field.onChange(Number.parseInt(values));
+                                      }}
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger className="w-full truncate">
+                                          <SelectValue
+                                            placeholder={`${isLoadingShirtSize ? "Cargando tallas De Camisa" : "Seleccione una Talla De Camisa"}`}
+                                          />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        {shirtSize?.data.map((shirt, i) => (
+                                          <SelectItem
+                                            key={i}
+                                            value={`${shirt.id}`}
+                                          >
+                                            {shirt.talla}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name={`perfil_fisico_familiar.tallaPantalon`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>Talla De Pantalón</FormLabel>
+                                    <Select
+                                      onValueChange={(values) => {
+                                        field.onChange(Number.parseInt(values));
+                                      }}
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger className="w-full truncate">
+                                          <SelectValue
+                                            placeholder={`${isLoadingPantsSize ? "Cargando tallas de pantalon" : "Seleccione una Talla De Pantalón"}`}
+                                          />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        {pantsSize?.data.map((pants, i) => (
+                                          <SelectItem
+                                            key={i}
+                                            value={`${pants.id}`}
+                                          >
+                                            {pants.talla}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              <FormField
+                                control={form.control}
+                                name={`perfil_fisico_familiar.tallaZapatos`}
+                                render={({ field }) => (
+                                  <FormItem className="col-span-2">
+                                    <FormLabel>Talla De Zapatos</FormLabel>
+                                    <Select
+                                      onValueChange={(values) => {
+                                        field.onChange(Number.parseInt(values));
+                                      }}
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger className="w-full truncate">
+                                          <SelectValue
+                                            placeholder={`${isLoadingShoesSize ? "Cargando Talla de Zapatos" : "Seleccione una Talla de Zapatos"}`}
+                                          />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        {shoesSize?.data.map((shoes, i) => (
+                                          <SelectItem
+                                            key={i}
+                                            value={`${shoes.id}`}
+                                          >
+                                            {shoes.talla}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </fieldset>
+                            <fieldset className="border grid grid-cols-2 gap-2 space-y-4 col-span-2 p-2 border-red-700 rounded-sm">
+                              <legend className="flex gap-2 text-red-700 font-bold">
+                                Datos De Salud <HeartPulse />
+                              </legend>
+                              <FormField
+                                control={form.control}
+                                name={`perfil_salud_familiar.grupoSanguineo`}
+                                render={({ field }) => (
+                                  <FormItem className="col-span-2 cursor-pointer">
+                                    <FormLabel className="cursor-pointer">
+                                      Grupo Sanguineo{" "}
+                                    </FormLabel>
+                                    <Select
+                                      onValueChange={(values) => {
+                                        field.onChange(Number.parseInt(values));
+                                      }}
+                                    >
+                                      <FormControl>
+                                        <SelectTrigger className="w-full truncate">
+                                          <SelectValue
+                                            placeholder={`${isLoadingBloodGroup ? "Cargando Grupos Sanguineo" : "Seleccione un Grupo Sanguineo"}`}
+                                          />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        {bloodGroup?.data.map(
+                                          (bloodGroup, i) => (
+                                            <SelectItem
+                                              key={i}
+                                              value={`${bloodGroup.id}`}
+                                            >
+                                              {bloodGroup.GrupoSanguineo}
+                                            </SelectItem>
+                                          ),
+                                        )}
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              <ScrollArea className="grid grid-cols-2 h-60 overflow-auto gap-4 p-4 border rounded-md col-span-2">
+                                <div>
+                                  <h2 className="font-bold">
+                                    Patologías (Opcional)
+                                  </h2>
+                                  {patologyGroupList.map((patologys, index) => (
+                                    <div key={index}>
+                                      <h2 className="p-2 text-sm">
+                                        * {patologys.categoria.toUpperCase()}
                                       </h2>
-                                      {disability.datos.map(
-                                        (disabilityItem, i) => (
+                                      {patologys.datos.map(
+                                        (patologyItem, i) => (
                                           <div
                                             className="flex flex-col justify-start gap-2 "
                                             key={i}
                                           >
                                             <FormField
                                               control={form.control}
-                                              name={`perfil_salud_familiar.discapacidad`}
+                                              name={`perfil_salud_familiar.patologiaCronica`}
                                               render={({ field }) => {
                                                 const currentValues =
                                                   Array.isArray(field.value)
                                                     ? field.value
                                                     : [];
                                                 return (
-                                                  <FormItem className="flex flex-row space-y-2">
-                                                    <FormLabel className="order-2 text-gray-500 cursor-pointer">
-                                                      {
-                                                        disabilityItem.discapacidad
-                                                      }
-                                                    </FormLabel>
+                                                  <FormItem className="flex flex-row items-center space-y-2">
                                                     <FormControl>
                                                       <Checkbox
-                                                        className="order-1 border-black cursor-pointer"
+                                                        className="border-black cursor-pointer"
+                                                        checked={currentValues.includes(
+                                                          patologyItem.id,
+                                                        )}
                                                         onCheckedChange={(
                                                           checked,
                                                         ) => {
@@ -1082,12 +1060,12 @@ export function CreateFamilyForm() {
                                                             checked
                                                               ? [
                                                                   ...currentValues,
-                                                                  disabilityItem.id,
+                                                                  patologyItem.id,
                                                                 ]
                                                               : currentValues.filter(
                                                                   (id) =>
                                                                     id !==
-                                                                    disabilityItem.id,
+                                                                    patologyItem.id,
                                                                 );
 
                                                           field.onChange(
@@ -1096,6 +1074,9 @@ export function CreateFamilyForm() {
                                                         }}
                                                       />
                                                     </FormControl>
+                                                    <FormLabel className="font-normal cursor-pointer text-gray-500">
+                                                      {patologyItem.patologia}
+                                                    </FormLabel>
                                                   </FormItem>
                                                 );
                                               }}
@@ -1103,48 +1084,119 @@ export function CreateFamilyForm() {
                                           </div>
                                         ),
                                       )}
-                                    </>
-                                  ),
-                                )}
-                              </div>
-                            </ScrollArea>
-                          </fieldset>
+                                    </div>
+                                  ))}
+                                </div>
+                                <Separator
+                                  className="h-full w-2 absolute m-auto top-0 bottom-0 left-0 right-0"
+                                  orientation="vertical"
+                                />
+                                <div>
+                                  <h2 className="font-bold">
+                                    {" "}
+                                    Dispacidades (Opcional)
+                                  </h2>
+                                  {disabilityGroupList.map(
+                                    (disability, index) => (
+                                      <>
+                                        <h2 className="p-2 text-sm" key={index}>
+                                          * {disability.categoria.toUpperCase()}
+                                        </h2>
+                                        {disability.datos.map(
+                                          (disabilityItem, i) => (
+                                            <div
+                                              className="flex flex-col justify-start gap-2 "
+                                              key={i}
+                                            >
+                                              <FormField
+                                                control={form.control}
+                                                name={`perfil_salud_familiar.discapacidad`}
+                                                render={({ field }) => {
+                                                  const currentValues =
+                                                    Array.isArray(field.value)
+                                                      ? field.value
+                                                      : [];
+                                                  return (
+                                                    <FormItem className="flex flex-row space-y-2">
+                                                      <FormLabel className="order-2 text-gray-500 cursor-pointer">
+                                                        {
+                                                          disabilityItem.discapacidad
+                                                        }
+                                                      </FormLabel>
+                                                      <FormControl>
+                                                        <Checkbox
+                                                          className="order-1 border-black cursor-pointer"
+                                                          onCheckedChange={(
+                                                            checked,
+                                                          ) => {
+                                                            const newValue =
+                                                              checked
+                                                                ? [
+                                                                    ...currentValues,
+                                                                    disabilityItem.id,
+                                                                  ]
+                                                                : currentValues.filter(
+                                                                    (id) =>
+                                                                      id !==
+                                                                      disabilityItem.id,
+                                                                  );
 
-                          <FormField
-                            control={form.control}
-                            name={`observaciones`}
-                            render={({ field }) => (
-                              <FormItem className="col-span-2">
-                                <FormLabel
-                                  htmlFor="observaciones"
-                                  className="cursor-pointer"
-                                >
-                                  Observaciones (Opcional)
-                                </FormLabel>
-                                <FormControl>
-                                  <Textarea
-                                    id="observaciones"
-                                    placeholder="Describa las observaciones del familiar..."
-                                    value={field.value}
-                                    onChange={field.onChange}
-                                    className="mt-1"
-                                    rows={4}
-                                  />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
+                                                            field.onChange(
+                                                              newValue,
+                                                            );
+                                                          }}
+                                                        />
+                                                      </FormControl>
+                                                    </FormItem>
+                                                  );
+                                                }}
+                                              />
+                                            </div>
+                                          ),
+                                        )}
+                                      </>
+                                    ),
+                                  )}
+                                </div>
+                              </ScrollArea>
+                            </fieldset>
+
+                            <FormField
+                              control={form.control}
+                              name={`observaciones`}
+                              render={({ field }) => (
+                                <FormItem className="col-span-2">
+                                  <FormLabel
+                                    htmlFor="observaciones"
+                                    className="cursor-pointer"
+                                  >
+                                    Observaciones (Opcional)
+                                  </FormLabel>
+                                  <FormControl>
+                                    <Textarea
+                                      id="observaciones"
+                                      placeholder="Describa las observaciones del familiar..."
+                                      value={field.value}
+                                      onChange={field.onChange}
+                                      className="mt-1"
+                                      rows={4}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </fieldset>
-                  <Button className="w-full cursor-pointer">
-                    {" "}
-                    Agregar Familiar
-                  </Button>
-                </form>
-              </Form>
+                    </fieldset>
+                    <Button className="w-full cursor-pointer">
+                      {" "}
+                      Agregar Familiar
+                    </Button>
+                  </form>
+                </Form>
+              )}
             </>
           )}
         </CardContent>
