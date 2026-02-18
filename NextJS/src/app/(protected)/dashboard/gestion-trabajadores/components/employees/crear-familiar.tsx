@@ -73,12 +73,9 @@ import { Separator } from "@/components/ui/separator";
 import createFamilyActions from "../../familiares/agregar-familiar/actions/create-family-actions";
 import { toast } from "sonner";
 import Error from "../error/error";
+import z from "zod";
 export function CreateFamilyForm() {
-  const [searchEmployee, setSearchEmployee] = useState<string | undefined>(
-    undefined,
-  );
-
-  const [employee, setEmployee] = useState<EmployeeInfo | []>([]);
+  const [employee, setEmployee] = useState<EmployeeInfo | []>();
   const [isPending, startTransition] = useTransition();
 
   const [down, setDown] = useState(false);
@@ -210,15 +207,13 @@ export function CreateFamilyForm() {
       }
     });
   };
-
-  const handleSearch = async () => {
-    if (!searchEmployee) return;
-    const response = await getEmployeeInfo(searchEmployee);
-    if (
-      response.data &&
-      !Array.isArray(response.data) &&
-      !(response.data && "message" in employee)
-    ) {
+  const schemaSearchEmployee = z.object({
+    searchEmployeeForm: z.string(),
+  });
+  const handleSearch = async (values: z.infer<typeof schemaSearchEmployee>) => {
+    if (!values.searchEmployeeForm) return;
+    const response = await getEmployeeInfo(values.searchEmployeeForm);
+    if (response.data) {
       setEmployee(response.data);
       form.setValue("employeecedula", response.data.cedulaidentidad, {
         shouldValidate: true,
@@ -230,47 +225,55 @@ export function CreateFamilyForm() {
     control: form.control,
     name: "formacion_academica_familiar.nivel_Academico_id",
   });
+
+  const formSearch = useForm({
+    defaultValues: {
+      searchEmployeeForm: "",
+    },
+    resolver: zodResolver(schemaSearchEmployee),
+  });
   return (
     <>
       <Card>
         <CardContent className="space-y-5">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="search-employee">Buscar Trabajador</Label>
-            <form
-              className="flex flex-row gap-2"
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSearch();
-              }}
-            >
-              <Input
-                id="search-employee"
-                placeholder="00000000"
-                type="number"
-                value={searchEmployee}
-                onChange={(e) =>
-                  e.target.value.length > 5
-                    ? setSearchEmployee(e.target.value)
-                    : setSearchEmployee(undefined)
-                }
-              />
-              <Button
-                type="button"
-                variant={"outline"}
-                onClick={() => {
-                  handleSearch();
-                }}
+            <Form {...formSearch}>
+              <form
+                className="flex flex-row justify-between  gap-2"
+                onSubmit={formSearch.handleSubmit(handleSearch)}
               >
-                <Search className="h-4 w-4" />
-              </Button>
-            </form>
-            {employee && !Array.isArray(employee) ? (
-              <div className="rounded-sm p-2 border-2 border-green-500/25 bg-green-400/25">
-                {" "}
-                Empleado: {employee.nombres} {employee.cedulaidentidad}
+                <FormField
+                  name="searchEmployeeForm"
+                  control={formSearch.control}
+                  render={({ field }) => (
+                    <FormItem className="flex-1 ">
+                      <FormLabel>Buscar Trabajador</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="00000000"
+                          type="number"
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <Button className="self-baseline-last cursor-pointer">
+                  <Search className="h-4 w-4" />
+                </Button>
+              </form>
+            </Form>
+            {employee && (
+              <div className="rounded-sm p-2 ">
+                {!Array.isArray(employee) ? (
+                  <div className="flex flex-row gap-2 border-2 border-blue-400/45 bg-blue-200/40">
+                    <p>Nombres: {employee.nombres}</p>
+                    <p>Cédula: {employee.cedulaidentidad}</p>
+                  </div>
+                ) : (
+                  <Error errorMessage="Cedula Invalida" />
+                )}
               </div>
-            ) : (
-              <Error errorMessage="Trabajador No Encontrado" />
             )}
           </div>
           {employee && !Array.isArray(employee) && (

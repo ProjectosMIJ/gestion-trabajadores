@@ -42,9 +42,6 @@ import ChangeCodeActions from "../../movimientos/cambiar-codigo/actions/actions-
 import Error from "../error/error";
 import Loading from "../loading/loading";
 export function ChangeCodeForm() {
-  const [searchEmployee, setSearchEmployee] = useState<string | undefined>(
-    undefined,
-  );
   const [searchParams, setSearchParams] = useState<string>();
   const schemaSearch = z.object({
     tipo_nomina: z.coerce.number().optional(),
@@ -91,12 +88,6 @@ export function ChangeCodeForm() {
     "nominaGeneral",
     async () => await getNomina(),
   );
-  const loadEmployee = async () => {
-    if (searchEmployee) {
-      const getEmployee = await getEmployeeById(searchEmployee);
-      setEmployee(getEmployee);
-    }
-  };
 
   const onSearch = (values: z.infer<typeof schemaSearch>) => {
     const filteredEntries = Object.entries(values).filter(
@@ -120,6 +111,23 @@ export function ChangeCodeForm() {
     },
     resolver: zodResolver(schemaSearch),
   });
+  const schemaSearchEmployee = z.object({
+    searchEmployeeForm: z.string(),
+  });
+  const handleSearch = async (values: z.infer<typeof schemaSearchEmployee>) => {
+    if (!values.searchEmployeeForm) return;
+    const response = await getEmployeeById(values.searchEmployeeForm);
+    console.log(response);
+    if (response.data && response.data !== undefined) {
+      setEmployee(response);
+    }
+  };
+  const formSearch = useForm({
+    defaultValues: {
+      searchEmployeeForm: "",
+    },
+    resolver: zodResolver(schemaSearchEmployee),
+  });
   const onSubmit = (data: z.infer<typeof schemaChangeCode>) => {
     startTransition(async () => {
       const response = await ChangeCodeActions(data);
@@ -130,8 +138,6 @@ export function ChangeCodeForm() {
           motivo: 0,
           nuevo_cargo_id: 0,
         });
-
-        setSearchEmployee("");
       } else {
         toast.error(response.message);
       }
@@ -155,6 +161,7 @@ export function ChangeCodeForm() {
       direccion_linea_id: undefined,
     });
   };
+
   return (
     <>
       {isPending ? (
@@ -162,35 +169,36 @@ export function ChangeCodeForm() {
       ) : (
         <Card>
           <CardContent className="space-y-5">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="search-employee">Buscar Trabajador</Label>
-              <div className="flex flex-row gap-2">
-                <Input
-                  id="search-employee"
-                  placeholder="00000000"
-                  type="number"
-                  value={searchEmployee}
-                  onChange={(e) => setSearchEmployee(e.target.value)}
+            <Form {...formSearch}>
+              <form
+                className="flex flex-row justify-between  gap-2"
+                onSubmit={formSearch.handleSubmit(handleSearch)}
+              >
+                <FormField
+                  name="searchEmployeeForm"
+                  control={formSearch.control}
+                  render={({ field }) => (
+                    <FormItem className="flex-1 ">
+                      <FormLabel>Buscar Trabajador</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="00000000"
+                          type="number"
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
                 />
-                <Button
-                  type="button"
-                  variant={"outline"}
-                  onClick={loadEmployee}
-                >
+                <Button className="self-baseline-last cursor-pointer">
                   <Search className="h-4 w-4" />
                 </Button>
-              </div>
-            </div>
+              </form>
+            </Form>
             {employee && (
-              <div
-                className={` ${
-                  !Array.isArray(employee.data) || employee.data !== null
-                    ? "border-2 border-blue-400/45 bg-blue-200/40"
-                    : "bg-red-700 border-red-400/45"
-                }  rounded-sm p-2 `}
-              >
-                {!Array.isArray(employee.data) && employee.data !== null ? (
-                  <div className="flex flex-row gap-2">
+              <div className={` rounded-sm p-2 `}>
+                {!Array.isArray(employee.data) ? (
+                  <div className="flex flex-row gap-2  border-2 border-blue-400/45 bg-blue-200/40 p-2 rounded-sm">
                     <p>Nombres: {employee.data.nombres}</p>
                     <p>Cedula: {employee.data.cedulaidentidad}</p>
                   </div>

@@ -174,24 +174,26 @@ export function CodigoCatalogEspecialForm({
       }
     });
   }
-  const handleSearch = async () => {
-    if (!searchEmployee) return;
-    const response = await getEmployeeInfo(searchEmployee);
-    if (
-      response.data &&
-      !Array.isArray(response.data) &&
-      !(response.data && "message" in response.data ? response.data : null)
-    ) {
+  const schemaSearchEmployee = z.object({
+    searchEmployeeForm: z.string(),
+  });
+  const handleSearch = async (values: z.infer<typeof schemaSearchEmployee>) => {
+    if (!values.searchEmployeeForm) return;
+    const response = await getEmployeeInfo(values.searchEmployeeForm);
+    if (response.data) {
       setEmployee(response.data);
       form.setValue("employee", response.data.cedulaidentidad, {
         shouldValidate: true,
         shouldDirty: true,
       });
     }
-    if (Array.isArray(response.data) && response.data.length === 0) {
-      setEmployee([]);
-    }
   };
+  const formSearch = useForm({
+    defaultValues: {
+      searchEmployeeForm: "",
+    },
+    resolver: zodResolver(schemaSearchEmployee),
+  });
   return (
     <Card>
       <CardHeader>
@@ -201,37 +203,28 @@ export function CodigoCatalogEspecialForm({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-col gap-2">
-          <Label htmlFor="search-employee">Buscar Trabajador</Label>
+        <Form {...formSearch}>
           <form
-            className="flex flex-row gap-2"
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSearch();
-            }}
+            className="flex flex-row justify-between  gap-2"
+            onSubmit={formSearch.handleSubmit(handleSearch)}
           >
-            <Input
-              id="search-employee"
-              placeholder="00000000"
-              type="number"
-              value={searchEmployee}
-              onChange={(e) =>
-                e.target.value.length > 5
-                  ? setSearchEmployee(e.target.value)
-                  : setSearchEmployee(undefined)
-              }
+            <FormField
+              name="searchEmployeeForm"
+              control={formSearch.control}
+              render={({ field }) => (
+                <FormItem className="flex-1 ">
+                  <FormLabel>Buscar Trabajador</FormLabel>
+                  <FormControl>
+                    <Input placeholder="00000000" type="number" {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
             />
-            <Button
-              type="button"
-              variant={"outline"}
-              onClick={() => {
-                handleSearch();
-              }}
-            >
+            <Button className="self-baseline-last cursor-pointer">
               <Search className="h-4 w-4" />
             </Button>
           </form>
-        </div>
+        </Form>
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -586,7 +579,7 @@ export function CodigoCatalogEspecialForm({
                     <p>Estado Civil: {employee.estadoCivil.estadoCivil}</p>
                   </>
                 ) : (
-                  <Error errorMessage="Trabajador No Encontrado" />
+                  <Error errorMessage="Cedula Invalida" />
                 )}
               </div>
             )}
