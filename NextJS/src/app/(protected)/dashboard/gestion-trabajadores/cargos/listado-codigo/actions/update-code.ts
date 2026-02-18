@@ -1,6 +1,7 @@
 "use server";
 
 import { auth } from "#/auth";
+import { ApiResponse } from "@/app/types/types";
 import { UpdateCodeTable } from "../schema/schema-update-code";
 
 export async function updateCodeTable(values: UpdateCodeTable, id: number) {
@@ -28,20 +29,21 @@ export async function updateCodeTable(values: UpdateCodeTable, id: number) {
         body: JSON.stringify({ ...payload }),
       },
     );
+    const getResponse: ApiResponse<never> = await response.json();
     if (response.ok) {
       return {
         success: true,
-        message: "Código Actualizado Exitosamente",
+        message: getResponse.message,
       };
     }
     return {
       success: false,
-      message: "Código No Actualizado",
+      message: getResponse.message,
     };
   } catch {
     return {
       success: false,
-      message: "Ocurrio Un Error",
+      message: "Ocurrio un error",
     };
   }
 }
