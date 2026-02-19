@@ -11,6 +11,7 @@ export const schemaReportCode = z.object({
       linea_id: z.number().or(z.null()).optional(),
       coordinacion_id: z.number().or(z.null()).optional(),
       nomina_id: z.number().optional(),
+      OrganismoAdscrito_id: z.number().optional(),
       grado_id: z.number().optional(),
       cargo_id: z.number().optional(),
       cargo_especifico_id: z.number().optional(),

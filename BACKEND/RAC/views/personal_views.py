@@ -1,6 +1,6 @@
-
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
+from rest_framework.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.response import Response
 from ..serializers.personal_serializers import *
@@ -43,9 +43,10 @@ class ImportarCargosESPECIALESView(APIView):
             df.columns = df.columns.str.strip().str.lower()
             
             def normalizar(texto):
-                if not texto: return ""
+                if not texto or pd.isna(texto): return ""
                 return " ".join(str(texto).split()).upper()
 
+            # CACHÉ EXTENDIDA
             cache = {
                 'cargos': {normalizar(obj.cargo): obj for obj in Denominacioncargo.objects.all()},
                 'especificos': {normalizar(obj.cargo): obj for obj in Denominacioncargoespecifico.objects.all()},
@@ -55,13 +56,17 @@ class ImportarCargosESPECIALESView(APIView):
                 'estatus': {normalizar(obj.estatus): obj for obj in Estatus.objects.all()},
                 'grados': {normalizar(obj.grado): obj for obj in Grado.objects.all()},
                 'tipos_p': {normalizar(obj.tipo_personal): obj for obj in Tipo_personal.objects.all()},
+                'dependencias': {normalizar(obj.dependencia): obj for obj in Dependencias.objects.all()},
+                'lineas': {normalizar(obj.direccion_linea): obj for obj in DireccionLinea.objects.all()},
+                'coordinaciones': {normalizar(obj.coordinacion): obj for obj in Coordinaciones.objects.all()},
             }
 
             tp_default = Tipo_personal.objects.filter(id=2).first()
+            dep_default = Dependencias.objects.filter(id=1).first() 
             usuario_historial = User.objects.filter(user_id=10).first()
 
             if not usuario_historial:
-                raise Exception("Error crítico: No existe el usuario con ID 10 en la tabla 'cuenta'.")
+                raise Exception("Error crítico: No existe el usuario con ID 10.")
 
             def generar_codigo_especial(prefijo):
                 ultimo_registro = AsigTrabajo.objects.filter(codigo__startswith=prefijo).order_by('-codigo').first()
@@ -73,7 +78,6 @@ class ImportarCargosESPECIALESView(APIView):
                         nuevo_numero = 1
                 else:
                     nuevo_numero = 1
-                
                 return f"{prefijo}_{nuevo_numero:04d}"
 
             with transaction.atomic():
@@ -85,9 +89,24 @@ class ImportarCargosESPECIALESView(APIView):
                                 return None
                             return cache[cat].get(normalizar(val))
 
+                        # --- LÓGICA DE CÉDULA (CORREGIDA) ---
+                        cedula_raw = row.get('cedula')
+                        empleado = None
+                        
+                        if not pd.isna(cedula_raw) and str(cedula_raw).strip() != "":
+                            # Convertimos a string, quitamos el .0 de Excel y espacios
+                            cedula_clean = str(cedula_raw).split('.')[0].strip()
+                            empleado = Employee.objects.filter(cedulaidentidad=cedula_clean).first()
+                            
+                            if not empleado:
+                                raise ValueError(f"La cédula '{cedula_clean}' no existe en la base de datos de empleados.")
+                        else:
+                            raise ValueError("La columna 'cedula' está vacía.")
+                        # ------------------------------------
+
+                        # Lógica de Nómina y Código
                         nomina_obj = buscar('nominas', 'nomina')
                         nombre_nomina = normalizar(row.get('nomina'))
-                        
                         codigo_final = row.get('codigo')
                         
                         if nombre_nomina == "COMISION DE SERVICIO":
@@ -95,14 +114,12 @@ class ImportarCargosESPECIALESView(APIView):
                         elif nombre_nomina == "HONORARIOS PROFESIONALES":
                             codigo_final = generar_codigo_especial("HP")
                         
+                        # Validar si el código ya existe
                         if AsigTrabajo.objects.filter(codigo=codigo_final).exists():
-                            if "CS_" in str(codigo_final) or "HP_" in str(codigo_final):
-                                codigo_final = generar_codigo_especial(codigo_final.split('_')[0])
+                            if any(x in str(codigo_final) for x in ["CS_", "HP_"]):
+                                codigo_final = generar_codigo_especial(str(codigo_final).split('_')[0])
                             else:
                                 raise ValueError(f"El código '{codigo_final}' ya existe.")
-
-                        cedula = str(row.get('cedula', '')).strip().split('.')[0]
-                        empleado = Employee.objects.filter(cedulaidentidad=cedula).first()
 
                         cargo_obj = buscar('cargos', 'cargo')
                         especifico_obj = buscar('especificos', 'cargo_especifico')
@@ -116,15 +133,19 @@ class ImportarCargosESPECIALESView(APIView):
                             if not estatus_obj: f.append(f"Estatus: '{row.get('estatus')}'")
                             raise ValueError(f"Faltan datos críticos: {', '.join(f)}")
 
+                        # CREACIÓN
                         asignacion = AsigTrabajo(
                             codigo=codigo_final,
-                            employee=empleado,
+                            employee=empleado, # Ahora garantizamos que sea el objeto Employee
                             denominacioncargoid=cargo_obj,
                             denominacioncargoespecificoid=especifico_obj,
                             tiponominaid=nomina_obj,
                             estatusid=estatus_obj,
                             OrganismoAdscritoid=buscar('organismos', 'organismo'),
                             DireccionGeneral=buscar('direcciones', 'direccion_general'),
+                            Dependencia=buscar('dependencias', 'dependencia') or dep_default,
+                            DireccionLinea=buscar('lineas', 'direccion_linea'),
+                            Coordinacion=buscar('coordinaciones', 'coordinacion'),
                             gradoid=buscar('grados', 'grado'),
                             Tipo_personal=buscar('tipos_p', 'tipo_personal') or tp_default,
                             observaciones=str(row.get('observaciones', ''))[:255] if not pd.isna(row.get('observaciones')) else ''
@@ -138,15 +159,17 @@ class ImportarCargosESPECIALESView(APIView):
                         errores.append(f"Fila {index + 2}: {str(e)}")
 
                 if errores:
-                    raise Exception("Errores encontrados en el procesamiento.")
+                    # Forzamos el rollback si hubo errores en alguna fila
+                    raise Exception("Errores en el procesamiento del archivo.")
 
-            return Response({"mensaje": f"Se crearon {creados} registros correctamente."}, status=201)
+            return Response({"mensaje": f"Se crearon {creados} registros con éxito."}, status=201)
 
         except Exception as e:
             return Response({
-                "error": "Operación cancelada",
+                "error": "Operación cancelada", 
                 "detalles": errores if errores else [str(e)]
             }, status=400)
+
 
 # carga masiva de cargos 
 
@@ -365,6 +388,7 @@ class ImportEmployeesView(APIView):
 @api_view(['POST'])
 def create_employee(request):
     serializer = EmployeeCreateUpdateSerializer(data=request.data)
+    
     if serializer.is_valid():
         try:
             serializer.save()
@@ -374,15 +398,21 @@ def create_employee(request):
                 "data": serializer.data
             }, status=status.HTTP_201_CREATED)
         except Exception as e:
-            return  Response ({
+            return Response({
                 'status': "Error",
                 'message': str(e),
-            }, status = status.HTTP_400_BAD_REQUEST)
+                
+            }, status=status.HTTP_400_BAD_REQUEST)
     else:
+        error_dict = serializer.errors 
+        first_error_field = list(error_dict.values())[0] 
+        clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+
         return Response({
             'status': "Error",
-            'message': serializer.errors,
-        }, status = status.HTTP_400_BAD_REQUEST)
+            'message': clean_message, 
+      
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 #  ACTUALIZACION DE DATOS PERSONALES DEL EMPLEADO       
 @extend_schema(
@@ -394,24 +424,35 @@ def create_employee(request):
 @api_view(['PATCH'])
 def update_employee(request, id):
     empleado = get_object_or_404(Employee, id=id)
-
     serializer = EmployeeCreateUpdateSerializer(empleado, data=request.data, partial=True)
-    serializer.is_valid(raise_exception=True)
     
     try:
+        serializer.is_valid(raise_exception=True)
         serializer.save()
+        
         return Response({
             'status': "OK",
             'message': "Empleado actualizado correctamente",
             'data': serializer.data            
         }, status=status.HTTP_200_OK)
         
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_field = list(error_dict.values())[0]
+        clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+        
+        return Response({
+            'status': "Error",
+            'message': clean_message,
+            'data': None
+        }, status=status.HTTP_400_BAD_REQUEST)
+
     except Exception as e:
         return Response({
             'status': "Error",
             'message': "No se pudo actualizar el registro.",
             'debug': str(e),
-            'data': []
+         
         }, status=status.HTTP_400_BAD_REQUEST)
     
 # LISTADO DE EMPLEADOS
@@ -479,25 +520,33 @@ def retrieve_employee(request, cedulaidentidad):
 )
 @api_view(['POST'])
 def create_position(request):
-
     serializer = CodigosCreateUpdateSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
     
     try:
+        serializer.is_valid(raise_exception=True)
         serializer.save()
+        
         return Response({
             'status': "success",
             "message": "Cargo registrado correctamente",
             "data": serializer.data
         }, status=status.HTTP_201_CREATED)
         
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_value = list(error_dict.values())[0]
+        clean_message = first_error_value[0] if isinstance(first_error_value, list) else first_error_value
+        return Response({
+            'status': "error",
+            'message': clean_message, 
+            'data': None
+        }, status=status.HTTP_400_BAD_REQUEST)
+
     except Exception as e:
         return Response({
             'status': "error",
-            'message': "No se pudo completar el registro del cargo",
-            'error': str(e),
-        
-
+            'message': str(e),
+            'data': None
         }, status=status.HTTP_400_BAD_REQUEST)
         
 @extend_schema(
@@ -509,22 +558,33 @@ def create_position(request):
 @api_view(['PATCH'])
 def update_position(request, id):
     codigo = get_object_or_404(AsigTrabajo, id=id)
-
     serializer = CodigosCreateUpdateSerializer(codigo, data=request.data, partial=True)
-    serializer.is_valid(raise_exception=True)
+    
     
     try:
+        serializer.is_valid(raise_exception=True)
         serializer.save()
+        
         return Response({
             'status': "success",
             'message': "Cargo actualizado correctamente",
             'data': serializer.data            
         }, status=status.HTTP_200_OK)
-        
+
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_field = list(error_dict.values())[0]
+        clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+
+        return Response({
+            'status': "error",
+            'message': clean_message,
+            'data': None
+        }, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         return Response({
             'status': "error",
-            'message': "No se pudo actualizar el cargo debido a un error interno.",
+            'message': str(e),
             'data': None
         }, status=status.HTTP_400_BAD_REQUEST)
         
@@ -538,24 +598,33 @@ def update_position(request, id):
 @api_view(['PATCH'])
 def assign_employee(request, id):       
     puesto = get_object_or_404(AsigTrabajo, id=id)
-    
-
     serializer = EmployeeAssignmentSerializer(puesto, data=request.data, partial=True)
-    serializer.is_valid(raise_exception=True)
     
     try:
+        serializer.is_valid(raise_exception=True)
         serializer.save()
+        
         return Response({
             'status': "success",
             'message': "Cargo asignado correctamente",
             'data': serializer.data            
         }, status=status.HTTP_200_OK)
         
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_field = list(error_dict.values())[0]
+        clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+
+        return Response({
+            'status': "error",
+            'message': clean_message, 
+            'data': None
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
     except Exception as e:
         return Response({
             'status': "error",
-            'message': "No se pudo completar la asignación del empleado.",
-      
+            'message': str(e) ,
         }, status=status.HTTP_400_BAD_REQUEST)
         
 @extend_schema(
@@ -567,9 +636,9 @@ def assign_employee(request, id):
 @api_view(['POST'])
 def assign_employee_special(request):
     serializer = SpecialPositionAutoCreateSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
     
     try:
+        serializer.is_valid(raise_exception=True)
         serializer.save()
         
         return Response({
@@ -578,11 +647,21 @@ def assign_employee_special(request):
             "data": serializer.data
         }, status=status.HTTP_201_CREATED)
         
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_field = list(error_dict.values())[0]
+        clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+
+        return Response({
+            'status': "error",
+            'message': clean_message,
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
     except Exception as e:
         return Response({
             'status': "error",
-            'message': "No se pudo completar la asignación especial.",
-            'data': []
+            'message':str(e), 
+         
         }, status=status.HTTP_400_BAD_REQUEST)
         
 
@@ -595,9 +674,8 @@ def assign_employee_special(request):
 @api_view(['POST'])
 def create_subsidiary_organism(request):
     serializer = OrganismoAdscritoSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    
     try:
+        serializer.is_valid(raise_exception=True)
         serializer.save()
         
         return Response({
@@ -606,11 +684,22 @@ def create_subsidiary_organism(request):
             "data": serializer.data
         }, status=status.HTTP_201_CREATED)
         
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_field = list(error_dict.values())[0]
+        clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+
+        return Response({
+            'status': "error",
+            'message': clean_message, 
+            'data': None
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
     except Exception as e:
         return Response({
             'status': "error",
-            'message': "No se pudo completar el registro del organismo.",
-            'data': None
+            'message': str(e),
+
         }, status=status.HTTP_400_BAD_REQUEST)
         
       
@@ -623,7 +712,6 @@ def create_subsidiary_organism(request):
 @api_view(['POST'])
 def create_dependencia(request):
     serializer = DependenciaSerializer(data=request.data)
-    
     if serializer.is_valid():
         try:
             serializer.save()
@@ -636,11 +724,15 @@ def create_dependencia(request):
             return Response({
                 'status': "error",
                 'message': str(e),
+                'data': None
             }, status=status.HTTP_400_BAD_REQUEST)
-    
+    error_dict = serializer.errors
+    first_error_field = list(error_dict.values())[0]
+    clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
     return Response({
         'status': "error",
-        'message': "Errores de validación",
+        'message': clean_message, 
+        'data': None
     }, status=status.HTTP_400_BAD_REQUEST)
   
 @extend_schema(
@@ -693,11 +785,16 @@ def create_general_directorate(request):
             return Response({
                 'status': "error",
                 'message': str(e),
+                'data': None
             }, status=status.HTTP_400_BAD_REQUEST)
     
+    error_dict = serializer.errors
+    first_error_field = list(error_dict.values())[0]
+    clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
     return Response({
         'status': "error",
-        'message': "Errores de validación",
+        'message': clean_message, 
+        'data': None
     }, status=status.HTTP_400_BAD_REQUEST)
 
     
@@ -742,22 +839,31 @@ def update_direccion_general(request, id):
 @api_view(['POST'])
 def create_line_directorate(request):
     serializer = DireccionLineaSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    
     try:
+        serializer.is_valid(raise_exception=True)
         serializer.save()
+        
         return Response({
             'status': "success",
             "message": "Dirección de Línea registrada correctamente",
             "data": serializer.data
         }, status=status.HTTP_201_CREATED)
         
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_field = list(error_dict.values())[0]
+        clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+
+        return Response({
+            'status': "error",
+            'message': clean_message,
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
     except Exception as e:
         return Response({
             'status': "error",
-            'message': str(e),
-        
-        }, status=status.HTTP_400_BAD_REQUEST)  
+            'message': str(e)
+        }, status=status.HTTP_400_BAD_REQUEST)
         
 @extend_schema(
     tags=["Recursos Humanos - Dependencia"],
@@ -768,7 +874,6 @@ def create_line_directorate(request):
 @api_view(['PATCH'])
 def update_line_directorate(request, id):
     direccion_linea = get_object_or_404(DireccionLinea, id=id)
-    
     serializer = DireccionLineaSerializer(direccion_linea, data=request.data, partial=True)
     serializer.is_valid(raise_exception=True)
     
@@ -796,9 +901,9 @@ def update_line_directorate(request, id):
 @api_view(['POST'])
 def create_coordination(request):
     serializer = CoordinacionSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    
+     
     try:
+        serializer.is_valid(raise_exception=True)
         serializer.save()
         
         return Response({
@@ -807,14 +912,22 @@ def create_coordination(request):
             "data": serializer.data
         }, status=status.HTTP_201_CREATED)
         
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_field = list(error_dict.values())[0]
+        clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+
+        return Response({
+            'status': "error",
+            'message': clean_message,
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
     except Exception as e:
         return Response({
             'status': "error",
-            'message': str(e),
-        
+            'message': str(e)
         }, status=status.HTTP_400_BAD_REQUEST)
         
-
 @extend_schema(
     tags=["Recursos Humanos - Dependencia"],
     summary="Creacion de Dependencia",
@@ -890,7 +1003,56 @@ def list_employees_active(request):
             'message': f"Error al recuperar la lista de empleados: {str(e)}",
             'data': []
         }, status=status.HTTP_400_BAD_REQUEST)
+  
+  
+  
+@extend_schema(
+    tags=["Gestion de Personal Pasivo"],
+    summary="Listar personal Pasivo con sus cargos",
+    description="Devuelve una lista el personal Pasivo con sus cargos",
+    request=EmployeeDetailSerializer,
+)
+
+@api_view(['GET'])
+def list_employees_pasive(request):
+    try:
+        filtro_asignaciones = AsigTrabajo.objects.select_related('Tipo_personal').filter(
+            Tipo_personal__tipo_personal__iexact=PERSONAL_PASIVO
+        )
         
+        queryset = Employee.objects.filter(
+            assignments__Tipo_personal__tipo_personal__iexact=PERSONAL_PASIVO
+        ).prefetch_related(
+            Prefetch('assignments', queryset=filtro_asignaciones)
+        ).distinct()
+
+        filterset = EmployeeFilter(request.GET, queryset=queryset)
+        
+        if not filterset.is_valid():
+            return Response({
+                'status': "error",
+                'message': "Los parámetros de búsqueda son inválidos.",
+                'data': []
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+   
+        empleados = filterset.qs[:10]
+
+        serializer = EmployeeDetailSerializer(empleados, many=True)
+
+        return Response({
+            'status': "success",
+            'message': "Trabajadores pasivos listados correctamente",
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            'status': "error",
+            'message': f"Error al recuperar la lista de empleados: {str(e)}",
+            'data': []
+        }, status=status.HTTP_400_BAD_REQUEST)
+              
 @extend_schema(
     tags=["Asignacion de Cargos"],
     summary="Buscar empleado por cédula",
@@ -1571,9 +1733,10 @@ def list_subsidiary_organisms(request):
 @api_view(['GET'])
 def list_position_denominations(request):
     try:
-        queryset = Denominacioncargo.objects.all()
+        # Excluir el cargo de personal pasivo
+        queryset = Denominacioncargo.objects.exclude(cargo='PERSONAL PASIVO')
         serializer = denominacionCargoSerializer(queryset, many=True)
-        
+
         return Response({
             'status': "success",
             'message': "Denominaciones de cargos listadas correctamente",
@@ -1596,7 +1759,7 @@ def list_position_denominations(request):
 @api_view(['GET'])
 def list_specific_position_denominations(request):
     try:
-        queryset = Denominacioncargoespecifico.objects.all()
+        queryset = Denominacioncargoespecifico.objects.exclude(cargo='PERSONAL PASIVO')
         serializer = denominacionCargoEspecificoSerializer(queryset, many=True)
         
         return Response({

@@ -115,7 +115,7 @@ class Coordinaciones(models.Model):
     Codigo = models.CharField(max_length=20, unique=True)
     coordinacion = models.CharField(max_length=200, unique=True)
     direccionLinea = models.ForeignKey('DireccionLinea', models.DO_NOTHING, null=True, blank=True,db_column='direccionLineaId')
-    direccionGeneral = models.ForeignKey('DireccionGeneral', models.DO_NOTHING, null=True, blank=True,db_column='direccionGeneralId')
+    
     orden_by_coordinacion = models.PositiveIntegerField(default=30)
     class Meta:
         managed = True
@@ -363,7 +363,7 @@ class AsigTrabajo(models.Model):
         to_field='cedulaidentidad',
         db_column='employeeCedula', null=True, blank=True
     )
-    codigo = models.TextField(unique=True) 
+    codigo = models.CharField(max_length=20) 
     denominacioncargoid = models.ForeignKey('Denominacioncargo', models.DO_NOTHING, db_column='denominacionCargoId')
     denominacioncargoespecificoid = models.ForeignKey('Denominacioncargoespecifico', models.DO_NOTHING, db_column='denominacionCargoEspecificoId') 
     OrganismoAdscritoid = models.ForeignKey('OrganismoAdscrito', models.DO_NOTHING, db_column='organismoAdscritoId', blank=True, null=True)
@@ -392,6 +392,7 @@ class AsigTrabajo(models.Model):
     class Meta:
         managed = True
         db_table = 'AsigTrabajo'
+        unique_together = ('codigo','Tipo_personal')
         ordering = ['-fecha_actualizacion']
         app_label = 'RAC'
         

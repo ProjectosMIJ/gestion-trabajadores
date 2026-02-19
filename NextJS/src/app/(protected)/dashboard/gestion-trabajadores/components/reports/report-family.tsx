@@ -32,6 +32,7 @@ import {
   getDisability,
   getMunicipalitys,
   getNominaGeneral,
+  getParent,
   getParish,
   getPatologys,
   getRegion,
@@ -132,6 +133,10 @@ export default function ReportEmployee() {
     municipalityId ? ["parish", municipalityId] : null,
     async () => await getParish(municipalityId!),
   );
+  const { data: parent, isLoading: isLoadingParen } = useSWR(
+    "parent",
+    async () => getParent(),
+  );
 
   const form = useForm({
     resolver: zodResolver(schemaReportFamily),
@@ -222,6 +227,38 @@ export default function ReportEmployee() {
                       <legend className="text-amber-900 font-semibold">
                         Información Basica Familiar
                       </legend>
+                      <FormField
+                        control={form.control}
+                        name={`filtros.parentesco_id`}
+                        render={({ field }) => (
+                          <FormItem className="cursor-pointer">
+                            <FormLabel className="cursor-pointer">
+                              Parentesco *
+                            </FormLabel>
+                            <Select
+                              onValueChange={(values) => {
+                                field.onChange(Number.parseInt(values));
+                              }}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="w-full truncate">
+                                  <SelectValue
+                                    placeholder={"Seleccione un Parentesco"}
+                                  />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {parent?.data.map((parent, i) => (
+                                  <SelectItem key={i} value={`${parent.id}`}>
+                                    {parent.descripcion_parentesco}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                       <FormField
                         control={form.control}
                         name={`filtros.sexo_familiar_id`}

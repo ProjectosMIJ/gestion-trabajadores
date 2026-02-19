@@ -39,7 +39,6 @@ import {
   States,
   Status,
 } from "@/app/types/types";
-import { Blob } from "buffer";
 
 export const getAcademyLevel = async (): Promise<
   ApiResponse<AcademyLevel[]>
@@ -69,6 +68,13 @@ export const imageProfileFn = async (id: string) => {
 export const getStatusNomina = async (): Promise<ApiResponse<Status[]>> => {
   const status = await fetch(
     `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}estatus-gestion/`,
+  );
+  const responseStatus: ApiResponse<Status[]> = await status.json();
+  return responseStatus;
+};
+export const getStatusReport = async (): Promise<ApiResponse<Status[]>> => {
+  const status = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}estatus/reports/`,
   );
   const responseStatus: ApiResponse<Status[]> = await status.json();
   return responseStatus;

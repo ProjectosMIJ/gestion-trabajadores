@@ -25,6 +25,7 @@ import {
   User,
   UserPlus,
   LucideIcon,
+  Badge,
 } from "lucide-react";
 
 import {
@@ -155,7 +156,7 @@ const items: MenuItem[] = [
     },
     title: "Gestión De Codigos",
     url: "#",
-    icon: SignpostBig,
+    icon: Badge,
     subMenu: [
       {
         title: "Crear Nuevo Código",

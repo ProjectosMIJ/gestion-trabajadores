@@ -33,6 +33,7 @@ MAPA_REPORTES = {
             "dependencia_id": "assignments__Dependencia",
             "direccion_general_id": "assignments__DireccionGeneral",
             "direccion_linea_id": "assignments__DireccionLinea",
+            'OrganismoAdscrito_id': "assignments__OrganismoAdscritoid",
             "coordinacion_id": "assignments__Coordinacion",
             "sexo_id": "sexoid",
             "discapacidad_id": "perfil_salud__discapacidad",
@@ -49,8 +50,8 @@ MAPA_REPORTES = {
             "tipo_personal": "assignments__Tipo_personal",
             "apn_min": "total_anos_apn__gte",
             "apn_max": "total_anos_apn__lte",
-            "edad_min": "edad_trabajador__gte",
-            "edad_max": "edad_trabajador__lte",
+            "edad_min": "fecha_nacimiento__lte",
+            "edad_max": "fecha_nacimiento__gte",
             "fecha_ingreso_Desde": "fechaingresoorganismo__gte",
             "fecha_ingreso_Hasta": "fechaingresoorganismo__lte",
             "fecha_apn_Desde": "antecedentes_servicio__fecha_ingreso__gte",
@@ -89,8 +90,8 @@ MAPA_REPORTES = {
             "sexo_familiar_id": "carga_familiar__sexo",
             "estado_civil_id": "carga_familiar__estadoCivil",
             "sexo_empleado_id": "sexoid",
-             "edad_empleado_min": "edad_trabajador__lte",
-            "edad_empleado_max": "edad_trabajador__gte",
+             "edad_empleado_min": "fecha_nacimiento__lte",
+            "edad_empleado_max": "fecha_nacimiento__gte",
             "edad_familiar_min": "carga_familiar__fechanacimiento__lte",
             "edad_familiar_max": "carga_familiar__fechanacimiento__gte", 
             "nomina_id": "assignments__tiponominaid",
@@ -134,8 +135,8 @@ MAPA_REPORTES = {
             "direccion_linea_id": "cargos_historial__DireccionLinea",
             "coordinacion_id": "cargos_historial__Coordinacion",
             "organismo_id": "cargos_historial__OrganismoAdscritoid",
-            "edad_min": "employee__fecha_nacimiento__gte",
-            "edad_max": "employee__fecha_nacimiento__lte",
+            "edad_min": "employee__fecha_nacimiento__lte",
+            "edad_max": "employee__fecha_nacimiento__gte",
             "sexo_id": "employee__sexoid",
             
         }
@@ -162,6 +163,7 @@ MAPA_REPORTES = {
             "general_id": "DireccionGeneral", 
             "linea_id": "DireccionLinea",     
             "coordinacion_id": "Coordinacion",
+            'OrganismoAdscrito_id': "OrganismoAdscritoid",
             "estatus_id": "estatusid",
             
         }

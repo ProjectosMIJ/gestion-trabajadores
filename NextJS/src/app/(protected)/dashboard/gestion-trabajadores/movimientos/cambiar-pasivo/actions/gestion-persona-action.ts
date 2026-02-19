@@ -2,6 +2,7 @@
 import z from "zod";
 import { schemaPasivo } from "../schema/schemaPasivo";
 import { auth } from "#/auth";
+import { ApiResponse } from "@/app/types/types";
 
 export default async function GestionAction(
   values: z.infer<typeof schemaPasivo>,
@@ -20,7 +21,6 @@ export default async function GestionAction(
       ...values,
       usuario_id: Number.parseInt(session.user.id),
     };
-    console.log(payload);
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}historyEmployee/egreso/${employee}/`,
       {
@@ -33,15 +33,17 @@ export default async function GestionAction(
         }),
       },
     );
+    const getResponse: ApiResponse<never> = await response.json();
+
     if (response.ok) {
       return {
         success: true,
-        message: "Movimiento Realizado Exitosamente",
+        message: getResponse.message,
       };
     }
     return {
       success: false,
-      message: "Error Al Realizar El Movimiento",
+      message: getResponse.message,
     };
   } catch {
     return {

@@ -24,7 +24,8 @@ def cambiar_cargo(request, cargo_id):
     except AsigTrabajo.DoesNotExist:
         return Response({
             "status": "Error",
-            "message":"El código de cargo no fue encontrado"
+            "message": "El código de cargo no fue encontrado",
+            "data": []
         }, status=status.HTTP_404_NOT_FOUND)
 
     if puesto_actual.employee is None:
@@ -33,7 +34,6 @@ def cambiar_cargo(request, cargo_id):
             "message": "No se puede realizar un movimiento desde un puesto sin empleado asignado",
             "data": []
         }, status=status.HTTP_400_BAD_REQUEST)
-
     serializer = MovimintoCargoSerializer(puesto_actual, data=request.data, partial=True)
     
     if serializer.is_valid():
@@ -50,14 +50,16 @@ def cambiar_cargo(request, cargo_id):
         except Exception as e:
             return Response({
                 "status": "Error",
-                "message": str(e),
+                "message": f"Error en la operación: {str(e)}",
                 "data": []
             }, status=status.HTTP_400_BAD_REQUEST)
+    error_dict = serializer.errors
+    first_error_field = list(error_dict.values())[0]
+    clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
 
     return Response({
         "status": "Error",
-        "message": "Datos de movimiento inválidos o el puesto destino no está disponible",
-        "data": []
+        "message": clean_message,
     }, status=status.HTTP_400_BAD_REQUEST)
     
 
@@ -82,9 +84,7 @@ def gestionar_estatus_puesto(request, cargo_id):
             "status": "Error",
             "message": "No se puede gestionar el estatus de un puesto que no tiene un empleado asignado"
         }, status=status.HTTP_400_BAD_REQUEST)
-
     serializer = GestionStatusSerializer(puesto, data=request.data, partial=True)
-    
     if serializer.is_valid():
         try:
             serializer.save()
@@ -102,13 +102,15 @@ def gestionar_estatus_puesto(request, cargo_id):
                 "message": f"Error al procesar el cambio de estatus: {str(e)}",
                 "data": []
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    error_dict = serializer.errors
+    first_error_field = list(error_dict.values())[0]
+    clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
 
     return Response({
         "status": "Error",
-        "message": "Datos de gestión inválidos",
-        "errors": serializer.errors
-    }, status=status.HTTP_400_BAD_REQUEST)
-    
+        "message": clean_message,
+        "data": []
+    }, status=status.HTTP_400_BAD_REQUEST) 
 
 
 @extend_schema(
@@ -125,11 +127,10 @@ def gestion_egreso_pasivo(request, cedulaidentidad):
         return Response({
             "status": "Error",
             "message": "No se encontró el empleado",
-            "data":[]
+            "data": []
         }, status=status.HTTP_404_NOT_FOUND)
 
     serializer = GestionEgreso_PasivoSerializer(empleado, data=request.data, partial=True)
-    
     if serializer.is_valid():
         try:
             serializer.save()
@@ -146,19 +147,18 @@ def gestion_egreso_pasivo(request, cedulaidentidad):
             return Response({
                 "status": "Error",
                 "message": f"Error al procesar el movimiento: {str(e)}",
-                "data":[]
+                "data": []
             }, status=status.HTTP_400_BAD_REQUEST)
-
+    error_dict = serializer.errors
+    first_error_field = list(error_dict.values())[0]
+    clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
     return Response({
         "status": "Error",
-        "message": "La validación de los datos ha fallado",
-        "errors": serializer.errors,
-       
-        
+        "message": clean_message,
+        "data": []
     }, status=status.HTTP_400_BAD_REQUEST)
     
     
-
 @extend_schema(
     tags=["Movimientos de Personal"],
     summary="Buscar personal egresado por cédula del empleado",

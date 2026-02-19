@@ -1,5 +1,5 @@
 from rest_framework import serializers
-
+from rest_framework.validators import UniqueTogetherValidator
 from django.db import transaction
 from ..models.family_personal_models import Employeefamily, Parentesco
 from ..models.personal_models import *
@@ -42,7 +42,14 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
             'heredero', 'perfil_salud_familiar', 'perfil_fisico_familiar', 
             'formacion_academica_familiar', 'orden_hijo'
         ]
-
+        
+    validators = [
+            UniqueTogetherValidator(
+                queryset=Employeefamily.objects.all(),
+                fields=['employeecedula', 'cedulaFamiliar'],
+                message="Este familiar ya se encuentra registrado para este empleado"
+            )
+        ]
     def to_internal_value(self, data):
         data = data.copy() if hasattr(data, 'copy') else data
         

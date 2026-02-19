@@ -3,6 +3,7 @@
 import z from "zod";
 import { schemaCode } from "../schemas/schemaCode";
 import { auth } from "#/auth";
+import { ApiResponse } from "@/app/types/types";
 
 export async function createCodeAction(values: z.infer<typeof schemaCode>) {
   try {
@@ -33,15 +34,16 @@ export async function createCodeAction(values: z.infer<typeof schemaCode>) {
         body: JSON.stringify({ ...payload }),
       },
     );
+    const getResponse: ApiResponse<never> = await response.json();
     if (!response.ok) {
       return {
         success: false,
-        message: "Error Al Crear El Código",
+        message: getResponse.message || "Error al crear el código.",
       };
     }
     return {
       success: true,
-      message: "Código Registrado Exitosamente",
+      message: getResponse.message,
     };
   } catch {
     return {

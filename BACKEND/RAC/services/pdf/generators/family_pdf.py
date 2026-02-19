@@ -2,7 +2,8 @@
 Generador de PDF para reportes de familiares.
 Genera una tabla con información de empleados y sus familiares.
 """
-from reportlab.platypus import Spacer, Paragraph, PageBreak
+from reportlab.platypus import Spacer, Paragraph, PageBreak, KeepTogether, CondPageBreak
+from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import landscape, A4
 from reportlab.lib.units import mm
 from django.apps import apps
@@ -94,21 +95,22 @@ class FamilyPDFGenerator(BasePDFGenerator):
         total_empleados = len(self.employees)
         total_familiares = sum(self._get_familiares_count(e) for e in self.employees)
         
-        # Contar herederos
-        herederos = 0
-        mismo_ente = 0
+        masculino_count = 0
+        femenino_count = 0
+
         for emp in self.employees:
             for fam in self._get_familiares(emp):
-                if self._get_heredero(fam):
-                    herederos += 1
-                if self._get_mismo_ente(fam):
-                    mismo_ente += 1
-        
+                sexo = self._get_sexo(fam)
+                if sexo == 'M':
+                    masculino_count += 1
+                elif sexo == 'F':
+                    femenino_count += 1
+
         stats = {
             'Total Empleados': total_empleados,
             'Total Familiares': total_familiares,
-            'Herederos': herederos,
-            'Mismo Ente': mismo_ente,
+            'Masculino': masculino_count,
+            'Femenino': femenino_count,
         }
         
         width = self._get_available_width()
@@ -127,97 +129,175 @@ class FamilyPDFGenerator(BasePDFGenerator):
             if value:
                 filter_text_parts.append(f"{key}: {value}")
         
-        # if filter_text_parts:
-        #     elements.extend(create_section_title("Filtros Aplicados"))
-        #     filter_text = " | ".join(filter_text_parts)
-        #     elements.append(Paragraph(filter_text, self.styles['Small']))
-        #     elements.append(Spacer(1, 10))
-        
         return elements
     
     def _build_family_table(self):
-        """Construye la tabla de familiares."""
         elements = []
         
-        elements.extend(create_section_title("Listado de Familiares"))
-        
+        # --- VALIDACIÓN INICIAL ---
         if not self.employees:
+            estilos_nativos = getSampleStyleSheet()
+            estilo_mensaje = self.styles.get('Body') or self.styles.get('Normal') or estilos_nativos['Normal']
+            
+            elements.append(Spacer(1, 15 * mm))
             elements.append(Paragraph(
-                "No se encontraron empleados con familiares registrados.",
-                self.styles['Body']
+                "No se encontraron familiares con los filtros aplicados",
+                estilo_mensaje
             ))
             return elements
-        
-        # Definir encabezados
-        headers = [
-            '#',
-            'Cédula Emp.',
-            'Empleado',
-            'Cédula Fam.',
-            'Familiar',
-            'Parentesco',
-            'F. Nacimiento',
-            'Sexo',
-            'Heredero',
-            'Mismo Ente'
-        ]
-        
-        # Anchos de columna para landscape A4
-        col_widths = [
-            10 * mm,   # #
-            22 * mm,   # Cédula Emp.
-            40 * mm,   # Empleado
-            22 * mm,   # Cédula Fam.
-            45 * mm,   # Familiar
-            28 * mm,   # Parentesco
-            22 * mm,   # F. Nacimiento
-            22 * mm,   # Sexo
-            18 * mm,   # Heredero
-            22 * mm,   # Mismo Ente
-        ]
-        
-        # Construir filas de datos
-        rows = []
-        idx = 0
-        
+
+        # 1. Agrupación Jerárquica (Solo empleados que SÍ tienen familiares)
+        agrupacion = {} 
         for employee in self.employees:
             familiares = self._get_familiares(employee)
-            
             if not familiares:
-                continue
+                continue # Si no tiene familiares, lo ignoramos para este reporte
+                
+            # --- EXTRACCIÓN ROBUSTA DE LA ASIGNACIÓN ---
+            assignments = getattr(employee, 'filtered_assignments', None)
+            if assignments is None:
+                assignments = list(employee.assignments.all()) if hasattr(employee, 'assignments') else []
             
-            cedula_emp = self._get_cedula_empleado(employee)
-            nombre_emp = self._get_nombre_empleado(employee)
+            if not assignments:
+                dep, dg, dl, coord = "S/D", "S/D", "S/D", "S/D"
+            else:
+                asig = assignments[0]
+                
+                # Búsqueda robusta de dependencia
+                dep_obj = getattr(asig, 'Dependencia', None)
+                if not dep_obj:
+                    dg_obj_rel = getattr(asig, 'DireccionGeneral', None)
+                    dep_obj = getattr(dg_obj_rel, 'dependenciaId', None)
+                
+                dg_obj = getattr(asig, 'DireccionGeneral', None)
+                dl_obj = getattr(asig, 'DireccionLinea', None)
+                coord_obj = getattr(asig, 'Coordinacion', None)
+                
+                dep = dep_obj or "DEPENDENCIA DESCONOCIDA"
+                dg = dg_obj or "ASIGNACIÓN DIRECTA"
+                dl = dl_obj or "ASIGNACIÓN DIRECTA"
+                coord = coord_obj or "ASIGNACIÓN DIRECTA"
             
-            for familiar in familiares:
-                idx += 1
-                row = [
-                    str(idx),
-                    cedula_emp,
-                    nombre_emp,
-                    self._get_cedula_familiar(familiar),
-                    self._get_nombre_familiar(familiar),
-                    self._get_parentesco(familiar),
-                    self._get_fecha_nacimiento(familiar),
-                    self._get_sexo(familiar),
-                    'Sí' if self._get_heredero(familiar) else 'No',
-                    'Sí' if self._get_mismo_ente(familiar) else 'No',
-                ]
-                rows.append(row)
+            # Creación del diccionario anidado
+            if dep not in agrupacion: agrupacion[dep] = {}
+            if dg not in agrupacion[dep]: agrupacion[dep][dg] = {}
+            if dl not in agrupacion[dep][dg]: agrupacion[dep][dg][dl] = {}
+            if coord not in agrupacion[dep][dg][dl]: agrupacion[dep][dg][dl][coord] = []
+            agrupacion[dep][dg][dl][coord].append(employee)
+
+        # 2. Control de Renderizado
+        impreso_dep, impreso_dg, impreso_dl = None, None, None
         
-        if not rows:
-            elements.append(Paragraph(
-                "No se encontraron familiares con los filtros aplicados.",
-                self.styles['Body']
-            ))
-            return elements
-        
-        # Crear tabla
-        table = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
-        elements.append(table)
-        
+        ignorar = {
+            "ASIGNACIÓN DIRECTA", "ASIGNACIÓN DIRECTA A LA DEPENDENCIA", 
+            "ASIGNACIÓN DIRECTA A LA DIRECCION GENERAL", "ASIGNACIÓN DIRECTA A LA DIRECCION LINEA",
+            "NONE", "N/A", "SIN DIRECCIÓN ASIGNADA", "S/D"
+        }
+
+        def get_order(item, attr):
+            if isinstance(item, str): return 0
+            return getattr(item, attr, 999) or 999
+
+        sorted_deps = sorted(agrupacion.keys(), key=lambda d: getattr(d, 'id', 999) if not isinstance(d, str) else 999)
+
+        for dep in sorted_deps:
+            dep_nom = getattr(dep, 'dependencia', str(dep))
+            dgs = agrupacion[dep]
+            sorted_dgs = sorted(dgs.keys(), key=lambda g: get_order(g, 'orden_by_direccion'))
+
+            for dg in sorted_dgs:
+                dg_nom = getattr(dg, 'direccion_general', str(dg))
+                dls = dgs[dg]
+                sorted_dls = sorted(dls.keys(), key=lambda l: get_order(l, 'orden_by_direccion'))
+
+                for dl in sorted_dls:
+                    dl_nom = getattr(dl, 'direccion_linea', str(dl))
+                    coords = dls[dl]
+                    sorted_coords = sorted(coords.keys(), key=lambda c: get_order(c, 'orden_by_coordinacion'))
+
+                    for coord in sorted_coords:
+                        coord_nom = getattr(coord, 'coordinacion', str(coord))
+                        empleados_en_coord = coords[coord]
+                        
+                        # --- CONSTRUCCIÓN DE LAS FILAS DE FAMILIARES ---
+                        headers = ['#', 'Cédula Emp.', 'Nombre Empleado', 'Cédula Fam.', 'Nombre Familiar', 'Parentesco', 'F. Nacimiento', 'Sexo']
+                        col_widths = [10*mm, 24*mm, 48*mm, 24*mm, 48*mm, 25*mm, 25*mm, 15*mm]
+                        
+                        def sort_cedula_desc(e):
+                            c = self._get_cedula_empleado(e)
+                            try: return -int(c)
+                            except: return 0
+
+                        # ORDENAMIENTO POR JERARQUÍA DE CARGO Y CÉDULA
+                        empleados_ordenados = sorted(
+                            empleados_en_coord, 
+                            key=lambda e: (self._get_orden_cargo(e), sort_cedula_desc(e))
+                        )
+                        
+                        rows = []
+                        idx = 0
+                        
+                        for emp in empleados_ordenados:
+                            cedula_emp = self._get_cedula_empleado(emp)
+                            nombre_emp = self._get_nombre_empleado(emp)
+                            familiares_emp = self._get_familiares(emp)
+                            
+                            for fam in familiares_emp:
+                                idx += 1
+                                row = [
+                                    str(idx),
+                                    cedula_emp,
+                                    nombre_emp,
+                                    self._get_cedula_familiar(fam),
+                                    self._get_nombre_familiar(fam),
+                                    self._get_parentesco(fam),
+                                    self._get_fecha_nacimiento(fam),
+                                    self._get_sexo(fam)
+                                ]
+                                rows.append(row)
+                     
+                        if rows:
+                            # --- TÍTULOS DEL BLOQUE ---
+                            titulos_bloque = []
+                            if dep_nom != impreso_dep:
+                                titulos_bloque.extend(create_section_title(f"DEPENDENCIA: {dep_nom.upper()}"))
+                                impreso_dg, impreso_dl = None, None 
+                            if dg_nom != impreso_dg and dg_nom.upper().strip() not in ignorar:
+                                titulos_bloque.extend(create_section_title(f"  > DG / COORD: {dg_nom}"))
+                                impreso_dl = None 
+                            if dl_nom != impreso_dl and dl_nom.upper().strip() not in ignorar:
+                                titulos_bloque.extend(create_section_title(f"    - DL / COORD: {dl_nom}"))
+                            if coord_nom.upper().strip() not in ignorar:
+                                titulos_bloque.extend(create_section_title(f"      * COORD: {coord_nom}"))
+
+                            tabla_completa = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
+                           
+                            # --- CONTROL DE SALTO DE PÁGINA ---
+                            espacio_requerido = (len(titulos_bloque) * 6 * mm) + 25 * mm
+                            elements.append(CondPageBreak(espacio_requerido))
+                            
+                            if titulos_bloque:
+                                for p in titulos_bloque:
+                                    if hasattr(p, 'keepWithNext'): p.keepWithNext = True
+                                
+                                elements.extend(titulos_bloque)
+                                elements.append(Spacer(1, 2*mm))
+                                
+                            elements.append(tabla_completa)
+                            elements.append(Spacer(1, 6 * mm))
+                            
+                            impreso_dep, impreso_dg, impreso_dl = dep_nom, dg_nom, dl_nom
+
+        # Validación final por si la lista de empleados no estaba vacía, 
+        # pero NINGUNO tenía familiares.
+        if not elements:
+            estilos_nativos = getSampleStyleSheet()
+            estilo_mensaje = self.styles.get('Body') or self.styles.get('Normal') or estilos_nativos['Normal']
+            elements.append(Spacer(1, 15 * mm))
+            elements.append(Paragraph("No se encontraron familiares registrados para estos empleados.", estilo_mensaje))
+
         return elements
-    
+
     # =========================================================================
     # Métodos auxiliares para extraer datos
     # =========================================================================
@@ -306,13 +386,14 @@ class FamilyPDFGenerator(BasePDFGenerator):
         if isinstance(familiar, dict):
             sexo = familiar.get('sexo', {})
             if isinstance(sexo, dict):
-                return sexo.get('sexo', 'N/A')
-            return str(sexo) if sexo else 'N/A'
-        
-        sexo_obj = getattr(familiar, 'sexo', None)
-        if sexo_obj:
-            return getattr(sexo_obj, 'sexo', 'N/A')
-        return 'N/A'
+                sexo_texto = str(sexo.get('sexo', 'N/A')).upper()
+            else:
+                sexo_texto = str(sexo).upper() if sexo else 'N/A'
+        else:
+            sexo_obj = getattr(familiar, 'sexo', None)
+            sexo_texto = str(getattr(sexo_obj, 'sexo', 'N/A')).upper() if sexo_obj else 'N/A'
+
+        return 'M' if 'MASCULINO' in sexo_texto else 'F' if 'FEMENINO' in sexo_texto else sexo_texto
     
     def _get_estado_civil(self, familiar):
         """Extrae el estado civil del familiar."""
@@ -387,14 +468,32 @@ class FamilyPDFGenerator(BasePDFGenerator):
         except Exception:
             return "N/A"
 
+    def _get_orden_cargo(self, employee):
+        """Obtiene el peso jerárquico del cargo del empleado para ordenarlo."""
+        assignments = getattr(employee, 'filtered_assignments', None)
+        if assignments is None:
+            assignments = list(employee.assignments.all()) if hasattr(employee, 'assignments') else []
+            
+        if assignments:
+            asig = assignments[0]
+            cargo_obj = getattr(asig, 'denominacioncargoid', None)
+            if cargo_obj:
+                try:
+                    return int(getattr(cargo_obj, 'orden_by_cargo', 999))
+                except (ValueError, TypeError):
+                    return 999
+        return 999
+
     def _sort_family_members(self):
         """Ordena los miembros de la familia según criterios específicos."""
-        self.family_members.sort(
-            key=lambda f: (
-                self._get_dependencia(f).lower(),
-                self._get_tipo_nomina(f).lower(),
-                self._get_cargo(f).lower(),
-                int(self._get_cedula_familiar(f)) if self._get_cedula_familiar(f).isdigit() else 0,
-                int(self._get_cedula(f)) if self._get_cedula(f).isdigit() else 0
+        # Se mantiene por compatibilidad en caso de usarse de forma externa
+        if hasattr(self, 'family_members'):
+            self.family_members.sort(
+                key=lambda f: (
+                    self._get_dependencia(f).lower(),
+                    self._get_tipo_nomina(f).lower(),
+                    self._get_cargo(f).lower(),
+                    int(self._get_cedula_familiar(f)) if self._get_cedula_familiar(f).isdigit() else 0,
+                    int(self._get_cedula(f)) if self._get_cedula(f).isdigit() else 0
+                )
             )
-        )

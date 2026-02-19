@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-2vg*3_2nukjc_#ey_ufy_@xkyp5(pkpq34c@fsed28q!3uzxzs
 DEBUG = True
 
 # Dentro de Docker, otros servicios llegan a este contenedor por el hostname del servicio (por ej. "django").
-ALLOWED_HOSTS = ['172.16.10.209', '127.0.0.1', 'django', 'djangoapp', 'django-App', 'postgresdb', 'nextjs-App']
+ALLOWED_HOSTS = ['172.16.10.209', '127.0.0.1', 'django', 'djangoapp', 'django-App', 'postgresdb', 'nextjs-App','172.16.26.48','172.16.10.209']
 
 # Application definition
 

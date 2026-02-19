@@ -4,11 +4,12 @@ import authConfig from "#/auth.config";
 export const { handlers, signIn, signOut, auth } = NextAuth({
   session: {
     strategy: "jwt",
-    maxAge: 24 * 60 * 60, // 24 hours
-    updateAge: 60 * 60, // Update every hour
+    maxAge: 0.5 * 60,
   },
+
   trustHost: true,
   ...authConfig,
+
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -17,7 +18,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         token.department = user.department;
         token.cedula = user.cedula;
         token.phone = user.phone;
-        // Agregamos los objetos complejos al token
         token.directionGeneral = user.directionGeneral;
         token.direccionLine = user.direccionLine;
         token.coordination = user.coordination;

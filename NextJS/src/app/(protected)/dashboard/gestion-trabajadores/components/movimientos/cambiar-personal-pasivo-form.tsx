@@ -73,13 +73,23 @@ export function PasivoForm() {
       liberar_activos: false,
     },
   });
-  const loadEmployee = async () => {
-    if (searchEmployee) {
-      const getEmployee = await getEmployeeInfo(searchEmployee);
-      setEmployee(getEmployee.data);
+
+  const schemaSearchEmployee = z.object({
+    searchEmployeeForm: z.string(),
+  });
+  const handleSearch = async (values: z.infer<typeof schemaSearchEmployee>) => {
+    if (!values.searchEmployeeForm) return;
+    const response = await getEmployeeInfo(values.searchEmployeeForm);
+    if (response.data && response.data !== undefined) {
+      setEmployee(response.data);
     }
   };
-
+  const formSearch = useForm({
+    defaultValues: {
+      searchEmployeeForm: "",
+    },
+    resolver: zodResolver(schemaSearchEmployee),
+  });
   const onSubmit = (data: z.infer<typeof schemaPasivo>) => {
     startTransition(async () => {
       if (!Array.isArray(employee) && employee?.cedulaidentidad) {
@@ -105,21 +115,40 @@ export function PasivoForm() {
       <Card>
         <CardHeader></CardHeader>
         <CardContent className="space-y-5">
-          <div className="flex flex-col gap-2">
-            <Label htmlFor="search-employee">Buscar Trabajador</Label>
-            <div className="flex flex-row gap-2">
-              <Input
-                id="search-employee"
-                placeholder="00000000"
-                type="number"
-                value={searchEmployee}
-                onChange={(e) => setSearchEmployee(e.target.value)}
+          <Form {...formSearch}>
+            <form
+              className="flex flex-row justify-between  gap-2"
+              onSubmit={formSearch.handleSubmit(handleSearch)}
+            >
+              <FormField
+                name="searchEmployeeForm"
+                control={formSearch.control}
+                render={({ field }) => (
+                  <FormItem className="flex-1 ">
+                    <FormLabel>Buscar Trabajador</FormLabel>
+                    <FormControl>
+                      <Input placeholder="00000000" type="number" {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
               />
-              <Button type="button" variant={"outline"} onClick={loadEmployee}>
+              <Button className="self-baseline-last cursor-pointer">
                 <Search className="h-4 w-4" />
               </Button>
+            </form>
+          </Form>
+          {employee && (
+            <div className={` rounded-sm p-2 `}>
+              {!Array.isArray(employee) ? (
+                <div className="flex flex-row gap-2  border-2 border-blue-400/45 bg-blue-200/40 p-2 rounded-sm">
+                  <p>Nombres: {employee.nombres}</p>
+                  <p>Cedula: {employee.cedulaidentidad}</p>
+                </div>
+              ) : (
+                <Error errorMessage="Cédula Invalida" />
+              )}
             </div>
-          </div>
+          )}
 
           {employee && !Array.isArray(employee) && (
             <div>
@@ -257,25 +286,6 @@ export function PasivoForm() {
                   </Button>
                 </form>
               </Form>
-            </div>
-          )}
-
-          {employee && (
-            <div
-              className={` ${
-                !Array.isArray(employee) &&
-                "border-2 border-blue-400/45 bg-blue-200/40"
-              }  rounded-sm p-2 `}
-            >
-              {!Array.isArray(employee) ? (
-                <>
-                  <p>Nombres: {employee.nombres}</p>
-                  <p>Apellidos: {employee.apellidos}</p>
-                  <p>Cédula: {employee.cedulaidentidad}</p>
-                </>
-              ) : (
-                <Error errorMessage="Trabajador No Encontrado" />
-              )}
             </div>
           )}
         </CardContent>

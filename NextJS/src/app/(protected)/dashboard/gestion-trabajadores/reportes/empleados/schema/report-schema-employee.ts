@@ -17,6 +17,7 @@ export const schemaReportEmployee = z.object({
       nomina_id: z.number().optional(),
       grado_id: z.number().optional(),
       cargo_id: z.number().optional(),
+      OrganismoAdscrito_id: z.number().optional(),
       cargo_especifico_id: z.number().optional(),
       nivel_academico_id: z.number().optional(),
       carrera_id: z.number().optional(),

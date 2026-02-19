@@ -103,24 +103,26 @@ export function AsigCode() {
       }
     });
   };
-  const handleSearch = async () => {
-    if (!searchEmployee) return;
-    const response = await getEmployeeInfo(searchEmployee);
-    console.log(response);
-    if (
-      response.data &&
-      !Array.isArray(response.data) &&
-      !(response.data && "message" in response.data)
-    ) {
+  const schemaSearchEmployee = z.object({
+    searchEmployeeForm: z.string(),
+  });
+  const handleSearch = async (values: z.infer<typeof schemaSearchEmployee>) => {
+    if (!values.searchEmployeeForm) return;
+    const response = await getEmployeeInfo(values.searchEmployeeForm);
+    if (response.data) {
       setEmployee(response.data);
       formAsig.setValue("employee", response.data.cedulaidentidad, {
         shouldValidate: true,
         shouldDirty: true,
       });
-    } else {
-      setEmployee(response.data);
     }
   };
+  const formSearch = useForm({
+    defaultValues: {
+      searchEmployeeForm: "",
+    },
+    resolver: zodResolver(schemaSearchEmployee),
+  });
   const schemaSearch = z.object({
     tipo_nomina: z.coerce.number().optional(),
     codigo: z.string().optional(),
@@ -164,25 +166,32 @@ export function AsigCode() {
       ) : (
         <Card>
           <CardContent className="space-y-5">
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="search-employee">Buscar Trabajador</Label>
-              <div className="flex flex-row gap-2">
-                <Input
-                  id="search-employee"
-                  placeholder="00000000"
-                  type="number"
-                  value={searchEmployee}
-                  onChange={(e) => setSearchEmployee(e.target.value)}
+            <Form {...formSearch}>
+              <form
+                className="flex flex-row justify-between  gap-2"
+                onSubmit={formSearch.handleSubmit(handleSearch)}
+              >
+                <FormField
+                  name="searchEmployeeForm"
+                  control={formSearch.control}
+                  render={({ field }) => (
+                    <FormItem className="flex-1 ">
+                      <FormLabel>Buscar Trabajador</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="00000000"
+                          type="number"
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
                 />
-                <Button
-                  type="button"
-                  variant={"outline"}
-                  onClick={() => handleSearch()}
-                >
+                <Button className="self-baseline-last cursor-pointer">
                   <Search className="h-4 w-4" />
                 </Button>
-              </div>
-            </div>
+              </form>
+            </Form>
             {employee && (
               <div
                 className={` ${
@@ -196,7 +205,7 @@ export function AsigCode() {
                     <p>Cédula: {employee.cedulaidentidad}</p>
                   </div>
                 ) : (
-                  <Error errorMessage="Trabajador No Encontrado" />
+                  <Error errorMessage="Cédula Invalida" />
                 )}
               </div>
             )}

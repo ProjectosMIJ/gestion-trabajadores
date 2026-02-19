@@ -1,14 +1,14 @@
-
-from rest_framework import  status,serializers
+from rest_framework import  status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework.views import APIView
 from drf_spectacular.utils import extend_schema,OpenApiExample
 from django.apps import apps
-from django.db.models import OuterRef, Subquery, Prefetch, Q
+from django.db.models import  Prefetch, Q
 
 from ..serializers.report_serializers import *
 from ..services.mapa_reporte import *
+from ..services.constants import *
 from ..services.pdf.generators.employee_pdf import EmployeePDFGenerator
 from ..services.pdf.generators.family_pdf import FamilyPDFGenerator
 from ..services.pdf.generators.assignment_pdf import AssignmentPDFGenerator
@@ -269,8 +269,6 @@ def _generate_employee_pdf(filtros):
     Employee = apps.get_model('RAC', 'Employee')
     AsigTrabajo = apps.get_model('RAC', 'AsigTrabajo')
 
- 
-
     # 3. Procesamiento de filtros
     config = MAPA_REPORTES.get('empleados', {})
     filtros_permitidos = config.get('filtros_permitidos', {})
@@ -284,6 +282,10 @@ def _generate_employee_pdf(filtros):
             if 'assignments__' in campo:
                 asignacion_filtros[campo.replace('assignments__', '')] = v
 
+   
+    query_filtros['assignments__Tipo_personal__tipo_personal'] = PERSONAL_ACTIVO
+    asignacion_filtros['Tipo_personal__tipo_personal'] = PERSONAL_ACTIVO
+
     queryset = Employee.objects.select_related(
         'sexoid', 'estadoCivil'
     ).filter(
@@ -292,31 +294,26 @@ def _generate_employee_pdf(filtros):
         Prefetch(
             'assignments',
             queryset=AsigTrabajo.objects.filter(**asignacion_filtros).select_related(
-                'Dependencia',           # Trae el nombre de la Dependencia (ej: MINISTERIO)
+                'Dependencia',
                 'DireccionGeneral',
                 'denominacioncargoid', 
-                
-                'tiponominaid'
-                
-            
+              
+                'tiponominaid',
+                'Tipo_personal'
             ).order_by('denominacioncargoid__orden_by_cargo','-fecha_actualizacion'),
             to_attr='filtered_assignments'
         )
     ).order_by(
-       'assignments__denominacioncargoid__orden_by_cargo',
         'cedulaidentidad'
     ).distinct()
 
     generator = EmployeePDFGenerator(
         employees=list(queryset),
-        title="REPORTE DE TRABAJADORES",
+        title="REPORTE DE TRABAJADORES (ACTIVOS)",
         filters=filtros
     )
 
     return generator.get_response(as_attachment=True)
-
-
-
 
 def _generate_family_pdf(filtros):
     """Genera el PDF de familiares."""
@@ -330,9 +327,16 @@ def _generate_family_pdf(filtros):
         'carga_familiar',
         'carga_familiar__parentesco',
         'carga_familiar__sexo',
-        'carga_familiar__estadoCivil'
+        'carga_familiar__estadoCivil',
+        'assignments',
+        'assignments__Dependencia',
+        'assignments__DireccionGeneral',
+        'assignments__DireccionLinea',
+        'assignments__Coordinacion'
+        
     ).filter(
-        carga_familiar__isnull=False  # Solo empleados con familiares
+        carga_familiar__isnull=False,
+        assignments__Tipo_personal__tipo_personal= PERSONAL_ACTIVO
     ).distinct()
     
     # Aplicar filtros
@@ -365,6 +369,7 @@ def _generate_assignment_pdf(filtros):
         'gradoid', 
         'tiponominaid', 
         'DireccionGeneral', 
+        'Tipo_personal',
         'estatusid'
     ).only(
         'codigo',
@@ -376,9 +381,11 @@ def _generate_assignment_pdf(filtros):
         'gradoid__grado',
         'tiponominaid__nomina',
         'DireccionGeneral__direccion_general',
+        'Tipo_personal__tipo_personal',
         'estatusid__estatus'
     )
 
+    queryset = queryset.filter(Tipo_personal__tipo_personal=PERSONAL_ACTIVO)
     config = MAPA_REPORTES.get('asignaciones', {})
     filtros_permitidos = config.get('filtros_permitidos', {})
     

@@ -3,6 +3,7 @@
 import z from "zod";
 import { schemaStatusChange } from "../schema/schemaChangeStatus";
 import { auth } from "#/auth";
+import { ApiResponse } from "@/app/types/types";
 
 export default async function ChangeStatusAction(
   values: z.infer<typeof schemaStatusChange>,
@@ -31,15 +32,17 @@ export default async function ChangeStatusAction(
         }),
       },
     );
+    const getResponse: ApiResponse<never> = await response.json();
+
     if (response.ok) {
       return {
         success: true,
-        message: "Estatus Cambiado Correctamente",
+        message: getResponse.message,
       };
     }
     return {
       success: false,
-      message: "Error Al Modificar El Estatus",
+      message: getResponse.message,
     };
   } catch {
     return {

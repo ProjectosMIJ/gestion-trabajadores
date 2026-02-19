@@ -7,6 +7,7 @@ import {
 } from "../schema/schemaCreateDependency";
 import {
   ApiResponse,
+  Coordination,
   Dependency,
   DireccionGeneral,
   DireccionLinea,
@@ -47,11 +48,10 @@ export async function CreateDependencyAction(
     ) {
       return {
         success: true,
-        message: "Depedendencia Creada Exitosamente",
+        message: getDependency.message,
       };
     }
     if (responseDependency.ok && values.activeDirectionGeneral) {
-      console.log(getDependency);
       const responseDirectionGeneral = await fetch(
         `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}register-direccionGeneral/`,
         {
@@ -71,8 +71,7 @@ export async function CreateDependencyAction(
       if (values.activeDirectionGeneral && !values.activeDirectionLine) {
         return {
           success: true,
-          message:
-            "Dependencias Creada Exitosamente y Dirección General Asiganada Exitosamente",
+          message: getDirectionGeneral.message,
         };
       }
       if (responseDirectionGeneral.ok && values.direction_line) {
@@ -95,8 +94,7 @@ export async function CreateDependencyAction(
         if (values.activeDirectionLine && !values.activeCoordination) {
           return {
             success: true,
-            message:
-              "Dirección General Y Dirección De LineaCreada Exitosamente",
+            message: getDirectionLine.message,
           };
         }
         if (
@@ -105,9 +103,7 @@ export async function CreateDependencyAction(
           values.activeDirectionLine &&
           values.activeDirectionGeneral
         ) {
-          console.log(getDirectionLine);
-
-          await fetch(
+          const responseCoordination = await fetch(
             `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}register-Coordinacion/`,
             {
               method: "POST",
@@ -121,9 +117,11 @@ export async function CreateDependencyAction(
               }),
             },
           );
+          const getCoordination: ApiResponse<Coordination> =
+            await responseCoordination.json();
           return {
             success: true,
-            message: "Direccion De Dependencia Creada Exitosamente",
+            message: getCoordination.message,
           };
         }
       }
@@ -131,7 +129,7 @@ export async function CreateDependencyAction(
 
     return {
       success: false,
-      message: "Error Al Crear Direccion",
+      message: getDependency.message,
     };
   } catch {
     return {

@@ -15,7 +15,7 @@ import { FormBasicInfo } from "./form-basic-info";
 import FormBackground from "./form-background";
 
 import { toast } from "sonner";
-import { useCallback, useTransition } from "react";
+import { useCallback, useEffect, useState, useTransition } from "react";
 import { BasicInfoType } from "../schemas/schema-basic-info";
 import { AcademyType } from "../schemas/schema-academic_training";
 import { BackgroundType } from "../schemas/schema-background";
@@ -25,6 +25,7 @@ import { DwellingType } from "../schemas/schema-dwelling";
 import { registerEmployeeSteps } from "../actions/formStepActions";
 import { FamilyEmployeeType } from "../schemas/schema-family_employee";
 import { FormFamilyEmployee } from "./form-family";
+import Loading from "../../../components/loading/loading";
 type Values = [
   FormFormity<BasicInfoType>,
   FormFormity<AcademyType>,
@@ -52,7 +53,7 @@ const schema: SchemaFormity<Values> = [
         cedulaidentidad: ["", []],
         nombres: ["", []],
         apellidos: ["", []],
-        file: [null as unknown as File, []],
+        file: [new File([], ""), []],
         fecha_nacimiento: [new Date(), []],
         fechaingresoorganismo: [new Date(), []],
         n_contrato: ["", []],
@@ -71,16 +72,20 @@ const schema: SchemaFormity<Values> = [
         formacion_academica: [
           {
             nivel_Academico_id: 0,
-            carrera_id: undefined,
-            mencion_id: undefined,
-            capacitacion: undefined,
-            institucion: undefined,
+            carrera_id: 0,
+            mencion_id: 0,
+            capacitacion: "",
+            institucion: "",
           },
           [],
         ],
       }),
-      render: ({ values, onNext }) => (
-        <FormAcademyLevel defaultValues={values} onSubmit={onNext} />
+      render: ({ values, onNext, onBack }) => (
+        <FormAcademyLevel
+          defaultValues={values}
+          onSubmit={onNext}
+          onBack={onBack}
+        />
       ),
     },
   },
@@ -91,9 +96,9 @@ const schema: SchemaFormity<Values> = [
         antecedentes: [
           [
             {
-              institucion: undefined as unknown as string,
-              fecha_ingreso: undefined as unknown as Date,
-              fecha_egreso: undefined as unknown as Date,
+              institucion: "",
+              fecha_ingreso: new Date(),
+              fecha_egreso: new Date(),
             },
           ],
           [],
@@ -188,15 +193,14 @@ export default function MultiStepForm() {
       }
     });
   }, []);
+
   if (isPending) {
     return (
-      <div className="flex flex-col items-center justify-center p-10">
-        <p className="animate-pulse text-lg font-bold">
-          Procesando información de defensa...
-        </p>
-      </div>
+      <Loading
+        promiseMessage="Registrando Nuevo Trabajador"
+        className="w-full h-full m-auto"
+      />
     );
   }
-
   return <Formity schema={schema} onReturn={onReturn} />;
 }

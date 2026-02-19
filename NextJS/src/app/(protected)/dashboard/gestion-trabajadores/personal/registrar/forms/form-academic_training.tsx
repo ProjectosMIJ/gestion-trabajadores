@@ -43,9 +43,23 @@ import useSWR from "swr";
 
 type Props = {
   onSubmit: (values: AcademyType) => void;
+  onBack: (values: AcademyType) => void;
   defaultValues: AcademyType;
 };
-export default function FormAcademyLevel({ onSubmit, defaultValues }: Props) {
+export default function FormAcademyLevel({
+  onSubmit,
+  defaultValues,
+  onBack,
+}: Props) {
+  const [formBack, setFormBack] = useState<AcademyType>({
+    formacion_academica: {
+      nivel_Academico_id: 0,
+      carrera_id: 0,
+      mencion_id: 0,
+      capacitacion: "",
+      institucion: "",
+    },
+  });
   const [mencionId, setMencionId] = useState<string>();
   const [showMoreDetails, setShowMoreDetails] = useState(false);
   const form = useForm({

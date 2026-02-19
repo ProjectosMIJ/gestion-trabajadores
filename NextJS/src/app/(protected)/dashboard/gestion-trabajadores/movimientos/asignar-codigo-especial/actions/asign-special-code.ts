@@ -2,6 +2,7 @@
 import { z } from "zod";
 import { schemaCodeEspecial } from "../schema/schemaCodeEspecial";
 import { auth } from "#/auth";
+import { ApiResponse } from "@/app/types/types";
 export async function AsignSpecialCode(
   values: z.infer<typeof schemaCodeEspecial>,
 ) {
@@ -25,15 +26,17 @@ export async function AsignSpecialCode(
         body: JSON.stringify({ ...values, usuario_id: userId }),
       },
     );
+    const getResponse: ApiResponse<never> = await response.json();
+
     if (response.ok) {
       return {
         success: true,
-        message: "Código Especial Asignado",
+        message: getResponse.message,
       };
     }
     return {
       success: false,
-      message: "Ocurrio Un Error Al Asignar El Código Especial",
+      message: getResponse.message,
     };
   } catch {
     return {

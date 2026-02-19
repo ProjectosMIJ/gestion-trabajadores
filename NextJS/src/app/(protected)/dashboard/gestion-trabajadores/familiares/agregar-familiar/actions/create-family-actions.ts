@@ -3,6 +3,7 @@
 import z from "zod";
 import { schemaFamilyEmployeeOne } from "../schema/schemaCreateFamily";
 import { auth } from "#/auth";
+import { ApiResponse } from "@/app/types/types";
 
 export default async function createFamilyActions(
   values: z.infer<typeof schemaFamilyEmployeeOne>,
@@ -26,15 +27,16 @@ export default async function createFamilyActions(
         body: JSON.stringify({ ...values, usuario_id: session.user.id }),
       },
     );
+    const getResponse: ApiResponse<never> = await response.json();
     if (response.ok) {
       return {
         success: true,
-        message: "Familiar Registrado Exitosamente",
+        message: getResponse.message,
       };
     }
     return {
       success: false,
-      message: "Error al registrar el familiar",
+      message: getResponse.message,
     };
   } catch {
     return {

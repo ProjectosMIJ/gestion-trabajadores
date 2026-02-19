@@ -17,7 +17,6 @@ from drf_spectacular.utils import extend_schema
 )
 @api_view(['POST'])
 def registrar_familiar(request):
-
     serializer = FamilyCreateSerializer(data=request.data)
     if serializer.is_valid():
         try:
@@ -37,14 +36,16 @@ def registrar_familiar(request):
         except Exception as e:
             return Response({
                 "status": "Error",
-                "message": f"Erroral guardar el registro: {str(e)}",
-                "data": []
+                "message": f"Error al guardar el registro: {str(e)}",
+                
             }, status=status.HTTP_400_BAD_REQUEST)
+
+    error_dict = serializer.errors
+    first_error_field = list(error_dict.values())[0]
+    clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
     return Response({
         "status": "Error",
-        "message": "Error de validación en los datos enviados.",
-        "errors": serializer.errors,
-        "data": []
+        "message": clean_message, 
     }, status=status.HTTP_400_BAD_REQUEST)
     
     
@@ -88,10 +89,10 @@ def  listar_familiares(request, cedula_empleado):
 )
 @api_view(['POST'])
 def registrar_familiares_masivo(request):
-
     datos_sucios = request.data
-    datos_filtrados = [ item for item in datos_sucios if isinstance(item, dict) and 'cedulaFamiliar' in item ]
-    serializer = FamilyCreateSerializer(data=datos_filtrados, many=True,context={'request': request})
+    datos_filtrados = [item for item in datos_sucios if isinstance(item, dict) and 'cedulaFamiliar' in item]
+    serializer = FamilyCreateSerializer(data=datos_filtrados, many=True, context={'request': request})
+    
     if serializer.is_valid():
         try:
             with transaction.atomic():
@@ -116,16 +117,21 @@ def registrar_familiares_masivo(request):
         except Exception as e:
             return Response({
                 "status": "Error",
-                "message": "Error al registrar - informacion invalidad o duplicada",
-                "error": str(e),
+                "message": str(e)
             }, status=status.HTTP_400_BAD_REQUEST)
+    clean_message = "Error de validación en los datos."
+    for error in serializer.errors:
+        if error:
+            first_field_errors = list(error.values())[0]
+            clean_message = first_field_errors[0] if isinstance(first_field_errors, list) else first_field_errors
+            break  
 
     return Response({
         "status": "Error",
-        "message": "Error de validación en la lista.",
-        "errors": serializer.errors,
+        "message": clean_message, 
+        "data": []
     }, status=status.HTTP_400_BAD_REQUEST)
-     
+   
      
      
 @extend_schema(

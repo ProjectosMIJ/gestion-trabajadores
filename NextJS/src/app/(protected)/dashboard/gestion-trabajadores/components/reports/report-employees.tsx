@@ -37,6 +37,7 @@ import {
   getMencion,
   getMunicipalitys,
   getNominaGeneral,
+  getOrganismosAds,
   getParish,
   getPatologys,
   getRegion,
@@ -158,7 +159,10 @@ export default function ReportEmployee() {
     municipalityId ? ["parish", municipalityId] : null,
     async () => await getParish(municipalityId!),
   );
-
+  const { data: organismoAds, isLoading: isLoadingOrganismoAds } = useSWR(
+    "organismoAds",
+    async () => await getOrganismosAds(),
+  );
   const {
     data: conditionDwelling,
     isLoading: isLoadingStatesConditionDwelling,
@@ -185,6 +189,7 @@ export default function ReportEmployee() {
         nivel_academico_id: undefined,
         carrera_id: undefined,
         mencion_id: undefined,
+        OrganismoAdscrito_id: undefined,
         apn_min: undefined,
         apn_max: undefined,
         edad_min: undefined,
@@ -300,7 +305,9 @@ export default function ReportEmployee() {
                         name="filtros.direccion_general_id"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Dirección General</FormLabel>
+                            <FormLabel>
+                              Dirección General / Coordinación
+                            </FormLabel>
                             <Select
                               onValueChange={(values) => {
                                 field.onChange(Number.parseInt(values));
@@ -517,6 +524,37 @@ export default function ReportEmployee() {
                                 ))}
                               </SelectContent>
                             </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="filtros.OrganismoAdscrito_id"
+                        render={({ field }) => (
+                          <FormItem className={`col-span-2`}>
+                            <FormLabel>Organismo Adscrito</FormLabel>
+                            <Select
+                              onValueChange={(values) => {
+                                field.onChange(Number.parseInt(values));
+                              }}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="w-full truncate">
+                                  <SelectValue
+                                    placeholder={`${isLoadingGrado ? "Cargando Organismos Adscritos" : "Seleccione Un Organismo Adscrito"}`}
+                                  />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {organismoAds?.data.map((org, i) => (
+                                  <SelectItem key={i} value={`${org.id}`}>
+                                    {org.id}-{org.Organismoadscrito}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+
                             <FormMessage />
                           </FormItem>
                         )}
