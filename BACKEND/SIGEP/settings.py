@@ -94,7 +94,7 @@ DATABASES = {
         'NAME': config('DJANGO_DB_NAME', default='SIGEP'),
         'USER': config('DJANGO_DB_USER', default='postgres'),
         'PASSWORD': config('DJANGO_DB_PASSWORD', default='admin'),
-        # 'HOST': config('DJANGO_DB_HOST', default='172.16.10.209'),
+        'HOST': config('DJANGO_DB_HOST', default='172.16.10.209'),
         'PORT': config('DJANGO_DB_PORT', default='5432'),
     }
 }
