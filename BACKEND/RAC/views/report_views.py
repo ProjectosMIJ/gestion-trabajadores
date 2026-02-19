@@ -297,6 +297,7 @@ def _generate_employee_pdf(filtros):
                 'Dependencia',
                 'DireccionGeneral',
                 'denominacioncargoid', 
+              
                 'tiponominaid',
                 'Tipo_personal'
             ).order_by('denominacioncargoid__orden_by_cargo','-fecha_actualizacion'),

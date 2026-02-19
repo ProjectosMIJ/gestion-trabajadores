@@ -170,11 +170,11 @@ class AssignmentPDFGenerator(BasePDFGenerator):
                         rows = [[str(idx), self._get_codigo(a), self._get_cedula_empleado(a), 
                                  self._get_nombre_empleado(a), self._get_cargo(a), 
                                  self._get_cargo_especifico(a), self._get_grado(a), 
-                                 self._get_tipo_nomina(a), self._get_estatus(a)] 
+                                 self._get_tipo_nomina(a), self._get_organisoAdscrito(a),self._get_estatus(a)] 
                                 for idx, a in enumerate(assignments_sorted, start=1)]
 
-                        headers = ['#', 'Código', 'Cédula', 'Empleado', 'Cargo', 'Cargo Esp.', 'Grado', 'Nómina', 'Estatus']
-                        col_widths = [10*mm, 18*mm, 22*mm, 44*mm, 35*mm, 35*mm, 15*mm, 30*mm, 25*mm]
+                        headers = ['#', 'Código', 'Cédula', 'Empleado', 'Cargo', 'Cargo Esp.', 'Grado', 'Nómina', 'Organismo Adscrito','Estatus']
+                        col_widths = [10*mm, 15*mm, 22*mm, 40*mm, 33*mm, 35*mm, 13*mm, 25*mm, 36*mm, 25*mm]
                         
                         # CREACIÓN DE LA TABLA COMPLETA
                         tabla_completa = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
@@ -240,6 +240,9 @@ class AssignmentPDFGenerator(BasePDFGenerator):
         obj = getattr(assignment, 'denominacioncargoespecificoid', None)
         return getattr(obj, 'cargo', 'N/A') if obj else 'N/A'
     
+    def _get_organisoAdscrito(self, assignment):
+        obj = getattr(assignment, 'OrganismoAdscritoid', None)
+        return getattr(obj, 'OrganismoAdscrito', 'N/A') if obj else 'N/A'
     def _get_grado(self, assignment):
         obj = getattr(assignment, 'gradoid', None)
         return getattr(obj, 'grado', 'N/A') if obj else 'N/A'

@@ -128,7 +128,9 @@ export default function CreateDependency() {
                       control={form.control}
                       render={({ field }) => (
                         <FormItem className="w-full truncate p-0.5">
-                          <FormLabel>Código De La Dirección General</FormLabel>
+                          <FormLabel>
+                            Código De La Dirección General / Coordinación
+                          </FormLabel>
                           <FormControl>
                             <Input {...field} type="number" />
                           </FormControl>
@@ -141,7 +143,9 @@ export default function CreateDependency() {
                       control={form.control}
                       render={({ field }) => (
                         <FormItem className="w-full truncate p-0.5">
-                          <FormLabel>Nombre De La Dirección General</FormLabel>
+                          <FormLabel>
+                            Nombre De La Dirección General / Coordinación
+                          </FormLabel>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>
@@ -178,7 +182,9 @@ export default function CreateDependency() {
                       control={form.control}
                       render={({ field }) => (
                         <FormItem className="w-full truncate p-0.5">
-                          <FormLabel>Código De La Dirección De Linea</FormLabel>
+                          <FormLabel>
+                            Código De La Dirección De Linea / Coordinación
+                          </FormLabel>
                           <FormControl>
                             <Input {...field} type="number" />
                           </FormControl>
@@ -191,7 +197,9 @@ export default function CreateDependency() {
                       control={form.control}
                       render={({ field }) => (
                         <FormItem className="w-full truncate p-0.5">
-                          <FormLabel>Nombre De La Dirección De Linea</FormLabel>
+                          <FormLabel>
+                            Nombre De La Dirección De Linea / Coordinación
+                          </FormLabel>
                           <FormControl>
                             <Input {...field} />
                           </FormControl>

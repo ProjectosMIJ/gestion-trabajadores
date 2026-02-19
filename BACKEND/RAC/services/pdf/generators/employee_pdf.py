@@ -134,8 +134,8 @@ class EmployeePDFGenerator(BasePDFGenerator):
                     for coord in sorted_coords:
                         coord_nom = getattr(coord, 'coordinacion', str(coord))
                         
-                        headers = ['#', 'Cédula', 'Nombres', 'Apellidos', 'F. Ingreso', 'Años APN', 'Sexo', 'Tipo de Nómina', 'Cargo']
-                        col_widths = [10*mm, 22*mm, 40*mm, 40*mm, 22*mm, 20*mm, 15*mm, 35*mm, 53*mm]
+                        headers = ['#', 'Codigo','Cédula', 'Nombres', 'Apellidos', 'F. Ingreso',  'Sexo', 'Tipo de Nómina', 'Cargo','Organismo Adscrito']
+                        col_widths = [10*mm,15*mm, 22*mm, 30*mm, 30*mm, 22*mm, 15*mm, 30*mm, 40*mm, 45*mm]
                         
                         def sort_cedula_desc(e):
                             c = self._get_cedula(e)
@@ -143,9 +143,9 @@ class EmployeePDFGenerator(BasePDFGenerator):
                             except: return 0
 
                         empleados = sorted(coords[coord], key=lambda e: (self._get_orden_cargo(e), sort_cedula_desc(e)))
-                        rows = [[str(idx), self._get_cedula(e), self._get_nombres(e), self._get_apellidos(e), 
-                                 self._get_fecha_ingreso(e), self._get_anos_apn(e), self._get_sexo(e), 
-                                 self._get_tipo_nomina(e), self._get__cargo(e)] 
+                        rows = [[str(idx), self._get_codigo(e), self._get_cedula(e), self._get_nombres(e), self._get_apellidos(e), 
+                                 self._get_fecha_ingreso(e),  self._get_sexo(e), 
+                                 self._get_tipo_nomina(e), self._get__cargo(e), self._get__organisoAdscrito(e)] 
                                 for idx, e in enumerate(empleados, start=1)]
                      
                         if rows:
@@ -211,12 +211,22 @@ class EmployeePDFGenerator(BasePDFGenerator):
         sexo_obj = getattr(employee, 'sexoid', None)
         sexo_texto = str(getattr(sexo_obj, 'sexo', 'N/A')).upper()
         return 'M' if 'MASCULINO' in sexo_texto else 'F' if 'FEMENINO' in sexo_texto else sexo_texto
+
+
+    def _get_codigo(self, employee):
+        f = getattr(employee, 'filtered_assignments', [])
+        return f[0].codigo if f and f[0].codigo else "N/A"
+    
     def _get_tipo_nomina(self, employee):
         f = getattr(employee, 'filtered_assignments', [])
         return f[0].tiponominaid.nomina if f and f[0].tiponominaid else "N/A"
     def _get__cargo(self, employee):
         f = getattr(employee, 'filtered_assignments', [])
         return f[0].denominacioncargoid.cargo if f and f[0].denominacioncargoid else "SIN CARGO"
+    
+    def _get__organisoAdscrito(self, employee):
+        f = getattr(employee, 'filtered_assignments', [])
+        return f[0].OrganismoAdscritoid.Organismoadscrito if f and f[0].OrganismoAdscritoid else "SIN ORGANISMO ADSCRITO"
     def _get_nomina_nombre(self, nomina_id):
         try: return apps.get_model('RAC', 'Tiponomina').objects.get(id=nomina_id).nomina
         except: return None
