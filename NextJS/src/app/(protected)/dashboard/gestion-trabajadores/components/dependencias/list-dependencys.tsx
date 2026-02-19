@@ -86,7 +86,7 @@ export default function TableDependencys() {
             </div>
 
             <div className={`space-y-2 `}>
-              <Label>Dirección General</Label>
+              <Label>Dirección General / Coordinación</Label>
               <Select
                 onValueChange={(value) => {
                   setDirectionGeneralId(value);
@@ -97,7 +97,9 @@ export default function TableDependencys() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectLabel>Direcciones De Generales</SelectLabel>
+                    <SelectLabel>
+                      Direcciones De General / Coordinación
+                    </SelectLabel>
                     {directionGeneral?.data.map((general, i) => (
                       <SelectItem key={i} value={`${general.id}`}>
                         {general.Codigo}-{general.direccion_general}
@@ -134,7 +136,7 @@ export default function TableDependencys() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
-                    <SelectLabel>Direcciones De Linea</SelectLabel>
+                    <SelectLabel>Dirección De Linea / Coordinacion</SelectLabel>
                     {directionLine?.data.map((line, i) => (
                       <SelectItem key={i} value={`${line.id}`}>
                         {line.Codigo}-{line.direccion_linea}
@@ -151,14 +153,16 @@ export default function TableDependencys() {
           <div className="grid grid-cols-2 gap-5">
             <div className="overflow-auto h-70  border border-blue-700 col-span-2 rounded-2xl">
               <Table>
-                <TableCaption>Direcciones Generales</TableCaption>
+                <TableCaption>
+                  Direcciones Generales / Coordinación
+                </TableCaption>
                 <TableHeader className="bg-blue-600">
                   <TableRow>
                     <TableHead className="w-[100px] font-bold text-white">
                       Código
                     </TableHead>
                     <TableHead className="text-center font-bold text-white">
-                      Dirección General
+                      Dirección General / Coordinación
                     </TableHead>
                   </TableRow>
                 </TableHeader>

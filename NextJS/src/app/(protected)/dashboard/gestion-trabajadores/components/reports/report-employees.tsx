@@ -300,7 +300,9 @@ export default function ReportEmployee() {
                         name="filtros.direccion_general_id"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Dirección General</FormLabel>
+                            <FormLabel>
+                              Dirección General / Coordinación
+                            </FormLabel>
                             <Select
                               onValueChange={(values) => {
                                 field.onChange(Number.parseInt(values));
