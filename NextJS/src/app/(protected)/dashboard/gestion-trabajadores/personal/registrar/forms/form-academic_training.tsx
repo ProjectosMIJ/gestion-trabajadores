@@ -238,14 +238,7 @@ export default function FormAcademyLevel({
                     />
                   </>
                 )}
-                <Button
-                  type="button"
-                  onClick={() => {
-                    const currentValues = form.getValues();
 
-                    onBack([{ values: currentValues }, []] as any);
-                  }}
-                ></Button>
                 <Button className="w-full col-span-2">Siguiente</Button>
               </form>
             </Form>

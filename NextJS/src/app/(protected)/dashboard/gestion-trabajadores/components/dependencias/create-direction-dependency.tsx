@@ -294,7 +294,7 @@ export default function FormCreateDirectionDependency() {
                       id="r1"
                     />
                     <Label className="cursor-pointer" htmlFor="r1">
-                      Crear Dirección General
+                      Crear Dirección General / Coordinación
                     </Label>
                   </div>
                   <div className="flex items-center gap-3">
@@ -304,7 +304,7 @@ export default function FormCreateDirectionDependency() {
                       id="r2"
                     />
                     <Label className="cursor-pointer" htmlFor="r2">
-                      Crear Dirección De Linea
+                      Crear Dirección De Linea / Coordinación
                     </Label>
                   </div>
                   <div className="flex items-center gap-3">

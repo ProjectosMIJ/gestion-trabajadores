@@ -67,7 +67,7 @@ export function DataTableCodeInfo<TData, TValue>({
     },
   });
   return (
-    <div>
+    <div className="m-auto">
       <div className="flex items-center py-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

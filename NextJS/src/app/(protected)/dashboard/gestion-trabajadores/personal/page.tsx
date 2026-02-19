@@ -26,6 +26,7 @@ import z from "zod";
 import { getEmployeeDataSearch, getNomina } from "../api/getInfoRac";
 import TableEmployee from "../components/employees/tableEmployees/page";
 import Loading from "../components/loading/loading";
+import { Card } from "@/components/ui/card";
 
 export default function PersonalPage() {
   const { data: session } = useSession();
@@ -82,7 +83,7 @@ export default function PersonalPage() {
     });
   };
   return (
-    <div className="flex h-screen bg-background">
+    <Card className="flex h-screen border-none rounded-none ">
       <div className="flex flex-1 flex-col overflow-hidden">
         <main className="flex-1 overflow-auto bg-muted/30 p-6 ">
           <Form {...form}>
@@ -177,6 +178,6 @@ export default function PersonalPage() {
           )}
         </main>
       </div>
-    </div>
+    </Card>
   );
 }

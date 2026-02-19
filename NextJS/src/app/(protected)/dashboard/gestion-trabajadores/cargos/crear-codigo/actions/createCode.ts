@@ -41,12 +41,10 @@ export async function createCodeAction(values: z.infer<typeof schemaCode>) {
         message: getResponse.message || "Error al crear el código.",
       };
     }
-    if (response.ok) {
-      return {
-        success: true,
-        message: getResponse.message,
-      };
-    }
+    return {
+      success: true,
+      message: getResponse.message,
+    };
   } catch {
     return {
       success: false,

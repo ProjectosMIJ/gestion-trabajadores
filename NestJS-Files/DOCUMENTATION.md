@@ -54,7 +54,7 @@ uploads/
 
 ```typescript
 // Puerto: 4000
-// CORS habilitado para localhost:3000
+// CORS habilitado para 172.16.26.48:3000
 // Métodos permitidos: POST, GET
 ```
 
@@ -250,7 +250,7 @@ const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
 
 ```typescript
 app.enableCors({
-  origin: 'http://localhost:3000/',
+  origin: 'http://172.16.26.48:3000/',
   methods: 'POST,GET',
 });
 ```
@@ -303,7 +303,7 @@ npm run start:prod
 
 1. **Validación de tipos de archivo**: Solo permite PDF, JPEG y PNG
 2. **Límite de archivos**: Máximo 5 archivos por petición de recetas
-3. **CORS restrictivo**: Solo permite localhost:3000
+3. **CORS restrictivo**: Solo permite 172.16.26.48:3000
 4. **Validación de rutas**: Previene directory traversal
 
 ## Notas de Implementación

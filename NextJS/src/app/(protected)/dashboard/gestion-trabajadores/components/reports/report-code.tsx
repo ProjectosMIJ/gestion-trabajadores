@@ -29,6 +29,7 @@ import {
   getDirectionLine,
   getGrado,
   getNominaGeneral,
+  getOrganismosAds,
   getStatusNomina,
   getStatusReport,
   postReport,
@@ -93,6 +94,10 @@ export default function ReportCode() {
   const { data: grado, isLoading: isLoadingGrado } = useSWR("grado", async () =>
     getGrado(),
   );
+  const { data: organismoAds, isLoading: isLoadingOrganismoAds } = useSWR(
+    "organismoAds",
+    async () => await getOrganismosAds(),
+  );
 
   const form = useForm({
     resolver: zodResolver(schemaReportCode),
@@ -103,6 +108,7 @@ export default function ReportCode() {
       filtros: {
         dependencia_id: undefined,
         general_id: undefined,
+        OrganismoAdscrito_id: undefined,
         linea_id: undefined,
         coordinacion_id: undefined,
         nomina_id: undefined,
@@ -428,6 +434,37 @@ export default function ReportCode() {
                                 ))}
                               </SelectContent>
                             </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="filtros.OrganismoAdscrito_id"
+                        render={({ field }) => (
+                          <FormItem className={`col-span-2`}>
+                            <FormLabel>Organismo Adscrito </FormLabel>
+                            <Select
+                              onValueChange={(values) => {
+                                field.onChange(Number.parseInt(values));
+                              }}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="w-full truncate">
+                                  <SelectValue
+                                    placeholder={`${isLoadingGrado ? "Cargando Organismos Adscritos" : "Seleccione Un Organismo Adscrito"}`}
+                                  />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {organismoAds?.data.map((org, i) => (
+                                  <SelectItem key={i} value={`${org.id}`}>
+                                    {org.id}-{org.Organismoadscrito}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+
                             <FormMessage />
                           </FormItem>
                         )}

@@ -130,216 +130,216 @@ export function CodeListPage() {
     });
   };
   return (
-    <>
-      <Card>
-        <CardHeader>
-          <CardTitle>
-            <h1>Listado De Cargos</h1>
-          </CardTitle>
-          <CardDescription>
-            Listado Detallado De Cargos Registrados En El Sistema
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="w-full">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSearch)}>
-              <div className="flex flex-row items-center gap-2 w-full flex-1">
-                <div className="grid grid-cols-2 gap-2 w-full">
-                  <FormField
-                    name="codigo"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Buscar Código </FormLabel>
+    <Card>
+      <CardHeader>
+        <CardTitle>
+          <h1>Listado De Cargos</h1>
+        </CardTitle>
+        <CardDescription>
+          Listado Detallado De Cargos Registrados En El Sistema
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSearch)}>
+            <div className="flex flex-row items-center gap-2 w-full flex-1">
+              <div className="grid grid-cols-2 gap-2 w-full">
+                <FormField
+                  name="codigo"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Buscar Código </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          placeholder="buscar codigo..."
+                          {...field}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="tipo_nomina"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Tipo de Nomina</FormLabel>
+                      <Select
+                        onValueChange={(values) => {
+                          field.onChange(Number.parseInt(values));
+                        }}
+                      >
                         <FormControl>
-                          <Input
-                            type="text"
-                            placeholder="buscar codigo..."
-                            {...field}
-                          />
+                          <SelectTrigger className="w-full truncate">
+                            <SelectValue
+                              placeholder={`${isLoadingNomina ? "Cargando Nominas" : "Seleccione un Tipo de Nomina"}`}
+                            />
+                          </SelectTrigger>
                         </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="tipo_nomina"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tipo de Nomina</FormLabel>
-                        <Select
-                          onValueChange={(values) => {
-                            field.onChange(Number.parseInt(values));
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full truncate">
-                              <SelectValue
-                                placeholder={`${isLoadingNomina ? "Cargando Nominas" : "Seleccione un Tipo de Nomina"}`}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="0">Ninguno</SelectItem>
-                            {nomina?.data.map((nomina, i) => (
-                              <SelectItem key={i} value={`${nomina.id}`}>
-                                {nomina.nomina}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />{" "}
-                  <FormField
-                    control={form.control}
-                    name="dependencia_id"
-                    render={({ field }) => (
-                      <FormItem className="col-span-2">
-                        <FormLabel>Dependencia</FormLabel>
-                        <Select
-                          onValueChange={(values) => {
-                            field.onChange(Number.parseInt(values));
-                            setDependencyId(Number.parseInt(values));
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full truncate">
-                              <SelectValue
-                                placeholder={`${isLoadingDependency ? "Cargando Depedencias" : "Seleccione una Dependencia"}`}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {dependency?.data.map((dependencia, i) => (
-                              <SelectItem key={i} value={`${dependencia.id}`}>
-                                {dependencia.Codigo}-{dependencia.dependencia}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="direccion_general_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Dirección General</FormLabel>
-                        <Select
-                          onValueChange={(values) => {
-                            field.onChange(Number.parseInt(values));
-                            setDirectionGeneralId(values);
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full truncate">
-                              <SelectValue
-                                placeholder={`${isLoadingDirectionGeneral ? "Cargando Direcciones Generales" : "Seleccione una Dirección General"}`}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {directionGeneral?.data.map((general, i) => (
-                              <SelectItem key={i} value={`${general.id}`}>
-                                {general.Codigo}-{general.direccion_general}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="direccion_linea_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Dirección De Linea</FormLabel>
-                        <Select
-                          onValueChange={(values) => {
-                            field.onChange(Number.parseInt(values));
-                            setDirectionLineId(values);
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full truncate">
-                              <SelectValue
-                                placeholder={`${isLoadingDirectionLine ? "Cargando Direcciones De Linea" : "Seleccione una Dirección De Linea"}`}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {directionLine?.data.map((line, i) => (
-                              <SelectItem key={i} value={`${line.id}`}>
-                                {line.Codigo}-{line.direccion_linea}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="coordinacion_id"
-                    render={({ field }) => (
-                      <FormItem className="col-span-2">
-                        <FormLabel>Coordinación</FormLabel>
-                        <Select
-                          onValueChange={(values) => {
-                            field.onChange(Number.parseInt(values));
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full truncate">
-                              <SelectValue
-                                placeholder={`${isLoadingCoordination ? "Cargando Coordinaciones" : "Seleccione una Coordinación"}`}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {coordination?.data.map((coord, i) => (
-                              <SelectItem key={i} value={`${coord.id}`}>
-                                {coord.Codigo}-{coord.coordinacion}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <SelectContent>
+                          <SelectItem value="0">Ninguno</SelectItem>
+                          {nomina?.data.map((nomina, i) => (
+                            <SelectItem key={i} value={`${nomina.id}`}>
+                              {nomina.nomina}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />{" "}
+                <FormField
+                  control={form.control}
+                  name="dependencia_id"
+                  render={({ field }) => (
+                    <FormItem className="col-span-2">
+                      <FormLabel>Dependencia</FormLabel>
+                      <Select
+                        onValueChange={(values) => {
+                          field.onChange(Number.parseInt(values));
+                          setDependencyId(Number.parseInt(values));
+                        }}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full truncate">
+                            <SelectValue
+                              placeholder={`${isLoadingDependency ? "Cargando Depedencias" : "Seleccione una Dependencia"}`}
+                            />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {dependency?.data.map((dependencia, i) => (
+                            <SelectItem key={i} value={`${dependencia.id}`}>
+                              {dependencia.Codigo}-{dependencia.dependencia}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="direccion_general_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Dirección General</FormLabel>
+                      <Select
+                        onValueChange={(values) => {
+                          field.onChange(Number.parseInt(values));
+                          setDirectionGeneralId(values);
+                        }}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full truncate">
+                            <SelectValue
+                              placeholder={`${isLoadingDirectionGeneral ? "Cargando Direcciones Generales" : "Seleccione una Dirección General"}`}
+                            />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {directionGeneral?.data.map((general, i) => (
+                            <SelectItem key={i} value={`${general.id}`}>
+                              {general.Codigo}-{general.direccion_general}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="direccion_linea_id"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Dirección De Linea</FormLabel>
+                      <Select
+                        onValueChange={(values) => {
+                          field.onChange(Number.parseInt(values));
+                          setDirectionLineId(values);
+                        }}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full truncate">
+                            <SelectValue
+                              placeholder={`${isLoadingDirectionLine ? "Cargando Direcciones De Linea" : "Seleccione una Dirección De Linea"}`}
+                            />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {directionLine?.data.map((line, i) => (
+                            <SelectItem key={i} value={`${line.id}`}>
+                              {line.Codigo}-{line.direccion_linea}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="coordinacion_id"
+                  render={({ field }) => (
+                    <FormItem className="col-span-2">
+                      <FormLabel>Coordinación</FormLabel>
+                      <Select
+                        onValueChange={(values) => {
+                          field.onChange(Number.parseInt(values));
+                        }}
+                      >
+                        <FormControl>
+                          <SelectTrigger className="w-full truncate">
+                            <SelectValue
+                              placeholder={`${isLoadingCoordination ? "Cargando Coordinaciones" : "Seleccione una Coordinación"}`}
+                            />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {coordination?.data.map((coord, i) => (
+                            <SelectItem key={i} value={`${coord.id}`}>
+                              {coord.Codigo}-{coord.coordinacion}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
 
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button className="cursor-pointer self-baseline-last">
-                    Buscar <Search />
-                  </Button>
-                  <Button
-                    variant={"outline"}
-                    className="cursor-pointer self-baseline-last"
-                    type="button"
-                    onClick={cleanFields}
-                  >
-                    Limpiar <Eraser />
-                  </Button>
-                </div>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <Button className="cursor-pointer self-baseline-last">
+                  Buscar <Search />
+                </Button>
+                <Button
+                  variant={"outline"}
+                  className="cursor-pointer self-baseline-last"
+                  type="button"
+                  onClick={cleanFields}
+                >
+                  Limpiar <Eraser />
+                </Button>
               </div>
-            </form>
-          </Form>
-          {isLoading ? (
-            <>
-              <Loading></Loading>
-            </>
-          ) : (
+            </div>
+          </form>
+        </Form>
+        {isLoading ? (
+          <>
+            <Loading />
+          </>
+        ) : (
+          <div className=" w-[97%] m-auto">
             <TableCode codeList={codeList?.data ?? []} />
-          )}
-        </CardContent>
-      </Card>
-    </>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }

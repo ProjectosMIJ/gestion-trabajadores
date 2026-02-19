@@ -33,6 +33,7 @@ MAPA_REPORTES = {
             "dependencia_id": "assignments__Dependencia",
             "direccion_general_id": "assignments__DireccionGeneral",
             "direccion_linea_id": "assignments__DireccionLinea",
+            'OrganismoAdscrito_id': "assignments__OrganismoAdscritoid",
             "coordinacion_id": "assignments__Coordinacion",
             "sexo_id": "sexoid",
             "discapacidad_id": "perfil_salud__discapacidad",
@@ -162,7 +163,7 @@ MAPA_REPORTES = {
             "general_id": "DireccionGeneral", 
             "linea_id": "DireccionLinea",     
             "coordinacion_id": "Coordinacion",
-            'OrganismoAdscritoid': "OrganismoAdscritoid",
+            'OrganismoAdscrito_id': "OrganismoAdscritoid",
             "estatus_id": "estatusid",
             
         }
