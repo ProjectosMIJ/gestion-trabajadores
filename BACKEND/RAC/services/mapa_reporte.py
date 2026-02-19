@@ -162,6 +162,7 @@ MAPA_REPORTES = {
             "general_id": "DireccionGeneral", 
             "linea_id": "DireccionLinea",     
             "coordinacion_id": "Coordinacion",
+            'OrganismoAdscritoid': "OrganismoAdscritoid",
             "estatus_id": "estatusid",
             
         }

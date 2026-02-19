@@ -17,6 +17,9 @@ urlpatterns = [
     path('listar-data-empleados/<str:cedulaidentidad>/', views.retrieve_employee, name='listar-data-empleados'),
     
     
+    # PERSONAL PASIVO 
+    
+    path('employee/pasivo/',views.list_employees_pasive, name='personal-pasivo'),
     
     # --------------------
     # DATOS DE SALUD 

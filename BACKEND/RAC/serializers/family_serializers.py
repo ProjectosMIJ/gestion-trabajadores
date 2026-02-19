@@ -47,7 +47,7 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
             UniqueTogetherValidator(
                 queryset=Employeefamily.objects.all(),
                 fields=['employeecedula', 'cedulaFamiliar'],
-                message="Este familiar ya se encuentra registrado para este empleado."
+                message="Este familiar ya se encuentra registrado para este empleado"
             )
         ]
     def to_internal_value(self, data):

@@ -1,4 +1,5 @@
-from reportlab.platypus import Spacer, Paragraph, KeepTogether
+from reportlab.platypus import Spacer, Paragraph, KeepTogether,CondPageBreak
+from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import mm
 from django.apps import apps
 from ..templates.styles import get_paragraph_styles
@@ -74,7 +75,18 @@ class EmployeePDFGenerator(BasePDFGenerator):
 
     def _build_employees_table(self):
         elements = []
-
+        if not self.employees:
+            elements.append(Spacer(1, 15 * mm))
+            
+        
+            estilos_nativos = getSampleStyleSheet()
+            estilo_mensaje = self.styles.get('Body') or self.styles.get('Normal') or estilos_nativos['Normal']
+            
+            elements.append(Paragraph(
+                "No se encontraron trabajadores con los filtros aplicados.",
+                estilo_mensaje
+            ))
+            return elements
         # 1. Agrupación Jerárquica
         agrupacion = {} 
         for employee in self.employees:
@@ -135,7 +147,7 @@ class EmployeePDFGenerator(BasePDFGenerator):
                                  self._get_fecha_ingreso(e), self._get_anos_apn(e), self._get_sexo(e), 
                                  self._get_tipo_nomina(e), self._get__cargo(e)] 
                                 for idx, e in enumerate(empleados, start=1)]
-
+                     
                         if rows:
                             # Títulos del bloque
                             titulos_bloque = []
@@ -150,35 +162,39 @@ class EmployeePDFGenerator(BasePDFGenerator):
                             if coord_nom.upper().strip() not in ignorar:
                                 titulos_bloque.extend(create_section_title(f"      * COORD: {coord_nom}"))
 
-                            # Asegurar que los títulos no queden solos
-                            for p in titulos_bloque:
-                                if isinstance(p, Paragraph): p.keepWithNext = True
 
+                       
+                            # Asegurar que los títulos no queden solos
+                            # for p in titulos_bloque:
+                                # if isinstance(p, Paragraph): p.keepWithNext = True
+  
                             # --- SOLUCIÓN: SEGMENTACIÓN SIN DUPLICAR HEADERS ---
                             # Si la tabla es extensa, creamos una sola tabla para que ReportLab 
                             # maneje el flujo y la repetición de encabezados internamente.
                             
-                            bloque_atado = []
-                            bloque_atado.extend(titulos_bloque)
-                            bloque_atado.append(Spacer(1, 2*mm))
+                            
                             
                             # Si hay más de 5 filas, atamos los títulos con las primeras 5
                             # pero enviamos la tabla COMPLETA para que no se duplique el header.
-                            tabla_completa = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
                             
-                            if len(rows) > 5:
+                            tabla_completa = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
+                           
+                            espacio_requerido = (len(titulos_bloque) * 6 * mm) + 25 * mm
+                            elements.append(CondPageBreak(espacio_requerido))
+    # 3. Añadimos los elementos de forma natural
+                            elements.extend(titulos_bloque)
+                            elements.append(Spacer(1, 2*mm))
+                            elements.append(tabla_completa)
+                                                 
                                 # KeepTogether solo con los títulos y un espacio para asegurar que 
                                 # la tabla comience inmediatamente después sin saltar de página.
-                                elements.extend(titulos_bloque)
-                                elements.append(Spacer(1, 2*mm))
-                                elements.append(tabla_completa)
-                            else:
-                                # Para bloques pequeños, mantenemos la unión atómica
-                                bloque_atado.append(tabla_completa)
-                                elements.append(KeepTogether(bloque_atado))
+                         
+                                
 
                             elements.append(Spacer(1, 6 * mm))
                             impreso_dep, impreso_dg, impreso_dl = dep_nom, dg_nom, dl_nom
+                            
+                            
 
         return elements
     

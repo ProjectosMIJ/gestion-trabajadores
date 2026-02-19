@@ -125,11 +125,7 @@ class GraduatePDFGenerator(BasePDFGenerator):
             if value:
                 filter_text_parts.append(f"{key}: {value}")
         
-        # if filter_text_parts:
-        #     elements.extend(create_section_title("Filtros Aplicados"))
-        #     filter_text = " | ".join(filter_text_parts)
-        #     elements.append(Paragraph(filter_text, self.styles['Small']))
-        #     # elements.append(Spacer(1, 10))
+     
         
         return elements
     

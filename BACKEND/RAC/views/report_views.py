@@ -326,7 +326,13 @@ def _generate_family_pdf(filtros):
         'carga_familiar',
         'carga_familiar__parentesco',
         'carga_familiar__sexo',
-        'carga_familiar__estadoCivil'
+        'carga_familiar__estadoCivil',
+        'assignments',
+        'assignments__Dependencia',
+        'assignments__DireccionGeneral',
+        'assignments__DireccionLinea',
+        'assignments__Coordinacion'
+        
     ).filter(
         carga_familiar__isnull=False,
         assignments__Tipo_personal__tipo_personal= PERSONAL_ACTIVO

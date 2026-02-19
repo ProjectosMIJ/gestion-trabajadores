@@ -1,5 +1,6 @@
 from django.db.models import Count, Q
-from reportlab.platypus import Spacer, Paragraph, KeepTogether
+from reportlab.platypus import Spacer, Paragraph, KeepTogether,CondPageBreak
+from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.units import mm
 from django.apps import apps
 
@@ -63,18 +64,36 @@ class AssignmentPDFGenerator(BasePDFGenerator):
 
     def _build_assignments_table(self):
         elements = []
+        
+        
+        
+        if not self.assignments:
+            elements.append(Spacer(1, 15 * mm))
+            
+            # Buscamos un estilo válido de forma segura, si no existe ninguno, 
+            # usamos el 'Normal' nativo de ReportLab.
+            estilos_nativos = getSampleStyleSheet()
+            estilo_mensaje = self.styles.get('Body') or self.styles.get('Normal') or estilos_nativos['Normal']
+            
+            elements.append(Paragraph(
+                "No se encontraron cargos con los filtros aplicados.",
+                estilo_mensaje
+            ))
+            return elements
         agrupacion = {}
     
-        # 1. Agrupación Jerárquica
+        # 1. Agrupación Jerárquica (Aplicando tu lógica del Reporte de Empleados)
         for asig in self.assignments.iterator():
             dep = getattr(asig, 'Dependencia', None)
             if not dep:
                 dg_obj = getattr(asig, 'DireccionGeneral', None)
-                dep = getattr(dg_obj, 'dependenciaId', "DEPENDENCIA DESCONOCIDA")
+                # Mantenemos esta protección extra por si la Asignación no tiene Dependencia directa
+                dep = getattr(dg_obj, 'dependenciaId', None) or "DEPENDENCIA DESCONOCIDA"
             
-            dg = getattr(asig, 'DireccionGeneral', None)
-            dl = getattr(asig, 'DireccionLinea', None)
-            coord = getattr(asig, 'Coordinacion', None)
+            # Forzamos los strings desde el inicio, tal como en Empleados
+            dg = getattr(asig, 'DireccionGeneral', None) or "ASIGNACIÓN DIRECTA"
+            dl = getattr(asig, 'DireccionLinea', None) or "ASIGNACIÓN DIRECTA"
+            coord = getattr(asig, 'Coordinacion', None) or "ASIGNACIÓN DIRECTA"
             
             if dep not in agrupacion: agrupacion[dep] = {}
             if dg not in agrupacion[dep]: agrupacion[dep][dg] = {}
@@ -82,61 +101,63 @@ class AssignmentPDFGenerator(BasePDFGenerator):
             if coord not in agrupacion[dep][dg][dl]: agrupacion[dep][dg][dl][coord] = []
             agrupacion[dep][dg][dl][coord].append(asig)
     
+        # 2. Control de Renderizado
         impreso_dep, impreso_dg, impreso_dl = None, None, None
-        ignorar_titulos = {"NONE", "N/A", "S/D", "ASIGNACIÓN DIRECTA", "SIN DIRECCIÓN ASIGNADA"}
+        
+        ignorar_titulos = {
+            "ASIGNACIÓN DIRECTA", "ASIGNACIÓN DIRECTA A LA DEPENDENCIA", 
+            "ASIGNACIÓN DIRECTA A LA DIRECCION GENERAL", "ASIGNACIÓN DIRECTA A LA DIRECCION LINEA",
+            "NONE", "N/A", "SIN DIRECCIÓN ASIGNADA", "S/D"
+        }
 
+        # Utilizamos tu función original que funciona perfecto
         def get_order(item, attr):
-            if item is None or isinstance(item, str): return 0
+            if isinstance(item, str): return 0
             return getattr(item, attr, 999) or 999
 
         sorted_deps = sorted(agrupacion.keys(), key=lambda d: getattr(d, 'id', 999) if not isinstance(d, str) else 999)
     
         for dep in sorted_deps:
+            # Al igual que en Empleados, getattr extrae el nombre o usa el string por defecto
             dep_nom = getattr(dep, 'dependencia', str(dep))
             dgs = agrupacion[dep]
             sorted_dgs = sorted(dgs.keys(), key=lambda g: get_order(g, 'orden_by_direccion'))
     
             for dg in sorted_dgs:
-                dg_nom = getattr(dg, 'direccion_general', str(dg)) if dg else "ASIGNACIÓN DIRECTA"
+                dg_nom = getattr(dg, 'direccion_general', str(dg))
                 dls = dgs[dg]
                 sorted_dls = sorted(dls.keys(), key=lambda l: get_order(l, 'orden_by_direccion'))
     
                 for dl in sorted_dls:
-                    dl_nom = getattr(dl, 'direccion_linea', str(dl)) if dl else "ASIGNACIÓN DIRECTA"
+                    dl_nom = getattr(dl, 'direccion_linea', str(dl))
                     coords_dict = dls[dl]
                     sorted_coords = sorted(coords_dict.keys(), key=lambda c: get_order(c, 'orden_by_coordinacion'))
     
                     for coord in sorted_coords:
-                        coord_nom = getattr(coord, 'coordinacion', str(coord)) if coord else "ASIGNACIÓN DIRECTA"
+                        coord_nom = getattr(coord, 'coordinacion', str(coord))
                         records = coords_dict[coord]
                         if not records: continue
 
-                        # BLOQUE DE TÍTULOS (Solo títulos se mantienen juntos)
+                        # BLOQUE DE TÍTULOS
                         titulos_bloque = []
                         if dep_nom != impreso_dep:
                             titulos_bloque.extend(create_section_title(f"DEPENDENCIA: {dep_nom.upper()}"))
                             impreso_dep = dep_nom
                             impreso_dg, impreso_dl = None, None
 
-                        if dg and dg_nom != impreso_dg and dg_nom.upper().strip() not in ignorar_titulos:
+                        if dg_nom != impreso_dg and dg_nom.upper().strip() not in ignorar_titulos:
                             titulos_bloque.extend(create_section_title(f"  > DG / COORD: {dg_nom.upper()}"))
                             impreso_dg = dg_nom
                             impreso_dl = None
 
-                        if dl and dl_nom != impreso_dl and dl_nom.upper().strip() not in ignorar_titulos:
+                        if dl_nom != impreso_dl and dl_nom.upper().strip() not in ignorar_titulos:
                             titulos_bloque.extend(create_section_title(f"    - DL / COORD: {dl_nom.upper()}"))
                             impreso_dl = dl_nom
                         
-                        if coord and coord_nom.upper().strip() not in ignorar_titulos:
+                        if coord_nom.upper().strip() not in ignorar_titulos:
                             titulos_bloque.extend(create_section_title(f"      * COORD: {coord_nom.upper()}"))
 
-                        if titulos_bloque:
-                            for p in titulos_bloque:
-                                if hasattr(p, 'keepWithNext'): p.keepWithNext = True
-                            elements.append(KeepTogether(titulos_bloque))
-                            elements.append(Spacer(1, 1*mm))
-
-                        # TABLA (Permite que la tabla empiece justo después de los títulos)
+                        # PREPARACIÓN DE DATOS (Ordenados por cargo y cédula)
                         def sort_key(a):
                             obj = getattr(a, 'denominacioncargoid', None)
                             weight = getattr(obj, 'orden_by_cargo', 999)
@@ -155,11 +176,25 @@ class AssignmentPDFGenerator(BasePDFGenerator):
                         headers = ['#', 'Código', 'Cédula', 'Empleado', 'Cargo', 'Cargo Esp.', 'Grado', 'Nómina', 'Estatus']
                         col_widths = [10*mm, 18*mm, 22*mm, 44*mm, 35*mm, 35*mm, 15*mm, 30*mm, 25*mm]
                         
-                        elements.append(create_data_table(headers, rows, col_widths, with_alternating_rows=True))
-                        elements.append(Spacer(1, 5 * mm))
+                        # CREACIÓN DE LA TABLA COMPLETA
+                        tabla_completa = create_data_table(headers, rows, col_widths, with_alternating_rows=True)
+                        
+                        # DIBUJO E INSERCIÓN SEGURA (Evita títulos huérfanos o divisiones bruscas)
+                        if titulos_bloque or rows:
+                            espacio_requerido = (len(titulos_bloque) * 6 * mm) + 25 * mm
+                            elements.append(CondPageBreak(espacio_requerido))
+                            
+                            if titulos_bloque:
+                                for p in titulos_bloque:
+                                    if hasattr(p, 'keepWithNext'): p.keepWithNext = True
+                                elements.extend(titulos_bloque)
+                                elements.append(Spacer(1, 1*mm))
+                            
+                            elements.append(tabla_completa)
+                            elements.append(Spacer(1, 5 * mm))
     
         return elements
-
+    
     def _draw_header(self, canvas, doc):
         """Dibuja el header reduciendo el espacio consumido."""
         canvas.saveState()
