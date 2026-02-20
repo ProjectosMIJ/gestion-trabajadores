@@ -40,6 +40,7 @@ import FormUpdateHealth from "./updateInfo/forms/form-health_profile";
 import FormUpdatePhysical from "./updateInfo/forms/form-physical_profile";
 import { FormBasicUpdateInfo } from "./updateInfo/forms/form-basic-info";
 import { formatInTimeZone } from "date-fns-tz";
+import { Badge } from "@/components/ui/badge";
 interface Props {
   employee: EmployeeData;
 }
@@ -152,6 +153,18 @@ export default function DetailInfoEmployee({ employee }: Props) {
                         </div>
                         <div>Grado</div>
                         <div>{v.grado ? v.grado.grado : "N/A"}</div>
+                        <div>Estatus</div>
+                        <div>
+                          <Badge
+                            variant={
+                              v.estatusid.estatus === "ACTIVO"
+                                ? "default"
+                                : "destructive"
+                            }
+                          >
+                            {v.estatusid.estatus}
+                          </Badge>
+                        </div>
                         <div>Organismo Adscrito</div>
                         <div>
                           {v.OrganismoAdscrito

@@ -20,7 +20,7 @@ export default async function ProtectedLayout({
       <Toaster
         closeButton
         position="top-right"
-        visibleToasts={3}
+        visibleToasts={2}
         icons={{
           success: <CheckCheck />,
           info: <Info />,

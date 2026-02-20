@@ -42,6 +42,7 @@
     "@radix-ui/react-tooltip": "^1.2.7",
     "@react-pdf/renderer": "^4.3.0",
     "@tanstack/react-table": "^8.21.3",
+    "@uidotdev/usehooks": "^2.4.1",
     "bcryptjs": "^3.0.2",
     "chart.js": "^4.4.9",
     "class-variance-authority": "^0.7.1",

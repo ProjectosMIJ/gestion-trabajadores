@@ -12,7 +12,7 @@ export function HeaderLayout({
   subtitle: string;
 }>) {
   return (
-    <header className="border-b border-border  px-6 py-4 shadow-sm sticky top-0 bg-blue-900/100 w-full flex flex-row justify-between items-center ">
+    <header className="border-b border-border  px-6 py-4 shadow-sm sticky top-0 bg-blue-900/100 w-full flex flex-row justify-between items-center z-50 ">
       <div className="flex flex-row items-center justify-start gap-10 text-white w-full">
         <div>{children}</div>
         <div className="flex flex-col">
