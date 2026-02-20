@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { formatInTimeZone } from "date-fns-tz";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
   Card,
@@ -31,6 +31,7 @@ import {
 import { CalendarIcon, Contact, Upload, X } from "lucide-react";
 
 import {
+  getEmployeeInfo,
   getMaritalstatus,
   getSex,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
@@ -43,7 +44,8 @@ import {
 import { validateWeight } from "@/constants/fileSize";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Image from "next/image";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
+import { toast } from "sonner";
 import useSWR from "swr";
 import { BasicInfoType, schemaBasicInfo } from "../schemas/schema-basic-info";
 type Props = {
@@ -54,6 +56,7 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
   const [photoPreview, setPhotoPreview] = useState<string | null | undefined>(
     null,
   );
+  const [validateCedula, setValidateCedula] = useState<boolean>(false);
   const [file, setFile] = useState<File | null>(null);
   const { data: maritalStatus, isLoading: isLoadingMaritalStatus } = useSWR(
     "maritalStatus",
@@ -73,8 +76,29 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
   };
 
   const onSubmitFormity = (data: BasicInfoType) => {
-    onSubmit(data);
+    if (!validateCedula) {
+      onSubmit(data);
+    }
   };
+  const employee = useWatch({
+    control: form.control,
+    name: "cedulaidentidad",
+  });
+  const validateEmployee = employee.trim() && employee.length >= 6;
+  const { data: searchEmployee } = useSWR(
+    validateEmployee ? `employee-${employee}` : null,
+    async () => getEmployeeInfo(employee),
+  );
+  useEffect(() => {
+    if (
+      employee.trim() &&
+      employee.trim().length > 6 &&
+      !Array.isArray(searchEmployee?.data)
+    ) {
+      toast.error("Ya existe un trabajador con esa cédula de identidad");
+      setValidateCedula(true);
+    }
+  }, [searchEmployee]);
   return (
     <Card className="w-full h-full">
       <CardHeader>
@@ -86,7 +110,10 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
           Paso 1: Información Basica
         </CardAction>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmitFormity)}>
+          <form
+            onSubmit={form.handleSubmit(onSubmitFormity)}
+            autoComplete="off"
+          >
             <div className="space-y-6">
               <div className="space-y-4">
                 <div className="border-b pb-4">
@@ -178,10 +205,15 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
                     render={({ field }) => (
                       <FormItem className="col-span-2">
                         <FormLabel className="flex flex-row items-center">
-                          Cédula de identidad * <Contact />
+                          Cédula de identidad *
+                          <Contact />
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder="000000000" {...field} />
+                          <Input
+                            placeholder="000000000"
+                            {...field}
+                            type="number"
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -324,7 +356,15 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
                 </div>
               </div>
               <div className="flex gap-3 justify-end pt-4">
-                <Button className="w-full">Siguiente</Button>
+                <Button
+                  className="w-full"
+                  disabled={validateCedula}
+                  variant={validateCedula ? "destructive" : "default"}
+                >
+                  {validateCedula
+                    ? "Trabajador ya se encuentra registrado"
+                    : "Siguiente"}
+                </Button>
               </div>
             </div>
           </form>

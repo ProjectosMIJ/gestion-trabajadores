@@ -53,7 +53,7 @@ const schema: SchemaFormity<Values> = [
         cedulaidentidad: ["", []],
         nombres: ["", []],
         apellidos: ["", []],
-        file: [new File([], ""), []],
+        file: [null as unknown as File, []],
         fecha_nacimiento: [new Date(), []],
         fechaingresoorganismo: [new Date(), []],
         n_contrato: ["", []],
