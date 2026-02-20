@@ -218,7 +218,7 @@ export default function ReportCode() {
                           name="filtros.general_id"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Dirección General</FormLabel>
+                              <FormLabel>Dirección General / Coordinación</FormLabel>
                               <Select
                                 onValueChange={(values) => {
                                   field.onChange(Number.parseInt(values));
