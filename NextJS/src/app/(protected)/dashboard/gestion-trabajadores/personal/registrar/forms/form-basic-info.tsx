@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CalendarIcon, Contact, Upload, X } from "lucide-react";
-
+import { useDebounce } from "@uidotdev/usehooks";
 import {
   getEmployeeInfo,
   getMaritalstatus,
@@ -84,19 +84,26 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
     control: form.control,
     name: "cedulaidentidad",
   });
+
   const validateEmployee = employee.trim() && employee.length >= 6;
+
   const { data: searchEmployee } = useSWR(
-    validateEmployee ? `employee-${employee}` : null,
-    async () => getEmployeeInfo(employee),
+    employee?.trim().length >= 6 ? `employee-${employee}` : null,
+    () => getEmployeeInfo(employee),
   );
   useEffect(() => {
+    if (!searchEmployee || searchEmployee.data === undefined) return;
     if (
-      employee.trim() &&
-      employee.trim().length > 6 &&
-      !Array.isArray(searchEmployee?.data)
+      !Array.isArray(searchEmployee.data) &&
+      typeof searchEmployee.data === "object"
     ) {
       toast.error("Ya existe un trabajador con esa cédula de identidad");
       setValidateCedula(true);
+    } else if (
+      Array.isArray(searchEmployee.data) &&
+      searchEmployee.data.length === 0
+    ) {
+      setValidateCedula(false);
     }
   }, [searchEmployee]);
   return (

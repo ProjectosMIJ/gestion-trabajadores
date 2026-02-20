@@ -7,6 +7,7 @@ import { HealthType } from "../schemas/schema-health_profile";
 import { PhysicalProfileType } from "../schemas/schema-physical_profile";
 import { DwellingType } from "../schemas/schema-dwelling";
 import { FamilyEmployeeType } from "../schemas/schema-family_employee";
+import { ApiResponse } from "@/app/types/types";
 export async function registerEmployeeSteps(
   data: BasicInfoType &
     AcademyType &
@@ -81,6 +82,7 @@ export async function registerEmployeeSteps(
         }),
       },
     );
+    const getEmployee: ApiResponse<never> = await response.json();
     const formData = new FormData();
     formData.append("file", data.file!);
     await fetch(
@@ -91,25 +93,26 @@ export async function registerEmployeeSteps(
         body: formData,
       },
     );
-    if (response.ok) {
-      await fetch(
-        `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employeefamily/masivo/`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(payloadFamily.familys),
+
+    const responseFamily = await fetch(
+      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employeefamily/masivo/`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
-      return {
-        success: true,
-        message: "Empleado Registrado Exitosamente",
-      };
-    }
+        body: JSON.stringify(payloadFamily.familys),
+      },
+    );
+    const getFamily: ApiResponse<never> = await responseFamily.json();
     return {
-      success: false,
-      message: "Ocurrio Un Error Al Registrar El Empleado",
+      success: response.ok && responseFamily.ok,
+      message:
+        response.ok && responseFamily.ok
+          ? getEmployee.message
+          : getEmployee.message ||
+            getFamily.message ||
+            "Error al registrar empleado",
     };
   } catch {
     return {
