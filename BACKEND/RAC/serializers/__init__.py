@@ -8,6 +8,7 @@ from .personal_serializers import (
     denominacionCargoSerializer,
     gradoSerializer,
     OrganismoAdscritoSerializer,
+    EstatusSerializer
 )
 
 # Exportar todos los serializers que puedan necesitarse
