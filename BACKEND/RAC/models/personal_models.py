@@ -1,6 +1,5 @@
 from django.db import models
-from django.db.models import Case, When, Value, IntegerField
-#importacion de aplicacion para las cuentas del personal usuario
+from .family_personal_models import Parentesco
 from USER.models import cuenta
 
 #importacion para las direcciones del personal
@@ -271,14 +270,16 @@ class condicion_vivienda(models.Model):
         app_label = 'RAC'
         
         
-# class contacto_emergencia(models.Model):
-#     empleado_id = models.ForeignKey('Employee', models.DO_NOTHING, db_column='empleadoId', null=True, blank=True)
-#     telefono = models.CharField(max_length=20, blank=True, null=True)
-#     parentesco = models.CharField(max_length=50, blank=True, null=True)
-    
-#     class Meta:
-#         managed = True
-        # db_table = 'contacto_emergencia'
+class contacto_emergencia(models.Model):
+    empleado_id = models.ForeignKey('Employee', models.DO_NOTHING, db_column='empleadoId', null=True, blank=True)
+    nombres = models.CharField(max_length=100)
+    apellidos = models.CharField(max_length=100)
+    telefono = models.CharField(max_length=20, blank=True, null=True)
+    RelacionId = models.ForeignKey('Parentesco', models.DO_NOTHING, db_column='relacionId', blank=True, null=True)
+
+    class Meta:
+        managed = True
+        db_table ='RAC'
 
 class datos_vivienda(models.Model):
     empleado_id = models.ForeignKey('Employee', models.DO_NOTHING, db_column='empleadoId', null=True, blank=True)

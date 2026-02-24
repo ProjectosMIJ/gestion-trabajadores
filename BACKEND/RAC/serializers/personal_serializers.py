@@ -1,10 +1,11 @@
 
     #importaciones de rest framework
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
+
 # importaciones de modelos y utilidades
 from django.db import transaction
 from ..models.personal_models import *
+from ..models.family_personal_models import Parentesco
 from ..models.historial_personal_models import Tipo_movimiento
 #importacion de servicios
 from ..services.generacion_codigo import generador_codigos 
@@ -54,7 +55,11 @@ class EstadoCivilSerializer(serializers.ModelSerializer):
         fields = '__all__'
    
 
-  
+class RelacionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Parentesco
+        fields = '__all__'
+
    
    # DATOS DE ACADEMICOS
 class NivelAcademicoSerializer(serializers.ModelSerializer):
@@ -215,6 +220,22 @@ class AlergiasSerializer(serializers.ModelSerializer):
             'categoria'
         ]
 
+class ContactoEmergenciaSerializer(serializers.ModelSerializer):
+    Relacion = RelacionSerializer(source='RelacionId', read_only=True)
+    class Meta:
+        model = contacto_emergencia
+        fields = [
+            'id',
+            'nombres',
+            'apellidos',
+            'telefono',
+            'RelacionId',
+            'Relacion'
+        ]
+        extra_kwargs = {
+            'RelacionId': {'write_only': True}
+        }
+
 
 # DEPENDENCIAS
 class DependenciaSerializer(serializers.ModelSerializer):
@@ -332,6 +353,18 @@ class PerfilSaludSerializer(serializers.ModelSerializer):
         ]
 
         ret.pop('patologiaCronica', None)
+        
+        ret['alergias'] = [
+            {
+                "id": a.id,
+                "alergia": a.alergia,
+                "categoria": {
+                    "id": a.categoria_id.id,
+                    "nombre_categoria": a.categoria_id.nombre_categoria
+                }
+            }
+            for a in instance.alergias.all()
+        ]
 
         return ret
 
@@ -477,6 +510,7 @@ class EmployeeCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerialize
     )
     datos_vivienda = DatosViviendaSerializer(required=False)
     perfil_salud = PerfilSaludSerializer(required=False)
+    contacto_emergencia = ContactoEmergenciaSerializer(many=True, required=False)
     perfil_fisico = PerfilFisicoSerializer(required=False)
     formacion_academica = FormacionAcademicaSerializer(required=False)
     antecedentes = AntecedentesServicioSerializer(many=True, required=False)
@@ -530,6 +564,7 @@ class EmployeeCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerialize
             'salud': validated_data.pop('perfil_salud', None),
             'fisico': validated_data.pop('perfil_fisico', None),
             'academico': validated_data.pop('formacion_academica', None),
+            'contacto_emergencia': validated_data.pop('contacto_emergencia', None),
             'antecedentes': validated_data.pop('antecedentes', None)
         }
 
@@ -554,6 +589,11 @@ class EmployeeCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerialize
 
         if nested['academico']:
             formacion_academica.objects.update_or_create(empleado_id=instance, defaults=nested['academico'])
+            
+        if nested['contacto_emergencia'] is not None:
+            contacto_emergencia.objects.filter(empleado_id=instance).delete() 
+            for contacto in nested['contacto_emergencia']:
+                contacto_emergencia.objects.create(empleado_id=instance, **contacto)
 
         if nested['antecedentes'] is not None:
             instance.antecedentes_servicio_set.all().delete()
@@ -570,6 +610,7 @@ class EmployeeListSerializer(serializers.ModelSerializer):
     datos_vivienda = serializers.SerializerMethodField()
     perfil_salud = serializers.SerializerMethodField()
     perfil_fisico = serializers.SerializerMethodField()
+    contacto_emergencia = serializers.SerializerMethodField()
     formacion_academica = serializers.SerializerMethodField()
     
     antecedentes = AntecedentesServicioSerializer(source='antecedentes_servicio_set', many=True,read_only=True)
@@ -591,7 +632,8 @@ class EmployeeListSerializer(serializers.ModelSerializer):
             'datos_vivienda',
             'perfil_salud', 
             'perfil_fisico', 
-            'formacion_academica', 
+            'formacion_academica',
+            'contacto_emergencia',
             'antecedentes',
             'fecha_actualizacion'
         ]
@@ -607,6 +649,11 @@ class EmployeeListSerializer(serializers.ModelSerializer):
     def get_perfil_fisico(self, obj):
         fisico = obj.perfil_fisico_set.first()
         return PerfilFisicoSerializer(fisico).data if fisico else None
+    
+    def get_contacto_emergencia(self, obj):
+        emergencia = obj.contacto_emergencia_set.first()
+        return ContactoEmergenciaSerializer(emergencia).data if emergencia else None
+
 
     def get_formacion_academica(self, obj):
         academico = obj.formacion_academica_set.first()
@@ -880,6 +927,7 @@ class EmployeeDetailSerializer(serializers.ModelSerializer):
     estadoCivil = EstadoCivilSerializer(read_only=True)
     datos_vivienda = serializers.SerializerMethodField()
     perfil_salud = serializers.SerializerMethodField()
+    contacto_emergencia = serializers.SerializerMethodField()
     perfil_fisico = serializers.SerializerMethodField()
     formacion_academica = serializers.SerializerMethodField()
     anos_apn = serializers.IntegerField(source='total_anos_apn', read_only=True)
@@ -903,6 +951,7 @@ class EmployeeDetailSerializer(serializers.ModelSerializer):
             'estadoCivil', 
             'datos_vivienda', 
             'perfil_salud',
+            'contacto_emergencia',
             'perfil_fisico', 
             'formacion_academica',
             'antecedentes',
@@ -918,10 +967,15 @@ class EmployeeDetailSerializer(serializers.ModelSerializer):
     def get_perfil_salud(self, obj):
         salud = obj.perfil_salud_set.first()
         return PerfilSaludSerializer(salud).data if salud else None
+    
+    def get_contacto_emergencia(self, obj):
+        emergencia = obj.contacto_emergencia_set.first()
+        return ContactoEmergenciaSerializer(emergencia).data if emergencia else None
 
     def get_perfil_fisico(self, obj):
         fisico = obj.perfil_fisico_set.first()
         return PerfilFisicoSerializer(fisico).data if fisico else None
+    
 
     def get_formacion_academica(self, obj):
         academica = obj.formacion_academica_set.first()

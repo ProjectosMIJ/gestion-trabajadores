@@ -31,6 +31,7 @@ urlpatterns = [
     path('categorias-discapacidad/', views.list_disability_categories, name='listar-categorias-discapacidades'),
     path('Discapacidades/', views.list_disabilities, name='listar-discapacidades'),
     path('alergias/', views.list_allergies, name='listar-alergias '),
+    path('releciones/', views.list_relationship, name='listar-relacion-de-contacto-de-emergencia'),
     
     # --------------------
     # DATOS DE VESTIMENTA

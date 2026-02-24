@@ -143,7 +143,8 @@ def registrar_familiares_masivo(request):
 @api_view(['GET'])
 def listar_parentesco(request):
    try:
-       queryset = Parentesco.objects.all()
+       valores_permitidos = ["CONYUGUE", "PADRE", "MADRE", "HIJO (A)"]
+       queryset = Parentesco.objects.filter(descripcion_parentesco__in=valores_permitidos)
        serializer = ParentescoSerializer(queryset, many=True)
        return Response({
         "status": "Ok",

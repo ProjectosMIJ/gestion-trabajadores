@@ -206,7 +206,7 @@ def listar_historial_cargo(request, cedulaidentidad):
         if not Employee.objects.filter(cedulaidentidad=cedulaidentidad).exists():
             return Response({
                 "status": "Error",
-                "message": f"No se encontró registro del empleado.",
+                "message": f"No se encontró registro del empleado",
                 "data": []
             }, status=status.HTTP_404_NOT_FOUND)
 
