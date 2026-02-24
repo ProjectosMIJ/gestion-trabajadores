@@ -4,17 +4,13 @@ import { columnsFamily } from "./columns";
 import { DataTableFamily } from "./data-table";
 import { useMemo } from "react";
 
-export default function ReportFamilyTable({ familys }: { familys: Family[] }) {
-  const safeData = useMemo(
-    () => (familys || []).map((v) => v.familiares || []).flat(),
-    [familys],
-  );
+export default function TableFamily({ familys }: { familys: Family[] }) {
   return (
     <div
       className="container mx-a
     uto py-10"
     >
-      <DataTableFamily columns={columnsFamily} data={safeData} />
+      <DataTableFamily columns={columnsFamily} data={familys} />
     </div>
   );
 }

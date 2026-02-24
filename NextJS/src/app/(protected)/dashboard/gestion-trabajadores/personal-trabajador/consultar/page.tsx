@@ -23,9 +23,9 @@ import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import useSWR from "swr";
 import z from "zod";
-import { getEmployeeDataSearch, getNomina } from "../api/getInfoRac";
-import TableEmployee from "../components/employees/tableEmployees/page";
-import Loading from "../components/loading/loading";
+import { getEmployeeDataSearch, getNomina } from "../../api/getInfoRac";
+import TableEmployee from "../../components/employees/tableEmployees/page";
+import Loading from "../../components/loading/loading";
 import { Card } from "@/components/ui/card";
 
 export default function PersonalPage() {

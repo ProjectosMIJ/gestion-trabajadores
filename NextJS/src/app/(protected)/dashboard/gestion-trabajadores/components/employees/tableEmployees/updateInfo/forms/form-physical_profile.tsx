@@ -5,7 +5,7 @@ import {
   getShirtSize,
   getShoesSize,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import { PhysicalProfileType } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/registrar/schemas/schema-physical_profile";
+import { PhysicalProfileType } from "@/app/(protected)/dashboard/gestion-trabajadores/personal-trabajador/registrar/schemas/schema-physical_profile";
 import { Button } from "@/components/ui/button";
 import {
   Card,

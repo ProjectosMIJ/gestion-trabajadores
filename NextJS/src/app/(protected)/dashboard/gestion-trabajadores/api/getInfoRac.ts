@@ -16,6 +16,7 @@ import {
   EmployeeData,
   EmployeeInfo,
   ErrorFetch,
+  Family,
   Grado,
   MaritalStatusType,
   Mencion,
@@ -597,5 +598,15 @@ export const getDirectionGeneralById = async (
     `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}direccionGeneral/${id}/`,
   );
   const getResponse: ApiResponse<DirectionGeneral[]> = await response.json();
+  return getResponse;
+};
+
+export const getFamilyEmployee = async (
+  id: string,
+): Promise<ApiResponse<Family[]>> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employeefamily/${id}/`,
+  );
+  const getResponse: ApiResponse<Family[]> = await response.json();
   return getResponse;
 };

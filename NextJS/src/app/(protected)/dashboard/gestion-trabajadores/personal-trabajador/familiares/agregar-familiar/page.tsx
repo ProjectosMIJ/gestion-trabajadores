@@ -1,4 +1,4 @@
-import { CreateFamilyForm } from "../../components/employees/crear-familiar";
+import { CreateFamilyForm } from "../../../components/employees/crear-familiar";
 
 export default function CreateFamilyPage() {
   return (

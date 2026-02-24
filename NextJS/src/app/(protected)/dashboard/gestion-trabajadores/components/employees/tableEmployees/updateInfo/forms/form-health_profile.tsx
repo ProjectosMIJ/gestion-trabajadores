@@ -3,7 +3,7 @@ import {
   getDisability,
   getPatologys,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import { HealthType } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/registrar/schemas/schema-health_profile";
+import { HealthType } from "@/app/(protected)/dashboard/gestion-trabajadores/personal-trabajador/registrar/schemas/schema-health_profile";
 import { DisabilitysType, PatologysType } from "@/app/types/types";
 import { Button } from "@/components/ui/button";
 import useSWR, { useSWRConfig } from "swr";

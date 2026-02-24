@@ -4,7 +4,6 @@ import { ColumnDef } from "@tanstack/react-table";
 
 import { Family } from "@/app/types/types";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,55 +13,40 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { MoreHorizontal } from "lucide-react";
 import { DataTableColumnHeader } from "./data-table-column-header";
+import { DetailInfoFamily } from "./detail-info";
 
-export const columnsFamily: ColumnDef<Family["familiares"][number]>[] = [
+export const columnsFamily: ColumnDef<Family>[] = [
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-
-  {
+    id: "Cedula",
     accessorKey: "cedulaFamiliar",
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="cedulaFamiliar" />
+      <DataTableColumnHeader column={column} title="Cedula" />
     ),
   },
   {
+    id: "Primer Nombre",
+
     accessorKey: "primer_nombre",
     header: "Primer Nombre",
   },
   {
+    id: "Primer Apellido",
     accessorKey: "primer_apellido",
     header: "Primer Apellido",
   },
   {
+    id: "Parentesco",
     accessorKey: "parentesco.descripcion_parentesco",
     header: "Parentesco",
   },
   {
+    id: "Heredero",
     accessorKey: "heredero",
     header: "Heredero",
   },
   {
-    id: "actions",
+    id: "Acciones",
+    header: "Acciones",
     cell: ({ row }) => {
       const family = row.original;
 
@@ -82,6 +66,9 @@ export const columnsFamily: ColumnDef<Family["familiares"][number]>[] = [
               }
             >
               Copiar C. Familar
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <DetailInfoFamily family={family} />
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

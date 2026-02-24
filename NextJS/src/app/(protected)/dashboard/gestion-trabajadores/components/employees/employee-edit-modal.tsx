@@ -35,7 +35,7 @@ import {
   getAcademyLevel,
   getStates,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import { updateEmployee } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/actions/updateEmployee";
+import { updateEmployee } from "@/app/(protected)/dashboard/gestion-trabajadores/personal-trabajador/actions/updateEmployee";
 import {
   AcademyLevel,
   ApiResponse,
@@ -47,7 +47,7 @@ import {
 import { Popover, PopoverTrigger } from "@radix-ui/react-popover";
 import { CalendarIcon } from "lucide-react";
 import { toast } from "sonner";
-import { schemaEmployeeEdit } from "../../personal/registrar/schemas/schemaRac";
+import { schemaEmployeeEdit } from "../../personal-trabajador/registrar/schemas/schemaRac";
 import { Calendar } from "../../../../../../components/ui/calendar";
 import { PopoverContent } from "../../../../../../components/ui/popover";
 

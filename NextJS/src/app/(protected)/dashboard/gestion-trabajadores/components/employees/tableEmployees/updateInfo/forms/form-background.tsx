@@ -13,7 +13,7 @@ import {
 import {
   BackgroundType,
   schemaBackground,
-} from "@/app/(protected)/dashboard/gestion-trabajadores/personal/registrar/schemas/schema-background";
+} from "@/app/(protected)/dashboard/gestion-trabajadores/personal-trabajador/registrar/schemas/schema-background";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {

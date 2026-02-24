@@ -18,7 +18,7 @@ import {
 import {
   FamilyEmployeeTypeForm,
   schemaFamilyEmployeeOne,
-} from "@/app/(protected)/dashboard/gestion-trabajadores/familiares/agregar-familiar/schema/schemaCreateFamily";
+} from "@/app/(protected)/dashboard/gestion-trabajadores/personal-trabajador/familiares/agregar-familiar/schema/schemaCreateFamily";
 import {
   DisabilitysType,
   EmployeeInfo,
@@ -70,7 +70,7 @@ import { Textarea } from "../../../../../../components/ui/textarea";
 import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
-import createFamilyActions from "../../familiares/agregar-familiar/actions/create-family-actions";
+import createFamilyActions from "../../personal-trabajador/familiares/agregar-familiar/actions/create-family-actions";
 import { toast } from "sonner";
 import Error from "../error/error";
 import z from "zod";

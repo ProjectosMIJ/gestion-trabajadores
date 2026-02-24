@@ -376,38 +376,24 @@ export interface Region {
 }
 
 export interface Family {
-  cedula_empleado: string;
-  nombre_empleado: string;
-  sexo_empleado: Sex;
-  denominacion_cargo: Cargo;
-  denominacion_cargo_especifico: Cargo;
-  tipo_nomina: Nomina;
-  familiares: {
-    id: number;
-    cedulaFamiliar: string;
-    primer_nombre: string;
-    segundo_nombre: string;
-    primer_apellido: string;
-    segundo_apellido: string;
-    parentesco: ParentType | null;
-    fechanacimiento: string;
-    sexo: Sex;
-    estadoCivil: StatusCivil | null;
-    mismo_ente: boolean;
-    heredero: boolean;
-    perfil_salud_familiar: HealthProfile | null;
-    perfil_fisico_familiar: PhysicalProfile | null;
-    formacion_academica_familiar: {
-      nivelAcademico: AcademyLevelEmployeeData | null;
-      institucion: string;
-      capacitacion: string;
-      carrera: Carrera | null;
-      mencion: Mencion | null;
-    };
-    observaciones: string;
-    createdat: string;
-    updatedat: string;
-  }[];
+  id: number;
+  cedulaFamiliar: string;
+  primer_nombre: string;
+  segundo_nombre: string;
+  primer_apellido: string;
+  segundo_apellido: string;
+  parentesco: ParentType | null;
+  fechanacimiento: string;
+  sexo: Sex;
+  estadoCivil: StatusCivil | null;
+  mismo_ente: boolean;
+  heredero: boolean;
+  perfil_salud_familiar: HealthProfile | null;
+  perfil_fisico_familiar: PhysicalProfile | null;
+  formacion_academica_familiar: AcademyLevelEmployeeData;
+  observaciones: string;
+  createdat: string;
+  updatedat: string;
 }
 export interface TypeMovement {
   id: number;
