@@ -1,4 +1,3 @@
-
 from django.urls import path
 from . import views
 
@@ -31,6 +30,7 @@ urlpatterns = [
     path('Patologias/', views.list_chronic_pathologies, name='listar-patologias'),
     path('categorias-discapacidad/', views.list_disability_categories, name='listar-categorias-discapacidades'),
     path('Discapacidades/', views.list_disabilities, name='listar-discapacidades'),
+    path('alergias/', views.list_allergies, name='listar-alergias '),
     
     # --------------------
     # DATOS DE VESTIMENTA
@@ -197,5 +197,6 @@ urlpatterns = [
     path('reports/pdf/', views.generate_pdf_report, name='reporte_pdf'),
     
     
-    path('menciones/create/', views.crear_menciones_view, name='menciones-creadas')
+    path('menciones/create/', views.crear_menciones_view, name='menciones-creadas'),
+    path('carga/trabajador/', views.ImportarCargosESPECIALESView.as_view(), name="carga-trabajador-masiva"),
 ]

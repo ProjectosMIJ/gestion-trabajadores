@@ -196,6 +196,24 @@ class DiscapacidadSerializer(serializers.ModelSerializer):
         ]
         
 
+class categoriaAlergiaSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = categorias_alergias
+        fields = [
+            'id',
+            'nombre_categoria'
+        ]
+
+
+class AlergiasSerializer(serializers.ModelSerializer):
+    categoria = categoriaAlergiaSerializers(source='categoria_id', read_only=True)
+    class Meta:
+        model = Alergias
+        fields = [
+            'id',
+            'alergia',
+            'categoria'
+        ]
 
 
 # DEPENDENCIAS
@@ -207,23 +225,7 @@ class DependenciaSerializer(serializers.ModelSerializer):
     def validate_dependencia(self,value):
         value = value.upper()
         return value
-# class DireccionGeneralSerializer(serializers.ModelSerializer):
-#     Dependencia = DependenciaSerializer(source='dependenciaId', read_only=True)
-#     dependenciaId = serializers.PrimaryKeyRelatedField(
-#         queryset=Dependencias.objects.all(), 
-#         write_only=True, 
-#         required=False
-#     )
 
-#     class Meta:
-#         model = DireccionGeneral
-#         fields = [
-#             'id',
-#             'Codigo',
-#             'direccion_general',
-#             'Dependencia',   
-#             'dependenciaId'  
-#         ]
     
 class DireccionGeneralSerializer(serializers.ModelSerializer):
     class Meta:
@@ -539,9 +541,13 @@ class EmployeeCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerialize
             salud_dict = nested['salud']
             patologias = salud_dict.pop('patologiaCronica', None)
             discapacidades = salud_dict.pop('discapacidad', None)
+            Alergias = salud_dict.pop('alergias', None)
+
             s_obj, _ = perfil_salud.objects.update_or_create(empleado_id=instance, defaults=salud_dict)
             if patologias is not None: s_obj.patologiaCronica.set(patologias)
             if discapacidades is not None: s_obj.discapacidad.set(discapacidades)
+            if Alergias is not None: s_obj.alergias.set(Alergias)
+
 
         if nested['fisico']:
             perfil_fisico.objects.update_or_create(empleado_id=instance, defaults=nested['fisico'])

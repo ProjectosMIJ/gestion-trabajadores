@@ -115,11 +115,12 @@ class ImportarCargosESPECIALESView(APIView):
                             codigo_final = generar_codigo_especial("HP")
                         
                         # Validar si el código ya existe
-                        if AsigTrabajo.objects.filter(codigo=codigo_final).exists():
+                        if AsigTrabajo.objects.filter(codigo=codigo_final, tiponominaid=nomina_obj).exists():
                             if any(x in str(codigo_final) for x in ["CS_", "HP_"]):
                                 codigo_final = generar_codigo_especial(str(codigo_final).split('_')[0])
                             else:
-                                raise ValueError(f"El código '{codigo_final}' ya existe.")
+                                # Mensaje de error más descriptivo
+                                raise ValueError(f"El código '{codigo_final}' ya existe para la nómina '{nombre_nomina}'.")
 
                         cargo_obj = buscar('cargos', 'cargo')
                         especifico_obj = buscar('especificos', 'cargo_especifico')
@@ -1561,7 +1562,32 @@ def list_disabilities(request):
             'data': []
         }, status=status.HTTP_400_BAD_REQUEST)
         
+    
+    
+@extend_schema(
+    tags=["Recursos Humanos - Datos de Salud"],
+    summary="Listar Alergias",
+    description="Devuelve una lista de todas las Alergias disponibles",
+    responses=AlergiasSerializer
+)      
+@api_view(['GET'])
+def list_allergies(request):
+    try:
+        queryset = Alergias.objects.all()
+        serializer =AlergiasSerializer(queryset, many=True)
         
+        return Response({
+            'status': "success",
+            'message': "Alergias listadas correctamente",
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            'status': "error",
+            'message': "No se pudo recuperar la lista de alergias",
+            'data': []
+        }, status=status.HTTP_400_BAD_REQUEST)    
         
 # DEPENDENCIAS
 

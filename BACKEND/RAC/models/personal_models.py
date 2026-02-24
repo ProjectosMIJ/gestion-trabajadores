@@ -185,6 +185,23 @@ class Discapacidades(models.Model):
     class Meta:
         managed = True
         app_label = 'RAC'
+        
+        
+class categorias_alergias(models.Model):
+    nombre_categoria = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        managed = True
+        app_label = 'RAC'
+        
+class Alergias(models.Model):
+    alergia = models.CharField(max_length=100, unique=True)
+    categoria_id = models.ForeignKey(categorias_alergias, models.DO_NOTHING, db_column='categoriaId')
+    
+    class Meta:
+        managed = True
+        app_label = 'RAC'
+        
     
 class estado_civil(models.Model):
     estadoCivil = models.CharField(max_length=100, unique=True)
@@ -252,6 +269,16 @@ class condicion_vivienda(models.Model):
     class Meta:
         managed = True
         app_label = 'RAC'
+        
+        
+# class contacto_emergencia(models.Model):
+#     empleado_id = models.ForeignKey('Employee', models.DO_NOTHING, db_column='empleadoId', null=True, blank=True)
+#     telefono = models.CharField(max_length=20, blank=True, null=True)
+#     parentesco = models.CharField(max_length=50, blank=True, null=True)
+    
+#     class Meta:
+#         managed = True
+        # db_table = 'contacto_emergencia'
 
 class datos_vivienda(models.Model):
     empleado_id = models.ForeignKey('Employee', models.DO_NOTHING, db_column='empleadoId', null=True, blank=True)
@@ -273,6 +300,7 @@ class perfil_salud(models.Model):
     empleado_id = models.ForeignKey('Employee', models.DO_NOTHING, db_column='empleadoId', null=True, blank=True)
     familiar_id = models.ForeignKey(Employeefamily, models.DO_NOTHING, db_column='familiarId', null=True, blank=True)
     grupoSanguineo = models.ForeignKey('GrupoSanguineo', models.DO_NOTHING, db_column='grupoSanguineoId', blank=True, null=True)
+    alergias = models.ManyToManyField(Alergias, blank=True)
     patologiaCronica = models.ManyToManyField(patologias_Cronicas, blank=True)
     discapacidad = models.ManyToManyField(Discapacidades, blank=True)
     
@@ -337,6 +365,10 @@ class Employee(models.Model):
     n_contrato = models.TextField(null=True, max_length=50)
     sexoid = models.ForeignKey('Sexo', models.DO_NOTHING, db_column='sexoId')
     estadoCivil = models.ForeignKey(estado_civil, models.DO_NOTHING, db_column='estadoCivilId', blank=True, null=True)
+    correo = models.EmailField(blank=True, null=True)
+    telefono_habitacion = models.CharField(max_length=20, blank=True, null=True)
+    telefono_movil = models.CharField(max_length=20, blank=True, null=True)
+    
     historial  = HistoricalRecords(user_model=cuenta,excluded_fields=['total_anos_apn'])
     fecha_actualizacion = models.DateTimeField(auto_now=True) 
     
@@ -392,7 +424,7 @@ class AsigTrabajo(models.Model):
     class Meta:
         managed = True
         db_table = 'AsigTrabajo'
-        unique_together = ('codigo','Tipo_personal')
+        unique_together = ('codigo','tiponominaid')
         ordering = ['-fecha_actualizacion']
         app_label = 'RAC'
         
