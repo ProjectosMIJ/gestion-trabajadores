@@ -3,26 +3,33 @@ from rest_framework import status
 from django.db import transaction
 from rest_framework.response import Response
 from ..models.family_personal_models import Employeefamily, Parentesco
-from ..models.personal_models import Employee
 from ..serializers.family_serializers import FamilyCreateSerializer,FamilyListSerializer,ParentescoSerializer
+from RAC.filters.filters_personal import EmployeeFamilyFilter
 from drf_spectacular.utils import extend_schema
 
 
 
 @extend_schema(
     tags=["Familiares de Empleados"],
-    summary="Registrar un nuevo familiar",
-    description="Crea un nuevo registro en la carga familiar",
+    summary="Gestion de familiares",
+    description="Gestion de familiares de un empleado",
     request=FamilyCreateSerializer,
 )
-@api_view(['POST'])
+@api_view(['GET', 'POST'])
+def gestion_familiar(request):
+
+    if request.method == 'GET':
+        return listar_familiares(request)
+    
+    elif request.method == 'POST':
+        return registrar_familiar(request)
+
 def registrar_familiar(request):
     serializer = FamilyCreateSerializer(data=request.data)
     if serializer.is_valid():
         try:
             with transaction.atomic():
                 familiar = serializer.save()
-                
                 return Response({
                     "status": "Ok",
                     "message": "Familiar registrado exitosamente.",
@@ -37,7 +44,6 @@ def registrar_familiar(request):
             return Response({
                 "status": "Error",
                 "message": f"Error al guardar el registro: {str(e)}",
-                
             }, status=status.HTTP_400_BAD_REQUEST)
 
     error_dict = serializer.errors
@@ -47,30 +53,29 @@ def registrar_familiar(request):
         "status": "Error",
         "message": clean_message, 
     }, status=status.HTTP_400_BAD_REQUEST)
-    
-    
 
-@extend_schema(
-    tags=["Familiares de Empleados"],
-    summary="Listar carga familiar detallada",
-    description="Obtiene todos los familiares de un empleado por la cedula del trabajador",
-    request=FamilyListSerializer,
-)
-@api_view(['GET'])
-def  listar_familiares(request, cedula_empleado):
+
+def listar_familiares(request):
     try:
-        if not Employee.objects.filter(cedulaidentidad=cedula_empleado).exists():
+        queryset = Employeefamily.objects.select_related(
+            'parentesco', 'sexo', 'estadoCivil', 'employeecedula'
+        ).all()
+
+        filterset = EmployeeFamilyFilter(request.GET, queryset=queryset)
+        
+        if not filterset.is_valid():
             return Response({
                 "status": "Error",
-                "message": "No se encontró el empleado"
-            }, status=status.HTTP_404_NOT_FOUND)
+                "message": "Los parámetros de filtro son inválidos.",
+                "errors": filterset.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-        familiares = Employeefamily.objects.filter(
-             employeecedula=cedula_empleado
-        )
+        familiares = filterset.qs.distinct()
         serializer = FamilyListSerializer(familiares, many=True)
+        
         return Response({
             "status": "Ok",
+            "message": "Carga familiar listada correctamente",
             "data": serializer.data
         }, status=status.HTTP_200_OK)
 
@@ -79,8 +84,16 @@ def  listar_familiares(request, cedula_empleado):
             "status": "Error",
             "message": f"Error al recuperar carga familiar: {str(e)}",
             "data": []
-        }, status=status.HTTP_400_BAD_REQUEST)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
+
+@extend_schema(
+    tags=["Familiares de Empleados"],
+    summary="Listar carga familiar detallada",
+    description="Obtiene todos los familiares de un empleado por la cedula del trabajador",
+    request=FamilyListSerializer,
+)
+
 @extend_schema(
     tags=["Familiares de Empleados"],
     summary="Registro masivo de familiares",

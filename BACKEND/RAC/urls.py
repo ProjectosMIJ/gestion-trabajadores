@@ -152,8 +152,8 @@ urlpatterns = [
 # RUTAS HISTORIAL DE EMPLEADOS
 # -------------------  
     path('EmployeeMovementHistory/<str:cedulaidentidad>/', views.listar_historial_cargo, name='historial-por-cedula'),
-    #   listar egresado por cedula 
-    path('EmployeeEgresado/<str:cedulaidentidad>/', views.listar_empleado_Egresado, name='egresados-detail'),
+
+
     
 # ------------------
 # MOVIMIENTO DE PERSONAL Y ESTATUS
@@ -170,9 +170,8 @@ urlpatterns = [
 # ------------------
 # GESTION DE FAMILIARES
 # ------------------- 
-    path('Employeefamily/', views.registrar_familiar, name='creacion-empleadoFamiliar'),
+    path('Employeefamily/', views.gestion_familiar, name='creacion-empleadoFamiliar'),
     path('Employeefamily/masivo/', views.registrar_familiares_masivo, name='creacion-masiva-empleadoFamiliar'),
-    path('Employeefamily/<str:cedula_empleado>/',views.listar_familiares, name='listar-familiares-por-cedula'),
     path('Parentesco/', views.listar_parentesco, name="listar-parentesco"),
 
 

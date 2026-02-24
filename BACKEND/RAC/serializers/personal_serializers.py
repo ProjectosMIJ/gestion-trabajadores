@@ -444,7 +444,10 @@ class AntecedentesServicioSerializer(serializers.ModelSerializer):
 class denominacionCargoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Denominacioncargo
-        fields = '__all__'
+        fields = [
+            'id',
+            'cargo'
+        ]
 class denominacionCargoEspecificoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Denominacioncargoespecifico
