@@ -14,7 +14,7 @@ from ..services.constants_historial import *
 
 from ..services.constants import *
 
-from  RAC.serializers import (DireccionGeneralSerializer,DireccionLineaSerializer,CoordinacionSerializer,
+from  RAC.serializers import (DependenciaSerializer,DireccionGeneralSerializer,DireccionLineaSerializer,CoordinacionSerializer,
                            TipoNominaSerializer,
                            denominacionCargoEspecificoSerializer,denominacionCargoSerializer,
                            gradoSerializer,OrganismoAdscritoSerializer,EstatusSerializer)
@@ -314,7 +314,8 @@ class TipoMovimientoSerializer(serializers.ModelSerializer):
 
         
 class EmployeeCargoHistorySerializer(serializers.ModelSerializer):
-    modificado_por_usuario = serializers.CharField(source='ejecutado_por.username', read_only=True)
+    nombre_analista = serializers.CharField(source='ejecutado_por.username', read_only=True)
+    cedula_analista = serializers.CharField(source='ejecutado_por.cedula', read_only=True)
     motivo_movimiento = TipoMovimientoSerializer(source='motivo',read_only=True)
     new_estatus = EstatusSerializer(source='estatus',read_only=True)
   
@@ -322,6 +323,7 @@ class EmployeeCargoHistorySerializer(serializers.ModelSerializer):
     new_denominacioncargoespecifico = denominacionCargoEspecificoSerializer(source='denominacioncargoespecifico',read_only=True)
     new_grado = gradoSerializer(source='gradoid',read_only=True)
     new_tiponomina = TipoNominaSerializer(source='tiponominaid',read_only=True)
+    new_Dependencia = DependenciaSerializer(source='DependenciasId',read_only=True)
     new_DireccionGeneral = DireccionGeneralSerializer(source='DireccionGeneralid',read_only=True)
     new_DireccionLinea = DireccionLineaSerializer(source='DireccionLineaid',read_only=True)
     new_Coordinacion= CoordinacionSerializer(source='Coordinacionid',read_only=True)
@@ -329,10 +331,10 @@ class EmployeeCargoHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = EmployeeMovementHistory
         fields = [
-            'id', 'codigo_puesto', 'fecha_movimiento', 'modificado_por_usuario',
+            'id', 'codigo_puesto', 'fecha_movimiento', 'nombre_analista', 'cedula_analista',
             'motivo_movimiento','new_estatus',
             'new_denominacioncargo', 'new_denominacioncargoespecifico', 'new_grado', 
-            'new_tiponomina', 'new_DireccionGeneral', 'new_DireccionLinea', 'new_Coordinacion'
+            'new_tiponomina','new_Dependencia' ,'new_DireccionGeneral', 'new_DireccionLinea', 'new_Coordinacion'
         ]
 
     def to_representation(self, instance):
@@ -343,7 +345,7 @@ class EmployeeCargoHistorySerializer(serializers.ModelSerializer):
             fecha_movimiento__lt=instance.fecha_movimiento
         ).select_related(
             'denominacioncargo', 'denominacioncargoespecifico', 'gradoid',
-            'tiponomina', 'DireccionGeneralid', 'DireccionLineaid', 'Coordinacionid','estatus'
+            'tiponomina', 'DependenciasId','DireccionGeneralid', 'DireccionLineaid', 'Coordinacionid','estatus'
         ).order_by('-fecha_movimiento').first()
 
         representation.update({
@@ -352,6 +354,7 @@ class EmployeeCargoHistorySerializer(serializers.ModelSerializer):
             'prev_denominacioncargoespecifico': denominacionCargoEspecificoSerializer(prev.denominacioncargoespecifico).data if prev else None,
             'prev_grado': gradoSerializer(prev.gradoid).data if prev and prev.gradoid else None,
             'prev_tiponomina': TipoNominaSerializer(prev.tiponomina).data if prev else None,
+            'prev_Dependencia': DependenciaSerializer(prev.DependenciasId).data if prev and prev.DependenciasId else None,
             'prev_DireccionGeneral': DireccionGeneralSerializer(prev.DireccionGeneralid).data if prev and prev.DireccionGeneralid else None,
             'prev_DireccionLinea': DireccionLineaSerializer(prev.DireccionLineaid).data if prev and prev.DireccionLineaid else None,
             'prev_Coordinacion': CoordinacionSerializer(prev.Coordinacionid).data if prev and prev.Coordinacionid else None,

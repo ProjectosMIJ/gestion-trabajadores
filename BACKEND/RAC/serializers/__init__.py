@@ -1,5 +1,6 @@
 # Exportar serializers desde personal_serializers
 from .personal_serializers import (
+    DependenciaSerializer,
     DireccionGeneralSerializer,
     DireccionLineaSerializer,
     CoordinacionSerializer,
