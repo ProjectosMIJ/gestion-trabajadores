@@ -192,7 +192,12 @@ def listar_historial_cargo(request, cedulaidentidad):
     ).order_by('-fecha_movimiento') 
 
     serializer = EmployeeCargoHistorySerializer(movimientos, many=True)
-    
+    if not serializer.data:
+        return Response({
+            "status": "Ok",
+            "message": "El empleado no posee historial de movimientos o cambios de estatus",
+            "data": []
+        }, status=status.HTTP_200_OK)
     return Response({
         "status": "Ok",
         "message": "Historial listado correctamente",

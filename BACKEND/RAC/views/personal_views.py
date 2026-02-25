@@ -417,7 +417,7 @@ def create_employee(request):
 
 #  ACTUALIZACION DE DATOS PERSONALES DEL EMPLEADO       
 @extend_schema(
-    tags=["Gestion de Empleado"],
+    tags=["Gestion de Empleado","Gestion de Personal Pasivo"],
     summary="Editar un empleado",
     description="Actualiza los datos de un empleado existente identificado por su id",
     request=EmployeeCreateUpdateSerializer, 
