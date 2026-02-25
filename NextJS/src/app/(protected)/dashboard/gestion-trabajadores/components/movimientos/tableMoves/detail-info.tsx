@@ -61,9 +61,8 @@ export function DetailInfoMoves({ movement }: DetailInfoMovesProps) {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-          <Eye className="h-4 w-4" />
-          <span className="sr-only">Ver detalles del movimiento</span>
+        <Button size="sm" className="h-8 w-8 p-0">
+          Ver detalles
         </Button>
       </SheetTrigger>
       <SheetContent className="w-full sm:max-w-3xl">
@@ -182,27 +181,27 @@ export function DetailInfoMoves({ movement }: DetailInfoMovesProps) {
             </Card>
 
             {/* Cambios de Nómina y Estatus */}
-            {/* <Card>
+            <Card>
               <CardHeader>Nómina y Estatus</CardHeader>
               <CardContent>
                 <div className="grid grid-cols-1 gap-6">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid  gap-4">
                     <ComparisonField
                       label="Tipo de Nómina"
                       prevValue={movement.prev_tiponomina?.nomina || null}
                       newValue={movement.new_tiponomina?.nomina || null}
                     />
                   </div>
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid  gap-4">
                     <ComparisonField
                       label="Estatus"
                       prevValue={movement.prev_estatus?.estatus || null}
-                      newValue={movement.new_status?.estatus || null}
+                      newValue={movement.new_estatus?.estatus || null}
                     />
                   </div>
                 </div>
               </CardContent>
-            </Card> */}
+            </Card>
           </div>
         </ScrollArea>
       </SheetContent>

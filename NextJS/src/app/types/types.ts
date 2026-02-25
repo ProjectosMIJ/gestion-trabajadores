@@ -83,9 +83,13 @@ export interface EmployeeCargoHistory {
   new_denominacioncargo: Cargo | null;
   new_denominacioncargoespecifico: Cargo | null;
   new_grado: Grado | null;
+  new_Dependencia: Dependency | null;
   new_DireccionGeneral: DirectionGeneral | null;
   new_DireccionLinea: DirectionLine | null;
   new_Coordinacion: Coordination | null;
+  new_estatus: Status | null;
+  new_tiponomina: Nomina | null;
+  prev_Dependencia: Dependency | null;
   prev_estatus: Status | null;
   prev_denominacioncargo: Cargo | null;
   prev_denominacioncargoespecifico: Cargo | null;
