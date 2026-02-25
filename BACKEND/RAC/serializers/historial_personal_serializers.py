@@ -322,7 +322,7 @@ class EmployeeCargoHistorySerializer(serializers.ModelSerializer):
     new_denominacioncargo = denominacionCargoSerializer(source='denominacioncargo',read_only=True)
     new_denominacioncargoespecifico = denominacionCargoEspecificoSerializer(source='denominacioncargoespecifico',read_only=True)
     new_grado = gradoSerializer(source='gradoid',read_only=True)
-    new_tiponomina = TipoNominaSerializer(source='tiponominaid',read_only=True)
+    new_tiponomina = TipoNominaSerializer(source='tiponomina',read_only=True)
     new_Dependencia = DependenciaSerializer(source='DependenciasId',read_only=True)
     new_DireccionGeneral = DireccionGeneralSerializer(source='DireccionGeneralid',read_only=True)
     new_DireccionLinea = DireccionLineaSerializer(source='DireccionLineaid',read_only=True)
