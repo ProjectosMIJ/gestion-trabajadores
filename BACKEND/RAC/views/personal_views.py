@@ -556,7 +556,7 @@ def create_position(request):
     description="Actualiza los datos de un cargo existente identificado por su id.",
     request=CodigosCreateUpdateSerializer,
 ) 
-@api_view(['PATCH'])
+@api_view(['PUT'])
 def update_position(request, id):
     codigo = get_object_or_404(AsigTrabajo, id=id)
     serializer = CodigosCreateUpdateSerializer(codigo, data=request.data, partial=True)

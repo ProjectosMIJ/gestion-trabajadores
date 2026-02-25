@@ -70,7 +70,7 @@ def listar_familiares(request):
                 "errors": filterset.errors
             }, status=status.HTTP_400_BAD_REQUEST)
 
-        familiares = filterset.qs.distinct()
+        familiares = filterset.qs.distinct()[:10]
         serializer = FamilyListSerializer(familiares, many=True)
         
         return Response({

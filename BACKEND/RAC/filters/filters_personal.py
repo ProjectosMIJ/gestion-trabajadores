@@ -37,10 +37,7 @@ class AsigTrabajoFilter(django_filters.FilterSet):
         
 class EmployeeFamilyFilter(django_filters.FilterSet):
     cedula_empleado = django_filters.CharFilter(
-        field_name='employeecedula__cedulaidentidad', 
-        lookup_expr='exact'
-    )
-    
+        field_name='employeecedula__cedulaidentidad', lookup_expr='exact')
     dependencia_id = django_filters.NumberFilter(
         field_name='employeecedula__assignments__DireccionGeneral__dependenciaId'
     )
