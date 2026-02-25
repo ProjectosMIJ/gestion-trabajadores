@@ -75,25 +75,25 @@ export interface TypePerson {
 }
 
 export interface EmployeeCargoHistory {
-  empleado_cedula: string;
-  puesto_codigo: string;
+  id: string;
+  codigo_puesto: string;
   fecha_movimiento: string;
   modificado_por_usuario: string;
-  prev_cargo_especifico: string;
-  prev_cargo_general: string;
-  prev_nomina: string;
-  prev_grado: string;
-  prev_ubicacion_admin: string;
-  prev_ubicacion_fisica: string;
-  prev_estatus: string;
-  new_cargo_especifico: string;
-  new_cargo_general: string;
-  new_nomina: string;
-  new_grado: string;
-  new_ubicacion_admin: string;
-  new_ubicacion_fisica: string;
-  new_estatus: string;
-  motivo_movimiento: string;
+  motivo_movimiento: TypeMovement;
+  new_denominacioncargo: Cargo | null;
+  new_denominacioncargoespecifico: Cargo | null;
+  new_grado: Grado | null;
+  new_DireccionGeneral: DirectionGeneral | null;
+  new_DireccionLinea: DirectionLine | null;
+  new_Coordinacion: Coordination | null;
+  prev_estatus: Status | null;
+  prev_denominacioncargo: Cargo | null;
+  prev_denominacioncargoespecifico: Cargo | null;
+  prev_grado: Grado | null;
+  prev_tiponomina: Nomina | null;
+  prev_DireccionGeneral: DirectionGeneral | null;
+  prev_DireccionLinea: DirectionLine | null;
+  prev_Coordinacion: Coordination | null;
 }
 
 export interface ErrorFetch {
