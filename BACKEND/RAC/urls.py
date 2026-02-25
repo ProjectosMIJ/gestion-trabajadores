@@ -104,6 +104,7 @@ urlpatterns = [
     path('cargos/vacantes/',views.list_general_vacants_codes, name='lista todos los codigos vacantes'),
 #     # listar codigo  tanto activos como vacantes
     path('cargos/general/', views.list_general_work_codes, name='lista de codigos generales'),
+    path('cargos/pasivo/',views.list_work_codes_passive, name='lista de codigos pasivos'),
 # ------------------
 # ASIGNACION DE CARGO
 # -------------------
@@ -194,7 +195,8 @@ urlpatterns = [
     # path('reports/', views.generate_dynamic_report, name='reporte_generico'),
     
     # Generación de reportes PDF
-    path('reports/pdf/', views.generate_pdf_report, name='reporte_pdf'),
+    path('reports/pdf/', views.generate_pdf_report_active, name='reporte_activo_pdf'),
+    path('reports/pasivo/', views.generate_pdf_report_passive, name='reporte_pasivo_pdf'),
     
     
     path('menciones/create/', views.crear_menciones_view, name='menciones-creadas'),

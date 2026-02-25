@@ -5,24 +5,7 @@ from ..models.family_personal_models import Employeefamily, Parentesco
 from ..models.personal_models import *
 from USER.models.user_models import cuenta as User
 from datetime import date
-from ..serializers.personal_serializers import (
- 
-    CarrerasSerializer,
-    MencionSerializer,
-    GrupoSanguineoSerializer,
-    DiscapacidadSerializer,
-    PatologiasSerializer,
-    TallaCamisaSerializer,
-    TallaPantalonSerializer,
-    TallaZapatosSerializer,
-    PerfilSaludSerializer,
-    PerfilFisicoSerializer,
-    NivelAcademicoSerializer,
-    FormacionAcademicaSerializer,
-    EstadoCivilSerializer,
-    SexoSerializer
-
-)
+from RAC.serializers.personal_activo_serializers import *
 class FamilyCreateSerializer(serializers.ModelSerializer):
     cedulaFamiliar = serializers.CharField(required=False, allow_blank=True, allow_null=True)
     fechanacimiento = serializers.DateField( allow_null=True,input_formats=['iso-8601', '%Y-%m-%d','%Y-%m-%dT%H:%M:%S.%fZ']  )

@@ -1,0 +1,354 @@
+from rest_framework import  status
+from rest_framework.response import Response
+from rest_framework.decorators import api_view
+from rest_framework.views import APIView
+from drf_spectacular.utils import extend_schema,OpenApiExample
+from django.apps import apps
+from django.db.models import  Prefetch
+
+from RAC.serializers.report_serializers import *
+from RAC.services.mapa_reporte import *
+from RAC.services.constants import *
+from  RAC.services.pdf.generators.employee_passive_pdf import EmployeePassivePDFGenerator
+from RAC.services.pdf.generators.family_pdf import FamilyPDFGenerator
+from RAC.services.pdf.generators.assignment_pdf import AssignmentPDFGenerator
+from RAC.services.pdf.generators.graduate_pdf import GraduatePDFGenerator
+
+
+@extend_schema(
+    tags=["Reportes - Configuraciones"],
+    summary="configuraciones de Reportes para empleados",
+)
+class EmployeeReportConfigView(APIView):
+    def get(self, request):
+        try:
+            data = get_config_by_category('empleados')
+            if not data:
+                return Response({
+                    "status": "Error",
+                    "message": "No se pudo cargar la configuración de empleados"
+                }, status=status.HTTP_400_BAD_REQUEST)
+                
+            return Response({
+                "status": "Ok",
+                "message": "Configuracion de empleados cargada correctamente",
+                "data":data
+                }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status": "Error",
+                "message": "Error al obtener la configuración de empleados",
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+@extend_schema(
+    tags=["Reportes - Configuraciones"],
+    summary="configuraciones de Reportes para codigos de asignaciones",
+)
+class assignmentsReportConfigView(APIView):
+    def get(self, request):
+        try:
+            data = get_config_by_category('asignaciones')
+            if not data:
+                return Response({
+                    "status": "Error",
+                    "message": "No se pudo cargar la configuracion de asignaciones"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({
+                "status": "Ok",
+                "message": "Configuracion de asignaciones cargada correctamente",
+                "data":data
+                }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status": "Error",
+                "message": "Error al obtener la configuracion de asignaciones",
+            }, status=status.HTTP_400_BAD_REQUEST)
+@extend_schema(
+    tags=["Reportes - Configuraciones"],
+    summary="configuraciones de Reportes para familiares",
+)
+class FamilyReportConfigView(APIView):
+    def get(self, request):
+        try:
+            data = get_config_by_category('familiares')
+            if not data:
+                return Response({
+                    "status": "Error",
+                    "message": "No se pudo cargar la configuracion de familiares"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({ 
+                "status": "Ok",
+                "message": "Configuracion de familiares cargada correctamente",
+                "data":data
+                }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status": "Error",
+                "message": "Error al obtener la configuración de familiares",
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@extend_schema(
+    tags=["Reportes - Configuraciones"],
+    summary="configuraciones de Reportes para egresados",
+)
+class GraduateReportConfigView(APIView):
+    def get(self, request):
+        try:
+            data = get_config_by_category('egresados')
+            if not data:
+                return Response({
+                    "status": "Error",
+                    "message": "No se pudo cargar la configuracion de egresados"
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            return Response({
+                "status": "Ok",
+                "message": "Configuracion de egresados cargada correctamente",
+                "data":data
+                }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status": "Error",
+                "message": "Error al obtener la configuracion de egresados",
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@extend_schema(
+    tags=["Reportes - Configuraciones"],
+    summary="Clasificacion de los tipos de reportes",
+)
+class ReportTypesConfigView(APIView):
+    def get(self, request):
+        try:
+            tipos = get_report_types_config()
+            return Response({
+                "status": "Ok",  
+                "message": "Tipos de reporte cargados correctamente",
+                "data":tipos
+                }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                "status": "Error",
+                "message": 'Error al obtener los tipos de reporte',
+             
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
+@extend_schema(
+    tags=["Reportes - Configuraciones"],
+    summary="Clasificacion de los tipos de reportes",
+)
+class AllReportsConfigView(APIView):
+
+    def get(self, request):
+        try:
+            categorias = get_available_report_categories()
+            return Response({
+                "status": "Ok",
+                "message": "Configuraciones cargadas correctamente",
+                "data": categorias
+            }, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({
+                "status": "Error",
+                "message": "No se pudo cargar ninguna configuracion",
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+# =============================================================================
+# GENERACIÓN DE REPORTES PDF
+# =============================================================================
+
+@extend_schema(
+    tags=["Reportes"],
+    summary="Generar Reporte PDF",
+    description="""
+    Genera un reporte PDF según la categoría especificada.
+    
+    **Categorías disponibles:**
+    
+    1. **empleados**: Lista de empleados con datos básicos
+       - Cédula, nombres, apellidos
+       - Fecha de nacimiento e ingreso
+       - Años en APN, número de contrato
+       - Sexo, estado civil
+    
+    2. **familiares**: Lista de empleados con sus familiares
+       - Datos del empleado (cédula, nombre)
+       - Datos del familiar (cédula, nombre, parentesco)
+       - Fecha de nacimiento, sexo, estado civil
+       - Heredero, mismo ente
+    
+    Retorna el PDF directamente para descargar.
+    """,
+    request=ReportePDFSerializer,
+    responses={
+        200: {
+            'content': {'application/pdf': {}},
+            'description': 'PDF generado exitosamente'
+        }
+    },
+    examples=[
+        OpenApiExample(
+            'Ejemplo de PDF de Empleados',
+            summary='Generar PDF de empleados filtrados',
+            description='Genera un PDF con todos los empleados de una dependencia específica.',
+            value={
+                "categoria": "familiares",
+                "agrupar_por": "tipo_nomina",
+                "tipo_reporte": "lista",
+                "filtros": {
+                    "sexo_id": 1
+                }
+               
+            },
+            request_only=True,
+        ),
+        OpenApiExample(
+            'Ejemplo de PDF de Familiares',
+            summary='Generar PDF de familiares',
+            description='Genera un PDF con empleados y sus familiares.',
+            value={
+                "categoria": "familiares",
+                "filtros": {}
+            },
+            request_only=True,
+        ),
+    ]
+)
+@api_view(['POST'])
+def generate_pdf_report_passive(request):
+
+    serializer = ReportePDFSerializer(data=request.data)
+    
+    if not serializer.is_valid():
+        return Response({
+            'status': "Error",
+            'message': serializer.errors,
+        }, status=status.HTTP_400_BAD_REQUEST)
+    
+    try:
+        validated_data = serializer.validated_data
+        categoria = validated_data.get('categoria', 'empleados')
+        filtros = validated_data.get('filtros', {})
+        
+        # Categorías soportadas
+        categorias_soportadas = ['empleados', 'familiares', 'asignaciones', 'egresados']
+        
+        if categoria not in categorias_soportadas:
+            return Response({
+                'status': "Error",
+                'message': f"La categoría '{categoria}' no está soportada para PDF. Categorías disponibles: {', '.join(categorias_soportadas)}",
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Generar PDF según la categoría
+        if categoria == 'empleados':
+            return _generate_employee_passive_pdf(filtros)
+        elif categoria == 'familiares':
+            return _generate_family_passive_pdf(filtros)
+  
+        
+    except Exception as e:
+        import traceback
+        return Response({
+            'status': "Error",
+            'message': str(e),
+            'detail': traceback.format_exc()
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+def _generate_employee_passive_pdf(filtros):
+    Employee = apps.get_model('RAC', 'Employee')
+    AsigTrabajo = apps.get_model('RAC', 'AsigTrabajo')
+
+    # 3. Procesamiento de filtros
+    config = MAPA_REPORTES.get('empleados', {})
+    filtros_permitidos = config.get('filtros_permitidos', {})
+    query_filtros = {}
+    asignacion_filtros = {}
+
+    for k, v in filtros.items():
+        if v is not None and k in filtros_permitidos:
+            campo = filtros_permitidos[k]
+            query_filtros[campo] = v
+            if 'assignments__' in campo:
+                asignacion_filtros[campo.replace('assignments__', '')] = v
+
+   
+    query_filtros['assignments__Tipo_personal__tipo_personal'] = PERSONAL_PASIVO
+    asignacion_filtros['Tipo_personal__tipo_personal'] = PERSONAL_PASIVO
+
+    queryset = Employee.objects.select_related(
+        'sexoid', 'estadoCivil'
+    ).filter(
+        **query_filtros
+    ).prefetch_related(
+        Prefetch(
+            'assignments',
+            queryset=AsigTrabajo.objects.filter(**asignacion_filtros).select_related(
+                'Dependencia',
+                'DireccionGeneral',
+                'tiponominaid',
+                'Tipo_personal'
+            ).order_by('denominacioncargoid__orden_by_cargo','-fecha_actualizacion'),
+            to_attr='filtered_assignments'
+        )
+    ).order_by(
+        'cedulaidentidad'
+    ).distinct()
+
+    generator =EmployeePassivePDFGenerator(
+        employees=list(queryset),
+        title="REPORTE DE TRABAJADORES (PASIVO)",
+        filters=filtros
+    )
+
+    return generator.get_response(as_attachment=True)
+
+def _generate_family_passive_pdf(filtros):
+    """Genera el PDF de familiares."""
+    Employee = apps.get_model('RAC', 'Employee')
+    
+    # Obtener empleados con sus familiares
+    queryset = Employee.objects.select_related(
+        'sexoid',
+        'estadoCivil'
+    ).prefetch_related(
+        'carga_familiar',
+        'carga_familiar__parentesco',
+        'carga_familiar__sexo',
+        'carga_familiar__estadoCivil',
+        'assignments',
+        'assignments__Dependencia',
+        'assignments__DireccionGeneral',
+        'assignments__DireccionLinea',
+        'assignments__Coordinacion'
+        
+    ).filter(
+        carga_familiar__isnull=False,
+        assignments__Tipo_personal__tipo_personal= PERSONAL_PASIVO
+    ).distinct()
+    
+    # Aplicar filtros
+    config = MAPA_REPORTES.get('familiares', {})
+    filtros_permitidos = config.get('filtros_permitidos', {})
+    
+    for filtro_key, filtro_value in filtros.items():
+        if filtro_value is not None and filtro_key in filtros_permitidos:
+            campo_db = filtros_permitidos[filtro_key]
+            queryset = queryset.filter(**{campo_db: filtro_value})
+    
+    queryset = queryset.order_by('apellidos', 'nombres')
+    
+    generator = FamilyPDFGenerator(
+        employees=queryset,
+        title="Reporte de Familiares",
+        filters=filtros
+    )
+    
+    return generator.get_response(as_attachment=True)

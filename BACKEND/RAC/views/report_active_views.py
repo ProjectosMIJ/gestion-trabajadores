@@ -6,13 +6,13 @@ from drf_spectacular.utils import extend_schema,OpenApiExample
 from django.apps import apps
 from django.db.models import  Prefetch, Q
 
-from ..serializers.report_serializers import *
-from ..services.mapa_reporte import *
-from ..services.constants import *
-from ..services.pdf.generators.employee_pdf import EmployeePDFGenerator
-from ..services.pdf.generators.family_pdf import FamilyPDFGenerator
-from ..services.pdf.generators.assignment_pdf import AssignmentPDFGenerator
-from ..services.pdf.generators.graduate_pdf import GraduatePDFGenerator
+from RAC.serializers.report_serializers import *
+from RAC.services.mapa_reporte import *
+from RAC.services.constants import *
+from RAC.services.pdf.generators.employee_active_pdf import EmployeePDFGenerator
+from RAC.services.pdf.generators.family_pdf import FamilyPDFGenerator
+from RAC.services.pdf.generators.assignment_pdf import AssignmentPDFGenerator
+from RAC.services.pdf.generators.graduate_pdf import GraduatePDFGenerator
 
 
 @extend_schema(
@@ -222,7 +222,7 @@ class AllReportsConfigView(APIView):
     ]
 )
 @api_view(['POST'])
-def generate_pdf_report(request):
+def generate_pdf_report_active(request):
 
     serializer = ReportePDFSerializer(data=request.data)
     
@@ -250,7 +250,7 @@ def generate_pdf_report(request):
         if categoria == 'empleados':
             return _generate_employee_pdf(filtros)
         elif categoria == 'familiares':
-            return _generate_family_pdf(filtros)
+            return _generate_family_activo_pdf(filtros)
         elif categoria == 'asignaciones':
             return _generate_assignment_pdf(filtros)
         elif categoria == 'egresados':
@@ -315,7 +315,7 @@ def _generate_employee_pdf(filtros):
 
     return generator.get_response(as_attachment=True)
 
-def _generate_family_pdf(filtros):
+def _generate_family_activo_pdf(filtros):
     """Genera el PDF de familiares."""
     Employee = apps.get_model('RAC', 'Employee')
     

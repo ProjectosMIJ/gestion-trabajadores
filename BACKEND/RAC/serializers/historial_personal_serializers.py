@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from ..models.historial_personal_models import *
 
-from ..models.personal_models import DireccionLinea, Tiponomina, Estatus, AsigTrabajo, Tipo_personal, antecedentes_servicio, Dependencias
+from ..models.personal_models import *
 
 from USER.models.user_models import cuenta as User
 
@@ -14,10 +14,8 @@ from ..services.constants_historial import *
 
 from ..services.constants import *
 
-from  RAC.serializers import (DependenciaSerializer,DireccionGeneralSerializer,DireccionLineaSerializer,CoordinacionSerializer,
-                           TipoNominaSerializer,
-                           denominacionCargoEspecificoSerializer,denominacionCargoSerializer,
-                           gradoSerializer,OrganismoAdscritoSerializer,EstatusSerializer)
+from RAC.serializers.personal_activo_serializers import *
+
 
 
 
