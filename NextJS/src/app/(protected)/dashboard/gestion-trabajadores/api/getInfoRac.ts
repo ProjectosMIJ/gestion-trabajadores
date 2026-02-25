@@ -217,7 +217,7 @@ export const getHistoryMoveEmploye = async (
   id: string,
 ): Promise<ApiResponse<EmployeeCargoHistory[]>> => {
   const responseHistoryMoveEmploye = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}historyEmployee/historial/${id}/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}EmployeeMovementHistory/${id}/`,
   );
   const getHistoryMoveEmploye: ApiResponse<EmployeeCargoHistory[]> =
     await responseHistoryMoveEmploye.json();
