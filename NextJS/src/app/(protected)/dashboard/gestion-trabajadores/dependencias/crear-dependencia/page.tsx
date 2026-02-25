@@ -2,24 +2,22 @@ import CreateDependency from "../../components/dependencias/create-dependency";
 
 export default function Dependencys() {
   return (
-    <>
-      <div className="flex h-screen bg-background">
-        <div className="flex flex-1 flex-col overflow-hidden">
-          <main className="flex-1 overflow-auto bg-muted/30 p-6">
-            <div className="space-y-6">
-              <div>
-                <h1 className="text-3xl font-bold text-foreground">
-                  Gestión de Dependencias
-                </h1>
-                <p className="text-muted-foreground mt-1">
-                  Registre Nuevas Dependencias Para Empleados
-                </p>
-              </div>
-              <CreateDependency />
+    <div className="flex h-screen bg-background">
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <main className="flex-1 overflow-auto bg-muted/30 p-6">
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">
+                Gestión de Dependencias
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Registre Nuevas Dependencias Para Empleados
+              </p>
             </div>
-          </main>
-        </div>
+            <CreateDependency />
+          </div>
+        </main>
       </div>
-    </>
+    </div>
   );
 }

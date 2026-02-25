@@ -240,6 +240,15 @@ const items: MenuItem[] = [
           departmentAccept: ["RAC"],
         },
       },
+      {
+        title: "Consultar Movimientos",
+        url: "/dashboard/gestion-trabajadores/movimientos/consultar",
+        icon: ListCheck,
+        permission: {
+          roleAccept: ["admin"],
+          departmentAccept: ["RAC"],
+        },
+      },
     ],
   },
   {

@@ -15,7 +15,6 @@ export function AuthController() {
   const WARNING_TIME = 4 * 60 * 1000; // 4m antes
 
   const handleLogout = useCallback(() => {
-    console.log("🔴 Ejecutando Logout...");
     signOut({ callbackUrl: "/login" });
   }, []);
 

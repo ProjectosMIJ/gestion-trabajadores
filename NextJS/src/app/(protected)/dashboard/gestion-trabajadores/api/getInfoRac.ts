@@ -601,12 +601,15 @@ export const getDirectionGeneralById = async (
   return getResponse;
 };
 
-export const getFamilyEmployee = async (
-  id: string,
-): Promise<ApiResponse<Family[]>> => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employeefamily/${id}/`,
-  );
+export const getFamilyEmployee = async ({
+  searchParams,
+}: {
+  searchParams: string | undefined;
+}): Promise<ApiResponse<Family[]>> => {
+  const url = searchParams
+    ? `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employeefamily/?${searchParams}`
+    : `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employeefamily/`;
+  const response = await fetch(url);
   const getResponse: ApiResponse<Family[]> = await response.json();
   return getResponse;
 };

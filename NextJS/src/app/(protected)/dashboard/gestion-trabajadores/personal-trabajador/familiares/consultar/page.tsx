@@ -30,7 +30,9 @@ import { getFamilyEmployee } from "../../../api/getInfoRac";
 import TableFamily from "../../../components/employees/tableFamilys/table";
 export default function FamilyConsult() {
   const [employee, setEmployee] = useState<string | null>(null);
+  const [searchParams, setSearchParams] = useState<string>();
 
+  const { data: session } = useSession();
   const schemaSearch = z.object({
     cedula_empleado: z.string(),
   });
@@ -40,12 +42,30 @@ export default function FamilyConsult() {
     },
     resolver: zodResolver(schemaSearch),
   });
-  const { data: family, isLoading } = useSWR(
-    employee ? ["family", employee] : null,
-    async () => await getFamilyEmployee(employee!),
+  const { data: family, isLoading } = useSWR(["family", searchParams], () =>
+    getFamilyEmployee({ searchParams }),
   );
+
   const onSearch = (values: z.infer<typeof schemaSearch>) => {
-    setEmployee(values.cedula_empleado);
+    const isNotAdmin = session?.user?.role !== "admin";
+    const payload = {
+      ...values,
+      dependencia_id: isNotAdmin ? Number(session?.user.dependency?.id) : "",
+      direccion_general_id: isNotAdmin
+        ? Number(session?.user.directionGeneral?.id)
+        : "",
+      direccion_linea_id: isNotAdmin
+        ? Number(session?.user.direccionLine?.id) || null
+        : "",
+      coordinacion_id: isNotAdmin
+        ? Number(session?.user.coordination?.id) || null
+        : "",
+    };
+    const filteredEntries = Object.entries(payload).filter(
+      ([_, v]) => v !== "" && v !== 0 && v !== undefined && v !== null,
+    );
+    const params = new URLSearchParams(filteredEntries as unknown as string);
+    setSearchParams(params.toString());
   };
 
   const cleanFields = () => {
@@ -69,7 +89,7 @@ export default function FamilyConsult() {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Buscar Cédula</FormLabel>
+                  <FormLabel>Buscar Cédula Trabajador</FormLabel>
                   <FormControl>
                     <Input
                       type="text"
