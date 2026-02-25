@@ -61,6 +61,10 @@ export const columnsCode: ColumnDef<Code>[] = [
     },
   },
   {
+    accessorKey: "Dependencia.dependencia",
+    header: "Dependencia",
+  },
+  {
     accessorKey: "DireccionGeneral.direccion_general",
     header: "Dirección General",
   },

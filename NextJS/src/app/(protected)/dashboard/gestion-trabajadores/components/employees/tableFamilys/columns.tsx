@@ -14,6 +14,7 @@ import {
 import { MoreHorizontal } from "lucide-react";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DetailInfoFamily } from "./detail-info";
+import { Badge } from "@/components/ui/badge";
 
 export const columnsFamily: ColumnDef<Family>[] = [
   {
@@ -40,9 +41,27 @@ export const columnsFamily: ColumnDef<Family>[] = [
     header: "Parentesco",
   },
   {
+    id: "Edad",
+    accessorKey: "fechanacimiento",
+    header: "F. Nacimiento",
+    cell: ({ getValue }) => {
+      const fechanacimiento = new Date(getValue() as string);
+      return <h1>{fechanacimiento.toLocaleDateString()}</h1>;
+    },
+  },
+  {
     id: "Heredero",
     accessorKey: "heredero",
     header: "Heredero",
+    cell: ({ getValue }) => {
+      const heredero = getValue() as boolean;
+      return (
+        <Badge variant={heredero ? "default" : "destructive"}>
+          {" "}
+          {heredero ? "Heredero" : "No Heredero"}
+        </Badge>
+      );
+    },
   },
   {
     id: "Acciones",

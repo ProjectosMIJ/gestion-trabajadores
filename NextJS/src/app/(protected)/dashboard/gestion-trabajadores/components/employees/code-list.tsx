@@ -130,7 +130,7 @@ export function CodeListPage() {
     });
   };
   return (
-    <Card>
+    <Card className="w-[50%]">
       <CardHeader>
         <CardTitle>
           <h1>Listado De Cargos</h1>
@@ -335,7 +335,7 @@ export function CodeListPage() {
             <Loading />
           </>
         ) : (
-          <div className=" w-[97%] m-auto">
+          <div>
             <TableCode codeList={codeList?.data ?? []} />
           </div>
         )}
