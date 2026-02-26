@@ -546,7 +546,7 @@ export default function DetailInfoEmployee({ employee }: Props) {
                           <TableHeader>
                             <TableRow>
                               <TableHead>Categoria</TableHead>
-                              <TableHead>Patologia</TableHead>
+                              <TableHead>Alergias</TableHead>
                             </TableRow>
                           </TableHeader>
                           <TableBody>

@@ -242,7 +242,7 @@ export function DetailInfoFamily({ family }: Props) {
                         <TableHeader>
                           <TableRow>
                             <TableHead>Categoria</TableHead>
-                            <TableHead>Patologia</TableHead>
+                            <TableHead>Alergias</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
