@@ -59,6 +59,13 @@ def registrar_familiar(request, cedula_empleado):
 @api_view(['GET'])
 def listar_familiares(request):
     try:
+        if not request.GET:
+            return Response({
+                "status": "Ok",
+                "message": "No se proporcionaron parámetros de búsqueda.",
+                "data": []
+            }, status=status.HTTP_200_OK)
+
         queryset = Employeefamily.objects.select_related(
             'parentesco', 'sexo', 'estadoCivil', 'employeecedula'
         ).all()
@@ -73,6 +80,14 @@ def listar_familiares(request):
             }, status=status.HTTP_400_BAD_REQUEST)
 
         familiares = filterset.qs.distinct()[:10]
+        
+        if not familiares.exists():
+            return Response({
+                "status": "Ok",
+                "message": "No se encontraron resultados para la búsqueda.",
+                "data": []
+            }, status=status.HTTP_200_OK)
+
         serializer = FamilyListSerializer(familiares, many=True)
         
         return Response({
@@ -87,8 +102,6 @@ def listar_familiares(request):
             "message": f"Error al recuperar carga familiar: {str(e)}",
             "data": []
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
-
 
 
 @extend_schema(
