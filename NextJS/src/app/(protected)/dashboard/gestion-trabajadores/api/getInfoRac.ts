@@ -573,6 +573,22 @@ export const postReport = async <T>(values: T): Promise<globalThis.Blob> => {
   const getResponse = await response.blob();
   return getResponse;
 };
+export const postReportPasivo = async <T>(
+  values: T,
+): Promise<globalThis.Blob> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}reports/pasivo/`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(values),
+    },
+  );
+  const getResponse = await response.blob();
+  return getResponse;
+};
 export const getRegion = async (): Promise<ApiResponse<Region[]>> => {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}direccion/regiones/`,
