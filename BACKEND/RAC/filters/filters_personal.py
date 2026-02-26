@@ -1,5 +1,7 @@
 import django_filters
 from ..models import Employee, AsigTrabajo
+from RAC.models.family_personal_models import Employeefamily
+
 
 
 class EmployeeFilter(django_filters.FilterSet):
@@ -29,4 +31,26 @@ class AsigTrabajoFilter(django_filters.FilterSet):
 
     class Meta:
         model = AsigTrabajo
+        fields = []
+        
+        
+        
+class EmployeeFamilyFilter(django_filters.FilterSet):
+    cedula_empleado = django_filters.CharFilter(
+        field_name='employeecedula__cedulaidentidad', lookup_expr='exact')
+    dependencia_id = django_filters.NumberFilter(
+        field_name='employeecedula__assignments__DireccionGeneral__dependenciaId'
+    )
+    direccion_general_id = django_filters.NumberFilter(
+        field_name='employeecedula__assignments__DireccionGeneral'
+    )
+    direccion_linea_id = django_filters.NumberFilter(
+        field_name='employeecedula__assignments__DireccionLinea'
+    )
+    coordinacion_id = django_filters.NumberFilter(
+        field_name='employeecedula__assignments__Coordinacion'
+    )
+
+    class Meta:
+        model = Employeefamily
         fields = []

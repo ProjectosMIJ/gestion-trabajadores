@@ -1,4 +1,3 @@
-
 from django.urls import path
 from . import views
 
@@ -31,6 +30,8 @@ urlpatterns = [
     path('Patologias/', views.list_chronic_pathologies, name='listar-patologias'),
     path('categorias-discapacidad/', views.list_disability_categories, name='listar-categorias-discapacidades'),
     path('Discapacidades/', views.list_disabilities, name='listar-discapacidades'),
+    path('alergias/', views.list_allergies, name='listar-alergias '),
+    path('releciones/', views.list_relationship, name='listar-relacion-de-contacto-de-emergencia'),
     
     # --------------------
     # DATOS DE VESTIMENTA
@@ -103,6 +104,7 @@ urlpatterns = [
     path('cargos/vacantes/',views.list_general_vacants_codes, name='lista todos los codigos vacantes'),
 #     # listar codigo  tanto activos como vacantes
     path('cargos/general/', views.list_general_work_codes, name='lista de codigos generales'),
+    path('cargos/pasivo/',views.list_work_codes_passive, name='lista de codigos pasivos'),
 # ------------------
 # ASIGNACION DE CARGO
 # -------------------
@@ -151,8 +153,8 @@ urlpatterns = [
 # RUTAS HISTORIAL DE EMPLEADOS
 # -------------------  
     path('EmployeeMovementHistory/<str:cedulaidentidad>/', views.listar_historial_cargo, name='historial-por-cedula'),
-    #   listar egresado por cedula 
-    path('EmployeeEgresado/<str:cedulaidentidad>/', views.listar_empleado_Egresado, name='egresados-detail'),
+
+
     
 # ------------------
 # MOVIMIENTO DE PERSONAL Y ESTATUS
@@ -169,20 +171,15 @@ urlpatterns = [
 # ------------------
 # GESTION DE FAMILIARES
 # ------------------- 
-    path('Employeefamily/', views.registrar_familiar, name='creacion-empleadoFamiliar'),
-    path('Employeefamily/masivo/', views.registrar_familiares_masivo, name='creacion-masiva-empleadoFamiliar'),
-    path('Employeefamily/<str:cedula_empleado>/',views.listar_familiares, name='listar-familiares-por-cedula'),
+    path('Employeefamily/<str:cedula_empleado>/', views.registrar_familiar, name='creacion-empleadoFamiliar'),
+    path('Employeefamily/', views.listar_familiares, name='creacion-empleadoFamiliar'),
+    path('Employeefamily/masivo/<str:cedula_empleado>/', views.registrar_familiares_masivo, name='creacion-masiva-empleadoFamiliar'),
     path('Parentesco/', views.listar_parentesco, name="listar-parentesco"),
-
-
-   
-
-   
+    
+    
+    
 #   reporte
     path('EmployeeMovementHistory/reporte/',views.reporte_movimientos, name='reporte-movimiento'),
-    
-    
-   
    
     # path('reportes/categias/', views.ReportCategoryListView.as_view(), name='reportes_categorias'),
     path('employee/reports/config/', views.EmployeeReportConfigView.as_view(), name='configuraciones_empleados'),
@@ -194,8 +191,10 @@ urlpatterns = [
     # path('reports/', views.generate_dynamic_report, name='reporte_generico'),
     
     # Generación de reportes PDF
-    path('reports/pdf/', views.generate_pdf_report, name='reporte_pdf'),
+    path('reports/pdf/', views.generate_pdf_report_active, name='reporte_activo_pdf'),
+    path('reports/pasivo/', views.generate_pdf_report_passive, name='reporte_pasivo_pdf'),
     
     
-    path('menciones/create/', views.crear_menciones_view, name='menciones-creadas')
+    path('menciones/create/', views.crear_menciones_view, name='menciones-creadas'),
+    path('carga/trabajador/', views.ImportarCargosESPECIALESView.as_view(), name="carga-trabajador-masiva"),
 ]

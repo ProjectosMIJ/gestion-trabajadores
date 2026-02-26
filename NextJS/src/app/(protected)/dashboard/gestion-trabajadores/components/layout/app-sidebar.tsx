@@ -26,6 +26,7 @@ import {
   UserPlus,
   LucideIcon,
   Badge,
+  BookUser,
 } from "lucide-react";
 
 import {
@@ -45,13 +46,11 @@ import Link from "next/link";
 import { useState } from "react";
 import { Skeleton } from "../../../../../../components/ui/skeleton";
 
-// Definir tipos para los permisos
 type Permission = {
   roleAccept: string[];
   departmentAccept: string[];
 };
 
-// Definir tipos para los items del menú
 type MenuItem = {
   title: string;
   url: string;
@@ -84,7 +83,7 @@ const items: MenuItem[] = [
     subMenu: [
       {
         title: "Agregar Trabajador",
-        url: "/dashboard/gestion-trabajadores/personal/registrar",
+        url: "/dashboard/gestion-trabajadores/personal-trabajador/registrar",
         icon: UserPlus,
         permission: {
           roleAccept: ["admin"],
@@ -93,7 +92,7 @@ const items: MenuItem[] = [
       },
       {
         title: "Consultar/Actualizar",
-        url: "/dashboard/gestion-trabajadores/personal",
+        url: "/dashboard/gestion-trabajadores/personal-trabajador/consultar",
         icon: ListCheck,
         permission: {
           roleAccept: ["basic", "admin"],
@@ -102,8 +101,17 @@ const items: MenuItem[] = [
       },
       {
         title: "Agregar Familiar",
-        url: "/dashboard/gestion-trabajadores/familiares/agregar-familiar",
+        url: "/dashboard/gestion-trabajadores/personal-trabajador/familiares/agregar-familiar",
         icon: ContactRound,
+        permission: {
+          roleAccept: ["admin"],
+          departmentAccept: ["RAC"],
+        },
+      },
+      {
+        title: "Consultar Familiar",
+        url: "/dashboard/gestion-trabajadores/personal-trabajador/familiares/consultar",
+        icon: BookUser,
         permission: {
           roleAccept: ["admin"],
           departmentAccept: ["RAC"],
@@ -227,6 +235,15 @@ const items: MenuItem[] = [
         title: "Egresar/Pasivo",
         url: "/dashboard/gestion-trabajadores/movimientos/cambiar-pasivo",
         icon: BookCheck,
+        permission: {
+          roleAccept: ["admin"],
+          departmentAccept: ["RAC"],
+        },
+      },
+      {
+        title: "Consultar Movimientos",
+        url: "/dashboard/gestion-trabajadores/movimientos/consultar",
+        icon: ListCheck,
         permission: {
           roleAccept: ["admin"],
           departmentAccept: ["RAC"],

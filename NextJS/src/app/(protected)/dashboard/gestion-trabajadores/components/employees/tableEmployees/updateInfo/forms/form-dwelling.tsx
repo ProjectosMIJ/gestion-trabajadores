@@ -43,14 +43,10 @@ import {
   schemaDwellingUpdate,
 } from "../schema/schema-dwelling";
 export type Props = {
-  defaultValues: DwellingUpdateType;
   idEmployee: string;
 };
 
-export default function FormUpdateDwelling({
-  defaultValues,
-  idEmployee,
-}: Props) {
+export default function FormUpdateDwelling({ idEmployee }: Props) {
   const { mutate } = useSWRConfig();
   const [isPending, startTransition] = useTransition();
   const [stateId, setStateId] = useState<string>();
@@ -74,7 +70,15 @@ export default function FormUpdateDwelling({
   } = useSWR("conditionDwelling", async () => await getConditionDwelling());
   const form = useForm({
     resolver: zodResolver(schemaDwellingUpdate),
-    defaultValues,
+    defaultValues: {
+      datos_vivienda: {
+        condicion_vivienda_id: 0,
+        direccion_exacta: "",
+        estado_id: 0,
+        municipio_id: 0,
+        parroquia: 0,
+      },
+    },
   });
   const onSubmitFormity = (values: DwellingUpdateType) => {
     startTransition(async () => {

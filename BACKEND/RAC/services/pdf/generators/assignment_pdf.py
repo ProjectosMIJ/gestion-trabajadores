@@ -110,28 +110,24 @@ class AssignmentPDFGenerator(BasePDFGenerator):
             "NONE", "N/A", "SIN DIRECCIÓN ASIGNADA", "S/D"
         }
 
-        # Utilizamos tu función original que funciona perfecto
-        def get_order(item, attr):
-            if isinstance(item, str): return 0
-            return getattr(item, attr, 999) or 999
 
-        sorted_deps = sorted(agrupacion.keys(), key=lambda d: getattr(d, 'id', 999) if not isinstance(d, str) else 999)
+        sorted_deps = sorted(agrupacion.keys(), key=lambda d: getattr(d, 'Codigo', '') if not isinstance(d, str) else '')
     
         for dep in sorted_deps:
             # Al igual que en Empleados, getattr extrae el nombre o usa el string por defecto
             dep_nom = getattr(dep, 'dependencia', str(dep))
             dgs = agrupacion[dep]
-            sorted_dgs = sorted(dgs.keys(), key=lambda g: get_order(g, 'orden_by_direccion'))
+            sorted_dgs = sorted(dgs.keys(), key=lambda g: getattr(g, 'Codigo', '') if not isinstance(g, str) else '')
     
             for dg in sorted_dgs:
                 dg_nom = getattr(dg, 'direccion_general', str(dg))
                 dls = dgs[dg]
-                sorted_dls = sorted(dls.keys(), key=lambda l: get_order(l, 'orden_by_direccion'))
+                sorted_dls = sorted(dls.keys(), key=lambda l: getattr(l, 'Codigo', '') if not isinstance(l, str) else '')
     
                 for dl in sorted_dls:
                     dl_nom = getattr(dl, 'direccion_linea', str(dl))
                     coords_dict = dls[dl]
-                    sorted_coords = sorted(coords_dict.keys(), key=lambda c: get_order(c, 'orden_by_coordinacion'))
+                    sorted_coords = sorted(coords_dict.keys(), key=lambda c: getattr(c, 'Codigo', '') if not isinstance(c, str) else '')
     
                     for coord in sorted_coords:
                         coord_nom = getattr(coord, 'coordinacion', str(coord))

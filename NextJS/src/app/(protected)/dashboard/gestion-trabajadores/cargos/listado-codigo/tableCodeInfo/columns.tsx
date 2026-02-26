@@ -61,8 +61,19 @@ export const columnsCode: ColumnDef<Code>[] = [
     },
   },
   {
+    accessorKey: "Dependencia.dependencia",
+    id: "Dependencia",
+    header: "Dependencia",
+  },
+  {
     accessorKey: "DireccionGeneral.direccion_general",
+    id: "Dirección General",
     header: "Dirección General",
+    cell: ({ getValue }) => {
+      const directionGeneral = getValue();
+      if (!directionGeneral) return "N/A";
+      return directionGeneral;
+    },
   },
   {
     accessorKey: "DireccionLinea.direccion_linea",

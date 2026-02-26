@@ -2,7 +2,7 @@ from .family_personal_models import Parentesco, Employeefamily
 from .historial_personal_models import EmployeeMovementHistory, EmployeeEgresado, CargoEgresado, Tipo_movimiento
 from .personal_models import (Denominacioncargo,Denominacioncargoespecifico, OrganismoAdscrito, NivelAcademico, Grado, Tiponomina, 
                               Dependencias,DireccionGeneral, DireccionLinea, Coordinaciones, Estatus, Tipo_personal,
-                              Sexo, categorias_discapacidad, categorias_patologias, patologias_Cronicas, 
+                              Sexo, categorias_discapacidad, categorias_patologias, patologias_Cronicas, contacto_emergencia,
                               Discapacidades, estado_civil, Talla_Camisas, Talla_Pantalones,
                               Talla_Zapatos, GrupoSanguineo, carreras, Menciones,
                               datos_vivienda, condicion_vivienda, perfil_salud, perfil_fisico, 

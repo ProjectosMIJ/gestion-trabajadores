@@ -4,7 +4,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { AppSidebarEmployees } from "./components/layout/app-sidebar";
-import { HeaderLayout } from "./components/layout/header";
+import { HeaderLayout } from "../../../../components/layout/header";
 export default function ProtectedLayout({
   children,
 }: Readonly<{

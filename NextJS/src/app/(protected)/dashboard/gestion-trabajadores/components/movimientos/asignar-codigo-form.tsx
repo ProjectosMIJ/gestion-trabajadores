@@ -96,7 +96,6 @@ export function AsigCode() {
       const response = await AsignCode(data);
       if (response.success) {
         toast.success(response.message);
-        setEmployee([]);
         setSearchEmployee("");
       } else {
         toast.error(response.message);
@@ -199,15 +198,16 @@ export function AsigCode() {
                   "border-2 border-blue-400/45 bg-blue-200/40"
                 }  rounded-sm p-2 `}
               >
-                {!Array.isArray(employee) ? (
+                {!Array.isArray(employee) && (
                   <div className="flex flex-row gap-2">
                     <p>Nombres: {employee.nombres}</p>
                     <p>Cédula: {employee.cedulaidentidad}</p>
                   </div>
-                ) : (
-                  <Error errorMessage="Cédula Invalida" />
                 )}
               </div>
+            )}
+            {Array.isArray(employee) && (
+              <Error errorMessage="Cédula Invalida" />
             )}
             {employee && !Array.isArray(employee) && (
               <div className="space-y-5">
@@ -414,7 +414,7 @@ export function AsigCode() {
               <div>
                 <Form {...formAsig}>
                   <form onSubmit={formAsig.handleSubmit(onSubmit)}>
-                    {codeList?.data.length! > 0 ? (
+                    {codeList?.data.length! > 0 && (
                       <>
                         <FormField
                           control={formAsig.control}
@@ -541,8 +541,10 @@ export function AsigCode() {
                           {isPending ? "Asignando Código" : "Asignar Código"}
                         </Button>
                       </>
-                    ) : (
-                      <Error errorMessage="Direccion Administrativa No Posee Cargos Vacantes" />
+                    )}
+
+                    {codeList?.data.length! < 1 && (
+                      <Error errorMessage="No Hay Codigos Vacantes Disponibles" />
                     )}
                   </form>
                 </Form>

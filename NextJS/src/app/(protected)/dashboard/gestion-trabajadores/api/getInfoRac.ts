@@ -1,6 +1,7 @@
 "use server";
 import {
   AcademyLevel,
+  allergies,
   ApiResponse,
   BloodGroupType,
   Cargo,
@@ -16,6 +17,7 @@ import {
   EmployeeData,
   EmployeeInfo,
   ErrorFetch,
+  Family,
   Grado,
   MaritalStatusType,
   Mencion,
@@ -202,9 +204,9 @@ export const getEmployeeDataSearch = async ({
 }: {
   searchParams: string | undefined;
 }): Promise<ApiResponse<EmployeeData[]>> => {
-  const url = searchParams
-    ? `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employee/cargos/?${searchParams}`
-    : `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employee/cargos/`;
+  const url =
+    searchParams &&
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employee/cargos/?${searchParams}`;
   const responseEmployee = await fetch(`${url}`, {
     cache: "no-cache",
   });
@@ -216,7 +218,7 @@ export const getHistoryMoveEmploye = async (
   id: string,
 ): Promise<ApiResponse<EmployeeCargoHistory[]>> => {
   const responseHistoryMoveEmploye = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}historyEmployee/historial/${id}/`,
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}EmployeeMovementHistory/${id}/`,
   );
   const getHistoryMoveEmploye: ApiResponse<EmployeeCargoHistory[]> =
     await responseHistoryMoveEmploye.json();
@@ -314,7 +316,13 @@ export const getDisability = async (): Promise<
     await responseDisability.json();
   return getDisability;
 };
-
+export const getAllergies = async (): Promise<ApiResponse<allergies[]>> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}alergias/`,
+  );
+  const getResponse: ApiResponse<allergies[]> = await response.json();
+  return getResponse;
+};
 export const getShirtSize = async (): Promise<ApiResponse<ShirtSize[]>> => {
   const responseShirtSize = await fetch(
     `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}listar-tallasCamisas/`,
@@ -572,6 +580,22 @@ export const postReport = async <T>(values: T): Promise<globalThis.Blob> => {
   const getResponse = await response.blob();
   return getResponse;
 };
+export const postReportPasivo = async <T>(
+  values: T,
+): Promise<globalThis.Blob> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}reports/pasivo/`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(values),
+    },
+  );
+  const getResponse = await response.blob();
+  return getResponse;
+};
 export const getRegion = async (): Promise<ApiResponse<Region[]>> => {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}direccion/regiones/`,
@@ -597,5 +621,18 @@ export const getDirectionGeneralById = async (
     `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}direccionGeneral/${id}/`,
   );
   const getResponse: ApiResponse<DirectionGeneral[]> = await response.json();
+  return getResponse;
+};
+
+export const getFamilyEmployee = async ({
+  searchParams,
+}: {
+  searchParams: string | undefined;
+}): Promise<ApiResponse<Family[]>> => {
+  const url = searchParams
+    ? `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employeefamily/?${searchParams}`
+    : `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employeefamily/`;
+  const response = await fetch(url);
+  const getResponse: ApiResponse<Family[]> = await response.json();
   return getResponse;
 };

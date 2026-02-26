@@ -1,0 +1,253 @@
+import { Family } from "@/app/types/types";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  SheetContentUI,
+  SheetHeaderUI,
+  SheetTitleUI,
+  SheetTriggerUI,
+  SheetUI,
+} from "@/components/ui/SheetUI";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { format } from "date-fns";
+import { formatInTimeZone } from "date-fns-tz";
+import {
+  Ambulance,
+  GraduationCap,
+  ShipIcon,
+  ShipWheel,
+  Shirt,
+} from "lucide-react";
+interface Props {
+  family: Family;
+}
+export function DetailInfoFamily({ family }: Props) {
+  return (
+    <SheetUI>
+      <SheetTriggerUI asChild>
+        <Button className="w-full">Ver Detalles</Button>
+      </SheetTriggerUI>
+      <SheetContentUI>
+        <SheetHeaderUI>
+          <SheetTitleUI>Información Detallada Del Familiar</SheetTitleUI>
+        </SheetHeaderUI>
+        <ScrollArea className="space-y-5 h-[90%]">
+          <div className="space-y-5">
+            <Card>
+              <CardHeader>Información Basica</CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2">
+                  <span>Cedula</span>
+                  <span>{family.cedulaFamiliar}</span>
+                  <span>Primer Nombre</span>
+                  <span>{family.primer_nombre}</span>
+                  <span>Segundo Nombre</span>
+                  <span>{family.segundo_nombre ?? "N/A"}</span>
+                  <span>Primer Apellido</span>
+                  <span>{family.primer_apellido}</span>
+                  <span>Segundo Apellido</span>
+                  <span>{family.segundo_apellido ?? "N/A"}</span>
+                  <span>F. Nacimiento</span>
+                  <span>
+                    {format(
+                      new Date(family.fechanacimiento).toISOString(),
+                      "dd/MM/yyyy",
+                    )}
+                  </span>
+                  <span>Sexo</span>
+                  <span>{family.sexo.sexo}</span>
+                  <span>Estado Civil</span>
+                  <span>{family.estadoCivil?.estadoCivil}</span>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="flex flex-row">
+                Relacion/Parentesco
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2">
+                  <span>Parentesco</span>
+                  <span>
+                    {family.parentesco?.descripcion_parentesco ?? "N/A"}
+                  </span>
+                  <span>Labora en la Institución </span>
+                  <span>
+                    <Badge
+                      variant={family.mismo_ente ? "default" : "destructive"}
+                    >
+                      {family.mismo_ente
+                        ? "Trabaja en la Institucion"
+                        : "No Trabaja en la Institucion"}
+                    </Badge>
+                  </span>
+                  <span>Heredero </span>
+                  <span>
+                    <Badge
+                      variant={family.heredero ? "default" : "destructive"}
+                    >
+                      {family.heredero ? "Heredero" : "No es heredero"}
+                    </Badge>
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex flex-row items-center gap-3 justify-between">
+                  <div className="flex flex-row gap-2  items-center">
+                    Formaciones Academicas <GraduationCap />{" "}
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 place-content-center">
+                  <div>Nivel Academico:</div>
+                  <div>
+                    {family.formacion_academica_familiar?.nivelAcademico
+                      ?.nivelacademico ?? "N/A"}
+                  </div>
+                  <div>Carrera:</div>
+                  <div>
+                    {family.formacion_academica_familiar?.carrera
+                      ?.nombre_carrera ?? "N/A"}
+                  </div>
+                  <div>Mención:</div>
+                  <div>
+                    {family.formacion_academica_familiar?.mension
+                      ?.nombre_mencion ?? "N/A"}
+                  </div>
+                  <div>Institución:</div>
+                  <div>
+                    {family.formacion_academica_familiar?.institucion ?? "N/A"}
+                  </div>
+
+                  <div>Capacitación</div>
+                  <div>
+                    {family.formacion_academica_familiar?.capacitacion ?? "N/A"}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex flex-row items-center gap-3 justify-between">
+                  <div className="flex flex-row items-center gap-2">
+                    Información De Vestimenta <Shirt />
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 place-content-center">
+                  <div>Talla De Camisa:</div>
+                  <div>
+                    {family.perfil_fisico_familiar?.tallaCamisa?.talla ?? "N/A"}
+                  </div>
+                  <div>Talla de Pantalon:</div>
+                  <div>
+                    <div>
+                      {family.perfil_fisico_familiar?.tallaPantalon?.talla ??
+                        "N/A"}
+                    </div>
+                  </div>
+                  <div>Talla De Calzado:</div>
+                  <div>
+                    <div>
+                      {family.perfil_fisico_familiar?.tallaZapatos?.talla ??
+                        "N/A"}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex flex-row items-center gap-3 justify-between">
+                  <div className="flex flex-row items-center gap-2">
+                    Información De Salud
+                    <Ambulance />
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 place-content-center">
+                  <div>Tipo De Sangre:</div>
+                  <div>
+                    {family.perfil_salud_familiar?.grupoSanguineo != null
+                      ? family.perfil_salud_familiar.grupoSanguineo
+                          .grupoSanguineo
+                      : "N/A"}
+                  </div>
+                  {family.perfil_salud_familiar?.patologiasCronicas &&
+                    family.perfil_salud_familiar.patologiasCronicas.length >
+                      0 && (
+                      <Table className="col-span-2">
+                        <TableCaption>
+                          Lista De Patologias Del Trabajador
+                        </TableCaption>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Categoria</TableHead>
+                            <TableHead>Patologia</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {family.perfil_salud_familiar.patologiasCronicas.map(
+                            (v, i) => (
+                              <TableRow key={i}>
+                                <TableCell className="font-medium">
+                                  {v.categoria.nombre_categoria}
+                                </TableCell>
+                                <TableCell>{v.patologia}</TableCell>
+                              </TableRow>
+                            ),
+                          )}
+                        </TableBody>
+                      </Table>
+                    )}
+                  {family.perfil_salud_familiar?.discapacidad &&
+                    family.perfil_salud_familiar.discapacidad.length > 0 && (
+                      <Table className="col-span-2">
+                        <TableCaption>
+                          Lista De Discapcidades Del Trabajador
+                        </TableCaption>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead>Categoria</TableHead>
+                            <TableHead>Discapacidad</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {family.perfil_salud_familiar.discapacidad.map(
+                            (v, i) => (
+                              <TableRow key={i}>
+                                <TableCell className="font-medium">
+                                  {v.categoria.nombre_categoria}
+                                </TableCell>
+                                <TableCell>{v.discapacidad}</TableCell>
+                              </TableRow>
+                            ),
+                          )}
+                        </TableBody>
+                      </Table>
+                    )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </ScrollArea>
+      </SheetContentUI>
+    </SheetUI>
+  );
+}

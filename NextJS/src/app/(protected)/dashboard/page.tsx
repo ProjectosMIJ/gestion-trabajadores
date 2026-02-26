@@ -1,12 +1,12 @@
 "use client";
-import { toast } from "sonner";
-import { useRouter } from "next/navigation";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Lock, Check } from "lucide-react";
+import { SignOut } from "@/components/signout-button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Check, Lock } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import Loading from "./gestion-trabajadores/components/loading/loading";
-import { useEffect } from "react";
 type Department = {
   id: string;
   name: string;
@@ -102,6 +102,7 @@ export default function Dashboard() {
         <p className=" text-2xl text-center text-white ">
           Seleccione un módulo para acceder a sus funciones
         </p>
+        <SignOut />
       </div>
       <div className="grid overflow-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mx-8 ">
         {departments.map((department, index) => {

@@ -24,7 +24,7 @@ import {
   getCarrera,
   getMencion,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import { AcademyType } from "@/app/(protected)/dashboard/gestion-trabajadores/personal/registrar/schemas/schema-academic_training";
+import { AcademyType } from "@/app/(protected)/dashboard/gestion-trabajadores/personal-trabajador/registrar/schemas/schema-academic_training";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {

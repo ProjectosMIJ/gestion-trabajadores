@@ -75,25 +75,29 @@ export interface TypePerson {
 }
 
 export interface EmployeeCargoHistory {
-  empleado_cedula: string;
-  puesto_codigo: string;
+  id: string;
+  codigo_puesto: string;
   fecha_movimiento: string;
   modificado_por_usuario: string;
-  prev_cargo_especifico: string;
-  prev_cargo_general: string;
-  prev_nomina: string;
-  prev_grado: string;
-  prev_ubicacion_admin: string;
-  prev_ubicacion_fisica: string;
-  prev_estatus: string;
-  new_cargo_especifico: string;
-  new_cargo_general: string;
-  new_nomina: string;
-  new_grado: string;
-  new_ubicacion_admin: string;
-  new_ubicacion_fisica: string;
-  new_estatus: string;
-  motivo_movimiento: string;
+  motivo_movimiento: TypeMovement;
+  new_denominacioncargo: Cargo | null;
+  new_denominacioncargoespecifico: Cargo | null;
+  new_grado: Grado | null;
+  new_Dependencia: Dependency | null;
+  new_DireccionGeneral: DirectionGeneral | null;
+  new_DireccionLinea: DirectionLine | null;
+  new_Coordinacion: Coordination | null;
+  new_estatus: Status | null;
+  new_tiponomina: Nomina | null;
+  prev_Dependencia: Dependency | null;
+  prev_estatus: Status | null;
+  prev_denominacioncargo: Cargo | null;
+  prev_denominacioncargoespecifico: Cargo | null;
+  prev_grado: Grado | null;
+  prev_tiponomina: Nomina | null;
+  prev_DireccionGeneral: DirectionGeneral | null;
+  prev_DireccionLinea: DirectionLine | null;
+  prev_Coordinacion: Coordination | null;
 }
 
 export interface ErrorFetch {
@@ -115,23 +119,25 @@ export interface BloodGroupType {
   GrupoSanguineo: string;
 }
 
+interface Category {
+  id: number;
+  nombre_categoria: string;
+}
 export interface PatologysType {
   id: number;
   patologia: string;
-  categoria: {
-    id: number;
-    nombre_categoria: string;
-  };
+  categoria: Category;
 }
 export interface DisabilitysType {
   id: number;
   discapacidad: string;
-  categoria: {
-    id: number;
-    nombre_categoria: string;
-  };
+  categoria: Category;
 }
-
+export interface allergies {
+  id: number;
+  alergia: string;
+  categoria: Category;
+}
 export interface ShirtSize {
   id: number;
   talla: string;
@@ -214,6 +220,16 @@ export interface HealthProfile {
     id: number;
     grupoSanguineo: string;
   } | null;
+  alergias:
+    | {
+        id: number;
+        alergia: string;
+        categoria: {
+          id: number;
+          nombre_categoria: string;
+        };
+      }[]
+    | null;
   discapacidad:
     | {
         id: number;
@@ -283,6 +299,9 @@ export interface EmployeeData {
   fechaingresoorganismo: string;
   fecha_actualizacion: string;
   asignaciones: InfoCode[];
+  correo: string | null;
+  telefono_habitacion: string | null;
+  telefono_movil: string | null;
 }
 export interface Sex {
   id: number;
@@ -318,7 +337,6 @@ export interface Code {
   tiponomina: Nomina;
   OrganismoAdscrito: OrganismosAds | null;
   Dependencia: Dependency;
-
   DireccionGeneral: DireccionGeneral;
   DireccionLinea: DireccionLinea | null;
   Coordinacion: Coordinacion | null;
@@ -376,38 +394,24 @@ export interface Region {
 }
 
 export interface Family {
-  cedula_empleado: string;
-  nombre_empleado: string;
-  sexo_empleado: Sex;
-  denominacion_cargo: Cargo;
-  denominacion_cargo_especifico: Cargo;
-  tipo_nomina: Nomina;
-  familiares: {
-    id: number;
-    cedulaFamiliar: string;
-    primer_nombre: string;
-    segundo_nombre: string;
-    primer_apellido: string;
-    segundo_apellido: string;
-    parentesco: ParentType | null;
-    fechanacimiento: string;
-    sexo: Sex;
-    estadoCivil: StatusCivil | null;
-    mismo_ente: boolean;
-    heredero: boolean;
-    perfil_salud_familiar: HealthProfile | null;
-    perfil_fisico_familiar: PhysicalProfile | null;
-    formacion_academica_familiar: {
-      nivelAcademico: AcademyLevelEmployeeData | null;
-      institucion: string;
-      capacitacion: string;
-      carrera: Carrera | null;
-      mencion: Mencion | null;
-    };
-    observaciones: string;
-    createdat: string;
-    updatedat: string;
-  }[];
+  id: number;
+  cedulaFamiliar: string;
+  primer_nombre: string;
+  segundo_nombre: string;
+  primer_apellido: string;
+  segundo_apellido: string;
+  parentesco: ParentType | null;
+  fechanacimiento: string;
+  sexo: Sex;
+  estadoCivil: StatusCivil | null;
+  mismo_ente: boolean;
+  heredero: boolean;
+  perfil_salud_familiar: HealthProfile | null;
+  perfil_fisico_familiar: PhysicalProfile | null;
+  formacion_academica_familiar: AcademyLevelEmployeeData;
+  observaciones: string;
+  createdat: string;
+  updatedat: string;
 }
 export interface TypeMovement {
   id: number;

@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from datetime import date
 from dateutil.relativedelta import relativedelta
-from RAC.models.personal_models import Employee
 from RAC.services.mapa_reporte import MAPA_REPORTES
 
 

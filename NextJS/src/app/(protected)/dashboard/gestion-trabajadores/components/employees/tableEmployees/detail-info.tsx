@@ -295,31 +295,7 @@ export default function DetailInfoEmployee({ employee }: Props) {
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
-                      <FormUpdateDwelling
-                        idEmployee={employee.id.toString()}
-                        defaultValues={{
-                          datos_vivienda: {
-                            direccion_exacta:
-                              employee.datos_vivienda?.direccion_exacta ?? "",
-                            estado_id: Number(
-                              employee.datos_vivienda?.estado?.id ??
-                                employee.datos_vivienda?.estado.estado,
-                            ),
-                            municipio_id: Number(
-                              employee.datos_vivienda?.municipio?.id ??
-                                employee.datos_vivienda?.estado.estado,
-                            ),
-                            parroquia: Number(
-                              employee.datos_vivienda?.parroquia?.id ??
-                                employee.datos_vivienda?.parroquia.id,
-                            ),
-                            condicion_vivienda_id: Number(
-                              employee.datos_vivienda?.condicion?.id ??
-                                employee.datos_vivienda?.condicion.id,
-                            ),
-                          },
-                        }}
-                      />
+                      <FormUpdateDwelling idEmployee={employee.id.toString()} />
                     </DialogContent>
                   </Dialog>
                 </CardTitle>
@@ -491,6 +467,10 @@ export default function DetailInfoEmployee({ employee }: Props) {
                               employee.perfil_salud?.discapacidad?.map(
                                 (d) => d.id,
                               ) ?? [],
+                            alergias:
+                              employee.perfil_salud?.alergias?.map(
+                                (d) => d.id,
+                              ) ?? [],
                           },
                         }}
                       />
@@ -555,6 +535,32 @@ export default function DetailInfoEmployee({ employee }: Props) {
                           ))}
                         </TableBody>
                       </Table>
+                    )}
+                  {employee.perfil_salud?.alergias &&
+                    employee.perfil_salud.alergias.length > 0 && (
+                      <div className="col-span-2">
+                        <Table>
+                          <TableCaption>
+                            Lista De Patologias Del Trabajador
+                          </TableCaption>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Categoria</TableHead>
+                              <TableHead>Patologia</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {employee.perfil_salud.alergias.map((v, i) => (
+                              <TableRow key={i}>
+                                <TableCell className="font-medium">
+                                  {v.categoria.nombre_categoria}
+                                </TableCell>
+                                <TableCell>{v.alergia}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
                     )}
                 </div>
               </CardContent>

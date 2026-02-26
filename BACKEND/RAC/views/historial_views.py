@@ -6,7 +6,7 @@ from django.db.models import Count, Value, CharField
 
 from ..models.historial_personal_models import EmployeeMovementHistory, EmployeeEgresado, Tipo_movimiento
 from ..models.personal_models import Employee,AsigTrabajo
-from ..serializers.historial_personal_serializers import MovimintoCargoSerializer,GestionStatusSerializer,GestionEgreso_PasivoSerializer,EmployeeCargoHistorySerializer,PersonalEgresadoSerializer, TipoMovimientoSerializer
+from ..serializers.historial_personal_serializers import MovimintoCargoSerializer,GestionStatusSerializer,GestionEgreso_PasivoSerializer,EmployeeCargoHistorySerializer, TipoMovimientoSerializer
 from drf_spectacular.utils import extend_schema
 
 
@@ -158,77 +158,51 @@ def gestion_egreso_pasivo(request, cedulaidentidad):
         "data": []
     }, status=status.HTTP_400_BAD_REQUEST)
     
-    
-@extend_schema(
-    tags=["Movimientos de Personal"],
-    summary="Buscar personal egresado por cédula del empleado",
-    description="Devuelve el personal egresado",
-    responses=PersonalEgresadoSerializer
-)
-@api_view(['GET'])
-def listar_empleado_Egresado(request,cedulaidentidad):
-    try:
-        empleado = EmployeeEgresado.objects.filter(
-            employee=cedulaidentidad)
-        if not empleado.exists():
-            return Response({
-                  'status': 'Error',
-                  'message': str(e),
-                  'data': []
-            }, status = status.HTTP_404_BAD_REQUEST)
-            
-        serializers = PersonalEgresadoSerializer(empleado, many=True)
-        
-        return Response({
-            'status':'OK',
-            'message': 'Empleado listado correctamente',
-            'data': serializers.data
-        }, status = status.HTTP_200_OK)
-    except Exception as e:
-        return Response ({
-            'status': 'Error',
-            'message': str(e),
-            'data': []
-        }, status = status.HTTP_400_BAD_REQUEST) 
-        
 
 @extend_schema(
     tags=["Movimientos de Personal"],
-    summary="Buscar movimiento por cédula del empleado",
-    description="Devuelve el historial de movimientos del empleado",
-    responses=EmployeeCargoHistorySerializer,
-
-    
+    summary="Historial de movimientos de de cargo personal",
+    description="Gestiona el historial de cargos del personal",
+    request=GestionEgreso_PasivoSerializer
 )
 @api_view(['GET'])
 def listar_historial_cargo(request, cedulaidentidad):
-    try:
-        if not Employee.objects.filter(cedulaidentidad=cedulaidentidad).exists():
-            return Response({
-                "status": "Error",
-                "message": f"No se encontró registro del empleado.",
-                "data": []
-            }, status=status.HTTP_404_NOT_FOUND)
 
-        movimientos = EmployeeMovementHistory.objects.filter(
-            empleado__cedulaidentidad=cedulaidentidad
-        )
-
-        serializer = EmployeeCargoHistorySerializer(movimientos, many=True)
-        
-        return Response({
-            "status": "Ok",
-            "message": "Historial listado correctamente",
-            "data": serializer.data
-        }, status=status.HTTP_200_OK)
-
-    except Exception as e:
+    if not Employee.objects.filter(cedulaidentidad=cedulaidentidad).exists():
         return Response({
             "status": "Error",
-            "message": f"Error al recuperar el historial: {str(e)}",
+            "message": "No se encontró registro del empleado",
             "data": []
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+        }, status=status.HTTP_404_NOT_FOUND)
+
+  
+    movimientos = EmployeeMovementHistory.objects.filter(
+        empleado__cedulaidentidad=cedulaidentidad
+    ).exclude(
+     motivo__movimiento='ASIGNACION DE CARGO' 
+).select_related(
+        'empleado', 
+        'denominacioncargo', 
+        'denominacioncargoespecifico', 
+        'gradoid', 
+        'tiponomina', 
+        'estatus', 
+        'motivo', 
+        'ejecutado_por'
+    ).order_by('-fecha_movimiento') 
+
+    serializer = EmployeeCargoHistorySerializer(movimientos, many=True)
+    if not serializer.data:
+        return Response({
+            "status": "Ok",
+            "message": "El empleado no posee historial de movimientos o cambios de estatus",
+            "data": []
+        }, status=status.HTTP_200_OK)
+    return Response({
+        "status": "Ok",
+        "message": "Historial listado correctamente",
+        "data": serializer.data
+    }, status=status.HTTP_200_OK)
         
 @extend_schema(
     tags=['Reportes'],

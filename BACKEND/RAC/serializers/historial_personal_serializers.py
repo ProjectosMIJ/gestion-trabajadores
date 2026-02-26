@@ -6,7 +6,7 @@ from django.utils import timezone
 
 from ..models.historial_personal_models import *
 
-from ..models.personal_models import DireccionLinea, Tiponomina, Estatus, AsigTrabajo, Tipo_personal, antecedentes_servicio, Dependencias
+from ..models.personal_models import *
 
 from USER.models.user_models import cuenta as User
 
@@ -14,10 +14,8 @@ from ..services.constants_historial import *
 
 from ..services.constants import *
 
-from ..serializers import (DireccionGeneralSerializer,DireccionLineaSerializer,CoordinacionSerializer,
-                           TipoNominaSerializer,
-                           denominacionCargoEspecificoSerializer,denominacionCargoSerializer,
-                           gradoSerializer,OrganismoAdscritoSerializer)
+from RAC.serializers.personal_activo_serializers import *
+
 
 
 
@@ -303,101 +301,61 @@ class CargoEgresadoSerializer(serializers.ModelSerializer):
             'DireccionLinea', 'Coordinacion', 'OrganismoAdscrito'
         ]
  
-class PersonalEgresadoSerializer(serializers.ModelSerializer):
-    cedula = serializers.CharField(source='employee.cedulaidentidad', read_only=True)
-    nombres = serializers.CharField(source='employee.nombres', read_only=True)
-    apellidos = serializers.CharField(source='employee.apellidos', read_only=True)
-    
-    Tipo_movimiento = TipoMovimientoSerializer(source='motivo_egreso', read_only=True)
-    
-    cargos = CargoEgresadoSerializer(source='cargos_historial', many=True, read_only=True)
 
+    
+class TipoMovimientoSerializer(serializers.ModelSerializer):
     class Meta:
-        model = EmployeeEgresado
-        fields = [
-            'id',
-            'cedula',
-            'nombres',
-            'apellidos',
-            'fechaingresoorganismo',
-            'fecha_egreso',
-            'Tipo_movimiento',
-            'cargos'  
-        ]
+        model = Tipo_movimiento
+        fields = ['id', 'movimiento']
     
     
-    
-    # SERIALIZER PARA LISTAR EL HISTORIAL DE MOVIMIENTOS 
+
+        
 class EmployeeCargoHistorySerializer(serializers.ModelSerializer):
-    # Campos del registro antes del ultimo movimiento ( mapeados como "new_")
-    empleado_cedula = serializers.CharField(source='empleado.cedulaidentidad', read_only=True)
-    puesto_codigo = serializers.CharField(source='codigo_puesto', read_only=True)
-    modificado_por_usuario = serializers.CharField(source='ejecutado_por.username', read_only=True)
-    fecha_movimiento = serializers.DateTimeField(read_only=True)
-    
-    # Mapeo de valores actuales a campos "new_"
-    new_cargo_especifico = serializers.CharField(source='denominacioncargoespecifico.cargo', read_only=True)
-    new_cargo_general = serializers.CharField(source='denominacioncargo.cargo', read_only=True)
-    new_nomina = serializers.CharField(source='tiponomina.nomina', read_only=True)
-    new_grado = serializers.CharField(source='gradoid.grado', read_only=True)
-    new_estatus = serializers.CharField(source='estatus.estatus', read_only=True)
-
-    motivo_movimiento = TipoMovimientoSerializer(source='motivo', read_only=True)
-
-    # Declalarcion DE los campos "prev_" 
-    prev_cargo_especifico = serializers.SerializerMethodField()
-    prev_cargo_general = serializers.SerializerMethodField()
-    prev_nomina = serializers.SerializerMethodField()
-    prev_grado = serializers.SerializerMethodField()
-    prev_estatus = serializers.SerializerMethodField()
-
+    nombre_analista = serializers.CharField(source='ejecutado_por.username', read_only=True)
+    cedula_analista = serializers.CharField(source='ejecutado_por.cedula', read_only=True)
+    motivo_movimiento = TipoMovimientoSerializer(source='motivo',read_only=True)
+    new_estatus = EstatusSerializer(source='estatus',read_only=True)
+  
+    new_denominacioncargo = denominacionCargoSerializer(source='denominacioncargo',read_only=True)
+    new_denominacioncargoespecifico = denominacionCargoEspecificoSerializer(source='denominacioncargoespecifico',read_only=True)
+    new_grado = gradoSerializer(source='gradoid',read_only=True)
+    new_tiponomina = TipoNominaSerializer(source='tiponomina',read_only=True)
+    new_Dependencia = DependenciaSerializer(source='DependenciasId',read_only=True)
+    new_DireccionGeneral = DireccionGeneralSerializer(source='DireccionGeneralid',read_only=True)
+    new_DireccionLinea = DireccionLineaSerializer(source='DireccionLineaid',read_only=True)
+    new_Coordinacion= CoordinacionSerializer(source='Coordinacionid',read_only=True)
 
     class Meta:
         model = EmployeeMovementHistory
         fields = [
-            'id',
-            'empleado_cedula', 'puesto_codigo', 'fecha_movimiento', 'modificado_por_usuario',
-            'prev_cargo_especifico', 'prev_cargo_general', 'prev_nomina', 'prev_grado',
-            'prev_estatus',
-            'new_cargo_especifico', 'new_cargo_general', 'new_nomina', 'new_grado',
-            'new_estatus', 'motivo_movimiento'
+            'id', 'codigo_puesto', 'fecha_movimiento', 'nombre_analista', 'cedula_analista',
+            'motivo_movimiento','new_estatus',
+            'new_denominacioncargo', 'new_denominacioncargoespecifico', 'new_grado', 
+            'new_tiponomina','new_Dependencia' ,'new_DireccionGeneral', 'new_DireccionLinea', 'new_Coordinacion'
         ]
 
-    def get_previous_record(self, obj):
-        # BUSQUEDA DEL MOVIMIENTO ANTERIOR DEL MSMO EMPLEADO 
-        if not hasattr(self, '_prev_record_cache'):
-            self._prev_record_cache = EmployeeMovementHistory.objects.filter(
-                empleado=obj.empleado,
-                fecha_movimiento__lt=obj.fecha_movimiento
-            ).order_by('-fecha_movimiento').first()
-        return self._prev_record_cache
-
-    # METODOS PARA OBTENER LOS DATOS DEL REGISTRO ANTERIOR
-    def get_prev_cargo_especifico(self, obj):
-        prev = self.get_previous_record(obj)
-        return prev.denominacioncargoespecifico.cargo if prev else None
-
-    def get_prev_cargo_general(self, obj):
-        prev = self.get_previous_record(obj)
-        return prev.denominacioncargo.cargo if prev else None
-
-    def get_prev_nomina(self, obj):
-        prev = self.get_previous_record(obj)
-        return prev.tiponomina.nomina if prev else None
-
-    def get_prev_grado(self, obj):
-        prev = self.get_previous_record(obj)
-        return prev.gradoid.grado if (prev and prev.gradoid) else None
-
-    def get_prev_estatus(self, obj):
-        prev = self.get_previous_record(obj)
-        return prev.estatus.estatus if prev else None
-
-    def get_prev_tipo_personal(self, obj):
-        prev = self.get_previous_record(obj)
-        return prev.tipo_personal.tipo_personal if prev else None
-
     def to_representation(self, instance):
+        representation = super().to_representation(instance)
 
-        if hasattr(self, '_prev_record_cache'):
-            del self._prev_record_cache
+        prev = EmployeeMovementHistory.objects.filter(
+            empleado=instance.empleado,
+            fecha_movimiento__lt=instance.fecha_movimiento
+        ).select_related(
+            'denominacioncargo', 'denominacioncargoespecifico', 'gradoid',
+            'tiponomina', 'DependenciasId','DireccionGeneralid', 'DireccionLineaid', 'Coordinacionid','estatus'
+        ).order_by('-fecha_movimiento').first()
+
+        representation.update({
+            'prev_estatus': EstatusSerializer(prev.estatus).data if prev else None,
+            'prev_denominacioncargo': denominacionCargoSerializer(prev.denominacioncargo).data if prev else None,
+            'prev_denominacioncargoespecifico': denominacionCargoEspecificoSerializer(prev.denominacioncargoespecifico).data if prev else None,
+            'prev_grado': gradoSerializer(prev.gradoid).data if prev and prev.gradoid else None,
+            'prev_tiponomina': TipoNominaSerializer(prev.tiponomina).data if prev else None,
+            'prev_Dependencia': DependenciaSerializer(prev.DependenciasId).data if prev and prev.DependenciasId else None,
+            'prev_DireccionGeneral': DireccionGeneralSerializer(prev.DireccionGeneralid).data if prev and prev.DireccionGeneralid else None,
+            'prev_DireccionLinea': DireccionLineaSerializer(prev.DireccionLineaid).data if prev and prev.DireccionLineaid else None,
+            'prev_Coordinacion': CoordinacionSerializer(prev.Coordinacionid).data if prev and prev.Coordinacionid else None,
+        })
+
+        return representation
