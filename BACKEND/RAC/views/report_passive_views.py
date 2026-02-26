@@ -221,6 +221,10 @@ class AllReportsConfigView(APIView):
         ),
     ]
 )
+@extend_schema(
+    tags=["Reportes"],
+    summary="Generar  de personal pasivo Reporte PDF",
+)
 @api_view(['POST'])
 def generate_pdf_report_passive(request):
 
