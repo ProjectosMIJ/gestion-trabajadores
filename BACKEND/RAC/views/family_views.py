@@ -182,3 +182,28 @@ def listar_parentesco(request):
             'message': str(e),
             "data": []
             }, status=status.HTTP_400_BAD_REQUEST)
+        
+        
+@extend_schema(
+    tags=["Recursos Humanos - Datos de Salud"],
+    summary="Listar Relaciones de contacto de emergencisa",
+    description="Devuelve una lista de todas las relaciones de contacto de emergenciaisponibles",
+    responses=ParentescoSerializer
+)       
+@api_view(['GET'])
+def list_relationship(request):
+   try:
+       
+       queryset = Parentesco.objects.all()
+       serializer = ParentescoSerializer(queryset, many=True)
+       return Response({
+        "status": "Ok",
+        "message": "Relacion del contacto de emergencia listados correctamente",
+        "data": serializer.data
+    }, status=status.HTTP_200_OK)
+   except Exception as e:
+        return Response({
+            'status': 'Error',
+            'message': str(e),
+            "data": []
+            }, status=status.HTTP_400_BAD_REQUEST) 

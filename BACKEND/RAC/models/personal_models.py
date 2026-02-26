@@ -351,11 +351,10 @@ class antecedentes_servicio(models.Model):
     
 
 
-        
+
         
 
 class Employee(models.Model):
- 
     cedulaidentidad = models.TextField(db_column='cedulaIdentidad', unique=True)
     nombres = models.TextField()
     apellidos = models.TextField() 

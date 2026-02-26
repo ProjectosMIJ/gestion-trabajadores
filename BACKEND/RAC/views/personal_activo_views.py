@@ -90,20 +90,27 @@ class ImportarCargosESPECIALESView(APIView):
                                 return None
                             return cache[cat].get(normalizar(val))
 
-                        # --- LÓGICA DE CÉDULA (CORREGIDA) ---
+                        # --- LÓGICA DE CÉDULA Y ESTATUS (MODIFICADA) ---
+                        estatus_val = normalizar(row.get('estatus'))
                         cedula_raw = row.get('cedula')
                         empleado = None
                         
-                        if not pd.isna(cedula_raw) and str(cedula_raw).strip() != "":
-                            # Convertimos a string, quitamos el .0 de Excel y espacios
-                            cedula_clean = str(cedula_raw).split('.')[0].strip()
-                            empleado = Employee.objects.filter(cedulaidentidad=cedula_clean).first()
-                            
-                            if not empleado:
-                                raise ValueError(f"La cédula '{cedula_clean}' no existe en la base de datos de empleados.")
+                        if estatus_val == "VACANTE":
+                            # Si es VACANTE, la cédula debe estar vacía
+                            if not pd.isna(cedula_raw) and str(cedula_raw).strip() != "":
+                                raise ValueError(f"El estatus es VACANTE, pero la cédula contiene datos: {cedula_raw}. Debe estar vacía.")
+                            empleado = None
                         else:
-                            raise ValueError("La columna 'cedula' está vacía.")
-                        # ------------------------------------
+                            # Si NO es VACANTE, la cédula es obligatoria
+                            if not pd.isna(cedula_raw) and str(cedula_raw).strip() != "":
+                                cedula_clean = str(cedula_raw).split('.')[0].strip()
+                                empleado = Employee.objects.filter(cedulaidentidad=cedula_clean).first()
+                                
+                                if not empleado:
+                                    raise ValueError(f"La cédula '{cedula_clean}' no existe en la base de datos de empleados.")
+                            else:
+                                raise ValueError(f"Para el estatus '{estatus_val}' la cédula es obligatoria.")
+                        # -----------------------------------------------
 
                         # Lógica de Nómina y Código
                         nomina_obj = buscar('nominas', 'nomina')
@@ -120,7 +127,6 @@ class ImportarCargosESPECIALESView(APIView):
                             if any(x in str(codigo_final) for x in ["CS_", "HP_"]):
                                 codigo_final = generar_codigo_especial(str(codigo_final).split('_')[0])
                             else:
-                                # Mensaje de error más descriptivo
                                 raise ValueError(f"El código '{codigo_final}' ya existe para la nómina '{nombre_nomina}'.")
 
                         cargo_obj = buscar('cargos', 'cargo')
@@ -138,7 +144,7 @@ class ImportarCargosESPECIALESView(APIView):
                         # CREACIÓN
                         asignacion = AsigTrabajo(
                             codigo=codigo_final,
-                            employee=empleado, # Ahora garantizamos que sea el objeto Employee
+                            employee=empleado,
                             denominacioncargoid=cargo_obj,
                             denominacioncargoespecificoid=especifico_obj,
                             tiponominaid=nomina_obj,
@@ -161,7 +167,6 @@ class ImportarCargosESPECIALESView(APIView):
                         errores.append(f"Fila {index + 2}: {str(e)}")
 
                 if errores:
-                    # Forzamos el rollback si hubo errores en alguna fila
                     raise Exception("Errores en el procesamiento del archivo.")
 
             return Response({"mensaje": f"Se crearon {creados} registros con éxito."}, status=201)
@@ -171,7 +176,6 @@ class ImportarCargosESPECIALESView(APIView):
                 "error": "Operación cancelada", 
                 "detalles": errores if errores else [str(e)]
             }, status=400)
-
 
 # carga masiva de cargos 
 
@@ -1545,29 +1549,8 @@ def list_allergies(request):
         }, status=status.HTTP_400_BAD_REQUEST)    
     
     
-@extend_schema(
-    tags=["Recursos Humanos - Datos de Salud"],
-    summary="Listar Relaciones de contacto de emergencisa",
-    description="Devuelve una lista de todas las relaciones de contacto de emergenciaisponibles",
-    responses=RelacionSerializer
-)       
-@api_view(['GET'])
-def list_relationship(request):
-   try:
-       
-       queryset = Parentesco.objects.all()
-       serializer = RelacionSerializer(queryset, many=True)
-       return Response({
-        "status": "Ok",
-        "message": "Relacion del contacto de emergencia listados correctamente",
-        "data": serializer.data
-    }, status=status.HTTP_200_OK)
-   except Exception as e:
-        return Response({
-            'status': 'Error',
-            'message': str(e),
-            "data": []
-            }, status=status.HTTP_400_BAD_REQUEST) 
+
+
 # DEPENDENCIAS
 
 @extend_schema(
