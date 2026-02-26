@@ -176,10 +176,6 @@ export default function ReportPasivo() {
       agrupar_por: "direccion_general",
       tipo_reporte: "lista",
       filtros: {
-        dependencia_id: undefined,
-        direccion_general_id: undefined,
-        direccion_linea_id: undefined,
-        coordinacion_id: undefined,
         sexo_id: undefined,
         discapacidad_id: undefined,
         grupo_sanguineo_id: undefined,
