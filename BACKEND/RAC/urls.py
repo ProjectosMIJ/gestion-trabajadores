@@ -171,19 +171,15 @@ urlpatterns = [
 # ------------------
 # GESTION DE FAMILIARES
 # ------------------- 
-    path('Employeefamily/', views.gestion_familiar, name='creacion-empleadoFamiliar'),
-    path('Employeefamily/masivo/', views.registrar_familiares_masivo, name='creacion-masiva-empleadoFamiliar'),
+    path('Employeefamily/<str:cedula_empleado>/', views.registrar_familiar, name='creacion-empleadoFamiliar'),
+    path('Employeefamily/', views.listar_familiares, name='creacion-empleadoFamiliar'),
+    path('Employeefamily/masivo/<str:cedula_empleado>/', views.registrar_familiares_masivo, name='creacion-masiva-empleadoFamiliar'),
     path('Parentesco/', views.listar_parentesco, name="listar-parentesco"),
-
-
-   
-
-   
+    
+    
+    
 #   reporte
     path('EmployeeMovementHistory/reporte/',views.reporte_movimientos, name='reporte-movimiento'),
-    
-    
-   
    
     # path('reportes/categias/', views.ReportCategoryListView.as_view(), name='reportes_categorias'),
     path('employee/reports/config/', views.EmployeeReportConfigView.as_view(), name='configuraciones_empleados'),
