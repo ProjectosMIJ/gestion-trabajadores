@@ -4,8 +4,8 @@ import ReportPasivo from "../../components/layout/report/report-pasivo";
 export default function ReportEmployeePage() {
   return (
     <PageLayout
-      title="Reporte De Trabajadores"
-      description="Filtre La Información de los trabajadores"
+      title="Reporte De Pasivos"
+      description="Filtre La Información de los pasivos"
     >
       <ReportPasivo />
     </PageLayout>
