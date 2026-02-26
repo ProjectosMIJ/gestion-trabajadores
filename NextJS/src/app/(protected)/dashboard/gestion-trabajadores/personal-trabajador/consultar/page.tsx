@@ -23,11 +23,10 @@ import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import useSWR from "swr";
 import z from "zod";
+import PageLayout from "../../../../../../components/layout/page-layout";
 import { getEmployeeDataSearch, getNomina } from "../../api/getInfoRac";
 import TableEmployee from "../../components/employees/tableEmployees/page";
 import Loading from "../../components/loading/loading";
-import { Card } from "@/components/ui/card";
-import PageLayout from "../../../../../../components/layout/page-layout";
 
 export default function PersonalPage() {
   const { data: session } = useSession();
@@ -86,7 +85,7 @@ export default function PersonalPage() {
   return (
     <PageLayout
       title="Consultar Trabajador"
-      description="Informacióon Detallada Del Trabajador"
+      description="Información Detallada Del Trabajador"
     >
       <Form {...form}>
         <form

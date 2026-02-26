@@ -5,6 +5,14 @@ import { formatInTimeZone } from "date-fns-tz";
 import { useEffect, useState } from "react";
 
 import {
+  getEmployeeInfo,
+  getMaritalstatus,
+  getSex,
+} from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
+import InputForm from "@/components/input-form";
+import { SelectForm } from "@/components/select-form";
+import { Calendar } from "@/components/ui/calendar";
+import {
   Card,
   CardAction,
   CardContent,
@@ -22,27 +30,20 @@ import {
 } from "@/components/ui/form";
 import { Label } from "@/components/ui/label";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CalendarIcon, Contact, Upload, X } from "lucide-react";
-import { useDebounce } from "@uidotdev/usehooks";
-import {
-  getEmployeeInfo,
-  getMaritalstatus,
-  getSex,
-} from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { validateWeight } from "@/constants/fileSize";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { CalendarIcon, Upload, X } from "lucide-react";
 import Image from "next/image";
 import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
@@ -123,18 +124,12 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
           >
             <div className="space-y-4">
               <div className="border-b pb-4">
-                <FormField
-                  control={form.control}
-                  name="n_contrato"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Numero de Ingreso *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="CTR-2024-001" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                <InputForm
+                  form={form}
+                  label="Numero de Ingreso *"
+                  nameInput="n_contrato"
+                  placeholder="CTR-2024-001"
+                  type="text"
                 />
               </div>
               <div className="border rounded-lg p-4 space-y-3">
@@ -203,53 +198,26 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
                 )}
               </div>
               <div className="grid grid-cols-2 gap-2">
-                <FormField
-                  control={form.control}
-                  name="cedulaidentidad"
-                  render={({ field }) => (
-                    <FormItem className="col-span-2">
-                      <FormLabel className="flex flex-row items-center">
-                        Cédula de identidad *
-                        <Contact />
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="000000000"
-                          {...field}
-                          type="number"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                <InputForm
+                  form={form}
+                  label="Cedula de Identidad *"
+                  nameInput="cedulaidentidad"
+                  placeholder="00000000"
+                  type="number"
                 />
-                <FormField
-                  control={form.control}
-                  name="nombres"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Nombre *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Juan Bernardo" {...field} />
-                      </FormControl>
-
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                <InputForm
+                  form={form}
+                  label="Nombre *"
+                  nameInput="nombres"
+                  placeholder="Juan Bernardo"
+                  type="text"
                 />
-                <FormField
-                  control={form.control}
-                  name="apellidos"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Apellidos *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Perez Gutierrez" {...field} />
-                      </FormControl>
-
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                <InputForm
+                  form={form}
+                  label="Apellidos *"
+                  nameInput="apellidos"
+                  placeholder="Perez Gutierrez"
+                  type="text"
                 />
                 <FormField
                   control={form.control}
@@ -293,41 +261,44 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name={`sexoid`}
-                  render={({ field }) => (
-                    <FormItem className=" cursor-pointer">
-                      <FormLabel className="cursor-pointer">Sexo *</FormLabel>
-                      <Select
-                        onValueChange={(values) => {
-                          field.onChange(Number.parseInt(values));
-                        }}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full truncate">
-                            <SelectValue
-                              placeholder={`${isLoadingSex ? "Cargando Generos" : "Seleccione un Genero"}`}
-                            />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          {sex?.data.map((v, i) => (
-                            <SelectItem value={`${v.id}`} key={i}>
-                              {v.sexo}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                <SelectForm
+                  Formlabel="Sexo *"
+                  SelectLabelItem="Seleccione Un Genero"
+                  form={form}
+                  isLoading={isLoadingSex}
+                  placeholder="Seleccione un Genero"
+                  nameSalect="sexoid"
+                  labelKey={"sexo"}
+                  valueKey={"id"}
+                  options={sex?.data ?? []}
+                />
+                <InputForm
+                  className="w-full"
+                  form={form}
+                  label="Correo Electronico"
+                  nameInput="correo"
+                  placeholder="ejemplo@gmail.com"
+                  type="email"
+                />
+                <InputForm
+                  form={form}
+                  label="Teléfono De Móvil"
+                  nameInput="telefono_movil"
+                  placeholder="04160000000"
+                  type="number"
+                />
+                <InputForm
+                  form={form}
+                  label="Teléfono De Habitación"
+                  nameInput="telefono_habitacion"
+                  placeholder="02390000000"
+                  type="number"
                 />
                 <FormField
                   control={form.control}
                   name="estadoCivil"
                   render={({ field }) => (
-                    <FormItem className="col-span-2 ">
+                    <FormItem className="col-span-2">
                       <FormLabel>Estado Civil </FormLabel>
                       <Select
                         onValueChange={(values) => {
@@ -335,7 +306,7 @@ export function FormBasicInfo({ onSubmit, defaultValues }: Props) {
                         }}
                       >
                         <FormControl>
-                          <SelectTrigger className="w-full truncate">
+                          <SelectTrigger className="w-full truncate ">
                             <SelectValue
                               placeholder={`${isLoadingMaritalStatus ? "Cargando Estado Civil" : "Seleccione Un Estado Civil"}`}
                             />

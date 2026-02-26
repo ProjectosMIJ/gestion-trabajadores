@@ -50,6 +50,8 @@ export const schemaFamilyEmployee = z.object({
         })
         .optional(),
       patologiaCronica: z.array(z.number()).optional(),
+      alergias: z.array(z.number()).optional(),
+
       discapacidad: z.array(z.number()).optional(),
     })
     .optional(),

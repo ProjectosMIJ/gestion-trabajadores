@@ -2,6 +2,7 @@
 
 import {
   getAcademyLevel,
+  getAllergies,
   getBloodGroup,
   getCarrera,
   getDisability,
@@ -20,6 +21,7 @@ import {
   schemaFamilyEmployeeOne,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/personal-trabajador/familiares/agregar-familiar/schema/schemaCreateFamily";
 import {
+  allergies,
   DisabilitysType,
   EmployeeInfo,
   PatologysType,
@@ -67,7 +69,6 @@ import {
 } from "../../../../../../components/ui/popover";
 import { Switch } from "../../../../../../components/ui/switch";
 import { Textarea } from "../../../../../../components/ui/textarea";
-import { ScrollArea } from "@radix-ui/react-scroll-area";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import createFamilyActions from "../../personal-trabajador/familiares/agregar-familiar/actions/create-family-actions";
@@ -75,6 +76,7 @@ import { toast } from "sonner";
 import Error from "../error/error";
 import z from "zod";
 import Loading from "../loading/loading";
+import { ScrollArea } from "@/components/ui/scroll-area";
 export function CreateFamilyForm() {
   const [employee, setEmployee] = useState<EmployeeInfo | []>();
   const [isPending, startTransition] = useTransition();
@@ -163,6 +165,27 @@ export function CreateFamilyForm() {
     "sex",
     async () => await getSex(),
   );
+  const { data: allergies, isLoading: isLoadingAllergies } = useSWR(
+    "allergies",
+    async () => await getAllergies(),
+  );
+  const allergiesGroupList = useMemo(() => {
+    const data = allergies?.data;
+    if (!data) return [];
+    return allergies.data.reduce(
+      (acc, item) => {
+        const categoriaNombre = item.categoria.nombre_categoria;
+        let grupo = acc.find((g) => g.categoria === categoriaNombre);
+        if (!grupo) {
+          grupo = { categoria: categoriaNombre, datos: [] };
+          acc.push(grupo);
+        }
+        grupo.datos.push(item);
+        return acc;
+      },
+      [] as { categoria: string; datos: allergies[] }[],
+    );
+  }, [allergies]);
   const disabilityGroupList = useMemo(() => {
     if (!disability?.data) return [];
 
@@ -1021,142 +1044,226 @@ export function CreateFamilyForm() {
                                 )}
                               />
 
-                              <ScrollArea className="grid grid-cols-2 h-60 overflow-auto gap-4 p-4 border rounded-md col-span-2">
-                                <div>
-                                  <h2 className="font-bold">
-                                    Patologías (Opcional)
-                                  </h2>
-                                  {patologyGroupList.map((patologys, index) => (
-                                    <div key={index}>
-                                      <h2 className="p-2 text-sm">
-                                        * {patologys.categoria.toUpperCase()}
-                                      </h2>
-                                      {patologys.datos.map(
-                                        (patologyItem, i) => (
-                                          <div
-                                            className="flex flex-col justify-start gap-2 "
-                                            key={i}
-                                          >
-                                            <FormField
-                                              control={form.control}
-                                              name={`perfil_salud_familiar.patologiaCronica`}
-                                              render={({ field }) => {
-                                                const currentValues =
-                                                  Array.isArray(field.value)
-                                                    ? field.value
-                                                    : [];
-                                                return (
-                                                  <FormItem className="flex flex-row items-center space-y-2">
-                                                    <FormControl>
-                                                      <Checkbox
-                                                        className="border-black cursor-pointer"
-                                                        checked={currentValues.includes(
-                                                          patologyItem.id,
-                                                        )}
-                                                        onCheckedChange={(
-                                                          checked,
-                                                        ) => {
-                                                          const newValue =
-                                                            checked
-                                                              ? [
-                                                                  ...currentValues,
-                                                                  patologyItem.id,
-                                                                ]
-                                                              : currentValues.filter(
-                                                                  (id) =>
-                                                                    id !==
-                                                                    patologyItem.id,
-                                                                );
+                              <ScrollArea className="h-80 w-full col-span-2">
+                                <div className="flex flex-row justify-around gap-4 ">
+                                  <div>
+                                    <h2 className="font-bold">
+                                      Patologias (Opcional)
+                                    </h2>
+                                    {patologyGroupList.map(
+                                      (patologys, index) => (
+                                        <div key={index}>
+                                          <h2 className="p-2 text-sm font-bold">
+                                            *{" "}
+                                            {patologys.categoria.toUpperCase()}
+                                          </h2>
+                                          {patologys.datos.map(
+                                            (patologyItem, i) => (
+                                              <div
+                                                className="flex flex-col justify-start gap-2  "
+                                                key={i}
+                                              >
+                                                <FormField
+                                                  control={form.control}
+                                                  name="perfil_salud_familiar.patologiaCronica"
+                                                  render={({ field }) => {
+                                                    const currentValues =
+                                                      Array.isArray(field.value)
+                                                        ? field.value
+                                                        : [];
+                                                    if (isLoadingPatology) {
+                                                      return <Loading />;
+                                                    }
+                                                    return (
+                                                      <FormItem className="flex flex-row items-center space-y-2 ">
+                                                        <FormControl>
+                                                          <Checkbox
+                                                            className="border-black"
+                                                            checked={currentValues.includes(
+                                                              patologyItem.id,
+                                                            )}
+                                                            onCheckedChange={(
+                                                              checked,
+                                                            ) => {
+                                                              const newValue =
+                                                                checked
+                                                                  ? [
+                                                                      ...currentValues,
+                                                                      patologyItem.id,
+                                                                    ]
+                                                                  : currentValues.filter(
+                                                                      (id) =>
+                                                                        id !==
+                                                                        patologyItem.id,
+                                                                    );
 
-                                                          field.onChange(
-                                                            newValue,
-                                                          );
-                                                        }}
-                                                      />
-                                                    </FormControl>
-                                                    <FormLabel className="font-normal cursor-pointer text-gray-500">
-                                                      {patologyItem.patologia}
-                                                    </FormLabel>
-                                                  </FormItem>
-                                                );
-                                              }}
-                                            />
-                                          </div>
-                                        ),
-                                      )}
-                                    </div>
-                                  ))}
-                                </div>
-                                <Separator
-                                  className="h-full w-2 absolute m-auto top-0 bottom-0 left-0 right-0"
-                                  orientation="vertical"
-                                />
-                                <div>
-                                  <h2 className="font-bold">
-                                    {" "}
-                                    Dispacidades (Opcional)
-                                  </h2>
-                                  {disabilityGroupList.map(
-                                    (disability, index) => (
-                                      <>
-                                        <h2 className="p-2 text-sm" key={index}>
-                                          * {disability.categoria.toUpperCase()}
-                                        </h2>
-                                        {disability.datos.map(
-                                          (disabilityItem, i) => (
-                                            <div
-                                              className="flex flex-col justify-start gap-2 "
-                                              key={i}
-                                            >
-                                              <FormField
-                                                control={form.control}
-                                                name={`perfil_salud_familiar.discapacidad`}
-                                                render={({ field }) => {
-                                                  const currentValues =
-                                                    Array.isArray(field.value)
-                                                      ? field.value
-                                                      : [];
-                                                  return (
-                                                    <FormItem className="flex flex-row space-y-2">
-                                                      <FormLabel className="order-2 text-gray-500 cursor-pointer">
-                                                        {
-                                                          disabilityItem.discapacidad
-                                                        }
-                                                      </FormLabel>
-                                                      <FormControl>
-                                                        <Checkbox
-                                                          className="order-1 border-black cursor-pointer"
-                                                          onCheckedChange={(
-                                                            checked,
-                                                          ) => {
-                                                            const newValue =
-                                                              checked
-                                                                ? [
-                                                                    ...currentValues,
-                                                                    disabilityItem.id,
-                                                                  ]
-                                                                : currentValues.filter(
-                                                                    (id) =>
-                                                                      id !==
+                                                              field.onChange(
+                                                                newValue,
+                                                              );
+                                                            }}
+                                                          />
+                                                        </FormControl>
+                                                        <FormLabel
+                                                          key={index}
+                                                          className="cursor-pointer"
+                                                        >
+                                                          {
+                                                            patologyItem.patologia
+                                                          }
+                                                        </FormLabel>
+                                                      </FormItem>
+                                                    );
+                                                  }}
+                                                />
+                                              </div>
+                                            ),
+                                          )}
+                                        </div>
+                                      ),
+                                    )}
+                                  </div>
+                                  <div>
+                                    <h2 className="font-bold">
+                                      {" "}
+                                      Dispacidades (Opcional)
+                                    </h2>
+                                    {disabilityGroupList.map(
+                                      (disability, index) => (
+                                        <div key={index}>
+                                          <h2 className="p-2 text-sm font-bold">
+                                            *{" "}
+                                            {disability.categoria.toUpperCase()}
+                                          </h2>
+                                          {disability.datos.map(
+                                            (disabilityItem, i) => (
+                                              <div
+                                                className="flex flex-col justify-start gap-2 "
+                                                key={i}
+                                              >
+                                                <FormField
+                                                  control={form.control}
+                                                  name={`perfil_salud_familiar.discapacidad`}
+                                                  render={({ field }) => {
+                                                    const currentValues =
+                                                      Array.isArray(field.value)
+                                                        ? field.value
+                                                        : [];
+                                                    if (isLoadingDisability) {
+                                                      return <Loading />;
+                                                    }
+                                                    return (
+                                                      <FormItem className="flex flex-row space-y-2">
+                                                        <FormLabel className="order-2">
+                                                          {
+                                                            disabilityItem.discapacidad
+                                                          }
+                                                        </FormLabel>
+                                                        <FormControl>
+                                                          <Checkbox
+                                                            className="order-1 border-black"
+                                                            onCheckedChange={(
+                                                              checked,
+                                                            ) => {
+                                                              const newValue =
+                                                                checked
+                                                                  ? [
+                                                                      ...currentValues,
                                                                       disabilityItem.id,
-                                                                  );
+                                                                    ]
+                                                                  : currentValues.filter(
+                                                                      (id) =>
+                                                                        id !==
+                                                                        disabilityItem.id,
+                                                                    );
 
-                                                            field.onChange(
-                                                              newValue,
-                                                            );
-                                                          }}
-                                                        />
-                                                      </FormControl>
-                                                    </FormItem>
-                                                  );
-                                                }}
-                                              />
-                                            </div>
-                                          ),
-                                        )}
-                                      </>
-                                    ),
-                                  )}
+                                                              field.onChange(
+                                                                newValue,
+                                                              );
+                                                            }}
+                                                          />
+                                                        </FormControl>
+                                                      </FormItem>
+                                                    );
+                                                  }}
+                                                />
+                                              </div>
+                                            ),
+                                          )}
+                                        </div>
+                                      ),
+                                    )}
+                                  </div>
+                                  <div>
+                                    <h2 className="font-bold">
+                                      {" "}
+                                      Alergias (Opcional)
+                                    </h2>
+                                    {allergiesGroupList.map(
+                                      (allergies, index) => (
+                                        <div key={index}>
+                                          <h2 className="p-2 text-sm font-bold">
+                                            *{" "}
+                                            {allergies.categoria.toUpperCase()}
+                                          </h2>
+                                          {allergies.datos.map(
+                                            (disabilityItem, i) => (
+                                              <div
+                                                className="flex flex-col justify-start gap-2 "
+                                                key={i}
+                                              >
+                                                <FormField
+                                                  control={form.control}
+                                                  name={`perfil_salud_familiar.alergias`}
+                                                  render={({ field }) => {
+                                                    const currentValues =
+                                                      Array.isArray(field.value)
+                                                        ? field.value
+                                                        : [];
+                                                    if (isLoadingDisability) {
+                                                      return <Loading />;
+                                                    }
+                                                    return (
+                                                      <FormItem className="flex flex-row space-y-2">
+                                                        <FormLabel className="order-2">
+                                                          {
+                                                            disabilityItem.alergia
+                                                          }
+                                                        </FormLabel>
+                                                        <FormControl>
+                                                          <Checkbox
+                                                            className="order-1 border-black"
+                                                            onCheckedChange={(
+                                                              checked,
+                                                            ) => {
+                                                              const newValue =
+                                                                checked
+                                                                  ? [
+                                                                      ...currentValues,
+                                                                      disabilityItem.id,
+                                                                    ]
+                                                                  : currentValues.filter(
+                                                                      (id) =>
+                                                                        id !==
+                                                                        disabilityItem.id,
+                                                                    );
+
+                                                              field.onChange(
+                                                                newValue,
+                                                              );
+                                                            }}
+                                                          />
+                                                        </FormControl>
+                                                      </FormItem>
+                                                    );
+                                                  }}
+                                                />
+                                              </div>
+                                            ),
+                                          )}
+                                        </div>
+                                      ),
+                                    )}
+                                  </div>
                                 </div>
                               </ScrollArea>
                             </fieldset>

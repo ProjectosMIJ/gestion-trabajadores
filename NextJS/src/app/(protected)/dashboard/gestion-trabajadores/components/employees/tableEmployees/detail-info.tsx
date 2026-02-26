@@ -467,6 +467,10 @@ export default function DetailInfoEmployee({ employee }: Props) {
                               employee.perfil_salud?.discapacidad?.map(
                                 (d) => d.id,
                               ) ?? [],
+                            alergias:
+                              employee.perfil_salud?.alergias?.map(
+                                (d) => d.id,
+                              ) ?? [],
                           },
                         }}
                       />
@@ -531,6 +535,32 @@ export default function DetailInfoEmployee({ employee }: Props) {
                           ))}
                         </TableBody>
                       </Table>
+                    )}
+                  {employee.perfil_salud?.alergias &&
+                    employee.perfil_salud.alergias.length > 0 && (
+                      <div className="col-span-2">
+                        <Table>
+                          <TableCaption>
+                            Lista De Patologias Del Trabajador
+                          </TableCaption>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Categoria</TableHead>
+                              <TableHead>Patologia</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {employee.perfil_salud.alergias.map((v, i) => (
+                              <TableRow key={i}>
+                                <TableCell className="font-medium">
+                                  {v.categoria.nombre_categoria}
+                                </TableCell>
+                                <TableCell>{v.alergia}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </div>
                     )}
                 </div>
               </CardContent>

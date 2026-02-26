@@ -42,6 +42,8 @@ export const schemaFamilyEmployeeOne = z.object({
         message: "Debe seleccionar un grupo sanguíneo",
       }),
       patologiaCronica: z.array(z.number()).optional(),
+      alergias: z.array(z.number()).optional(),
+
       discapacidad: z.array(z.number()).optional(),
     })
     .optional(),

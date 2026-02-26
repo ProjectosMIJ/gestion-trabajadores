@@ -249,6 +249,24 @@ export function ReportPDFEmployee({
                     {employee.datos_vivienda?.direccion_exacta ?? "N/A"}
                   </Text>
                 </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Correo:</Text>
+                  <Text style={styles.infoValue}>
+                    {employee.correo ?? "N/A"}
+                  </Text>
+                </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Teléfono De Habitación:</Text>
+                  <Text style={styles.infoValue}>
+                    {employee.telefono_habitacion ?? "N/A"}
+                  </Text>
+                </View>
+                <View style={styles.infoRow}>
+                  <Text style={styles.infoLabel}>Teléfono Móvil:</Text>
+                  <Text style={styles.infoValue}>
+                    {employee.telefono_movil ?? "N/A"}
+                  </Text>
+                </View>
               </View>
 
               {/* Columna derecha: Foto del empleado */}
@@ -400,6 +418,17 @@ export function ReportPDFEmployee({
                 employee.perfil_salud.patologiasCronicas.length > 0
                   ? employee.perfil_salud.patologiasCronicas
                       .map((p) => p.patologia)
+                      .join(", ")
+                  : "Ninguna"}
+              </Text>
+            </View>
+            <View style={styles.infoRow}>
+              <Text style={styles.infoLabel}>Alergias:</Text>
+              <Text style={styles.infoValue}>
+                {employee.perfil_salud?.alergias &&
+                employee.perfil_salud?.alergias.length > 0
+                  ? employee.perfil_salud?.alergias
+                      .map((p) => p.alergia)
                       .join(", ")
                   : "Ninguna"}
               </Text>

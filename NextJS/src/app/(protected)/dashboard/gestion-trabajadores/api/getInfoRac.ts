@@ -1,6 +1,7 @@
 "use server";
 import {
   AcademyLevel,
+  allergies,
   ApiResponse,
   BloodGroupType,
   Cargo,
@@ -315,7 +316,13 @@ export const getDisability = async (): Promise<
     await responseDisability.json();
   return getDisability;
 };
-
+export const getAllergies = async (): Promise<ApiResponse<allergies[]>> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}alergias/`,
+  );
+  const getResponse: ApiResponse<allergies[]> = await response.json();
+  return getResponse;
+};
 export const getShirtSize = async (): Promise<ApiResponse<ShirtSize[]>> => {
   const responseShirtSize = await fetch(
     `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}listar-tallasCamisas/`,

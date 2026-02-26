@@ -61,7 +61,7 @@ export const schemaBasicInfo = z.object({
       required_error: "Este Campo Es Requerido",
     })
     .min(3, { message: "Debe Ingresar Al Menos 3 Caracteres" }),
-  sexoid: z
+  sexoid: z.coerce
     .number({
       message: "Debe Ingresar Un Sexo Valido",
       required_error: "El Sexo Es Requerido",
@@ -76,5 +76,8 @@ export const schemaBasicInfo = z.object({
     .refine((val) => !(val == 0), {
       message: "Debe Seleccionar Un Esttado Civil",
     }),
+  correo: z.string().optional(),
+  telefono_habitacion: z.string().optional(),
+  telefono_movil: z.string().optional(),
 });
 export type BasicInfoType = z.infer<typeof schemaBasicInfo>;

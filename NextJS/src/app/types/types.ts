@@ -119,23 +119,25 @@ export interface BloodGroupType {
   GrupoSanguineo: string;
 }
 
+interface Category {
+  id: number;
+  nombre_categoria: string;
+}
 export interface PatologysType {
   id: number;
   patologia: string;
-  categoria: {
-    id: number;
-    nombre_categoria: string;
-  };
+  categoria: Category;
 }
 export interface DisabilitysType {
   id: number;
   discapacidad: string;
-  categoria: {
-    id: number;
-    nombre_categoria: string;
-  };
+  categoria: Category;
 }
-
+export interface allergies {
+  id: number;
+  alergia: string;
+  categoria: Category;
+}
 export interface ShirtSize {
   id: number;
   talla: string;
@@ -218,6 +220,16 @@ export interface HealthProfile {
     id: number;
     grupoSanguineo: string;
   } | null;
+  alergias:
+    | {
+        id: number;
+        alergia: string;
+        categoria: {
+          id: number;
+          nombre_categoria: string;
+        };
+      }[]
+    | null;
   discapacidad:
     | {
         id: number;
@@ -287,6 +299,9 @@ export interface EmployeeData {
   fechaingresoorganismo: string;
   fecha_actualizacion: string;
   asignaciones: InfoCode[];
+  correo: string | null;
+  telefono_habitacion: string | null;
+  telefono_movil: string | null;
 }
 export interface Sex {
   id: number;
@@ -322,7 +337,6 @@ export interface Code {
   tiponomina: Nomina;
   OrganismoAdscrito: OrganismosAds | null;
   Dependencia: Dependency;
-
   DireccionGeneral: DireccionGeneral;
   DireccionLinea: DireccionLinea | null;
   Coordinacion: Coordinacion | null;

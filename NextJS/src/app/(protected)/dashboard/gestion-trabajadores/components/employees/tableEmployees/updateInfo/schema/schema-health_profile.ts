@@ -8,6 +8,8 @@ export const schemaHealthProfileUpdate = z.object({
       })
       .optional(),
     patologiaCronica: z.array(z.number()).default([]).optional(),
+    alergias: z.array(z.number()).default([]).optional(),
+
     discapacidad: z.array(z.number()).default([]).optional(),
   }),
 });

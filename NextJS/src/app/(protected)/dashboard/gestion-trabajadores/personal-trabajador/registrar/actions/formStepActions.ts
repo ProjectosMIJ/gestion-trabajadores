@@ -85,7 +85,7 @@ export async function registerEmployeeSteps(
     const getEmployee: ApiResponse<never> = await response.json();
     const formData = new FormData();
     formData.append("file", data.file!);
-    await fetch(
+    const responseNestjs = await fetch(
       `${process.env.NEXT_PUBLIC_NEST_API_URL_SERVER}file-save/upload/profile/${data.cedulaidentidad}`,
 
       {
@@ -108,13 +108,14 @@ export async function registerEmployeeSteps(
     return {
       success: response.ok && responseFamily.ok,
       message:
-        response.ok && responseFamily.ok
+        response.ok && responseFamily.ok && responseNestjs.ok
           ? getEmployee.message
           : getEmployee.message ||
             getFamily.message ||
             "Error al registrar empleado",
     };
-  } catch {
+  } catch (e) {
+    console.log(e);
     return {
       success: false,
       message: "Ocurrio Un Error ",

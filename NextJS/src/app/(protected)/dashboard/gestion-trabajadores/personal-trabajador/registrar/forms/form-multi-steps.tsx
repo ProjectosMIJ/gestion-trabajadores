@@ -97,8 +97,8 @@ const schema: SchemaFormity<Values> = [
           [
             {
               institucion: "",
-              fecha_ingreso: new Date(),
-              fecha_egreso: new Date(),
+              fecha_ingreso: undefined,
+              fecha_egreso: undefined,
             },
           ],
           [],
@@ -117,6 +117,7 @@ const schema: SchemaFormity<Values> = [
             grupoSanguineo: 0,
             discapacidad: [],
             patologiaCronica: [],
+            alergias: [],
           },
           [],
         ],
