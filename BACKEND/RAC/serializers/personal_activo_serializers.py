@@ -251,7 +251,11 @@ class DependenciaSerializer(serializers.ModelSerializer):
 class DireccionGeneralSerializer(serializers.ModelSerializer):
     class Meta:
         model = DireccionGeneral
-        fields = '__all__' 
+        fields = [
+            'id',
+            'direccion_general',
+            'dependenciaId'
+        ]
     
     def validate_direccion_general(self,value):
         value = value.upper()
@@ -952,6 +956,9 @@ class EmployeeDetailSerializer(serializers.ModelSerializer):
             'n_contrato', 
             'sexo',
             'estadoCivil', 
+            'correo',
+            'telefono_habitacion',
+            'telefono_movil',
             'datos_vivienda', 
             'perfil_salud',
             'contacto_emergencia',

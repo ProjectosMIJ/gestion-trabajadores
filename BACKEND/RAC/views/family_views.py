@@ -1,12 +1,14 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework import status
 from django.db import transaction
 from rest_framework.response import Response
 from ..models.family_personal_models import Employeefamily, Parentesco
+from RAC.models.personal_models import Employee
 from ..serializers.family_serializers import FamilyCreateSerializer,FamilyListSerializer,ParentescoSerializer
 from RAC.filters.filters_personal import EmployeeFamilyFilter
 from drf_spectacular.utils import extend_schema
-
+ 
 
 
 @extend_schema(
@@ -15,46 +17,46 @@ from drf_spectacular.utils import extend_schema
     description="Gestion de familiares de un empleado",
     request=FamilyCreateSerializer,
 )
-@api_view(['GET', 'POST'])
-def gestion_familiar(request):
-
-    if request.method == 'GET':
-        return listar_familiares(request)
+@api_view(['POST'])
+def registrar_familiar(request, cedula_empleado): 
+    empleado = get_object_or_404(Employee, cedulaidentidad=cedula_empleado)
     
-    elif request.method == 'POST':
-        return registrar_familiar(request)
-
-def registrar_familiar(request):
-    serializer = FamilyCreateSerializer(data=request.data)
+ 
+    serializer = FamilyCreateSerializer(
+        data=request.data, 
+        context={'empleado': empleado, 'request': request}
+    )
+    
     if serializer.is_valid():
         try:
-            with transaction.atomic():
-                familiar = serializer.save()
-                return Response({
-                    "status": "Ok",
-                    "message": "Familiar registrado exitosamente.",
-                    "data": {
-                        "id": familiar.id,
-                        "cedulaFamiliar": familiar.cedulaFamiliar,
-                        "nombre_completo": f"{familiar.primer_nombre} {familiar.primer_apellido}",
-                        "parentesco": familiar.parentesco.descripcion_parentesco 
-                    }
-                }, status=status.HTTP_201_CREATED)
-        except Exception as e:
+         
+            familiar = serializer.save() 
             return Response({
-                "status": "Error",
-                "message": f"Error al guardar el registro: {str(e)}",
-            }, status=status.HTTP_400_BAD_REQUEST)
+                "status": "Ok",
+                "message": "Familiar registrado exitosamente.",
+                "data": {
+                    "id": familiar.id,
+                    "cedulaFamiliar": familiar.cedulaFamiliar,
+                    "nombre_completo": f"{familiar.primer_nombre} {familiar.primer_apellido}",
+                    "parentesco": familiar.parentesco.descripcion_parentesco 
+                }
+            }, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({"status": "Error", "message": str(e)}, status=400)
 
+    # Manejo de errores de validación (tu lógica actual)
     error_dict = serializer.errors
-    first_error_field = list(error_dict.values())[0]
-    clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
-    return Response({
-        "status": "Error",
-        "message": clean_message, 
-    }, status=status.HTTP_400_BAD_REQUEST)
+    clean_message = list(error_dict.values())[0][0]
+    return Response({"status": "Error", "message": clean_message}, status=400)
 
 
+@extend_schema(
+    tags=["Familiares de Empleados"],
+    summary="Gestion de familiares",
+   
+    request=FamilyCreateSerializer,
+)
+@api_view(['GET'])
 def listar_familiares(request):
     try:
         queryset = Employeefamily.objects.select_related(
@@ -87,12 +89,7 @@ def listar_familiares(request):
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 
-@extend_schema(
-    tags=["Familiares de Empleados"],
-    summary="Listar carga familiar detallada",
-    description="Obtiene todos los familiares de un empleado por la cedula del trabajador",
-    request=FamilyListSerializer,
-)
+
 
 @extend_schema(
     tags=["Familiares de Empleados"],
@@ -101,10 +98,12 @@ def listar_familiares(request):
     request=FamilyCreateSerializer(many=True),
 )
 @api_view(['POST'])
-def registrar_familiares_masivo(request):
+def registrar_familiares_masivo(request,cedula_empleado):
+    
+    empleado = get_object_or_404(Employee, cedulaidentidad=cedula_empleado)
     datos_sucios = request.data
     datos_filtrados = [item for item in datos_sucios if isinstance(item, dict) and 'cedulaFamiliar' in item]
-    serializer = FamilyCreateSerializer(data=datos_filtrados, many=True, context={'request': request})
+    serializer = FamilyCreateSerializer(data=datos_filtrados, many=True, context={'request': request, 'empleado': empleado})
     
     if serializer.is_valid():
         try:

@@ -104,6 +104,7 @@ urlpatterns = [
     path('cargos/vacantes/',views.list_general_vacants_codes, name='lista todos los codigos vacantes'),
 #     # listar codigo  tanto activos como vacantes
     path('cargos/general/', views.list_general_work_codes, name='lista de codigos generales'),
+    path('cargos/pasivo/',views.list_work_codes_passive, name='lista de codigos pasivos'),
 # ------------------
 # ASIGNACION DE CARGO
 # -------------------
@@ -170,19 +171,15 @@ urlpatterns = [
 # ------------------
 # GESTION DE FAMILIARES
 # ------------------- 
-    path('Employeefamily/', views.gestion_familiar, name='creacion-empleadoFamiliar'),
-    path('Employeefamily/masivo/', views.registrar_familiares_masivo, name='creacion-masiva-empleadoFamiliar'),
+    path('Employeefamily/<str:cedula_empleado>/', views.registrar_familiar, name='creacion-empleadoFamiliar'),
+    path('Employeefamily/', views.listar_familiares, name='creacion-empleadoFamiliar'),
+    path('Employeefamily/masivo/<str:cedula_empleado>/', views.registrar_familiares_masivo, name='creacion-masiva-empleadoFamiliar'),
     path('Parentesco/', views.listar_parentesco, name="listar-parentesco"),
-
-
-   
-
-   
+    
+    
+    
 #   reporte
     path('EmployeeMovementHistory/reporte/',views.reporte_movimientos, name='reporte-movimiento'),
-    
-    
-   
    
     # path('reportes/categias/', views.ReportCategoryListView.as_view(), name='reportes_categorias'),
     path('employee/reports/config/', views.EmployeeReportConfigView.as_view(), name='configuraciones_empleados'),
@@ -194,7 +191,8 @@ urlpatterns = [
     # path('reports/', views.generate_dynamic_report, name='reporte_generico'),
     
     # Generación de reportes PDF
-    path('reports/pdf/', views.generate_pdf_report, name='reporte_pdf'),
+    path('reports/pdf/', views.generate_pdf_report_active, name='reporte_activo_pdf'),
+    path('reports/pasivo/', views.generate_pdf_report_passive, name='reporte_pasivo_pdf'),
     
     
     path('menciones/create/', views.crear_menciones_view, name='menciones-creadas'),
