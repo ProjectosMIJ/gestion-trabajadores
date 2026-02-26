@@ -44,6 +44,7 @@ import {
   getSex,
   getStateByRegion,
   postReport,
+  postReportPasivo,
 } from "../../../../gestion-trabajadores/api/getInfoRac";
 
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -222,7 +223,7 @@ export default function ReportPasivo() {
   };
   const onSubmit = (data: SchemaReportPasivoType) => {
     startTransition(async () => {
-      const response = await postReport<SchemaReportPasivoType>(data);
+      const response = await postReportPasivo<SchemaReportPasivoType>(data);
       const urlBlob = URL.createObjectURL(response);
       setReportListEmployeeBlob(urlBlob);
       form.reset();
