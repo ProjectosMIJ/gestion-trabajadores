@@ -199,7 +199,11 @@ export function CreateFamilyForm() {
   }, [patology?.data]);
   const onSubmit = (data: FamilyEmployeeTypeForm) => {
     startTransition(async () => {
-      const response = await createFamilyActions(data);
+      if (Array.isArray(employee)) return;
+      const response = await createFamilyActions(
+        data,
+        employee?.cedulaidentidad!,
+      );
       if (response.success) {
         toast.success(response.message);
         form.reset();
@@ -216,10 +220,6 @@ export function CreateFamilyForm() {
     const response = await getEmployeeInfo(values.searchEmployeeForm);
     if (response.data) {
       setEmployee(response.data);
-      form.setValue("employeecedula", response.data.cedulaidentidad, {
-        shouldValidate: true,
-        shouldDirty: true,
-      });
     }
   };
   const academyLevelId = useWatch({

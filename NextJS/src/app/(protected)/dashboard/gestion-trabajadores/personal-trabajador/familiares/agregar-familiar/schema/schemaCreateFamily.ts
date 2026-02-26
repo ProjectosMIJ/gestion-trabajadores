@@ -1,9 +1,6 @@
 import z from "zod";
 
 export const schemaFamilyEmployeeOne = z.object({
-  employeecedula: z.string().refine((val) => /^\d+$/.test(val), {
-    message: "La Cédula No Puede Contener Letras",
-  }),
   cedulaFamiliar: z
     .string()
     .refine((val) => /^\d+$/.test(val), {

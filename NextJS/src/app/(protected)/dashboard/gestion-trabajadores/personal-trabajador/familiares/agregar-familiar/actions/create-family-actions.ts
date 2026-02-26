@@ -7,6 +7,7 @@ import { ApiResponse } from "@/app/types/types";
 
 export default async function createFamilyActions(
   values: z.infer<typeof schemaFamilyEmployeeOne>,
+  id: string | number,
 ) {
   try {
     const session = await auth();
@@ -18,7 +19,7 @@ export default async function createFamilyActions(
     }
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employeefamily/`,
+      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employeefamily/${id}/`,
       {
         method: "POST",
         headers: {
