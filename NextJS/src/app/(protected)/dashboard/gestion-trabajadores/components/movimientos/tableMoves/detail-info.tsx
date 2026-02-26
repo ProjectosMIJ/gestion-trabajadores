@@ -61,7 +61,7 @@ export function DetailInfoMoves({ movement }: DetailInfoMovesProps) {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button size="sm" className="h-8 w-8 p-0">
+        <Button size="sm" className="w-full">
           Ver detalles
         </Button>
       </SheetTrigger>
