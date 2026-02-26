@@ -295,31 +295,7 @@ export default function DetailInfoEmployee({ employee }: Props) {
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
-                      <FormUpdateDwelling
-                        idEmployee={employee.id.toString()}
-                        defaultValues={{
-                          datos_vivienda: {
-                            direccion_exacta:
-                              employee.datos_vivienda?.direccion_exacta ?? "",
-                            estado_id: Number(
-                              employee.datos_vivienda?.estado?.id ??
-                                employee.datos_vivienda?.estado.estado,
-                            ),
-                            municipio_id: Number(
-                              employee.datos_vivienda?.municipio?.id ??
-                                employee.datos_vivienda?.estado.estado,
-                            ),
-                            parroquia: Number(
-                              employee.datos_vivienda?.parroquia?.id ??
-                                employee.datos_vivienda?.parroquia.id,
-                            ),
-                            condicion_vivienda_id: Number(
-                              employee.datos_vivienda?.condicion?.id ??
-                                employee.datos_vivienda?.condicion.id,
-                            ),
-                          },
-                        }}
-                      />
+                      <FormUpdateDwelling idEmployee={employee.id.toString()} />
                     </DialogContent>
                   </Dialog>
                 </CardTitle>

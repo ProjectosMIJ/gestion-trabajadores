@@ -22,7 +22,7 @@ export async function updateCodeTable(values: UpdateCodeTable, id: number) {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}codigos/${id}/`,
       {
-        method: "PATCH",
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },

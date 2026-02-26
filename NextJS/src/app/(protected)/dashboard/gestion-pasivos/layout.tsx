@@ -3,8 +3,8 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { AppSidebarEmployees } from "./components/layout/app-sidebar";
 import { HeaderLayout } from "../../../../components/layout/header";
+import { AppSidebarPasivos } from "./components/layout/app-sidebar";
 export default function ProtectedLayout({
   children,
 }: Readonly<{
@@ -12,11 +12,11 @@ export default function ProtectedLayout({
 }>) {
   return (
     <SidebarProvider>
-      <AppSidebarEmployees />
+      <AppSidebarPasivos />
       <SidebarInset className="bg-transparent">
         <HeaderLayout
-          title="Gestión de Trabajadores - RAC"
-          subtitle="Gestiona y Visualiza la Información de los Trabajadores MPPRIJP"
+          title="Gestión de Pasivos - RAC"
+          subtitle="Gestiona y Visualiza la Información de los Pasivos MPPRIJP"
         >
           <SidebarTrigger className="text-black-600   scale-110" />
         </HeaderLayout>

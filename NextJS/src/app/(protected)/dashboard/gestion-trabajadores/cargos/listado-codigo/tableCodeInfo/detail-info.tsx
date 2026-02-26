@@ -94,15 +94,14 @@ export default function UpdateCode({ code }: Props) {
   );
   const form = useForm({
     defaultValues: {
-      Coordinacion: code.Coordinacion?.id || undefined,
-      denominacioncargoespecificoid:
-        code.denominacioncargoespecifico?.id || undefined,
-      denominacioncargoid: code.denominacioncargo?.id || undefined,
-      Dependencia: code.Dependencia?.id || undefined,
-      DireccionGeneral: code.DireccionGeneral?.id || undefined,
-      DireccionLinea: code.DireccionLinea?.id || undefined,
-      gradoid: code.grado?.id || undefined,
-      tiponominaid: code.tiponomina?.id || undefined,
+      Coordinacion: 0,
+      denominacioncargoespecificoid: 0,
+      denominacioncargoid: 0,
+      Dependencia: 0,
+      DireccionGeneral: 0,
+      DireccionLinea: 0,
+      gradoid: undefined,
+      tiponominaid: 0,
     },
     resolver: zodResolver(schemaUpdateCodeTable),
   });

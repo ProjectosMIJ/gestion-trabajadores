@@ -6,27 +6,37 @@ export const schemaDwellingUpdate = z.object({
       .string({
         message: "Debe Ingresar Información Valida",
       })
-      .optional(),
+      .min(3, {
+        message: "Minimo 3 Caracteres",
+      }),
     estado_id: z
       .number({
         message: "Debe Ingresar Información Valida",
       })
-      .optional(),
+      .refine((v) => v > 0, {
+        message: "Debe Seleccionar Un Valor",
+      }),
     municipio_id: z
       .number({
         message: "Debe Ingresar Información Valida",
       })
-      .optional(),
+      .refine((v) => v > 0, {
+        message: "Debe Seleccionar Un Valor",
+      }),
     parroquia: z
       .number({
         message: "Debe Ingresar Información Valida",
       })
-      .optional(),
+      .refine((v) => v > 0, {
+        message: "Debe Seleccionar Un Valor",
+      }),
     condicion_vivienda_id: z
       .number({
         message: "Debe Ingresar Información Valida",
       })
-      .optional(),
+      .refine((v) => v > 0, {
+        message: "Debe Seleccionar Un Valor",
+      }),
   }),
 });
 export type DwellingUpdateType = z.infer<typeof schemaDwellingUpdate>;

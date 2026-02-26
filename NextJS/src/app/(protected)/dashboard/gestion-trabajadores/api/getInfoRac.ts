@@ -203,9 +203,9 @@ export const getEmployeeDataSearch = async ({
 }: {
   searchParams: string | undefined;
 }): Promise<ApiResponse<EmployeeData[]>> => {
-  const url = searchParams
-    ? `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employee/cargos/?${searchParams}`
-    : `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employee/cargos/`;
+  const url =
+    searchParams &&
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employee/cargos/?${searchParams}`;
   const responseEmployee = await fetch(`${url}`, {
     cache: "no-cache",
   });

@@ -1,37 +1,23 @@
 "use client";
-import PageLayout from "../../components/layout/page-layout";
 import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eraser, Search } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import useSWR from "swr";
 import z from "zod";
-import {
-  getEmployeeDataSearch,
-  getHistoryMoveEmploye,
-  getNomina,
-} from "../../api/getInfoRac";
-import TableEmployee from "../../components/employees/tableEmployees/page";
+import { getHistoryMoveEmploye } from "../../api/getInfoRac";
+import PageLayout from "../../../../../../components/layout/page-layout";
 import Loading from "../../components/loading/loading";
-import { Card } from "@/components/ui/card";
 import TableMoves from "../../components/movimientos/tableMoves/page";
 
 export default function TableMovesPage() {
@@ -64,7 +50,7 @@ export default function TableMovesPage() {
       title="Consulta De Movimientos De Trabajadores"
       description="Verifique El Movimiento Del Personal"
     >
-      <Card className="flex h-screen border-none rounded-none ">
+      <Card className="flex bg-background border-none rounded-none shadow-none ">
         <div className="flex flex-1 flex-col overflow-hidden">
           <main className="flex-1 overflow-auto bg-muted/30 p-6 ">
             <Form {...form}>

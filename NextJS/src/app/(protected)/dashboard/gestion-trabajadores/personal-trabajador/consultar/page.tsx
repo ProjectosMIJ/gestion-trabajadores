@@ -27,6 +27,7 @@ import { getEmployeeDataSearch, getNomina } from "../../api/getInfoRac";
 import TableEmployee from "../../components/employees/tableEmployees/page";
 import Loading from "../../components/loading/loading";
 import { Card } from "@/components/ui/card";
+import PageLayout from "../../../../../../components/layout/page-layout";
 
 export default function PersonalPage() {
   const { data: session } = useSession();
@@ -83,101 +84,100 @@ export default function PersonalPage() {
     });
   };
   return (
-    <Card className="flex h-screen border-none rounded-none ">
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <main className="flex-1 overflow-auto bg-muted/30 p-6 ">
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(onSearch)}
-              className="flex flex-col justify-start gap-2 flex-1"
+    <PageLayout
+      title="Consultar Trabajador"
+      description="Informacióon Detallada Del Trabajador"
+    >
+      <Form {...form}>
+        <form
+          onSubmit={form.handleSubmit(onSearch)}
+          className="flex flex-col justify-start gap-2 flex-1"
+        >
+          <div className="flex flex-row items-center gap-2 ">
+            <FormField
+              name="cedulaidentidad"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Buscar Cédula</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder="buscar cedula..."
+                      {...field}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              name="codigo"
+              control={form.control}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Buscar Código De Trabajador</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      placeholder="buscar codigo de trabajador..."
+                      {...field}
+                    />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="tipo_nomina"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tipo de Nomina</FormLabel>
+                  <Select
+                    onValueChange={(values) => {
+                      field.onChange(Number.parseInt(values));
+                    }}
+                  >
+                    <FormControl>
+                      <SelectTrigger className="w-full truncate">
+                        <SelectValue
+                          placeholder={`${isLoadingNomina ? "Cargando Nominas" : "Seleccione un Tipo de Nomina"}`}
+                        />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="0">Ninguno</SelectItem>
+                      {nomina?.data.map((nomina, i) => (
+                        <SelectItem key={i} value={`${nomina.id}`}>
+                          {nomina.nomina}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button className="cursor-pointer self-baseline-last">
+              Buscar <Search />
+            </Button>
+            <Button
+              variant={"outline"}
+              className="cursor-pointer self-baseline-last"
+              type="button"
+              onClick={cleanFields}
             >
-              <div className="flex flex-row items-center gap-2 ">
-                <FormField
-                  name="cedulaidentidad"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Buscar Cédula</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="text"
-                          placeholder="buscar cedula..."
-                          {...field}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  name="codigo"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Buscar Código De Trabajador</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="text"
-                          placeholder="buscar codigo de trabajador..."
-                          {...field}
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="tipo_nomina"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tipo de Nomina</FormLabel>
-                      <Select
-                        onValueChange={(values) => {
-                          field.onChange(Number.parseInt(values));
-                        }}
-                      >
-                        <FormControl>
-                          <SelectTrigger className="w-full truncate">
-                            <SelectValue
-                              placeholder={`${isLoadingNomina ? "Cargando Nominas" : "Seleccione un Tipo de Nomina"}`}
-                            />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="0">Ninguno</SelectItem>
-                          {nomina?.data.map((nomina, i) => (
-                            <SelectItem key={i} value={`${nomina.id}`}>
-                              {nomina.nomina}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <Button className="cursor-pointer self-baseline-last">
-                  Buscar <Search />
-                </Button>
-                <Button
-                  variant={"outline"}
-                  className="cursor-pointer self-baseline-last"
-                  type="button"
-                  onClick={cleanFields}
-                >
-                  Limpiar <Eraser />
-                </Button>
-              </div>
-            </form>
-          </Form>
-          {isLoading || isPending ? (
-            <Loading promiseMessage="Cargando Información"></Loading>
-          ) : (
-            <>
-              <TableEmployee employeeData={employeeData?.data ?? []} />
-            </>
-          )}
-        </main>
-      </div>
-    </Card>
+              Limpiar <Eraser />
+            </Button>
+          </div>
+        </form>
+      </Form>
+      {isLoading || isPending ? (
+        <Loading promiseMessage="Cargando Información"></Loading>
+      ) : (
+        <>
+          <TableEmployee employeeData={employeeData?.data ?? []} />
+        </>
+      )}
+    </PageLayout>
   );
 }
