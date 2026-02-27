@@ -197,4 +197,5 @@ urlpatterns = [
     
     path('menciones/create/', views.crear_menciones_view, name='menciones-creadas'),
     path('carga/cargos/', views.ImportarCargosESPECIALESView.as_view(), name="carga-trabajador-masiva"),
+    path('carga/trabajador/', views.ImportEmployeesView.as_view(), name="carga-trabajador-masiva"),
 ]
