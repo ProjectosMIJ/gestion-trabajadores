@@ -251,12 +251,7 @@ class DependenciaSerializer(serializers.ModelSerializer):
 class DireccionGeneralSerializer(serializers.ModelSerializer):
     class Meta:
         model = DireccionGeneral
-        fields = [
-            'id',
-            'Codigo',
-            'direccion_general',
-            'dependenciaId'
-        ]
+        fields = '__all__'
     
     def validate_direccion_general(self,value):
         value = value.upper()
@@ -700,10 +695,10 @@ class CodigosCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer
             raise serializers.ValidationError(f"Error de datos: {str(e)}")     
         
         codigo = attrs.get('codigo', getattr(self.instance, 'codigo', None))
-        tipo_personal = attrs.get('Tipo_personal', getattr(self.instance, 'Tipo_personal', None))
+        tiponominaid = attrs.get('tiponominaid', getattr(self.instance, 'tiponominaid', None))
 
-        if not self.instance and codigo and tipo_personal:
-            exists = AsigTrabajo.objects.filter(codigo=codigo, Tipo_personal=tipo_personal).exists()
+        if not self.instance and codigo and tiponominaid:
+            exists = AsigTrabajo.objects.filter(codigo=codigo, tiponominaid=tiponominaid).exists()
             if exists:
                 raise serializers.ValidationError("Codigo ya existente")
         

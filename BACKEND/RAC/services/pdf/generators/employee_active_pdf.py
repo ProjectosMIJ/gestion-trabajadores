@@ -224,7 +224,7 @@ class EmployeePDFGenerator(BasePDFGenerator):
     
     def _get__organisoAdscrito(self, employee):
         f = getattr(employee, 'filtered_assignments', [])
-        return f[0].OrganismoAdscritoid.Organismoadscrito if f and f[0].OrganismoAdscritoid else "SIN ORGANISMO ADSCRITO"
+        return f[0].OrganismoAdscritoid.Organismoadscrito if f and f[0].OrganismoAdscritoid else "MPPRIJP"
     def _get_nomina_nombre(self, nomina_id):
         try: return apps.get_model('RAC', 'Tiponomina').objects.get(id=nomina_id).nomina
         except: return None
