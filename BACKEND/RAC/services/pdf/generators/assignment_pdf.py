@@ -238,7 +238,7 @@ class AssignmentPDFGenerator(BasePDFGenerator):
     
     def _get_organisoAdscrito(self, assignment):
         obj = getattr(assignment, 'OrganismoAdscritoid', None)
-        return getattr(obj, 'OrganismoAdscrito', 'N/A') if obj else 'N/A'
+        return getattr(obj, 'OrganismoAdscrito', 'MPPRIJP') if obj else 'MPPRIJP'
     def _get_grado(self, assignment):
         obj = getattr(assignment, 'gradoid', None)
         return getattr(obj, 'grado', 'N/A') if obj else 'N/A'
