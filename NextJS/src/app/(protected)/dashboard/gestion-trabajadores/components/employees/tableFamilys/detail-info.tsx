@@ -171,80 +171,95 @@ export function DetailInfoFamily({ family }: Props) {
                 </div>
               </CardContent>
             </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex flex-row items-center gap-3 justify-between">
-                  <div className="flex flex-row items-center gap-2">
-                    Información De Salud
-                    <Ambulance />
-                  </div>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 place-content-center">
-                  <div>Tipo De Sangre:</div>
-                  <div>
-                    {family.perfil_salud_familiar?.grupoSanguineo != null
-                      ? family.perfil_salud_familiar.grupoSanguineo
-                          .grupoSanguineo
-                      : "N/A"}
-                  </div>
-                  {family.perfil_salud_familiar?.patologiasCronicas &&
-                    family.perfil_salud_familiar.patologiasCronicas.length >
-                      0 && (
-                      <Table className="col-span-2">
+            <CardContent>
+              <div className="grid grid-cols-2 place-content-center">
+                <div>Tipo De Sangre:</div>
+                <div>
+                  {family.perfil_salud_familiar?.grupoSanguineo != null
+                    ? family.perfil_salud_familiar.grupoSanguineo.grupoSanguineo
+                    : "N/A"}
+                </div>
+                {family.perfil_salud_familiar?.patologiasCronicas &&
+                  family.perfil_salud_familiar.patologiasCronicas.length >
+                    0 && (
+                    <Table className="col-span-2">
+                      <TableCaption>
+                        Lista De Patologias Del Trabajador
+                      </TableCaption>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Categoria</TableHead>
+                          <TableHead>Patologia</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {family.perfil_salud_familiar.patologiasCronicas.map(
+                          (v, i) => (
+                            <TableRow key={i}>
+                              <TableCell className="font-medium">
+                                {v.categoria.nombre_categoria}
+                              </TableCell>
+                              <TableCell>{v.patologia}</TableCell>
+                            </TableRow>
+                          ),
+                        )}
+                      </TableBody>
+                    </Table>
+                  )}
+                {family.perfil_salud_familiar?.discapacidad &&
+                  family.perfil_salud_familiar.discapacidad.length > 0 && (
+                    <Table className="col-span-2">
+                      <TableCaption>
+                        Lista De Discapcidades Del Trabajador
+                      </TableCaption>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Categoria</TableHead>
+                          <TableHead>Discapacidad</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {family.perfil_salud_familiar.discapacidad.map(
+                          (v, i) => (
+                            <TableRow key={i}>
+                              <TableCell className="font-medium">
+                                {v.categoria.nombre_categoria}
+                              </TableCell>
+                              <TableCell>{v.discapacidad}</TableCell>
+                            </TableRow>
+                          ),
+                        )}
+                      </TableBody>
+                    </Table>
+                  )}
+                {family.perfil_salud_familiar?.alergias &&
+                  family.perfil_salud_familiar.alergias.length > 0 && (
+                    <div className="col-span-2">
+                      <Table>
                         <TableCaption>
                           Lista De Patologias Del Trabajador
                         </TableCaption>
                         <TableHeader>
                           <TableRow>
                             <TableHead>Categoria</TableHead>
-                            <TableHead>Patologia</TableHead>
+                            <TableHead>Alergias</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
-                          {family.perfil_salud_familiar.patologiasCronicas.map(
-                            (v, i) => (
-                              <TableRow key={i}>
-                                <TableCell className="font-medium">
-                                  {v.categoria.nombre_categoria}
-                                </TableCell>
-                                <TableCell>{v.patologia}</TableCell>
-                              </TableRow>
-                            ),
-                          )}
+                          {family.perfil_salud_familiar.alergias.map((v, i) => (
+                            <TableRow key={i}>
+                              <TableCell className="font-medium">
+                                {v.categoria.nombre_categoria}
+                              </TableCell>
+                              <TableCell>{v.alergia}</TableCell>
+                            </TableRow>
+                          ))}
                         </TableBody>
                       </Table>
-                    )}
-                  {family.perfil_salud_familiar?.discapacidad &&
-                    family.perfil_salud_familiar.discapacidad.length > 0 && (
-                      <Table className="col-span-2">
-                        <TableCaption>
-                          Lista De Discapcidades Del Trabajador
-                        </TableCaption>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead>Categoria</TableHead>
-                            <TableHead>Discapacidad</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {family.perfil_salud_familiar.discapacidad.map(
-                            (v, i) => (
-                              <TableRow key={i}>
-                                <TableCell className="font-medium">
-                                  {v.categoria.nombre_categoria}
-                                </TableCell>
-                                <TableCell>{v.discapacidad}</TableCell>
-                              </TableRow>
-                            ),
-                          )}
-                        </TableBody>
-                      </Table>
-                    )}
-                </div>
-              </CardContent>
-            </Card>
+                    </div>
+                  )}
+              </div>
+            </CardContent>
           </div>
         </ScrollArea>
       </SheetContentUI>

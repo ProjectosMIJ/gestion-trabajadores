@@ -172,33 +172,6 @@ class ParentescoSerializer(serializers.ModelSerializer):
 
 
 
-class PerfilSaludFamiliarSerializer(serializers.ModelSerializer):
-    grupoSanguineo = GrupoSanguineoSerializer(read_only=True)
-    discapacidad = DiscapacidadSerializer(many=True, read_only=True)
-    patologiaCronica = PatologiasSerializer(many=True, read_only=True)
-
-    class Meta:
-        model = perfil_salud  
-        fields = ['grupoSanguineo', 'discapacidad', 'patologiaCronica']
-
-class PerfilFisicoFamiliarSerializer(serializers.ModelSerializer):
-    tallaCamisa = TallaCamisaSerializer(read_only=True)
-    tallaPantalon = TallaPantalonSerializer(read_only=True)
-    tallaZapatos = TallaZapatosSerializer(read_only=True)
-
-    class Meta:
-        model = perfil_fisico
-        fields = ['tallaCamisa', 'tallaPantalon', 'tallaZapatos']
-
-class FormacionAcademicaFamiliarSerializer(serializers.ModelSerializer):
-    nivelAcademico = NivelAcademicoSerializer(source='nivel_Academico_id', read_only=True)
-    carrera = CarrerasSerializer(source='carrera_id', read_only=True)
-    mencion = MencionSerializer(source='mencion_id', read_only=True)
-
-    class Meta:
-        model = formacion_academica
-        fields = ['nivelAcademico', 'institucion', 'capacitacion', 'carrera', 'mencion']
-        
     
 class FamilyListSerializer(serializers.ModelSerializer):
     parentesco = ParentescoSerializer(read_only=True)
@@ -221,14 +194,14 @@ class FamilyListSerializer(serializers.ModelSerializer):
 
     def get_perfil_salud_familiar(self, obj):
         instancia = obj.perfil_salud_set.first()
-        return PerfilSaludFamiliarSerializer(instancia).data if instancia else None
+        return PerfilSaludSerializer(instancia).data if instancia else None
 
     def get_perfil_fisico_familiar(self, obj):
         instancia = obj.perfil_fisico_set.first()
-        return PerfilFisicoFamiliarSerializer(instancia).data if instancia else None
+        return PerfilFisicoSerializer(instancia).data if instancia else None
 
     def get_formacion_academica_familiar(self, obj):
         instancia = obj.formacion_academica_set.first()
-        return FormacionAcademicaFamiliarSerializer(instancia).data if instancia else None
+        return FormacionAcademicaSerializer(instancia).data if instancia else None
 
    

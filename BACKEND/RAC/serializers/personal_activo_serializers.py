@@ -253,6 +253,7 @@ class DireccionGeneralSerializer(serializers.ModelSerializer):
         model = DireccionGeneral
         fields = [
             'id',
+            'Codigo',
             'direccion_general',
             'dependenciaId'
         ]

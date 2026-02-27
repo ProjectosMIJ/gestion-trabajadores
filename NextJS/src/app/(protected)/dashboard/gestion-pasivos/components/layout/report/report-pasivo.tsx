@@ -28,22 +28,16 @@ import {
   getCargoEspecifico,
   getCarrera,
   getConditionDwelling,
-  getCoordination,
-  getDependency,
-  getDirectionGeneralById,
-  getDirectionLine,
   getDisability,
-  getGrado,
   getMencion,
   getMunicipalitys,
-  getNominaGeneral,
+  getNominaPasivo,
   getOrganismosAds,
   getParish,
   getPatologys,
   getRegion,
   getSex,
   getStateByRegion,
-  postReport,
   postReportPasivo,
 } from "../../../../gestion-trabajadores/api/getInfoRac";
 
@@ -75,30 +69,11 @@ export default function ReportPasivo() {
   const [reportListEmployee, setReportListEmployeeBlob] = useState<string>();
   const [stateId, setStateId] = useState<string>();
   const { data: session } = useSession();
-  const [dependencyId, setDependencyId] = useState<number>(0);
+  const { data: nominaPasivo, isLoading: isLoadingNominaPasivo } = useSWR(
+    "nominaPasivo",
+    async () => await getNominaPasivo(),
+  );
 
-  const [directionGeneralId, setDirectionGeneralId] = useState<string | null>(
-    null,
-  );
-  const [directionLineId, setDirectionLineId] = useState<string | null>(null);
-
-  const { data: directionGeneral, isLoading: isLoadingDirectionGeneral } =
-    useSWR(
-      dependencyId ? ["directionGeneral", dependencyId] : null,
-      async () => await getDirectionGeneralById(dependencyId),
-    );
-  const { data: dependency, isLoading: isLoadingDependency } = useSWR(
-    "dependency",
-    async () => await getDependency(),
-  );
-  const { data: directionLine, isLoading: isLoadingDirectionLine } = useSWR(
-    directionGeneralId ? ["directionLine", directionGeneralId] : null,
-    async () => await getDirectionLine(directionGeneralId!),
-  );
-  const { data: coordination, isLoading: isLoadingCoordination } = useSWR(
-    directionLineId ? ["coordination", directionLineId] : null,
-    async () => await getCoordination(directionLineId!),
-  );
   const { data: sex, isLoading: isLoadingSex } = useSWR(
     "sex",
     async () => await getSex(),
@@ -122,13 +97,6 @@ export default function ReportPasivo() {
   const { data: cargo, isLoading: isLoadingCargo } = useSWR(
     "cargo",
     async () => await getCargo(),
-  );
-  const { data: nomina, isLoading: isLoadingNomina } = useSWR(
-    "nominaGeneral",
-    async () => await getNominaGeneral(),
-  );
-  const { data: grado, isLoading: isLoadingGrado } = useSWR("grado", async () =>
-    getGrado(),
   );
 
   const { data: academyLevel, isLoading: isLoadingAcademyLevel } = useSWR(
@@ -321,12 +289,12 @@ export default function ReportPasivo() {
                               <FormControl>
                                 <SelectTrigger className="w-full truncate">
                                   <SelectValue
-                                    placeholder={`${isLoadingNomina ? "Cargando Nominas" : "Seleccione un Tipo de Nomina"}`}
+                                    placeholder={`${isLoadingNominaPasivo ? "Cargando Nominas" : "Seleccione un Tipo de Nomina"}`}
                                   />
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {nomina?.data.map((nomina, i) => (
+                                {nominaPasivo?.data.map((nomina, i) => (
                                   <SelectItem key={i} value={`${nomina.id}`}>
                                     {nomina.nomina}
                                   </SelectItem>
@@ -337,36 +305,7 @@ export default function ReportPasivo() {
                           </FormItem>
                         )}
                       />
-                      <FormField
-                        control={form.control}
-                        name="filtros.grado_id"
-                        render={({ field }) => (
-                          <FormItem className="col-span-3">
-                            <FormLabel>Grado</FormLabel>
-                            <Select
-                              onValueChange={(values) => {
-                                field.onChange(Number.parseInt(values));
-                              }}
-                            >
-                              <FormControl>
-                                <SelectTrigger className="w-full truncate">
-                                  <SelectValue
-                                    placeholder={`${isLoadingGrado ? "Cargando Grados" : "Seleccione un Grado"}`}
-                                  />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {grado?.data.map((grado, i) => (
-                                  <SelectItem key={i} value={`${grado.id}`}>
-                                    {grado.grado}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+
                       <FormField
                         control={form.control}
                         name="filtros.OrganismoAdscrito_id"
@@ -381,7 +320,7 @@ export default function ReportPasivo() {
                               <FormControl>
                                 <SelectTrigger className="w-full truncate">
                                   <SelectValue
-                                    placeholder={`${isLoadingGrado ? "Cargando Organismos Adscritos" : "Seleccione Un Organismo Adscrito"}`}
+                                    placeholder={`${isLoadingOrganismoAds ? "Cargando Organismos Adscritos" : "Seleccione Un Organismo Adscrito"}`}
                                   />
                                 </SelectTrigger>
                               </FormControl>
@@ -752,6 +691,8 @@ export default function ReportPasivo() {
                                     date > new Date() ||
                                     date < new Date("1900-01-01")
                                   }
+                                  fromYear={1900}
+                                  toYear={new Date().getFullYear()}
                                   captionLayout="dropdown"
                                 />
                               </PopoverContent>
@@ -803,6 +744,8 @@ export default function ReportPasivo() {
                                     date > new Date() ||
                                     date < new Date("1900-01-01")
                                   }
+                                  fromYear={1900}
+                                  toYear={new Date().getFullYear()}
                                   captionLayout="dropdown"
                                 />
                               </PopoverContent>
@@ -854,6 +797,8 @@ export default function ReportPasivo() {
                                     date > new Date() ||
                                     date < new Date("1900-01-01")
                                   }
+                                  fromYear={1900}
+                                  toYear={new Date().getFullYear()}
                                   captionLayout="dropdown"
                                 />
                               </PopoverContent>
@@ -905,6 +850,8 @@ export default function ReportPasivo() {
                                     date > new Date() ||
                                     date < new Date("1900-01-01")
                                   }
+                                  fromYear={1900}
+                                  toYear={new Date().getFullYear()}
                                   captionLayout="dropdown"
                                 />
                               </PopoverContent>
@@ -1099,7 +1046,7 @@ export default function ReportPasivo() {
                 {reportListEmployee && (
                   <a
                     href={reportListEmployee}
-                    download={`Reporte_Empleados ${formatInTimeZone(new Date(), "UTC", "dd/MM/yyyy")}.pdf`}
+                    download={`Reporte_Pasivos ${formatInTimeZone(new Date(), "UTC", "dd/MM/yyyy")}.pdf`}
                     className={`${buttonVariants({ variant: "outline" })} flex-1 cursor-pointer animate-pulse`}
                   >
                     Descargar Reporte <Download />

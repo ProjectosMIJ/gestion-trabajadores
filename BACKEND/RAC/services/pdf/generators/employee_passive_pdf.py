@@ -47,7 +47,7 @@ class EmployeePassivePDFGenerator(BasePDFGenerator):
             filtros = self.metadata.get('filters', {})
             filtro_aplicado_id = filtros.get('nomina_id', None)
             filtro_aplicado_nombre = self._get_nomina_nombre(filtro_aplicado_id) if filtro_aplicado_id else None
-            titulo_principal = f"Listado de {filtro_aplicado_nombre}" if filtro_aplicado_nombre else "REPORTE DE TRABAJADORES"
+            titulo_principal = f"Listado de {filtro_aplicado_nombre}" if filtro_aplicado_nombre else "REPORTE DE PERSONAL PASIVO"
             titulo_reporte = (
                 f"<font size='12'><b>{institucion} <br/> {institucion2}</b></font><br/><font size='14'><b><br/>{titulo_principal}</b></font>"
             )

@@ -27,7 +27,10 @@ SECRET_KEY = 'django-insecure-2vg*3_2nukjc_#ey_ufy_@xkyp5(pkpq34c@fsed28q!3uzxzs
 DEBUG = True
 
 # Dentro de Docker, otros servicios llegan a este contenedor por el hostname del servicio (por ej. "django").
-ALLOWED_HOSTS = ['172.16.10.209', '127.0.0.1','localhost', 'django', 'djangoapp', 'django-App', 'postgresdb', 'nextjs-App','172.16.26.48','172.16.10.209']
+
+
+
+ALLOWED_HOSTS = ['172.16.10.209', '127.0.0.1','localhost', 'django', 'djangoapp', 'django-App', 'postgresdb', 'nextjs-App','172.16.26.48','172.16.10.209','172.16.26.48']
 
 # Application definition
 
@@ -62,6 +65,7 @@ ROOT_URLCONF = 'SIGEP.urls'
 CORS_ALLOWED_ORIGINS = [
     "http://djangoapp:3000", 
     "http://172.16.10.209:3000",
+    "http:///172.16.26.48:3000",
     "http://127.0.0.1:3000",
     "http://nextjs-App:3000",  # <- Agregar este
     "http://172.16.24.81:3000",

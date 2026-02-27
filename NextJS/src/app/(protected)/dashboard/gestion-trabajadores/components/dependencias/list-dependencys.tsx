@@ -48,7 +48,8 @@ export default function TableDependencys() {
   const coordinationGeneral = useMemo(() => {
     if (!directionGeneral?.data) return [];
     return directionGeneral.data.filter((v) => {
-      const lasNumber = v.Codigo.at(-1);
+      // Added optional chaining here: v.Codigo?.at(-1)
+      const lasNumber = v.Codigo?.at(-1);
       return Number.parseInt(lasNumber ?? "0") > 0;
     });
   }, [directionGeneral]);
@@ -66,7 +67,7 @@ export default function TableDependencys() {
   const coordinationLine = useMemo(() => {
     if (!directionLine?.data) return [];
     return directionLine.data.filter((v) => {
-      const lasNumber = v.Codigo.at(-1);
+      const lasNumber = v.Codigo?.at(-1);
       return Number.parseInt(lasNumber ?? "0") > 0;
     });
   }, [directionLine]);
@@ -81,7 +82,9 @@ export default function TableDependencys() {
       : null,
     async () => await getCoordination(coordinationId!),
   );
-
+  console.log(directionGeneral);
+  console.log(directionLine);
+  console.log(coordination);
   return (
     <>
       <Card>
@@ -180,61 +183,31 @@ export default function TableDependencys() {
             </div>
           </div>
           <div className="grid grid-cols-2 gap-5 ">
-            {coordinationGeneral.length > 0 && (
-              <div className="overflow-auto h-70  border rounded-2xl border-blue-700 col-span-2 ">
-                <Table>
-                  <TableCaption>
-                    Coordinaciones adscritas al Despacho/Viceministerio
-                  </TableCaption>
-                  <TableHeader className="bg-blue-600">
-                    <TableRow>
-                      <TableHead className="w-[100px] font-bold text-white">
-                        Código
-                      </TableHead>
-                      <TableHead className="text-center font-bold text-white">
-                        Coordinaciones adscritas al Despacho/Viceministerio
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {coordinationGeneral?.map((general, i) => (
-                      <TableRow key={i}>
-                        <TableCell className="font-medium">
-                          {general.Codigo}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {general.direccion_general}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-
-            <div className=" h-70     rounded-2xl">
-              {coordinationLine.length > 0 && (
-                <div className="border overflow-auto border-blue-600 rounded-2xl">
+            {coordinationGeneral.length > 0 &&
+              Array.isArray(coordinationGeneral) && (
+                <div className="overflow-auto h-70  border rounded-2xl border-blue-700 col-span-2 ">
                   <Table>
-                    <TableCaption>Coordinaciones De Lineas</TableCaption>
-                    <TableHeader className="bg-blue-600 ">
+                    <TableCaption>
+                      Coordinaciones adscritas al Despacho/Viceministerio
+                    </TableCaption>
+                    <TableHeader className="bg-blue-600">
                       <TableRow>
                         <TableHead className="w-[100px] font-bold text-white">
                           Código
                         </TableHead>
-                        <TableHead className="text-center font-bold text-white ">
-                          Coordinación De Linea
+                        <TableHead className="text-center font-bold text-white">
+                          Coordinaciones adscritas al Despacho/Viceministerio
                         </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {coordinationLine?.map((direction, i) => (
+                      {coordinationGeneral?.map((general, i) => (
                         <TableRow key={i}>
                           <TableCell className="font-medium">
-                            {direction.Codigo}
+                            {general.Codigo}
                           </TableCell>
                           <TableCell className="text-center">
-                            {direction.direccion_linea}
+                            {general.direccion_general}
                           </TableCell>
                         </TableRow>
                       ))}
@@ -242,6 +215,38 @@ export default function TableDependencys() {
                   </Table>
                 </div>
               )}
+
+            <div className=" h-70     rounded-2xl">
+              {coordinationLine.length > 0 &&
+                Array.isArray(coordinationLine) && (
+                  <div className="border overflow-auto border-blue-600 rounded-2xl">
+                    <Table>
+                      <TableCaption>Coordinaciones De Lineas</TableCaption>
+                      <TableHeader className="bg-blue-600 ">
+                        <TableRow>
+                          <TableHead className="w-[100px] font-bold text-white">
+                            Código
+                          </TableHead>
+                          <TableHead className="text-center font-bold text-white ">
+                            Coordinación De Linea
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {coordinationLine?.map((direction, i) => (
+                          <TableRow key={i}>
+                            <TableCell className="font-medium">
+                              {direction.Codigo}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {direction.direccion_linea}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
             </div>
             <div className="h-70   rounded-2xl">
               {coordination?.data.length! > 0 && (
