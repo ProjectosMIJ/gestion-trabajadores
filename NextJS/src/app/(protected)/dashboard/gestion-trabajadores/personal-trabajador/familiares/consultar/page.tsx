@@ -1,5 +1,4 @@
 "use client";
-import PageLayout from "../../../../../../../components/layout/page-layout";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -7,27 +6,19 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eraser, Search } from "lucide-react";
 import { useSession } from "next-auth/react";
-import { useState, useTransition } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import z from "zod";
-import Loading from "../../../components/loading/loading";
-import TableEmployee from "../../../components/employees/tableEmployees/page";
 import useSWR from "swr";
+import z from "zod";
+import PageLayout from "../../../../../../../components/layout/page-layout";
 import { getFamilyEmployee } from "../../../api/getInfoRac";
 import TableFamily from "../../../components/employees/tableFamilys/table";
+import Loading from "../../../components/loading/loading";
 export default function FamilyConsult() {
   const [employee, setEmployee] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useState<string>();

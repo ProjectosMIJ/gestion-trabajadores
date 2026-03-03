@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  getEmployeeById,
   getEmployeeInfo,
   getNominaPasivo,
   getReasonLeaving,
@@ -8,7 +9,7 @@ import {
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
 import GestionAction from "@/app/(protected)/dashboard/gestion-trabajadores/movimientos/cambiar-pasivo/actions/gestion-persona-action";
 import { schemaPasivo } from "@/app/(protected)/dashboard/gestion-trabajadores/movimientos/cambiar-pasivo/schema/schemaPasivo";
-import { EmployeeInfo } from "@/app/types/types";
+import { ApiResponse, EmployeeData, EmployeeInfo } from "@/app/types/types";
 import {
   Select,
   SelectContent,
@@ -46,7 +47,7 @@ export function PasivoForm() {
     undefined,
   );
 
-  const [employee, setEmployee] = useState<EmployeeInfo | []>();
+  const [employee, setEmployee] = useState<ApiResponse<EmployeeData>>();
   const [isPending, startTransition] = useTransition();
 
   const { data: nominaPasivo, isLoading: isLoadingNominaPasivo } = useSWR(
@@ -79,10 +80,8 @@ export function PasivoForm() {
   });
   const handleSearch = async (values: z.infer<typeof schemaSearchEmployee>) => {
     if (!values.searchEmployeeForm) return;
-    const response = await getEmployeeInfo(values.searchEmployeeForm);
-    if (response.data && response.data !== undefined) {
-      setEmployee(response.data);
-    }
+    const response = await getEmployeeById(values.searchEmployeeForm);
+    setEmployee(response);
   };
   const formSearch = useForm({
     defaultValues: {
@@ -92,12 +91,14 @@ export function PasivoForm() {
   });
   const onSubmit = (data: z.infer<typeof schemaPasivo>) => {
     startTransition(async () => {
-      if (!Array.isArray(employee) && employee?.cedulaidentidad) {
-        const response = await GestionAction(data, employee.cedulaidentidad);
+      if (!Array.isArray(employee) && employee?.data.cedulaidentidad) {
+        const response = await GestionAction(
+          data,
+          employee.data.cedulaidentidad,
+        );
         if (response.success) {
           toast.success(response.message);
-          setEmployee([]);
-          setSearchEmployee("");
+          form.reset();
         } else {
           toast.error(response.message);
         }
@@ -108,12 +109,12 @@ export function PasivoForm() {
     control: form.control,
     name: "estatus_id",
   });
+
   const validatePeace =
     estatusId === statusEmployee?.data.find((v) => v.estatus === "PASIVO")?.id;
   return (
     <>
       <Card>
-        <CardHeader></CardHeader>
         <CardContent className="space-y-5">
           <Form {...formSearch}>
             <form
@@ -137,157 +138,160 @@ export function PasivoForm() {
               </Button>
             </form>
           </Form>
-          {employee && (
+          {employee && employee?.status !== "error" && (
             <div className={` rounded-sm p-2 `}>
-              {!Array.isArray(employee) ? (
+              {!Array.isArray(employee) && (
                 <div className="flex flex-row gap-2  border-2 border-blue-400/45 bg-blue-200/40 p-2 rounded-sm">
-                  <p>Nombres: {employee.nombres}</p>
-                  <p>Cedula: {employee.cedulaidentidad}</p>
+                  <p>Nombres: {employee.data.nombres}</p>
+                  <p>Cedula: {employee.data.cedulaidentidad}</p>
                 </div>
-              ) : (
-                <Error errorMessage="Cédula Invalida" />
               )}
             </div>
           )}
-
-          {employee && !Array.isArray(employee) && (
-            <div>
-              <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-2"
-                >
-                  <FormField
-                    control={form.control}
-                    name="estatus_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Egresado/Pasivo</FormLabel>
-                        <Select
-                          onValueChange={(values) => {
-                            field.onChange(Number.parseInt(values));
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full truncate">
-                              <SelectValue
-                                placeholder={`${isLoadingStatusEmployee ? "Cargando Listado" : "Seleccione Un Item"}  `}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {statusEmployee?.data.map((status, i) => (
-                              <SelectItem key={i} value={`${status.id}`}>
-                                {status.estatus}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  {validatePeace && (
-                    <>
-                      <FormField
-                        control={form.control}
-                        name="tiponominaid"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>
-                              Listado De Nominas De Jubilados
-                            </FormLabel>
-                            <Select
-                              onValueChange={(values) => {
-                                field.onChange(Number.parseInt(values));
-                              }}
-                            >
-                              <FormControl>
-                                <SelectTrigger className="w-full truncate">
-                                  <SelectValue
-                                    placeholder={`${isLoadingNominaPasivo ? "Cargando Nominas" : "Seleccione Una Nomina"}`}
-                                  />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {nominaPasivo?.data.map((nomina, i) => (
-                                  <SelectItem key={i} value={`${nomina.id}`}>
-                                    {nomina.nomina}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <FormField
-                        control={form.control}
-                        name="codigo_nuevo"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Ingrese El Código A Asignar</FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                placeholder="Ingrese El Código"
-                              />
-                            </FormControl>
-
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <div className="flex flex-row gap-2 justify-end">
-                        <Label>Desea Liberar El Cargo Activo</Label>
-                        <Switch
-                          onCheckedChange={(boolean) => {
-                            form.setValue("liberar_activos", boolean);
-                          }}
-                        />
-                      </div>
-                    </>
-                  )}
-                  <FormField
-                    control={form.control}
-                    name="motivo"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Motivo De Cambio De Cargo</FormLabel>
-                        <Select
-                          onValueChange={(values) => {
-                            field.onChange(Number.parseInt(values));
-                          }}
-                        >
-                          <FormControl>
-                            <SelectTrigger className="w-full truncate">
-                              <SelectValue
-                                placeholder={`${isLoadingReasonLeaving ? "Cargando Motivos De Cambio De Cargo" : "Seleccione Un Código"}`}
-                              />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {reasonLeaving?.data.map((reason, i) => (
-                              <SelectItem key={i} value={`${reason.id}`}>
-                                {reason.movimiento}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button className="w-full mt-2" disabled={isPending}>
-                    {isPending ? "Cargando" : "Ejecutar Cambio"}
-                  </Button>
-                </form>
-              </Form>
-            </div>
+          {employee && employee?.status == "error" && (
+            <Error errorMessage="Cédula Invalida" />
           )}
+
+          {employee &&
+            !Array.isArray(employee) &&
+            employee?.status !== "error" && (
+              <div>
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="space-y-2"
+                  >
+                    <FormField
+                      control={form.control}
+                      name="estatus_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Egresado/Pasivo</FormLabel>
+                          <Select
+                            onValueChange={(values) => {
+                              field.onChange(Number.parseInt(values));
+                            }}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full truncate">
+                                <SelectValue
+                                  placeholder={`${isLoadingStatusEmployee ? "Cargando Listado" : "Seleccione Un Item"}  `}
+                                />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {statusEmployee?.data.map((status, i) => (
+                                <SelectItem key={i} value={`${status.id}`}>
+                                  {status.estatus}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {validatePeace && (
+                      <>
+                        <FormField
+                          control={form.control}
+                          name="tiponominaid"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>
+                                Listado De Nominas De Jubilados
+                              </FormLabel>
+                              <Select
+                                onValueChange={(values) => {
+                                  field.onChange(Number.parseInt(values));
+                                }}
+                              >
+                                <FormControl>
+                                  <SelectTrigger className="w-full truncate">
+                                    <SelectValue
+                                      placeholder={`${isLoadingNominaPasivo ? "Cargando Nominas" : "Seleccione Una Nomina"}`}
+                                    />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {nominaPasivo?.data.map((nomina, i) => (
+                                    <SelectItem key={i} value={`${nomina.id}`}>
+                                      {nomina.nomina}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="codigo_nuevo"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Ingrese El Código A Asignar</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="Ingrese El Código"
+                                />
+                              </FormControl>
+
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <div className="flex flex-row gap-2 justify-end">
+                          <Label>Desea Liberar El Cargo Activo</Label>
+                          <Switch
+                            onCheckedChange={(boolean) => {
+                              form.setValue("liberar_activos", boolean);
+                            }}
+                          />
+                        </div>
+                      </>
+                    )}
+                    <FormField
+                      control={form.control}
+                      name="motivo"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Motivo De Cambio De Cargo</FormLabel>
+                          <Select
+                            onValueChange={(values) => {
+                              field.onChange(Number.parseInt(values));
+                            }}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full truncate">
+                                <SelectValue
+                                  placeholder={`${isLoadingReasonLeaving ? "Cargando Motivos De Cambio De Cargo" : "Seleccione Un Código"}`}
+                                />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {reasonLeaving?.data.map((reason, i) => (
+                                <SelectItem key={i} value={`${reason.id}`}>
+                                  {reason.movimiento}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <Button className="w-full mt-2" disabled={isPending}>
+                      {isPending ? "Cargando" : "Ejecutar Cambio"}
+                    </Button>
+                  </form>
+                </Form>
+              </div>
+            )}
         </CardContent>
       </Card>
     </>

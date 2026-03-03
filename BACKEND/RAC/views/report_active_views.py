@@ -268,6 +268,7 @@ def generate_pdf_report_active(request):
 def _generate_employee_pdf(filtros):
     Employee = apps.get_model('RAC', 'Employee')
     AsigTrabajo = apps.get_model('RAC', 'AsigTrabajo')
+    OrganismoAdscrito = apps.get_model('RAC', 'OrganismoAdscrito')  # Se añade para consultar los hijos
 
     # 3. Procesamiento de filtros
     config = MAPA_REPORTES.get('empleados', {})
@@ -278,11 +279,23 @@ def _generate_employee_pdf(filtros):
     for k, v in filtros.items():
         if v is not None and k in filtros_permitidos:
             campo = filtros_permitidos[k]
-            query_filtros[campo] = v
-            if 'assignments__' in campo:
-                asignacion_filtros[campo.replace('assignments__', '')] = v
-
-   
+            
+            if k == 'OrganismoAdscrito_id':
+                # Obtenemos los IDs de los hijos y le sumamos el ID del padre (v)
+                hijos_ids = OrganismoAdscrito.objects.filter(parent_id=v).values_list('id', flat=True)
+                ids_busqueda = [v] + list(hijos_ids)
+                
+                campo_in = f"{campo}__in"
+                
+                query_filtros[campo_in] = ids_busqueda
+                if 'assignments__' in campo_in:
+                    asignacion_filtros[campo_in.replace('assignments__', '')] = ids_busqueda
+                    
+            else: # <--- DEBE IR EXACTAMENTE AQUÍ, ALINEADO CON EL IF ANTERIOR
+                query_filtros[campo] = v
+                if 'assignments__' in campo:
+                    asignacion_filtros[campo.replace('assignments__', '')] = v
+                    
     query_filtros['assignments__Tipo_personal__tipo_personal'] = PERSONAL_ACTIVO
     asignacion_filtros['Tipo_personal__tipo_personal'] = PERSONAL_ACTIVO
 
@@ -297,7 +310,6 @@ def _generate_employee_pdf(filtros):
                 'Dependencia',
                 'DireccionGeneral',
                 'denominacioncargoid', 
-              
                 'tiponominaid',
                 'Tipo_personal'
             ).order_by('denominacioncargoid__orden_by_cargo','-fecha_actualizacion'),
@@ -314,6 +326,8 @@ def _generate_employee_pdf(filtros):
     )
 
     return generator.get_response(as_attachment=True)
+
+
 
 def _generate_family_activo_pdf(filtros):
     """Genera el PDF de familiares."""
@@ -361,6 +375,7 @@ def _generate_family_activo_pdf(filtros):
 
 def _generate_assignment_pdf(filtros):
     AsigTrabajo = apps.get_model('RAC', 'AsigTrabajo')
+    OrganismoAdscrito = apps.get_model('RAC', 'OrganismoAdscrito') 
     
     queryset = AsigTrabajo.objects.select_related(
         'employee', 
@@ -370,7 +385,8 @@ def _generate_assignment_pdf(filtros):
         'tiponominaid', 
         'DireccionGeneral', 
         'Tipo_personal',
-        'estatusid'
+        'estatusid',
+        'OrganismoAdscritoid'
     ).only(
         'codigo',
         'employee__cedulaidentidad', 
@@ -378,6 +394,7 @@ def _generate_assignment_pdf(filtros):
         'employee__apellidos',
         'denominacioncargoid__cargo',
         'denominacioncargoespecificoid__cargo',
+        'OrganismoAdscritoid__Organismoadscrito',
         'gradoid__grado',
         'tiponominaid__nomina',
         'DireccionGeneral__direccion_general',
@@ -389,12 +406,23 @@ def _generate_assignment_pdf(filtros):
     config = MAPA_REPORTES.get('asignaciones', {})
     filtros_permitidos = config.get('filtros_permitidos', {})
     
+
     query_filtros = Q()
     for filtro_key, filtro_value in filtros.items():
         if filtro_value is not None and filtro_key in filtros_permitidos:
             campo_db = filtros_permitidos[filtro_key]
-            query_filtros &= Q(**{campo_db: filtro_value})
-    
+            
+            if filtro_key == 'OrganismoAdscrito_id':
+                padre_id = int(filtro_value)
+                hijos_ids = OrganismoAdscrito.objects.filter(parent_id=padre_id).values_list('id', flat=True)
+                ids_busqueda = [padre_id] + list(hijos_ids)
+                
+                campo_in = f"{campo_db}__in"
+                query_filtros &= Q(**{campo_in: ids_busqueda})
+                
+            else:
+                query_filtros &= Q(**{campo_db: filtro_value})
+                
     queryset = queryset.filter(query_filtros).order_by('employee__cedulaidentidad','tiponominaid__nomina')
 
     generator = AssignmentPDFGenerator(

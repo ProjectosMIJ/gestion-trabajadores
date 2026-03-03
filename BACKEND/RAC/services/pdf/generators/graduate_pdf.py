@@ -381,3 +381,4 @@ class GraduatePDFGenerator(BasePDFGenerator):
             return nomina.nomina
         except Exception:
             return "N/A"
+

@@ -1695,7 +1695,7 @@ def list_coordinations_by_line(request, line_id):
 @api_view(['GET'])
 def list_subsidiary_organisms(request):
     try:
-        queryset = OrganismoAdscrito.objects.all()
+        queryset = OrganismoAdscrito.objects.exclude(Organismoadscrito='POLICIA')
         serializer = OrganismoAdscritoSerializer(queryset, many=True)
         
         return Response({
@@ -1710,7 +1710,35 @@ def list_subsidiary_organisms(request):
             'message': "No se pudo recuperar la lista de organismos adscritos.",
             'data': []
         }, status=status.HTTP_400_BAD_REQUEST)  
+     
+
+@extend_schema(
+    tags=["Recursos Humanos - Organismo Adscrito"],
+    summary="Listar Organismos Adscritos - para reportes",
+    description="Devuelve una lista de todos los organismos adscritos disponibles",
+    responses=OrganismoAdscritoSerializer
+)       
+@api_view(['GET'])
+def list_subsidiary_organisms_report(request):
+   try:
       
+        queryset = OrganismoAdscrito.objects.all().prefetch_related('sub_organismos')
+        
+        serializer = OrganismoAdscritoSerializer(queryset, many=True)
+        
+        return Response({
+            'status': "success",
+            'message': "Organismos adscritos listados correctamente",
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
+
+   except Exception as e:
+        return Response({
+            'status': "error",
+            'message': "No se pudo recuperar la lista de organismos adscritos.",
+            'data': []
+        }, status=status.HTTP_400_BAD_REQUEST) 
+       
 # CARGOS 
 @extend_schema(
     tags=["Recursos Humanos - Datos para Cargo"],

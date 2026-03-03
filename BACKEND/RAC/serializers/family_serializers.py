@@ -6,6 +6,7 @@ from ..models.personal_models import *
 from USER.models.user_models import cuenta as User
 from datetime import date
 from RAC.serializers.personal_activo_serializers import *
+
 class FamilyCreateSerializer(serializers.ModelSerializer):
     employeecedula = serializers.ReadOnlyField(source='employeecedula.cedulaidentidad')
     
@@ -60,10 +61,15 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
         orden_manual = data.get('orden_hijo')
 
         if not self.instance:
-            if Employeefamily.objects.filter(employeecedula=empleado, cedulaFamiliar=cedula_fam).exists():
-                raise serializers.ValidationError("Este familiar ya se encuentra registrado para este empleado")
+            if cedula_fam and str(cedula_fam).strip().lower() not in ["", "null", "none"]:
+                if Employeefamily.objects.filter(employeecedula=empleado, cedulaFamiliar=cedula_fam).exists():
+                    raise serializers.ValidationError({
+                        "cedulaFamiliar": "Este familiar ya se encuentra registrado para este empleado"
+                    })
 
         if not cedula_fam or str(cedula_fam).strip().lower() in ["", "string", "null"]:
+            es_hijo_menor = False
+
             if parentesco_obj and fecha_nac and empleado:
                 nombre_p = str(parentesco_obj.descripcion_parentesco).upper().strip()
                 if nombre_p == "HIJO (A)":
@@ -71,6 +77,7 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
                     edad = today.year - fecha_nac.year - ((today.month, today.day) < (fecha_nac.month, fecha_nac.day))
                     
                     if edad < 9:
+                        es_hijo_menor = True
                         cedula_trabajador = str(empleado.cedulaidentidad)
                         if orden_manual is not None:
                             numero_final = orden_manual
@@ -90,7 +97,11 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
                             raise serializers.ValidationError("El trabajador ya tiene un hijo registrado con el orden ingresado")
                         
                         data['cedulaFamiliar'] = nueva_cedula
-
+             
+                if not es_hijo_menor:
+                   raise serializers.ValidationError({
+                    "cedulaFamiliar": "La cédula es obligatoria a menos que el familiar sea un HIJO (A) menor de 9 años."
+                    })
         heredero = data.get('heredero', False)
         if heredero and empleado:
             queryset = Employeefamily.objects.filter(employeecedula=empleado, heredero=True)
@@ -163,6 +174,7 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
             if academico_data:
                 formacion_academica.objects.update_or_create(familiar_id=instance, defaults=academico_data)
         return instance
+
 
 
 class ParentescoSerializer(serializers.ModelSerializer):

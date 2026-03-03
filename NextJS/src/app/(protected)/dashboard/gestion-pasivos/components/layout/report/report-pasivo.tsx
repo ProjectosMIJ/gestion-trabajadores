@@ -33,6 +33,7 @@ import {
   getMunicipalitys,
   getNominaPasivo,
   getOrganismosAds,
+  getOrganismosAdsFather,
   getParish,
   getPatologys,
   getRegion,
@@ -131,7 +132,7 @@ export default function ReportPasivo() {
   );
   const { data: organismoAds, isLoading: isLoadingOrganismoAds } = useSWR(
     "organismoAds",
-    async () => await getOrganismosAds(),
+    async () => await getOrganismosAdsFather(),
   );
   const {
     data: conditionDwelling,

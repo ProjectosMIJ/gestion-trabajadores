@@ -496,7 +496,7 @@ class gradoSerializer(serializers.ModelSerializer):
 class OrganismoAdscritoSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrganismoAdscrito   
-        fields = '__all__' 
+        fields = ['id', 'Organismoadscrito'] 
 
 
 # -------------------------------------------------------------
@@ -669,7 +669,7 @@ class CodigosCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer
     
     class Meta:
         model = AsigTrabajo   
-        exclude = ['employee', 'OrganismoAdscritoid', 'Tipo_personal', 'estatusid', 'observaciones']  
+        exclude = ['employee',  'Tipo_personal', 'estatusid', 'observaciones']  
         
     
         
@@ -677,6 +677,10 @@ class CodigosCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer
         super().__init__(*args, **kwargs)
         if self.instance:
             self.fields['codigo'].read_only = True
+
+        else:
+            
+            self.fields['OrganismoAdscritoid'].read_only = True
             
              
     def validate_tiponominaid(self, value):
@@ -697,10 +701,19 @@ class CodigosCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer
         codigo = attrs.get('codigo', getattr(self.instance, 'codigo', None))
         tiponominaid = attrs.get('tiponominaid', getattr(self.instance, 'tiponominaid', None))
 
-        if not self.instance and codigo and tiponominaid:
-            exists = AsigTrabajo.objects.filter(codigo=codigo, tiponominaid=tiponominaid).exists()
-            if exists:
-                raise serializers.ValidationError("Codigo ya existente")
+        codigo = attrs.get('codigo', getattr(self.instance, 'codigo', None))
+        tiponominaid = attrs.get('tiponominaid', getattr(self.instance, 'tiponominaid', None))
+
+        if codigo and tiponominaid:
+            queryset = AsigTrabajo.objects.filter(codigo=codigo, tiponominaid=tiponominaid)
+            
+            if self.instance:
+                queryset = queryset.exclude(pk=self.instance.pk)
+            
+            if queryset.exists():
+                raise serializers.ValidationError(
+                     f"Ya existe el código {codigo} para este tipo de nómina"
+                )
         
         dep = attrs.get('Dependencia', getattr(self.instance, 'Dependencia', None))
         dg = attrs.get('DireccionGeneral', getattr(self.instance, 'DireccionGeneral', None))
@@ -738,7 +751,7 @@ class CodigosCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer
     @transaction.atomic
     def create(self, validated_data):
         usuario = validated_data.pop('usuario_id')
-        
+        validated_data.pop('OrganismoAdscritoid', None)
         instance = AsigTrabajo.objects.create(**validated_data)
       
         instance._history_user = usuario
@@ -751,7 +764,7 @@ class CodigosCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer
         usuario = validated_data.pop('usuario_id')
         instance._history_user = usuario
         return super().update(instance, validated_data)
-      
+     
 # -------------------------------------------------------------
 # serializers para listar datos de cargo
 # -------------------------------------------------------------   

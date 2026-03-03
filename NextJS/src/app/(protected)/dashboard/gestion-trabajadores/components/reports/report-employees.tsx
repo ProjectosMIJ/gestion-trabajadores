@@ -38,6 +38,7 @@ import {
   getMunicipalitys,
   getNominaGeneral,
   getOrganismosAds,
+  getOrganismosAdsFather,
   getParish,
   getPatologys,
   getRegion,
@@ -160,8 +161,8 @@ export default function ReportEmployee() {
     async () => await getParish(municipalityId!),
   );
   const { data: organismoAds, isLoading: isLoadingOrganismoAds } = useSWR(
-    "organismoAds",
-    async () => await getOrganismosAds(),
+    "organismoAdsFather",
+    async () => await getOrganismosAdsFather(),
   );
   const {
     data: conditionDwelling,
