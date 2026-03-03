@@ -157,10 +157,14 @@ class AssignmentPDFGenerator(BasePDFGenerator):
                         def sort_key(a):
                             obj = getattr(a, 'denominacioncargoid', None)
                             weight = getattr(obj, 'orden_by_cargo', 999)
+                            organismo = self._get_organisoAdscrito(a) or ""
+                            organismo = organismo.strip().lower()
                             cedula = self._get_cedula_empleado(a)
                             try: c_val = int(cedula)
                             except: c_val = 0
                             return (weight, c_val)
+                        
+
 
                         assignments_sorted = sorted(records, key=sort_key)
                         rows = [[str(idx), self._get_codigo(a), self._get_cedula_empleado(a), 

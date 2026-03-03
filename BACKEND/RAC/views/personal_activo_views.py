@@ -1722,9 +1722,7 @@ def list_subsidiary_organisms(request):
 def list_subsidiary_organisms_report(request):
    try:
       
-        queryset = OrganismoAdscrito.objects.filter(
-            parent__isnull=True
-        ).prefetch_related('sub_organismos')
+        queryset = OrganismoAdscrito.objects.all().prefetch_related('sub_organismos')
         
         serializer = OrganismoAdscritoSerializer(queryset, many=True)
         

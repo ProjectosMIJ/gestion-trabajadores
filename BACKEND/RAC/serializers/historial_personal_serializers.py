@@ -224,7 +224,8 @@ class GestionEgreso_PasivoSerializer(BaseActionInputSerializer):
         # 4. Registro en el Histórico
         registrar_historial_movimiento(
             empleado=empleado,
-            puesto=ultima_asig,
+            puesto=nueva_asig,
+            
             tipo_movimiento='CAMBIO_NOMINA',
             motivo=motivo_obj,
             usuario=usuario
@@ -316,7 +317,7 @@ class EmployeeCargoHistorySerializer(serializers.ModelSerializer):
     cedula_analista = serializers.CharField(source='ejecutado_por.cedula', read_only=True)
     motivo_movimiento = TipoMovimientoSerializer(source='motivo',read_only=True)
     new_estatus = EstatusSerializer(source='estatus',read_only=True)
-  
+    new_tipoPersonal = TipoPersonalSerializer(source='tipo_personal',read_only=True)
     new_denominacioncargo = denominacionCargoSerializer(source='denominacioncargo',read_only=True)
     new_denominacioncargoespecifico = denominacionCargoEspecificoSerializer(source='denominacioncargoespecifico',read_only=True)
     new_grado = gradoSerializer(source='gradoid',read_only=True)
@@ -330,7 +331,7 @@ class EmployeeCargoHistorySerializer(serializers.ModelSerializer):
         model = EmployeeMovementHistory
         fields = [
             'id', 'codigo_puesto', 'fecha_movimiento', 'nombre_analista', 'cedula_analista',
-            'motivo_movimiento','new_estatus',
+            'motivo_movimiento','new_estatus','new_tipoPersonal',
             'new_denominacioncargo', 'new_denominacioncargoespecifico', 'new_grado', 
             'new_tiponomina','new_Dependencia' ,'new_DireccionGeneral', 'new_DireccionLinea', 'new_Coordinacion'
         ]
@@ -343,11 +344,12 @@ class EmployeeCargoHistorySerializer(serializers.ModelSerializer):
             fecha_movimiento__lt=instance.fecha_movimiento
         ).select_related(
             'denominacioncargo', 'denominacioncargoespecifico', 'gradoid',
-            'tiponomina', 'DependenciasId','DireccionGeneralid', 'DireccionLineaid', 'Coordinacionid','estatus'
+            'tiponomina', 'DependenciasId','DireccionGeneralid', 'DireccionLineaid', 'Coordinacionid','estatus', 'tipo_personal'
         ).order_by('-fecha_movimiento').first()
 
         representation.update({
             'prev_estatus': EstatusSerializer(prev.estatus).data if prev else None,
+            'prev_tipoPersonal': TipoPersonalSerializer(prev.tipo_personal).data if prev else None,
             'prev_denominacioncargo': denominacionCargoSerializer(prev.denominacioncargo).data if prev else None,
             'prev_denominacioncargoespecifico': denominacionCargoEspecificoSerializer(prev.denominacioncargoespecifico).data if prev else None,
             'prev_grado': gradoSerializer(prev.gradoid).data if prev and prev.gradoid else None,

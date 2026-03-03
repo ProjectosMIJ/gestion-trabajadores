@@ -701,10 +701,19 @@ class CodigosCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer
         codigo = attrs.get('codigo', getattr(self.instance, 'codigo', None))
         tiponominaid = attrs.get('tiponominaid', getattr(self.instance, 'tiponominaid', None))
 
-        if not self.instance and codigo and tiponominaid:
-            exists = AsigTrabajo.objects.filter(codigo=codigo, tiponominaid=tiponominaid).exists()
-            if exists:
-                raise serializers.ValidationError("Codigo ya existente")
+        codigo = attrs.get('codigo', getattr(self.instance, 'codigo', None))
+        tiponominaid = attrs.get('tiponominaid', getattr(self.instance, 'tiponominaid', None))
+
+        if codigo and tiponominaid:
+            queryset = AsigTrabajo.objects.filter(codigo=codigo, tiponominaid=tiponominaid)
+            
+            if self.instance:
+                queryset = queryset.exclude(pk=self.instance.pk)
+            
+            if queryset.exists():
+                raise serializers.ValidationError(
+                     f"Ya existe el código {codigo} para este tipo de nómina"
+                )
         
         dep = attrs.get('Dependencia', getattr(self.instance, 'Dependencia', None))
         dg = attrs.get('DireccionGeneral', getattr(self.instance, 'DireccionGeneral', None))

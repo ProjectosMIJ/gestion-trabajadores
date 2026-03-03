@@ -140,7 +140,10 @@ class EmployeePDFGenerator(BasePDFGenerator):
                             try: return int(c)
                             except: return 0
 
-                        empleados = sorted(coords[coord], key=lambda e: (self._get_orden_cargo(e), sort_cedula_desc(e)))
+                        def sort_organismo(e):
+                            return str(self._get__organisoAdscrito(e)).upper()
+
+                        empleados = sorted(coords[coord], key=lambda e: (self._get_orden_cargo(e),sort_organismo(e),sort_cedula_desc(e)))
                         rows = [[str(idx), self._get_codigo(e), self._get_cedula(e), self._get_nombres(e), self._get_apellidos(e), 
                                  self._get_fecha_ingreso(e),  self._get_sexo(e), 
                                  self._get_tipo_nomina(e), self._get__cargo(e), self._get__organisoAdscrito(e)] 
