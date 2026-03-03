@@ -30,6 +30,7 @@ import {
   getGrado,
   getNominaGeneral,
   getOrganismosAds,
+  getOrganismosAdsFather,
   getStatusNomina,
   getStatusReport,
   postReport,
@@ -96,7 +97,7 @@ export default function ReportCode() {
   );
   const { data: organismoAds, isLoading: isLoadingOrganismoAds } = useSWR(
     "organismoAds",
-    async () => await getOrganismosAds(),
+    async () => await getOrganismosAdsFather(),
   );
 
   const form = useForm({
@@ -218,7 +219,9 @@ export default function ReportCode() {
                           name="filtros.general_id"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Dirección General / Coordinación</FormLabel>
+                              <FormLabel>
+                                Dirección General / Coordinación
+                              </FormLabel>
                               <Select
                                 onValueChange={(values) => {
                                   field.onChange(Number.parseInt(values));

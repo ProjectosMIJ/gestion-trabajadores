@@ -147,7 +147,7 @@ urlpatterns = [
 # ------------------- 
    path('OrganismoAdscrito/',views.create_subsidiary_organism, name= "registro-organismo-Adscrito"),
    path('organismos-adscritos/', views.list_subsidiary_organisms, name='lista de organismos adscritos'),
-   path('organismoAdscrito/padre/', views.list_subsidiary_organisms_report, name="listar-organismos-repors"),
+   path('organismos-adscritos/padre/', views.list_subsidiary_organisms_report, name="listar-organismos-repors"),
     
   
 # ------------------

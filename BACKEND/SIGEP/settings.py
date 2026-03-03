@@ -65,7 +65,7 @@ ROOT_URLCONF = 'SIGEP.urls'
 CORS_ALLOWED_ORIGINS = [
     "http://djangoapp:3000", 
     "http://172.16.10.209:3000",
-    "http:///172.16.26.48:3000",
+    "http://172.16.26.48:3000",
     "http://127.0.0.1:3000",
     "http://nextjs-App:3000",  # <- Agregar este
     "http://172.16.24.81:3000",
@@ -98,7 +98,7 @@ DATABASES = {
         'NAME': config('DJANGO_DB_NAME', default='SIGEP'),
         'USER': config('DJANGO_DB_USER', default='postgres'),
         'PASSWORD': config('DJANGO_DB_PASSWORD', default='admin'),
-        # 'HOST': config('DJANGO_DB_HOST', default='172.16.10.209'),
+        'HOST': config('DJANGO_DB_HOST', default='172.16.10.209'),
         'PORT': config('DJANGO_DB_PORT', default='5432'),
     }
 }

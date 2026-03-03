@@ -107,6 +107,16 @@ export const getOrganismosAds = async (): Promise<
     await organismosAdscritos.json();
   return responseOrganismosAdscritos;
 };
+export const getOrganismosAdsFather = async (): Promise<
+  ApiResponse<OrganismosAds[]>
+> => {
+  const organismosAdscritos = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}organismos-adscritos/padre/`,
+  );
+  const responseOrganismosAdscritos: ApiResponse<OrganismosAds[]> =
+    await organismosAdscritos.json();
+  return responseOrganismosAdscritos;
+};
 export const getNomina = async (): Promise<ApiResponse<Nomina[]>> => {
   const nomina = await fetch(
     `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}listar-tipo-nomina/`,
