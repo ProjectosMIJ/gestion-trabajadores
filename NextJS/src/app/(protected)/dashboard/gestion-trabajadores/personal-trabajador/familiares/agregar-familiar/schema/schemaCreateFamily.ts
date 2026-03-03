@@ -42,17 +42,19 @@ export const schemaFamilyEmployeeOne = z.object({
       discapacidad: z.array(z.number()).optional(),
     })
     .optional(),
-  perfil_fisico_familiar: z.object({
-    tallaCamisa: z.number({
-      message: "Debe seleccionar una talla de camisa",
-    }),
-    tallaPantalon: z.number({
-      message: "Debe seleccionar una talla de pantalón",
-    }),
-    tallaZapatos: z.number({
-      message: "Debe seleccionar una talla de zapatos",
-    }),
-  }),
+  perfil_fisico_familiar: z
+    .object({
+      tallaCamisa: z.number({
+        message: "Debe seleccionar una talla de camisa",
+      }),
+      tallaPantalon: z.number({
+        message: "Debe seleccionar una talla de pantalón",
+      }),
+      tallaZapatos: z.number({
+        message: "Debe seleccionar una talla de zapatos",
+      }),
+    })
+    .optional(),
   formacion_academica_familiar: z.object({
     nivel_Academico_id: z.number(),
     carrera_id: z.number().optional(),
