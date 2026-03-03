@@ -669,7 +669,7 @@ class CodigosCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer
     
     class Meta:
         model = AsigTrabajo   
-        exclude = ['employee', 'OrganismoAdscritoid', 'Tipo_personal', 'estatusid', 'observaciones']  
+        exclude = ['employee',  'Tipo_personal', 'estatusid', 'observaciones']  
         
     
         
@@ -677,6 +677,10 @@ class CodigosCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer
         super().__init__(*args, **kwargs)
         if self.instance:
             self.fields['codigo'].read_only = True
+
+        else:
+            
+            self.fields['OrganismoAdscritoid'].read_only = True
             
              
     def validate_tiponominaid(self, value):
@@ -738,7 +742,7 @@ class CodigosCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer
     @transaction.atomic
     def create(self, validated_data):
         usuario = validated_data.pop('usuario_id')
-        
+        validated_data.pop('OrganismoAdscritoid', None)
         instance = AsigTrabajo.objects.create(**validated_data)
       
         instance._history_user = usuario
@@ -751,7 +755,7 @@ class CodigosCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer
         usuario = validated_data.pop('usuario_id')
         instance._history_user = usuario
         return super().update(instance, validated_data)
-      
+     
 # -------------------------------------------------------------
 # serializers para listar datos de cargo
 # -------------------------------------------------------------   
