@@ -137,7 +137,7 @@ class EmployeePassivePDFGenerator(BasePDFGenerator):
                         
                         def sort_cedula_desc(e):
                             c = self._get_cedula(e)
-                            try: return -int(c)
+                            try: return int(c)
                             except: return 0
 
                         empleados = sorted(coords[coord], key=lambda e: (self._get_orden_cargo(e), sort_cedula_desc(e)))
@@ -212,6 +212,7 @@ class EmployeePassivePDFGenerator(BasePDFGenerator):
     def _get__organisoAdscrito(self, employee):
         f = getattr(employee, 'filtered_assignments', [])
         return f[0].OrganismoAdscritoid.Organismoadscrito if f and f[0].OrganismoAdscritoid else "MPPRIJP"
+   
     def _get_nomina_nombre(self, nomina_id):
         try: return apps.get_model('RAC', 'Tiponomina').objects.get(id=nomina_id).nomina
         except: return None

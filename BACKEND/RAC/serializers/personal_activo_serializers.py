@@ -496,7 +496,7 @@ class gradoSerializer(serializers.ModelSerializer):
 class OrganismoAdscritoSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrganismoAdscrito   
-        fields = '__all__' 
+        fields = ['id', 'Organismoadscrito'] 
 
 
 # -------------------------------------------------------------

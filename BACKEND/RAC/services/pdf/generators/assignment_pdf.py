@@ -158,7 +158,7 @@ class AssignmentPDFGenerator(BasePDFGenerator):
                             obj = getattr(a, 'denominacioncargoid', None)
                             weight = getattr(obj, 'orden_by_cargo', 999)
                             cedula = self._get_cedula_empleado(a)
-                            try: c_val = -int(cedula)
+                            try: c_val = int(cedula)
                             except: c_val = 0
                             return (weight, c_val)
 
@@ -238,7 +238,8 @@ class AssignmentPDFGenerator(BasePDFGenerator):
     
     def _get_organisoAdscrito(self, assignment):
         obj = getattr(assignment, 'OrganismoAdscritoid', None)
-        return getattr(obj, 'OrganismoAdscrito', 'MPPRIJP') if obj else 'MPPRIJP'
+        return getattr(obj, 'Organismoadscrito', 'MPPRIJP') if obj else 'MPPRIJP'
+    
     def _get_grado(self, assignment):
         obj = getattr(assignment, 'gradoid', None)
         return getattr(obj, 'grado', 'N/A') if obj else 'N/A'
@@ -250,3 +251,14 @@ class AssignmentPDFGenerator(BasePDFGenerator):
     def _get_estatus(self, assignment):
         obj = getattr(assignment, 'estatusid', None)
         return getattr(obj, 'estatus', 'N/A') if obj else 'N/A'
+    
+    
+    
+    def _get_orden_cargo(self, assignment):
+        cargo_obj = getattr(assignment, 'denominacioncargoid', None)
+        
+        # Si el objeto existe, obtenemos su 'orden_by_cargo', si no, retornamos 999
+        return getattr(cargo_obj, 'orden_by_cargo', 999) if cargo_obj else 999
+    
+   
+   

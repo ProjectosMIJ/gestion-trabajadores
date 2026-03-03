@@ -36,6 +36,15 @@ class Denominacioncargoespecifico(models.Model):
 # organismos adscritos  
 class OrganismoAdscrito(models.Model):
      Organismoadscrito = models.CharField(max_length=50, unique=True,db_column='organismoAdscrito')
+     
+     parent = models.ForeignKey(
+        'self', 
+        on_delete=models.CASCADE, 
+        null=True, 
+        blank=True, 
+        related_name='sub_organismos',
+        db_column='parent_id'
+    )
      class Meta:
         managed = True
         app_label = 'RAC'
