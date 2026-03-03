@@ -40,6 +40,7 @@ import {
   getGrado,
   getNomina,
   getNominaGeneral,
+  getOrganismosAds,
 } from "../../../api/getInfoRac";
 import Loading from "../../../components/loading/loading";
 import { updateCodeTable } from "../actions/update-code";
@@ -63,6 +64,10 @@ export default function UpdateCode({ code }: Props) {
       dependencyId ? ["directionGeneral", dependencyId] : null,
       async () => await getDirectionGeneralById(dependencyId),
     );
+  const { data: organismoAds, isLoading: isLoadingOrganismoAds } = useSWR(
+    "organismoAds",
+    async () => await getOrganismosAds(),
+  );
   const { data: directionLine, isLoading: isLoadingDirectionLine } = useSWR(
     selecteIdDirectionGeneral
       ? ["directionLine", selecteIdDirectionGeneral]
@@ -95,6 +100,7 @@ export default function UpdateCode({ code }: Props) {
   const form = useForm({
     defaultValues: {
       Coordinacion: 0,
+      OrganismoAdscritoid: undefined,
       denominacioncargoespecificoid: 0,
       denominacioncargoid: 0,
       Dependencia: 0,
@@ -259,6 +265,37 @@ export default function UpdateCode({ code }: Props) {
                             ))}
                           </SelectContent>
                         </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="OrganismoAdscritoid"
+                    render={({ field }) => (
+                      <FormItem className={`col-span-2`}>
+                        <FormLabel>Organismo Adscrito (Opcional)</FormLabel>
+                        <Select
+                          onValueChange={(values) => {
+                            field.onChange(Number.parseInt(values));
+                          }}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full truncate">
+                              <SelectValue
+                                placeholder={`${isLoadingGrado ? "Cargando Organismos Adscritos" : "Seleccione Un Organismo Adscrito"}`}
+                              />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {organismoAds?.data.map((org, i) => (
+                              <SelectItem key={i} value={`${org.id}`}>
+                                {org.id}-{org.Organismoadscrito}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+
                         <FormMessage />
                       </FormItem>
                     )}

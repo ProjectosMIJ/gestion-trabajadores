@@ -15,6 +15,7 @@ import { MoreHorizontal } from "lucide-react";
 import { DataTableColumnHeader } from "./data-table-column-header";
 import { DetailInfoFamily } from "./detail-info";
 import { Badge } from "@/components/ui/badge";
+import { formatInTimeZone } from "date-fns-tz";
 
 export const columnsFamily: ColumnDef<Family>[] = [
   {
@@ -45,8 +46,12 @@ export const columnsFamily: ColumnDef<Family>[] = [
     accessorKey: "fechanacimiento",
     header: "F. Nacimiento",
     cell: ({ getValue }) => {
-      const fechanacimiento = new Date(getValue() as string);
-      return <h1>{fechanacimiento.toLocaleDateString()}</h1>;
+      const fecha = getValue() as string;
+      return (
+        <span>
+          {fecha ? formatInTimeZone(fecha, "UTC", "dd/MM/yyyy") : "N/A"}
+        </span>
+      );
     },
   },
   {

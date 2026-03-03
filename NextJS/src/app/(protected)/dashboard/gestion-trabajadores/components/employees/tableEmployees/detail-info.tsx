@@ -189,53 +189,50 @@ export default function DetailInfoEmployee({ employee }: Props) {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Table>
+                  <Table className="table-fixed w-full">
                     <TableCaption>
                       Lista De Antecedentes En La APN.
                     </TableCaption>
                     <TableHeader>
                       <TableRow>
-                        <TableHead className="w-[100px]">
+                        <TableHead className="w-[120px]">
                           Fecha De ingreso
                         </TableHead>
-                        <TableHead>Fecha De Egreso</TableHead>
-                        <TableHead className="text-left">
-                          Intitución/Ente
+                        <TableHead className="w-[120px]">
+                          Fecha De Egreso
                         </TableHead>
+                        {/* 2. No necesitamos truncate aquí, solo en el cuerpo si queremos */}
+                        <TableHead>Institución/Ente</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {employee.antecedentes.length > 0 && (
-                        <>
-                          {employee.antecedentes.map((v, i) => (
-                            <TableRow key={i}>
-                              <TableCell className="font-medium">
-                                {v.fecha_ingreso
-                                  ? formatInTimeZone(
-                                      new Date(v.fecha_ingreso),
-                                      "UTC",
-                                      "dd/MM/yyyy",
-                                    )
-                                  : "N/A"}
-                              </TableCell>
+                      {employee.antecedentes.length > 0 &&
+                        employee.antecedentes.map((v, i) => (
+                          <TableRow key={i}>
+                            <TableCell className="font-medium">
+                              {v.fecha_ingreso
+                                ? formatInTimeZone(
+                                    new Date(v.fecha_ingreso),
+                                    "UTC",
+                                    "dd/MM/yyyy",
+                                  )
+                                : "N/A"}
+                            </TableCell>
+                            <TableCell>
+                              {v.fecha_egreso
+                                ? formatInTimeZone(
+                                    new Date(v.fecha_egreso),
+                                    "UTC",
+                                    "dd/MM/yyyy",
+                                  )
+                                : "Presente"}
+                            </TableCell>
 
-                              <TableCell>
-                                {v.fecha_egreso
-                                  ? formatInTimeZone(
-                                      new Date(v.fecha_egreso),
-                                      "UTC",
-                                      "dd/MM/yyyy",
-                                    )
-                                  : "Presente"}{" "}
-                                {/* Common for current jobs */}
-                              </TableCell>
-
-                              <TableCell>{v.institucion}</TableCell>
-                            </TableRow>
-                          ))}
-                        </>
-                      )}
-
+                            <TableCell className="truncate max-w-[200px]">
+                              {v.institucion}
+                            </TableCell>
+                          </TableRow>
+                        ))}
                       <TableRow>
                         <TableCell colSpan={3} className="text-right font-bold">
                           Total años: {employee.anos_apn}

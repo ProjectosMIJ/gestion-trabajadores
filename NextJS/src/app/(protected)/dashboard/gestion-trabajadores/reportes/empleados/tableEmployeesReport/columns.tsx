@@ -42,6 +42,7 @@ import {
   SheetUI,
 } from "@/components/ui/SheetUI";
 import Image from "next/image";
+import { formatInTimeZone } from "date-fns-tz";
 export const columsReport: ColumnDef<EmployeeData>[] = [
   {
     id: "select",
@@ -88,10 +89,10 @@ export const columsReport: ColumnDef<EmployeeData>[] = [
     accessorKey: "fecha_nacimiento",
     header: "Fecha de Nacimiento",
     cell: ({ getValue }) => {
-      const fecha = getValue();
+      const fecha = getValue() as string;
       return (
         <span>
-          {fecha ? new Date(fecha as string).toLocaleDateString() : "N/A"}
+          {fecha ? formatInTimeZone(fecha, "UTC", "dd/MM/yyyy") : "N/A"}
         </span>
       );
     },

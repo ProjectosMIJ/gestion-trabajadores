@@ -228,7 +228,13 @@ export function ReportPDFEmployee({
                 <View style={styles.infoRow}>
                   <Text style={styles.infoLabel}>Fecha de Nacimiento:</Text>
                   <Text style={styles.infoValue}>
-                    {new Date(employee.fecha_nacimiento).toLocaleDateString()}
+                    {employee.fecha_nacimiento
+                      ? formatInTimeZone(
+                          employee.fecha_nacimiento,
+                          "UTC",
+                          "dd/MM/yyyy",
+                        )
+                      : "N/A"}
                   </Text>
                 </View>
 

@@ -339,7 +339,7 @@ export function CreateFamilyForm() {
                                           onCheckedChange={(bool) => {
                                             setDown(bool);
                                             field.onChange(
-                                              down ? "" : undefined,
+                                              down ? undefined : "",
                                             );
                                           }}
                                         />
