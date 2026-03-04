@@ -52,6 +52,7 @@ import {
   BasicInfoUpdateType,
   schemaBasicUpdateInfo,
 } from "../schema/schemaEmployeeUpdate";
+import InputForm from "@/components/input-form";
 type Props = {
   defaultValues: BasicInfoUpdateType;
   idEmployee: string;
@@ -319,6 +320,28 @@ export function FormBasicUpdateInfo({
                           <FormMessage />
                         </FormItem>
                       )}
+                    />
+                    <InputForm
+                      className="w-full"
+                      form={form}
+                      label="Correo Electronico"
+                      nameInput="correo"
+                      placeholder="ejemplo@gmail.com"
+                      type="email"
+                    />
+                    <InputForm
+                      form={form}
+                      label="Teléfono De Móvil"
+                      nameInput="telefono_movil"
+                      placeholder="04160000000"
+                      type="number"
+                    />
+                    <InputForm
+                      form={form}
+                      label="Teléfono De Habitación"
+                      nameInput="telefono_habitacion"
+                      placeholder="02390000000"
+                      type="number"
                     />
                     <FormField
                       control={form.control}

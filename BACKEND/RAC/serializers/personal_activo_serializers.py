@@ -665,30 +665,24 @@ class EmployeeListSerializer(serializers.ModelSerializer):
 # serializers para el registro y actualizacion de datos de cargo
 # ------------------------------------------------------------- 
 class CodigosCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer):
-    usuario_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(),write_only=True )     
+    usuario_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)     
     
     class Meta:
         model = AsigTrabajo   
         exclude = ['employee',  'Tipo_personal', 'estatusid', 'observaciones']  
         
-    
-        
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance:
             self.fields['codigo'].read_only = True
-
         else:
-            
             self.fields['OrganismoAdscritoid'].read_only = True
-            
              
     def validate_tiponominaid(self, value):
         if not self.instance or self.instance.tiponominaid != value:
             if value.requiere_codig:
                raise serializers.ValidationError('Tipo de nómina no permitido')
         return value 
-    
     
     def validate(self, attrs):
         try:
@@ -698,9 +692,6 @@ class CodigosCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer
         except (Estatus.DoesNotExist, Tipo_personal.DoesNotExist) as e:
             raise serializers.ValidationError(f"Error de datos: {str(e)}")     
         
-        codigo = attrs.get('codigo', getattr(self.instance, 'codigo', None))
-        tiponominaid = attrs.get('tiponominaid', getattr(self.instance, 'tiponominaid', None))
-
         codigo = attrs.get('codigo', getattr(self.instance, 'codigo', None))
         tiponominaid = attrs.get('tiponominaid', getattr(self.instance, 'tiponominaid', None))
 
@@ -720,13 +711,12 @@ class CodigosCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer
         dl = attrs.get('DireccionLinea', getattr(self.instance, 'DireccionLinea', None))
         coor = attrs.get('Coordinacion', getattr(self.instance, 'Coordinacion', None))
 
-
         if dg and dep:
             if dg.dependenciaId_id != dep.id:
-                raise serializers.ValidationError( "La Dirección General seleccionada no pertenece a la Dependencia indicada")
+                raise serializers.ValidationError("La Dirección General seleccionada no pertenece a la Dependencia indicada")
             
         if dl and dg and dl.direccionGeneral_id != dg.id:
-            raise serializers.ValidationError( "La Direccion de Linea seleccionada no pertenece a la Direccion General indicada")
+            raise serializers.ValidationError("La Direccion de Linea seleccionada no pertenece a la Direccion General indicada")
 
         if coor:
             if not dl:
@@ -746,12 +736,21 @@ class CodigosCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer
             
             if nueva_nomina is not None and nueva_nomina != self.instance.tiponominaid:
                 raise serializers.ValidationError("No se permite actualizar el tipo de nómina cuando es un cargo especial")
+        
+        if self.instance:
+            if 'OrganismoAdscritoid' in attrs:
+                nuevo_organismo = attrs.get('OrganismoAdscritoid')
+                
+                if nuevo_organismo != self.instance.OrganismoAdscritoid:
+                    nomina_evaluar = attrs.get('tiponominaid', self.instance.tiponominaid)
+                    if nomina_evaluar and not nomina_evaluar.requiere_codig:
+                        raise serializers.ValidationError('No está permitido actualizar el organismo adscrito para este tipo de nómina' )
+
         return attrs
-    
+
     @transaction.atomic
     def create(self, validated_data):
         usuario = validated_data.pop('usuario_id')
-        validated_data.pop('OrganismoAdscritoid', None)
         instance = AsigTrabajo.objects.create(**validated_data)
       
         instance._history_user = usuario
@@ -764,7 +763,6 @@ class CodigosCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer
         usuario = validated_data.pop('usuario_id')
         instance._history_user = usuario
         return super().update(instance, validated_data)
-     
 # -------------------------------------------------------------
 # serializers para listar datos de cargo
 # -------------------------------------------------------------   

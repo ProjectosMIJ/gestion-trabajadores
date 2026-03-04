@@ -59,5 +59,8 @@ export const schemaBasicUpdateInfo = z.object({
       message: "Debe Seleccionar Un Esttado Civil",
     })
     .optional(),
+  correo: z.string().optional(),
+  telefono_habitacion: z.string().optional(),
+  telefono_movil: z.string().optional(),
 });
 export type BasicInfoUpdateType = z.infer<typeof schemaBasicUpdateInfo>;
