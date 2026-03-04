@@ -330,7 +330,10 @@ def listar_suspendido(request):
 
     try:
         motivos_nombres = [
-           "SUSPENDIDO POR TRAMITES ADMINISTRATIVOS"
+           "SUSPENDIDO POR TRAMITES ADMINISTRATIVOS",
+           "SUSPENDIDO POR COMISION DE SERVICIO",
+           "SUSPENDIDO POR ENCARGADURIA",
+           "SUSPENDIDO POR ABANDONO DE CARGO",
         ]
         
         queryset = Tipo_movimiento.objects.filter(movimiento__in=motivos_nombres).order_by('movimiento')
