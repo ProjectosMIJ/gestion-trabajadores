@@ -736,15 +736,7 @@ class CodigosCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer
             
             if nueva_nomina is not None and nueva_nomina != self.instance.tiponominaid:
                 raise serializers.ValidationError("No se permite actualizar el tipo de nómina cuando es un cargo especial")
-        
-        if self.instance:
-            if 'OrganismoAdscritoid' in attrs:
-                nuevo_organismo = attrs.get('OrganismoAdscritoid')
-                
-                if nuevo_organismo != self.instance.OrganismoAdscritoid:
-                    nomina_evaluar = attrs.get('tiponominaid', self.instance.tiponominaid)
-                    if nomina_evaluar and not nomina_evaluar.requiere_codig:
-                        raise serializers.ValidationError('No está permitido actualizar el organismo adscrito para este tipo de nómina' )
+     
 
         return attrs
 
