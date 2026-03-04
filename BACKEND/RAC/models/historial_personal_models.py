@@ -11,6 +11,7 @@ class Tipo_movimiento(models.Model):
     
     class Meta:
         managed = True
+        ordering = ['movimiento']
         db_table = 'Tipo_movimiento'
 
 

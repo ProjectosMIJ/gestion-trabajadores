@@ -58,6 +58,7 @@ class NivelAcademico(models.Model):
     class Meta:
         managed = True
         db_table = 'NivelAcademico'
+        ordering = ['nivelacademico']
         app_label = 'RAC'
         
 
