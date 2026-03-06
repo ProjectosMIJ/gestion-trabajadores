@@ -7,9 +7,9 @@ services:
         aliases:
           - postgresdb
     environment:
-      POSTGRES_PASSWORD: Manco29**
-      POSTGRES_DB: SIGEP
-      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
     volumes:
       - "/var/www/backup/pgdata:/var/lib/postgresql"
     ports:
@@ -21,14 +21,14 @@ services:
       retries: 9
       start_period: 10s
     restart: always
-
   django:
     container_name: django-App
     build:
       context: ./BACKEND
+
       dockerfile: django.dockerfile
     env_file:
-       - ./BACKEND/.env
+      - ./BACKEND/.env
     networks:
       backend:
         aliases:
@@ -54,7 +54,6 @@ services:
           - file_managerapp
     ports:
       - "5000:5000"
-    command: npm run start:dev
     restart: always
   nextjs:
     container_name: nextjs-App
@@ -70,23 +69,36 @@ services:
       file_manager:
     depends_on:
       - django
-      # - nestjs
+      - nestjs
     restart: always
   pgadmin4:
     container_name: pgadmin4
     image: dpage/pgadmin4
-    platform: linux/amd64
     ports:
       - "8080:80"
     networks:
       postgres:
     environment:
-      PGADMIN_DEFAULT_EMAIL: projectosMIJ@gmail.com
-      PGADMIN_DEFAULT_PASSWORD: Manco29**
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASS}
     depends_on:
       - postgres
     restart: always
+  portainer:
+    container_name: portainer
+    image: portainer/portainer-ce:latest
+    restart: always
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    ports:
+      - 9443:9443
+volumes:
+  portainer_data:
+    name: portainer_data
 networks:
+  default:
+    name: portainer_network
   backend:
     driver: bridge
   file_manager:
