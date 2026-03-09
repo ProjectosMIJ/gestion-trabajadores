@@ -2,7 +2,7 @@
 
 import { ApiResponse } from "@/app/types/types";
 import z from "zod";
-import { schemaEmployeeEdit } from "../registrar/schemas/schemaRac";
+import { schemaEmployeeEdit } from "../../../gestion-trabajadores/personal-trabajador/registrar/schemas/schemaRac";
 
 export async function updateEmployee(
   values: z.infer<typeof schemaEmployeeEdit>,
