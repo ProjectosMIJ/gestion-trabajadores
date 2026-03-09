@@ -164,7 +164,6 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
             for attr, value in validated_data.items():
                 setattr(instance, attr, value)
             instance.save()
-            # ... resto de la lógica de update ...
             if salud_data:
                 patologias = salud_data.pop('patologiaCronica', None)
                 discapacidades = salud_data.pop('discapacidad', None)
