@@ -60,6 +60,10 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
         fecha_nac = data.get('fechanacimiento')
         orden_manual = data.get('orden_hijo')
 
+        if empleado and cedula_fam:
+            if str(cedula_fam).strip() == str(empleado.cedulaidentidad).strip():
+                raise serializers.ValidationError("La cédula del familiar no puede ser igual a la cédula del trabajador")
+        
         if not self.instance:
             if cedula_fam and str(cedula_fam).strip().lower() not in ["", "null", "none"]:
                 if Employeefamily.objects.filter(employeecedula=empleado, cedulaFamiliar=cedula_fam).exists():
