@@ -72,53 +72,53 @@ const items: MenuItem[] = [
     url: "/dashboard",
     icon: Home,
   },
-  // {
-  //   permission: {
-  //     roleAccept: ["basic", "admin"],
-  //     departmentAccept: ["RAC"],
-  //   },
-  //   title: "Personal Trabajador",
-  //   url: "#",
-  //   icon: User,
-  //   subMenu: [
-  //     {
-  //       title: "Agregar Trabajador",
-  //       url: "/dashboard/gestion-trabajadores/personal-trabajador/registrar",
-  //       icon: UserPlus,
-  //       permission: {
-  //         roleAccept: ["admin"],
-  //         departmentAccept: ["RAC"],
-  //       },
-  //     },
-  //     {
-  //       title: "Consultar/Actualizar",
-  //       url: "/dashboard/gestion-trabajadores/personal-trabajador/consultar",
-  //       icon: ListCheck,
-  //       permission: {
-  //         roleAccept: ["basic", "admin"],
-  //         departmentAccept: ["RAC"],
-  //       },
-  //     },
-  //     {
-  //       title: "Agregar Familiar",
-  //       url: "/dashboard/gestion-trabajadores/personal-trabajador/familiares/agregar-familiar",
-  //       icon: ContactRound,
-  //       permission: {
-  //         roleAccept: ["admin"],
-  //         departmentAccept: ["RAC"],
-  //       },
-  //     },
-  //     {
-  //       title: "Consultar Familiar",
-  //       url: "/dashboard/gestion-trabajadores/personal-trabajador/familiares/consultar",
-  //       icon: BookUser,
-  //       permission: {
-  //         roleAccept: ["admin"],
-  //         departmentAccept: ["RAC"],
-  //       },
-  //     },
-  //   ],
-  // },
+  {
+    permission: {
+      roleAccept: ["basic", "admin"],
+      departmentAccept: ["RAC"],
+    },
+    title: "Personal Jubilado/Pasivo",
+    url: "#",
+    icon: User,
+    subMenu: [
+      // {
+      //   title: "Agregar Trabajador",
+      //   url: "/dashboard/gestion-trabajadores/personal-trabajador/registrar",
+      //   icon: UserPlus,
+      //   permission: {
+      //     roleAccept: ["admin"],
+      //     departmentAccept: ["RAC"],
+      //   },
+      // },
+      {
+        title: "Consultar/Actualizar",
+        url: "/dashboard/gestion-pasivos/personal-jubilado/consultar",
+        icon: ListCheck,
+        permission: {
+          roleAccept: ["basic", "admin"],
+          departmentAccept: ["RAC"],
+        },
+      },
+      // {
+      //   title: "Agregar Familiar",
+      //   url: "/dashboard/gestion-trabajadores/personal-trabajador/familiares/agregar-familiar",
+      //   icon: ContactRound,
+      //   permission: {
+      //     roleAccept: ["admin"],
+      //     departmentAccept: ["RAC"],
+      //   },
+      // },
+      // {
+      //   title: "Consultar Familiar",
+      //   url: "/dashboard/gestion-trabajadores/personal-trabajador/familiares/consultar",
+      //   icon: BookUser,
+      //   permission: {
+      //     roleAccept: ["admin"],
+      //     departmentAccept: ["RAC"],
+      //   },
+      // },
+    ],
+  },
   // {
   //   permission: {
   //     roleAccept: ["admin"],

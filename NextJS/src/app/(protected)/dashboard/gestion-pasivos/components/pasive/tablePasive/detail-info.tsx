@@ -32,7 +32,6 @@ import {
 import Image from "next/image";
 import { useMemo } from "react";
 import useSWR from "swr";
-import { imageProfileFn } from "../../../api/getInfoRac";
 import FormUpdateAcademyLevel from "./updateInfo/forms/form-academic_training";
 import FormUpdateBackground from "./updateInfo/forms/form-background";
 import FormUpdateDwelling from "./updateInfo/forms/form-dwelling";
@@ -41,6 +40,7 @@ import FormUpdatePhysical from "./updateInfo/forms/form-physical_profile";
 import { FormBasicUpdateInfo } from "./updateInfo/forms/form-basic-info";
 import { formatInTimeZone } from "date-fns-tz";
 import { Badge } from "@/components/ui/badge";
+import { imageProfileFn } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
 interface Props {
   employee: EmployeeData;
 }
@@ -129,30 +129,13 @@ export default function DetailInfoEmployee({ employee }: Props) {
                         <div>{v.denominacioncargoespecifico.cargo}</div>
                         <div>Tipo De Nomina:</div>
                         <div>{v.tiponomina.nomina}</div>
-                        <div>Dependencia:</div>
-                        <div>
-                          {v.Dependencia ? v.Dependencia.dependencia : "N/A"}
-                        </div>
                         <div>Dirección General:</div>
                         <div>
                           {v.DireccionGeneral
                             ? v.DireccionGeneral.direccion_general
                             : "N/A"}
                         </div>
-                        <div>Dirección De Linea:</div>
-                        <div>
-                          {v.DireccionLinea
-                            ? v.DireccionLinea?.direccion_linea
-                            : "N/A"}
-                        </div>
-                        <div>Coordinación</div>
-                        <div>
-                          {v.Coordinacion
-                            ? v.Coordinacion?.coordinacion
-                            : "N/A"}
-                        </div>
-                        <div>Grado</div>
-                        <div>{v.grado ? v.grado.grado : "N/A"}</div>
+
                         <div>Estatus</div>
                         <div>
                           <Badge
@@ -171,10 +154,6 @@ export default function DetailInfoEmployee({ employee }: Props) {
                             ? v.OrganismoAdscrito.Organismoadscrito
                             : "N/A"}
                         </div>
-                        <Separator
-                          className="w-full h-5 bg-slate-500 col-span-2"
-                          orientation="horizontal"
-                        />
                       </div>
                     ))}
                   </div>
@@ -184,35 +163,8 @@ export default function DetailInfoEmployee({ employee }: Props) {
             {employee.antecedentes.length > 0 ? (
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex flex-row justify-between items-center gap-3">
-                    <div>Antecedentes</div>
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button type="button" className="cursor-pointer ">
-                          Agregar Antecedentes
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <FormUpdateBackground
-                          idEmployee={employee.id.toString()}
-                          defaultValues={{
-                            fechaingresoorganismo: new Date(
-                              employee.fechaingresoorganismo,
-                            ),
-                            antecedentes:
-                              employee.antecedentes?.map((ant) => ({
-                                institucion: ant.institucion ?? undefined,
-                                fecha_ingreso: ant.fecha_ingreso
-                                  ? new Date(ant.fecha_ingreso)
-                                  : undefined,
-                                fecha_egreso: ant.fecha_egreso
-                                  ? new Date(ant.fecha_egreso)
-                                  : undefined,
-                              })) ?? [],
-                          }}
-                        />
-                      </DialogContent>
-                    </Dialog>
+                  <CardTitle className="flex flex-row items-center gap-3">
+                    Antecedentes <ClipboardCheck />
                   </CardTitle>
                 </CardHeader>
                 <CardContent>

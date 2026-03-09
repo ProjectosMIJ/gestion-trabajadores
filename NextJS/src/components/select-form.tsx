@@ -1,10 +1,11 @@
-import { FieldValues, Path, UseFormReturn } from "react-hook-form";
+import { FieldValues, Form, Path, UseFormReturn } from "react-hook-form";
 import {
   FormControl,
   FormDescription,
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "./ui/form";
 import {
   Select,
@@ -78,6 +79,7 @@ export function SelectForm<T extends FieldValues, D>({
             {description !== undefined && (
               <FormDescription>{description}</FormDescription>
             )}
+            <FormMessage />
           </FormItem>
         )}
       />

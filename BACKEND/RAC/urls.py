@@ -173,8 +173,9 @@ urlpatterns = [
 # GESTION DE FAMILIARES
 # ------------------- 
     path('Employeefamily/<str:cedula_empleado>/', views.registrar_familiar, name='creacion-empleadoFamiliar'),
-    path('Employeefamily/', views.listar_familiares, name='creacion-empleadoFamiliar'),
     path('Employeefamily/masivo/<str:cedula_empleado>/', views.registrar_familiares_masivo, name='creacion-masiva-empleadoFamiliar'),
+    path('Employeefamily/<int:familiar_id>', views.actualizar_familiar, name='actualizar_familiar'),
+    path('Employeefamily/', views.listar_familiares, name='creacion-empleadoFamiliar'),
     path('Parentesco/', views.listar_parentesco, name="listar-parentesco"),
     
     

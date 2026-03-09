@@ -13,7 +13,7 @@ from drf_spectacular.utils import extend_schema
 
 @extend_schema(
     tags=["Familiares de Empleados"],
-    summary="Gestion de familiares",
+    summary="Creaxion de familiares",
     description="Gestion de familiares de un empleado",
     request=FamilyCreateSerializer,
 )
@@ -49,11 +49,51 @@ def registrar_familiar(request, cedula_empleado):
     clean_message = list(error_dict.values())[0][0]
     return Response({"status": "Error", "message": clean_message}, status=400)
 
+@extend_schema(
+    tags=["Familiares de Empleados"],
+    summary="Actualizacion de familiares",
+    description="Actualizacion de familiares de un empleado",
+    request=FamilyCreateSerializer,
+)
+@api_view(['PATCH'])
+def actualizar_familiar(request, familiar_id):
+    familiar = get_object_or_404(Employeefamily, id=familiar_id)
+    
+    empleado = familiar.employeecedula 
+
+    serializer = FamilyCreateSerializer(familiar, data=request.data, 
+        context={'empleado': empleado, 'request': request},
+        partial=True 
+    )
+    
+    if serializer.is_valid():
+        try:
+            familiar_actualizado = serializer.save()
+            
+            return Response({
+                "status": "Ok",
+                "message": "Datos del familiar actualizados correctamente.",
+                "data": {
+                    "id": familiar_actualizado.id,
+                    "cedulaFamiliar": familiar_actualizado.cedulaFamiliar,
+                    "nombre_completo": f"{familiar_actualizado.primer_nombre} {familiar_actualizado.primer_apellido}",
+                    "parentesco": familiar_actualizado.parentesco.descripcion_parentesco 
+                }
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"status": "Error", "message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+    error_dict = serializer.errors
+    first_error = next(iter(error_dict.values()))
+    clean_message = first_error[0] if isinstance(first_error, list) else first_error
+    
+    return Response({"status": "Error", "message": clean_message}, status=status.HTTP_400_BAD_REQUEST)
+
+
 
 @extend_schema(
     tags=["Familiares de Empleados"],
     summary="Gestion de familiares",
-   
     request=FamilyCreateSerializer,
 )
 @api_view(['GET'])
