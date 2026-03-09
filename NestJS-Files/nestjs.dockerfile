@@ -6,4 +6,4 @@ RUN pnpm i
 COPY . .
 EXPOSE 4000
 
-CMD [ "pnpm", "start"]
+CMD [ "pnpm start"]
