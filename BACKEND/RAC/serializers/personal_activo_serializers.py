@@ -174,6 +174,10 @@ class categoriasPatologiasSerializer(serializers.ModelSerializer):
             'id',
             'nombre_categoria'
         ]
+        
+    def validate_nombre_categoria(self,value):
+        value = value.upper()
+        return value
 class PatologiasSerializer(serializers.ModelSerializer):
     categoria = categoriasPatologiasSerializer(source='categoria_id', read_only=True)
     categoria_id = serializers.PrimaryKeyRelatedField(
@@ -188,7 +192,11 @@ class PatologiasSerializer(serializers.ModelSerializer):
             'patologia',
             'categoria',    
             'categoria_id'  
-        ] 
+        ]
+        
+    def validate_patologia(self,value):
+        value = value.upper()
+        return value
 class categoriasDiscapacidadesSerializer(serializers.ModelSerializer):
     class Meta:
         model = categorias_discapacidad
@@ -196,6 +204,10 @@ class categoriasDiscapacidadesSerializer(serializers.ModelSerializer):
             'id',
             'nombre_categoria'
         ]
+        
+    def validate_nombre_categoria(self,value):
+        value = value.upper()
+        return value
 
 class DiscapacidadSerializer(serializers.ModelSerializer):
     categoria = categoriasDiscapacidadesSerializer(source='categoria_id', read_only=True)
@@ -210,8 +222,11 @@ class DiscapacidadSerializer(serializers.ModelSerializer):
             'discapacidad',
             'categoria',      
             'categoria_id'    
-        ]      
+        ]  
 
+    def validate_discapacidad(self,value):
+        value = value.upper()
+        return value
 class categoriaAlergiaSerializers(serializers.ModelSerializer):
     class Meta:
         model = categorias_alergias
@@ -220,6 +235,9 @@ class categoriaAlergiaSerializers(serializers.ModelSerializer):
             'nombre_categoria'
         ]
 
+    def validate_nombre_categoria(self,value):
+        value = value.upper()
+        return value
 
 class AlergiasSerializer(serializers.ModelSerializer):
    
@@ -237,6 +255,10 @@ class AlergiasSerializer(serializers.ModelSerializer):
             'categoria',      
             'categoria_id'    
         ]
+        
+    def validate_alergia(self,value):
+        value = value.upper()
+        return value
 class ContactoEmergenciaSerializer(serializers.ModelSerializer):
     Relacion = RelacionSerializer(source='RelacionId', read_only=True)
     class Meta:

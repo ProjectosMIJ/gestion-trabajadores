@@ -1462,7 +1462,6 @@ def list_blood_types(request):
 )
 @api_view(['GET', 'POST'])
 def list_pathology_categories(request):
-    # Lógica para Listar
     if request.method == 'GET':
         try:
             queryset = categorias_patologias.objects.all()
@@ -1474,49 +1473,48 @@ def list_pathology_categories(request):
             }, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({
-                'status': "error",
-                'message': "No se pudo recuperar la lista de categorías.",
+                'status': "Error",
+                'message': str(e),
                 'data': []
             }, status=status.HTTP_400_BAD_REQUEST)
-
-    # Lógica para Crear
     if request.method == 'POST':
         serializer = categoriasPatologiasSerializer(data=request.data)
+        
         if serializer.is_valid():
             try:
                 serializer.save()
                 return Response({
-                    'status': "success",
-                    'message': "Categoría creada correctamente",
-                    'data': serializer.data
+                    'status': "Created",
+                    "message": "Categoría creada correctamente",
+                    "data": serializer.data
                 }, status=status.HTTP_201_CREATED)
-            except IntegrityError as e:
+            except Exception as e:
                 return Response({
-                    'status': "error",
-                    'message': "Error de integridad en la base de datos.",
-                    'debug_info': str(e) 
+                    'status': "Error",
+                    'message': str(e),
                 }, status=status.HTTP_400_BAD_REQUEST)
-        
-        return Response({
-            'status': "error",
-            'message': "Datos inválidos",
-            'errors': serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
-    
+        else:
+            error_dict = serializer.errors 
+            first_error_field = list(error_dict.values())[0] 
+            clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+
+            return Response({
+                'status': "Error",
+                'message': clean_message, 
+            }, status=status.HTTP_400_BAD_REQUEST)
            
 
 @extend_schema(
     tags=["Recursos Humanos - Datos de Salud"],
     methods=['GET'],
     summary="Listar Patologías Crónicas",
-    responses={200: PatologiasSerializer(many=True)}
 )
 @extend_schema(
     tags=["Recursos Humanos - Datos de Salud"],
     methods=['POST'],
     summary="Crear Patología Crónica",
     request=PatologiasSerializer,
-    responses={201: PatologiasSerializer}
+    
 )    
 @api_view(['GET', 'POST'])
 def list_chronic_pathologies(request):
@@ -1570,7 +1568,6 @@ def list_chronic_pathologies(request):
 )
 @api_view(['GET', 'POST'])
 def list_disability_categories(request):
- 
     if request.method == 'GET':
         try:
             queryset = categorias_discapacidad.objects.all()
@@ -1582,41 +1579,38 @@ def list_disability_categories(request):
             }, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({
-                'status': "error",
-                'message': "Error al recuperar las categorías.",
+                'status': "Error",
+                'message': str(e),
                 'data': []
             }, status=status.HTTP_400_BAD_REQUEST)
 
-    # --- MÉTODO POST: CREAR ---
     if request.method == 'POST':
         serializer = categoriasDiscapacidadesSerializer(data=request.data)
+        
         if serializer.is_valid():
             try:
                 serializer.save()
                 return Response({
-                    'status': "success",
-                    'message': "Categoría creada exitosamente",
-                    'data': serializer.data
+                    'status': "Created",
+                    "message": "Categoría creada exitosamente",
+                    "data": serializer.data
                 }, status=status.HTTP_201_CREATED)
-            except IntegrityError:
-                return Response({
-                    'status': "error",
-                    'message': "Esta categoría ya existe en la base de datos.",
-                    'errors': {"nombre_categoria": ["El nombre debe ser único."]}
-                }, status=status.HTTP_400_BAD_REQUEST)
             except Exception as e:
                 return Response({
-                    'status': "error",
-                    'message': "Ocurrió un error inesperado.",
-                    'errors': str(e)
-                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    'status': "Error",
+                    'message': str(e),
+                }, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            error_dict = serializer.errors 
+            first_error_field = list(error_dict.values())[0] 
+            clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
 
-        return Response({
-            'status': "error",
-            'message': "Datos inválidos",
-            'errors': serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
-
+            return Response({
+                'status': "Error",
+                'message': clean_message, 
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+            
 @extend_schema(
     tags=["Recursos Humanos - Datos de Salud"],
     methods=['GET'],
@@ -1768,7 +1762,7 @@ def list_allergies(request):
             return Response({
                 'status': "success",
                 'message': "Alergia creada correctamente",
-                'data': serializer.data # Aquí verás el objeto 'categoria' completo gracias al read_only
+                'data': serializer.data 
             }, status=status.HTTP_201_CREATED)
         
         return Response({
