@@ -176,8 +176,15 @@ class categoriasPatologiasSerializer(serializers.ModelSerializer):
         ]
         
     def validate_nombre_categoria(self,value):
-        value = value.upper()
-        return value
+        
+        nuevo_nombre = value.strip().upper()
+        
+        if categorias_patologias.objects.filter(nombre_categoria__iexact= nuevo_nombre).exists():
+            raise serializers.ValidationError(
+                f"La categoria '{ nuevo_nombre}' ya se encuentra registrada"
+            )
+            
+        return  nuevo_nombre
 class PatologiasSerializer(serializers.ModelSerializer):
     categoria = categoriasPatologiasSerializer(source='categoria_id', read_only=True)
     categoria_id = serializers.PrimaryKeyRelatedField(
@@ -195,8 +202,14 @@ class PatologiasSerializer(serializers.ModelSerializer):
         ]
         
     def validate_patologia(self,value):
-        value = value.upper()
-        return value
+        nuevo_nombre = value.strip().upper()
+        
+        if patologias_Cronicas.objects.filter(patologia__iexact= nuevo_nombre).exists():
+            raise serializers.ValidationError(
+                f"La patologia '{ nuevo_nombre}' ya se encuentra registrada"
+            )
+            
+        return  nuevo_nombre
 class categoriasDiscapacidadesSerializer(serializers.ModelSerializer):
     class Meta:
         model = categorias_discapacidad
@@ -206,8 +219,14 @@ class categoriasDiscapacidadesSerializer(serializers.ModelSerializer):
         ]
         
     def validate_nombre_categoria(self,value):
-        value = value.upper()
-        return value
+        nuevo_nombre = value.strip().upper()
+        
+        if categorias_discapacidad.objects.filter(nombre_categoria__iexact= nuevo_nombre).exists():
+            raise serializers.ValidationError(
+                f"La categoria '{ nuevo_nombre}' ya se encuentra registrada"
+            )
+            
+        return  nuevo_nombre
 
 class DiscapacidadSerializer(serializers.ModelSerializer):
     categoria = categoriasDiscapacidadesSerializer(source='categoria_id', read_only=True)
@@ -225,8 +244,15 @@ class DiscapacidadSerializer(serializers.ModelSerializer):
         ]  
 
     def validate_discapacidad(self,value):
-        value = value.upper()
-        return value
+        nuevo_nombre = value.strip().upper()
+        
+        if Discapacidades.objects.filter(discapacidad__iexact= nuevo_nombre).exists():
+            raise serializers.ValidationError(
+                f"La discapacidad '{ nuevo_nombre}' ya se encuentra registrada"
+            )
+            
+        return  nuevo_nombre
+        
 class categoriaAlergiaSerializers(serializers.ModelSerializer):
     class Meta:
         model = categorias_alergias
@@ -236,8 +262,14 @@ class categoriaAlergiaSerializers(serializers.ModelSerializer):
         ]
 
     def validate_nombre_categoria(self,value):
-        value = value.upper()
-        return value
+        nuevo_nombre = value.strip().upper()
+        
+        if categorias_alergias.objects.filter(nombre_categoria__iexact= nuevo_nombre).exists():
+            raise serializers.ValidationError(
+                f"La categoria '{ nuevo_nombre}' ya se encuentra registrada"
+            )
+            
+        return  nuevo_nombre
 
 class AlergiasSerializer(serializers.ModelSerializer):
    
@@ -257,8 +289,15 @@ class AlergiasSerializer(serializers.ModelSerializer):
         ]
         
     def validate_alergia(self,value):
-        value = value.upper()
-        return value
+        nuevo_nombre = value.strip().upper()
+        
+        if Alergias.objects.filter(alergia__iexact= nuevo_nombre).exists():
+            raise serializers.ValidationError(
+                f"La alergia '{ nuevo_nombre}' ya se encuentra registrada"
+            )
+            
+        return  nuevo_nombre
+        
 class ContactoEmergenciaSerializer(serializers.ModelSerializer):
     Relacion = RelacionSerializer(source='RelacionId', read_only=True)
     class Meta:
@@ -540,8 +579,14 @@ class OrganismoAdscritoSerializer(serializers.ModelSerializer):
         
         
     def validate_Organismoadscrito(self,value):
-        value = value.upper()
-        return value
+        nuevo_nombre = value.strip().upper()
+        
+        if OrganismoAdscrito.objects.filter(Organismoadscrito__iexact= nuevo_nombre).exists():
+            raise serializers.ValidationError(
+                f"El Organismo Adscrito '{ nuevo_nombre}' ya se encuentra registrada"
+            )
+            
+        return  nuevo_nombre
 
 
 # -------------------------------------------------------------

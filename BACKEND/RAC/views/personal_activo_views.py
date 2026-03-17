@@ -1529,27 +1529,36 @@ def list_chronic_pathologies(request):
             }, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({
-                'status': "error",
-                'message': f"Error al recuperar datos: {str(e)}",
+                'status': "Error",
+                'message': str(e),
                 'data': []
             }, status=status.HTTP_400_BAD_REQUEST)
 
     if request.method == 'POST':
         serializer = PatologiasSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({
-                'status': "success",
-                'message': "Patología crónica creada con éxito",
-                'data': serializer.data
-            }, status=status.HTTP_201_CREATED)
         
-        return Response({
-            'status': "error",
-            'message': "Datos inválidos para la creación",
-            'errors': serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
-      
+        if serializer.is_valid():
+            try:
+                serializer.save()
+                return Response({
+                    'status': "Created",
+                    "message": "Patología crónica creada con éxito",
+                    "data": serializer.data
+                }, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                return Response({
+                    'status': "Error",
+                    'message': str(e),
+                }, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            error_dict = serializer.errors 
+            first_error_field = list(error_dict.values())[0] 
+            clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+
+            return Response({
+                'status': "Error",
+                'message': clean_message, 
+            }, status=status.HTTP_400_BAD_REQUEST)    
 
 @extend_schema(
     tags=["Recursos Humanos - Datos de Salud"],
@@ -1639,27 +1648,39 @@ def list_disabilities(request):
             }, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({
-                'status': "error",
-                'message': "No se pudo recuperar la lista de discapacidades.",
+                'status': "Error",
+                'message': str(e),
                 'data': []
             }, status=status.HTTP_400_BAD_REQUEST)
+
     if request.method == 'POST':
         serializer = DiscapacidadSerializer(data=request.data)
+        
         if serializer.is_valid():
-            serializer.save()
-            return Response({
-                'status': "success",
-                'message': "Discapacidad creada correctamente",
-                'data': serializer.data
-            }, status=status.HTTP_201_CREATED)
-        
-        return Response({
-            'status': "error",
-            'message': "Error al crear la discapacidad",
-            'errors': serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
-        
+            try:
+                serializer.save()
+                return Response({
+                    'status': "Created",
+                    "message": "Discapacidad creada correctamente",
+                    "data": serializer.data
+                }, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                return Response({
+                    'status': "Error",
+                    'message': str(e),
+                }, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            error_dict = serializer.errors 
+            first_error_field = list(error_dict.values())[0] 
+            clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
 
+            return Response({
+                'status': "Error",
+                'message': clean_message, 
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+            
+            
 @extend_schema(
     tags=["Recursos Humanos - Datos de Salud"],
     methods=['GET'],
@@ -1672,12 +1693,10 @@ def list_disabilities(request):
     methods=['POST'],
     summary="Crear categoría de alergia",
     description="Registra una nueva categoría (ej. Alimentaria, Medicamentosa, Ambiental).",
-    request=categoriaAlergiaSerializers,
-    responses={201: categoriaAlergiaSerializers}
+    request=categoriaAlergiaSerializers
 )
 @api_view(['GET', 'POST'])
 def list_allergies_categories(request):
-    # --- LISTAR CATEGORÍAS ---
     if request.method == 'GET':
         try:
             queryset = categorias_alergias.objects.all()
@@ -1689,42 +1708,36 @@ def list_allergies_categories(request):
             }, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({
-                'status': "error",
-                'message': "No se pudo recuperar la lista de categorías.",
+                'status': "Error",
+                'message': str(e),
                 'data': []
             }, status=status.HTTP_400_BAD_REQUEST)
 
-    # --- CREAR CATEGORÍA ---
     if request.method == 'POST':
         serializer = categoriaAlergiaSerializers(data=request.data)
+        
         if serializer.is_valid():
             try:
                 serializer.save()
                 return Response({
-                    'status': "success",
-                    'message': "Categoría de alergia creada exitosamente",
-                    'data': serializer.data
+                    'status': "Created",
+                    "message": "Categoría de alergia creada exitosamente",
+                    "data": serializer.data
                 }, status=status.HTTP_201_CREATED)
-            except IntegrityError as e:
-                # Captura errores de ID duplicado o nombres únicos
-                return Response({
-                    'status': "error",
-                    'message': "Error de integridad: Posible duplicidad o problema de secuencia.",
-                    'debug_info': str(e)
-                }, status=status.HTTP_400_BAD_REQUEST)
             except Exception as e:
                 return Response({
-                    'status': "error",
-                    'message': "Ocurrió un error inesperado al procesar la solicitud.",
-                    'debug_info': str(e)
-                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                    'status': "Error",
+                    'message': str(e),
+                }, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            error_dict = serializer.errors 
+            first_error_field = list(error_dict.values())[0] 
+            clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
 
-        return Response({
-            'status': "error",
-            'message': "Los datos enviados son inválidos.",
-            'errors': serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
- 
+            return Response({
+                'status': "Error",
+                'message': clean_message, 
+            }, status=status.HTTP_400_BAD_REQUEST)
      
 @extend_schema(
     tags=["Recursos Humanos - Datos de Salud"],
@@ -1738,8 +1751,7 @@ def list_allergies_categories(request):
     methods=['POST'],
     summary="Crear Alergia",
     description="Registra una nueva alergia. Debes enviar el ID de la categoría en `categoria_id`.",
-    request=AlergiasSerializer,
-    responses={201: AlergiasSerializer}
+    request=AlergiasSerializer
 )    
 @api_view(['GET', 'POST'])
 def list_allergies(request):
@@ -1753,25 +1765,37 @@ def list_allergies(request):
                 'data': serializer.data
             }, status=status.HTTP_200_OK)
         except Exception as e:
-            return Response({'status': "error", 'message': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({
+                'status': "Error", 
+                'message': str(e),
+                'data': []
+            }, status=status.HTTP_400_BAD_REQUEST)
 
     if request.method == 'POST':
         serializer = AlergiasSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({
-                'status': "success",
-                'message': "Alergia creada correctamente",
-                'data': serializer.data 
-            }, status=status.HTTP_201_CREATED)
         
-        return Response({
-            'status': "error",
-            'message': "Datos inválidos",
-            'errors': serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)  
-    
-    
+        if serializer.is_valid():
+            try:
+                serializer.save()
+                return Response({
+                    'status': "Created",
+                    "message": "Alergia creada correctamente",
+                    "data": serializer.data
+                }, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                return Response({
+                    'status': "Error",
+                    'message': str(e),
+                }, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            error_dict = serializer.errors 
+            first_error_field = list(error_dict.values())[0] 
+            clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+
+            return Response({
+                'status': "Error",
+                'message': clean_message, 
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 
 # DEPENDENCIAS

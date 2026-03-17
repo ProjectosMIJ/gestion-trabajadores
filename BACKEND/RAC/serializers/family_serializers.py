@@ -29,7 +29,6 @@ class FamilyCreateSerializer(serializers.ModelSerializer):
             'formacion_academica_familiar', 'orden_hijo'
         ]
 
-    # Mantenemos tu to_internal_value exactamente igual
     def to_internal_value(self, data):
         data = data.copy() if hasattr(data, 'copy') else data
         for campo in ['primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido']:
