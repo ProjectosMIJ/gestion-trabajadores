@@ -26,10 +26,11 @@ urlpatterns = [
     
      # grupo sanguineo
     path('listar-grupoSanguineos/', views.list_blood_types, name='listar-grupoSanguineo'),
-    path('categorias-patologias/', views.list_pathology_categories, name='listar-categorias-patologias '),
+    path('patologias/categorias/', views.list_pathology_categories, name='listar-categorias-patologias '),
     path('Patologias/', views.list_chronic_pathologies, name='listar-patologias'),
-    path('categorias-discapacidad/', views.list_disability_categories, name='listar-categorias-discapacidades'),
+    path('discapacidad/categorias/', views.list_disability_categories, name='listar-categorias-discapacidades'),
     path('Discapacidades/', views.list_disabilities, name='listar-discapacidades'),
+    path('alergias/categorias/', views.list_allergies_categories, name="categorias de alergias"),
     path('alergias/', views.list_allergies, name='listar-alergias '),
     path('releciones/', views.list_relationship, name='listar-relacion-de-contacto-de-emergencia'),
     

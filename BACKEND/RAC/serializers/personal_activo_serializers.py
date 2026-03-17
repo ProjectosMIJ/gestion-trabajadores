@@ -176,13 +176,19 @@ class categoriasPatologiasSerializer(serializers.ModelSerializer):
         ]
 class PatologiasSerializer(serializers.ModelSerializer):
     categoria = categoriasPatologiasSerializer(source='categoria_id', read_only=True)
+    categoria_id = serializers.PrimaryKeyRelatedField(
+        queryset=categorias_patologias.objects.all(), 
+        write_only=True
+    )
+
     class Meta:
         model = patologias_Cronicas
         fields = [
             'id',
             'patologia',
-            'categoria'      
-        ]    
+            'categoria',    
+            'categoria_id'  
+        ] 
 class categoriasDiscapacidadesSerializer(serializers.ModelSerializer):
     class Meta:
         model = categorias_discapacidad
@@ -190,16 +196,21 @@ class categoriasDiscapacidadesSerializer(serializers.ModelSerializer):
             'id',
             'nombre_categoria'
         ]
+
 class DiscapacidadSerializer(serializers.ModelSerializer):
     categoria = categoriasDiscapacidadesSerializer(source='categoria_id', read_only=True)
+    categoria_id = serializers.PrimaryKeyRelatedField(
+        queryset=categorias_discapacidad.objects.all(), 
+        write_only=True
+    )
     class Meta:
         model = Discapacidades
         fields = [
             'id',
             'discapacidad',
-            'categoria'
-        ]
-        
+            'categoria',      
+            'categoria_id'    
+        ]      
 
 class categoriaAlergiaSerializers(serializers.ModelSerializer):
     class Meta:
@@ -211,15 +222,21 @@ class categoriaAlergiaSerializers(serializers.ModelSerializer):
 
 
 class AlergiasSerializer(serializers.ModelSerializer):
+   
     categoria = categoriaAlergiaSerializers(source='categoria_id', read_only=True)
+    categoria_id = serializers.PrimaryKeyRelatedField(
+        queryset=categorias_alergias.objects.all(), 
+        write_only=True
+    )
+
     class Meta:
         model = Alergias
         fields = [
             'id',
             'alergia',
-            'categoria'
+            'categoria',      
+            'categoria_id'    
         ]
-
 class ContactoEmergenciaSerializer(serializers.ModelSerializer):
     Relacion = RelacionSerializer(source='RelacionId', read_only=True)
     class Meta:
