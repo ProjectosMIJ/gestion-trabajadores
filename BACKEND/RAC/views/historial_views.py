@@ -257,14 +257,8 @@ def reporte_movimientos(request):
 def listar_motivos_egreso(request):
 
     try:
-        motivos_nombres = [
-            "DESPIDO DE OBRERO", "DESTITUCION", "RETIRO POR REDUCCION DE PERSONAL",
-            "PENSION DE INALIDEZ", "FALLECIMIENTO", "RENUNCIA",
-            "ABANDONO DE CARGO", "JUBILACION DE DERECHO",
-            "ANULACION DE MOVIMIENTO", "EGRESO POR TRANSFERENCIA"
-        ]
-        
-        queryset = Tipo_movimiento.objects.filter(movimiento__in=motivos_nombres).order_by('movimiento')
+ 
+        queryset = Tipo_movimiento.objects.filter(categoriaId__categoria= "EGRESO")
         serializer = TipoMovimientoSerializer(queryset, many=True)
         
         return Response({
@@ -292,17 +286,7 @@ def listar_motivos_egreso(request):
 def listar_motivos_internos(request):
 
     try:
-        motivos_nombres = [
-            "NOMBRAMIENTO DE LIBRE Y REMOCION",
-            "TRASLADO FISICO Y ADMINISTRATIVO A OTRA DEPENDENCIA",
-            "CLASIFICACION DE CARGO OBRERO",
-            "ASCENSO PERSONAL EMPLEADO",
-            "TRASLADO DE NOMINA",
-            "ENCARGADURIA EN CALIDAD DE COMISION DE SERVICIO",
-            "ENCARGADURIA INTERNA"
-        ]
-        
-        queryset = Tipo_movimiento.objects.filter(movimiento__in=motivos_nombres).order_by('movimiento')
+        queryset = Tipo_movimiento.objects.filter(categoriaId__categoria= "TRASLADO")
         serializer = TipoMovimientoSerializer(queryset, many=True)
         
         return Response({
@@ -327,16 +311,8 @@ def listar_motivos_internos(request):
 )        
 @api_view(['GET'])
 def listar_suspendido(request):
-
-    try:
-        motivos_nombres = [
-           "SUSPENDIDO POR TRAMITES ADMINISTRATIVOS",
-           "SUSPENDIDO POR COMISION DE SERVICIO",
-           "SUSPENDIDO POR ENCARGADURIA",
-           "SUSPENDIDO POR ABANDONO DE CARGO",
-        ]
-        
-        queryset = Tipo_movimiento.objects.filter(movimiento__in=motivos_nombres).order_by('movimiento')
+    try:   
+        queryset = Tipo_movimiento.objects.filter(categoriaId__categoria= "CAMBIO DE ESTATUS")
         serializer = TipoMovimientoSerializer(queryset, many=True)
         
         return Response({

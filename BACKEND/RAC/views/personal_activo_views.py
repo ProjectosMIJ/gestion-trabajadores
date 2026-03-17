@@ -708,7 +708,35 @@ def create_subsidiary_organism(request):
 
         }, status=status.HTTP_400_BAD_REQUEST)
         
-      
+  
+@extend_schema(
+    tags=["Recursos Humanos - Organismo Adscrito"],
+    summary="Actualizacion de organismos adscritos",
+    description="Actualizacion de los organismos adscritos",
+     request=OrganismoAdscritoSerializer,
+)  
+
+@api_view(['PATCH'])
+def update_organism(request, id):
+    Organismos = get_object_or_404(OrganismoAdscrito, id=id)
+    serializer = OrganismoAdscritoSerializer(Organismos, data=request.data, partial=True)
+    serializer.is_valid(raise_exception=True)
+    
+    try:
+        serializer.save()
+        return Response({
+            'status': "OK",
+            'message': "organismo adscrito actualizado correctamente",
+            'data': serializer.data            
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        return Response({
+            'status': "Error",
+            'message': str(e),
+            'data': []
+        }, status=status.HTTP_400_BAD_REQUEST)
+            
 @extend_schema(
     tags=["Recursos Humanos - Dependencia"],
     summary="Creacion de Dependencia",

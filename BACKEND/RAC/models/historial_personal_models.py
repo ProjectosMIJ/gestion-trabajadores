@@ -4,10 +4,12 @@ from USER.models.user_models import cuenta
 
 
 
-
+class categoria_movimiento(models.Model):
+    categoria = models.CharField(max_length=20, unique=True)
 
 class Tipo_movimiento(models.Model):
     movimiento = models.CharField(max_length=100)
+    categoriaId = models.ForeignKey(categoria_movimiento,models.DO_NOTHING, db_column='categoriaId', null=True, blank=True )
     
     class Meta:
         managed = True

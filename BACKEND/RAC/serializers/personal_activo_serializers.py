@@ -492,11 +492,17 @@ class gradoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Grado
         fields = '__all__' 
+        
 # ORGANISMO ADSCRITO 
 class OrganismoAdscritoSerializer(serializers.ModelSerializer):
     class Meta:
         model = OrganismoAdscrito   
         fields = ['id', 'Organismoadscrito'] 
+        
+        
+    def validate_Organismoadscrito(self,value):
+        value = value.upper()
+        return value
 
 
 # -------------------------------------------------------------

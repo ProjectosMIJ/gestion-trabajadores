@@ -22,7 +22,11 @@ from RAC.serializers.personal_activo_serializers import *
 class TipoMovimientoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tipo_movimiento
-        fields = '__all__'
+        fields = [
+            "id",
+            "movimiento"
+        ]
+        
 
 class MovimintoCargoSerializer(serializers.Serializer):
     nuevo_cargo_id = serializers.PrimaryKeyRelatedField(queryset=AsigTrabajo.objects.all())
