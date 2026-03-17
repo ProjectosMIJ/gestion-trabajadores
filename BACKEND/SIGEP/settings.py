@@ -64,6 +64,8 @@ MIDDLEWARE = [
 ROOT_URLCONF = 'SIGEP.urls'
 CORS_ALLOWED_ORIGINS = [
     "http://djangoapp:3000", 
+    "http://localhost:3000", 
+
     "http://172.16.10.209:3000",
     "http://172.16.26.48:3000",
     "http://127.0.0.1:3000",

@@ -27,6 +27,8 @@ import {
   LucideIcon,
   Badge,
   BookUser,
+  FolderOpenDot,
+  Boxes,
 } from "lucide-react";
 
 import {
@@ -150,6 +152,15 @@ const items: MenuItem[] = [
         title: "Consultar Dependencias",
         url: "/dashboard/gestion-trabajadores/dependencias/listado-dependencia",
         icon: List,
+        permission: {
+          roleAccept: ["admin"],
+          departmentAccept: ["RAC"],
+        },
+      },
+      {
+        title: "Actualizar Dependencias",
+        url: "/dashboard/gestion-trabajadores/dependencias/listado-dependencia",
+        icon: Boxes,
         permission: {
           roleAccept: ["admin"],
           departmentAccept: ["RAC"],
@@ -297,6 +308,15 @@ const items: MenuItem[] = [
         },
       },
     ],
+  },
+  {
+    permission: {
+      roleAccept: ["admin"],
+      departmentAccept: ["RAC"],
+    },
+    icon: FolderOpenDot,
+    title: "Retroalimentación",
+    url: "/dashboard/gestion-trabajadores/retroalimentacion",
   },
 ];
 

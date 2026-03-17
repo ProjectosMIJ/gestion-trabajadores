@@ -6,6 +6,7 @@ import {
   BloodGroupType,
   Cargo,
   Carrera,
+  Category,
   Code,
   ConditionDwelling,
   Coordination,
@@ -324,6 +325,16 @@ export const getDisability = async (): Promise<
   );
   const getDisability: ApiResponse<DisabilitysType[]> =
     await responseDisability.json();
+  return getDisability;
+};
+
+export const getCategory = async (
+  type: "discapacidad" | "alergias" | "patologias",
+) => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}${type}/categorias`,
+  );
+  const getDisability: ApiResponse<Category[]> = await response.json();
   return getDisability;
 };
 export const getAllergies = async (): Promise<ApiResponse<allergies[]>> => {

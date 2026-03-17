@@ -119,7 +119,7 @@ export interface BloodGroupType {
   GrupoSanguineo: string;
 }
 
-interface Category {
+export interface Category {
   id: number;
   nombre_categoria: string;
 }
