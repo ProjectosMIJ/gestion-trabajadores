@@ -302,7 +302,9 @@ export function AsigCode() {
                           name="direccion_general_id"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Dirección General</FormLabel>
+                              <FormLabel>
+                                Dirección General / Coordinación Adscrita
+                              </FormLabel>
                               <Select
                                 onValueChange={(values) => {
                                   field.onChange(Number.parseInt(values));

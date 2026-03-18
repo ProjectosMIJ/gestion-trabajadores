@@ -159,7 +159,7 @@ const items: MenuItem[] = [
       },
       {
         title: "Actualizar Dependencias",
-        url: "/dashboard/gestion-trabajadores/dependencias/listado-dependencia",
+        url: "/dashboard/gestion-trabajadores/dependencias/actualizar-dependencia",
         icon: Boxes,
         permission: {
           roleAccept: ["admin"],

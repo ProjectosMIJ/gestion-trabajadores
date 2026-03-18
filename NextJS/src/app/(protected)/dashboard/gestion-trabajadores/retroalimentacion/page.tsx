@@ -30,6 +30,7 @@ import {
   allergiesCreateActions,
   allergiesGroup,
 } from "./actions/actionsAllergies";
+import { adsCreateActions } from "./actions/actionsAds";
 export default function FeedBack() {
   const { data: disabilityCategory, isLoading: isLoadingDisabilityCategory } =
     useSWR("disabiltyCategory", async () => getCategory("discapacidad"));
@@ -83,7 +84,14 @@ export default function FeedBack() {
     resolver: zodResolver(schemaDisability),
   });
   const onSubmitAds = (values: AdsType) => {
-    startTransition(async () => {});
+    startTransition(async () => {
+      const response = await adsCreateActions(values);
+      if (response.success) {
+        toast.success(response.message);
+      } else {
+        toast.error(response.message);
+      }
+    });
   };
   const onSubmitDisability = (values: DisabitySchema) => {
     startTransition(async () => {

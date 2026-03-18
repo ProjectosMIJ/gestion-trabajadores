@@ -36,7 +36,6 @@ export async function disabilityCreateActions(values: DisabitySchema) {
 }
 
 export async function disabilityGroup(values: CategoryGroup) {
-  console.log(values);
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}discapacidad/categorias/`,
