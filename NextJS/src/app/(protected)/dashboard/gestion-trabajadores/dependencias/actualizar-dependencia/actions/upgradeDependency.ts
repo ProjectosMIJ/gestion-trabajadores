@@ -8,7 +8,7 @@ export default async function upgradeDependencyActions(
   try {
     const { id, ...withoutId } = values;
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Dependencia/${id}`,
+      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Dependencia/${id}/`,
       {
         method: "PATCH",
         headers: {

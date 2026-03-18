@@ -8,7 +8,7 @@ export default async function upgradeCoordinationActions(
   try {
     const { id, dependenciaId, direccionGeneral, ...withoutId } = values;
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Coordinacion/${id}`,
+      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Coordinacion/${id}/`,
       {
         method: "PATCH",
         headers: {

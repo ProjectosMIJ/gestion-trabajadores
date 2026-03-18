@@ -8,7 +8,7 @@ export default async function upgradeDirectionGeneralCoordAction(
   try {
     const { id, ...withoutId } = values;
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}DireccionGeneral/${id}`,
+      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}DireccionGeneral/${id}/`,
       {
         method: "PATCH",
         headers: {

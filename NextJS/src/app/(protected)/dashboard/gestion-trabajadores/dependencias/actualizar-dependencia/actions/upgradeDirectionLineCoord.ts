@@ -8,7 +8,7 @@ export default async function upgradeDirectionLineCoordAction(
   try {
     const { id, dependenciaId, ...withoutId } = values;
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}DireccionLinea/${id}`,
+      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}DireccionLinea/${id}/`,
       {
         method: "PATCH",
         headers: {
