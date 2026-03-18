@@ -784,7 +784,7 @@ def update_dependencia(request, id):
     try:
         serializer.save()
         return Response({
-            'status': "OK",
+            'status': "success",
             'message': "Dependencia actualizada correctamente",
             'data': serializer.data            
         }, status=status.HTTP_200_OK)
@@ -847,7 +847,7 @@ def update_direccion_general(request, id):
     try:
         serializer.save()
         return Response({
-            'status': "OK",
+            'status': "success",
             'message': "Dirección General actualizada correctamente",
             'data': serializer.data            
         }, status=status.HTTP_200_OK)
@@ -914,7 +914,7 @@ def update_line_directorate(request, id):
     try:
         serializer.save()
         return Response({
-            'status': "OK",
+            'status': "success",
             'message': "Dirección de Línea actualizada correctamente",
             'data': serializer.data            
         }, status=status.HTTP_200_OK)
@@ -977,7 +977,7 @@ def update_coordinacion(request, id):
     try:
         serializer.save()
         return Response({
-            'status': "OK",
+            'status': "success",
             'message': "Coordinación actualizada correctamente",
             'data': serializer.data            
         }, status=status.HTTP_200_OK)
@@ -1624,7 +1624,7 @@ def list_disability_categories(request):
     methods=['GET'],
     summary="Listar discapacidades",
     description="Devuelve una lista de todas las discapacidades disponibles.",
-    responses={200: DiscapacidadSerializer(many=True)}
+
 )
 @extend_schema(
     tags=["Recursos Humanos - Datos de Salud"],
@@ -1632,7 +1632,7 @@ def list_disability_categories(request):
     summary="Crear discapacidad",
     description="Registra una nueva discapacidad vinculada a una categoría mediante 'categoria_id'.",
     request=DiscapacidadSerializer,
-    responses={201: DiscapacidadSerializer}
+ 
 )
 @api_view(['GET', 'POST'])
 def list_disabilities(request):
