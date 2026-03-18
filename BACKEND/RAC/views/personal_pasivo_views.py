@@ -1,7 +1,9 @@
 
 from rest_framework.decorators import api_view
+from rest_framework.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 from RAC.serializers.personal_pasivo_serializers import *
 from django.db.models import Prefetch
 from ..models.personal_models import *
@@ -19,44 +21,110 @@ from rest_framework import status
 
 @extend_schema(
     tags=["Gestion de Personal Pasivo"],
-    summary="Listar Cargos Generales del personal pasivo",
-    description="Devuelve una lista de todos los cargos registrados",
-     request=ListerCodigosPassiveSerializer,
-)
-@api_view(['GET'])
-def list_work_codes_passive(request):
+    summary="Editar datos de un cargo",
+    description="Actualiza los datos de un cargo existente identificado por su id.",
+    request=CodigosCreateUpdatePassiveSerializer,
+) 
+@api_view(['PUT'])
+def update_position_passive(request, id):
+    codigo = get_object_or_404(AsigTrabajo, id=id)
+    serializer = CodigosCreateUpdatePassiveSerializer(codigo, data=request.data, partial=True)
+    
+    
     try:
-        queryset = AsigTrabajo.objects.filter(
-            Tipo_personal__tipo_personal__iexact=PERSONAL_PASIVO
-        )
-
-        filterset = AsigTrabajoFilter(request.GET, queryset=queryset)
-        
-        if not filterset.is_valid():
-            return Response({
-                'status': "error",
-                'message': "Los parámetros de filtro son inválidos.",
-                'data': []
-            }, status=status.HTTP_400_BAD_REQUEST)
-
-        codigos = filterset.qs.distinct()[:10]
-        
-        serializer = ListerCodigosPassiveSerializer(codigos, many=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
         
         return Response({
             'status': "success",
-            'message': "Códigos de trabajo listados correctamente",
-            'data': serializer.data
+            'message': "Cargo actualizado correctamente",
+            'data': serializer.data            
         }, status=status.HTTP_200_OK)
 
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_field = list(error_dict.values())[0]
+        clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+
+        return Response({
+            'status': "error",
+            'message': clean_message,
+            'data': None
+        }, status=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         return Response({
             'status': "error",
-            'message': f"No se pudo recuperar la lista de códigos: {str(e)}",
-            'data': []
+            'message': str(e),
+            'data': None
         }, status=status.HTTP_400_BAD_REQUEST)
 
+@extend_schema(
+    tags=["Gestion de Personal Pasivo"],
+    methods=['GET'],
+    summary="Listar Cargos Generales del personal pasivo",
+    description="Devuelve una lista de todos los cargos registrados con filtros.",
+  
+)
+@extend_schema(
+    tags=["Gestion de Personal Pasivo"],
+    methods=['POST'],
+    summary="Crear Cargo de Personal Pasivo",
+    description="Registra un nuevo cargo para personal pasivo.",
+    request=CodigosCreateUpdatePassiveSerializer,
 
+)
+@api_view(['GET', 'POST'])
+def work_codes_passive(request):
+    if request.method == 'GET':
+        try:
+            queryset = AsigTrabajo.objects.filter(
+                Tipo_personal__tipo_personal__iexact=PERSONAL_PASIVO
+            )
+            filterset = AsigTrabajoFilter(request.GET, queryset=queryset)
+            
+            if not filterset.is_valid():
+                return Response({
+                    'status': "error",
+                    'message': "Los parámetros de filtro son inválidos.",
+                    'data': []
+                }, status=status.HTTP_400_BAD_REQUEST)
+
+            codigos = filterset.qs.distinct()[:10]
+            serializer = CodigosCreateUpdatePassiveSerializer(codigos, many=True)
+            
+            return Response({
+                'status': "OK",
+                'message': "Códigos de trabajo listados correctamente",
+                'data': serializer.data
+            }, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({
+                'status': "error",
+                'message': f"Error al listar: {str(e)}",
+                'data': []
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+    if request.method == 'POST':
+        serializer = CodigosCreateUpdatePassiveSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                serializer.save()
+                return Response({
+                    'status': "success",
+                    "message": "Cargo creado correctamente",
+                    "data": serializer.data
+                }, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                return Response({
+                    'status': "error",
+                    'message': str(e),
+                }, status=status.HTTP_400_BAD_REQUEST)
+        
+        first_error = list(serializer.errors.values())[0][0]
+        return Response({
+            'status': "error",
+            'message': first_error,
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 @extend_schema(
     tags=["Gestion de Personal Pasivo"],

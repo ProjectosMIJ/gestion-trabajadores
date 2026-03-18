@@ -14,11 +14,9 @@ urlpatterns = [
     path('Employee/<int:id>/', views.update_employee, name='actualizar-empleado'),
     # solo sus datos personales 
     path('listar-data-empleados/<str:cedulaidentidad>/', views.retrieve_employee, name='listar-data-empleados'),
-    
-    
     # PERSONAL PASIVO 
-    
     path('employee/pasivo/',views.list_employees_pasive, name='personal-pasivo'),
+   
     
     # --------------------
     # DATOS DE SALUD 
@@ -100,12 +98,14 @@ urlpatterns = [
    
     path('empleados-codigo/', views.create_position, name='registrar-codigo'),
       # editar codigo
-    path('codigos/<int:id>/', views.update_position, name='codigos-edit'),
+    path('codigos/<int:id>/', views.update_position, name='codigos-actualizacion'),
 #     # lista unicamente los codigos vacantes
-    path('cargos/vacantes/',views.list_general_vacants_codes, name='lista todos los codigos vacantes'),
+    path('cargos/vacantes/',views.list_general_vacants_codes, name='listos-todos-codigos-vacantes'),
 #     # listar codigo  tanto activos como vacantes
-    path('cargos/general/', views.list_general_work_codes, name='lista de codigos generales'),
-    path('cargos/pasivo/',views.list_work_codes_passive, name='lista de codigos pasivos'),
+    path('cargos/general/', views.list_general_work_codes, name='lista-codigos-generales-activos'),
+    path('cargos/pasivo/',views.work_codes_passive, name='lista-codigos-pasivos'),
+    path('cargos/pasivo/<int:id>/',views.update_position_passive, name='actualizar-codigos-pasivos'),
+    
 # ------------------
 # ASIGNACION DE CARGO
 # -------------------

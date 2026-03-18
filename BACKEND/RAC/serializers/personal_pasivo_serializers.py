@@ -8,7 +8,74 @@ from RAC.serializers.personal_activo_serializers import *
 
 
 
+class CodigosCreateUpdatePassiveSerializer(CleanZerosMixin, serializers.ModelSerializer):
+    usuario_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), write_only=True)     
+    
+    class Meta:
+        model = AsigTrabajo   
+        fields = [
+            'usuario_id',
+            'codigo',
+            'denominacioncargoid',
+            'denominacioncargoespecificoid',
+            'OrganismoAdscritoid',
+            'tiponominaid',
+            
+        ]
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance:
+            self.fields['codigo'].read_only = True
 
+             
+    def validate_tiponominaid(self, value):
+        if not self.instance or self.instance.tiponominaid != value:
+            if value.es_activo:
+               raise serializers.ValidationError('Tipo de nómina no permitido')
+        return value 
+    
+    def validate(self, attrs):
+        try:
+            if not getattr(self, 'instance', None):
+               attrs['estatusid'] = Estatus.objects.get(estatus__iexact=ESTATUS_VACANTE)
+            attrs['Tipo_personal'] = Tipo_personal.objects.get(tipo_personal__iexact=PERSONAL_PASIVO)
+            attrs['Dependencia'] = Dependencias.objects.get(dependencia__iexact="MINISTERIO")
+            attrs['DireccionGeneral'] =  DireccionGeneral.objects.get(direccion_general__iexact="OFICINA DE GESTION HUMANA")
+        except (Estatus.DoesNotExist, Tipo_personal.DoesNotExist,Dependencias.DoesNotExist,DireccionGeneral.DoesNotExist) as e:
+            raise serializers.ValidationError(f"Error de datos: {str(e)}")     
+        
+        codigo = attrs.get('codigo', getattr(self.instance, 'codigo', None))
+        tiponominaid = attrs.get('tiponominaid', getattr(self.instance, 'tiponominaid', None))
+
+        if codigo and tiponominaid:
+            queryset = AsigTrabajo.objects.filter(codigo=codigo, tiponominaid=tiponominaid)
+            
+            if self.instance:
+                queryset = queryset.exclude(pk=self.instance.pk)
+            
+            if queryset.exists():
+                raise serializers.ValidationError(
+                     f"Ya existe el código {codigo} para este tipo de nómina"
+                )
+        return attrs
+
+
+    @transaction.atomic
+    def create(self, validated_data):
+        usuario = validated_data.pop('usuario_id')
+        instance = AsigTrabajo.objects.create(**validated_data)
+      
+        instance._history_user = usuario
+        instance.save()
+            
+        return instance
+    
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        usuario = validated_data.pop('usuario_id')
+        instance._history_user = usuario
+        return super().update(instance, validated_data)
 
 
 class ListerCodigosPassiveSerializer(serializers.ModelSerializer):

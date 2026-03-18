@@ -845,6 +845,9 @@ class CodigosCreateUpdateSerializer(CleanZerosMixin, serializers.ModelSerializer
         usuario = validated_data.pop('usuario_id')
         instance._history_user = usuario
         return super().update(instance, validated_data)
+
+
+
 # -------------------------------------------------------------
 # serializers para listar datos de cargo
 # -------------------------------------------------------------   
