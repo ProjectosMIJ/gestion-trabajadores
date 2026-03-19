@@ -12,7 +12,7 @@ export default async function upgradeCoordinationActions(
       {
         method: "PATCH",
         headers: {
-          "Content-Type": "aplication/json",
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(withoutId),
       },

@@ -12,7 +12,7 @@ export default async function upgradeDirectionLineCoordAction(
       {
         method: "PATCH",
         headers: {
-          "Content-Type": "aplication/json",
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(withoutId),
       },
