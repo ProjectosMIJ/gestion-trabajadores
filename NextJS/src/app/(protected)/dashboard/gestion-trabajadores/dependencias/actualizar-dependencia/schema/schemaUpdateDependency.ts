@@ -5,7 +5,7 @@ export const schemaUpgradeDependnecy = z.object({
     .string({
       required_error: "Este Campo Es Requerido",
     })
-    .min(12, {
+    .min(11, {
       message: "Minimo 12 Caracteres",
     })
     .refine((v) => Number.parseInt(v), {
