@@ -40,7 +40,7 @@ export default function UpdateDependency() {
     defaultValues: {
       id: 0,
       Codigo: "",
-      depedencia: "",
+      dependencia: "",
     },
     resolver: zodResolver(schemaUpgradeDependnecy),
   });
@@ -103,7 +103,7 @@ export default function UpdateDependency() {
             <InputForm
               form={form}
               label="Nuevo nombre de la dependencia"
-              nameInput="depedencia"
+              nameInput="dependencia"
               type="text"
               placeholder="Ej. Ministerio....."
             />

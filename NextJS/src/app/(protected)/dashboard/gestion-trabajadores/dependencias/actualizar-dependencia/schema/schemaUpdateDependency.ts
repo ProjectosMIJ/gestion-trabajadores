@@ -11,7 +11,7 @@ export const schemaUpgradeDependnecy = z.object({
     .refine((v) => Number.parseInt(v), {
       message: "Debe Ingresar Numeros",
     }),
-  depedencia: z
+  dependencia: z
     .string({
       required_error: "Este Campo Es Requerido",
     })
