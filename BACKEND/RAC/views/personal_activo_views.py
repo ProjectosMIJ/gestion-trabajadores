@@ -64,7 +64,7 @@ class ImportarCargosESPECIALESView(APIView):
 
             tp_default = Tipo_personal.objects.filter(id=2).first()
             dep_default = Dependencias.objects.filter(id=1).first() 
-            usuario_historial = User.objects.filter(user_id=10).first()
+            usuario_historial = User.objects.filter(id=10).first()
 
             if not usuario_historial:
                 raise Exception("Error crítico: No existe el usuario con ID 10.")
@@ -210,7 +210,7 @@ class ImportarCargosView(APIView):
 
             tp_default = Tipo_personal.objects.filter(id=2).first()
             
-            usuario_historial = User.objects.filter(user_id=10).first()
+            usuario_historial = User.objects.filter(id=10).first()
 
             if not usuario_historial:
                 raise Exception("Error crítico: No existe el usuario con ID 10 en la tabla 'cuenta'.")
