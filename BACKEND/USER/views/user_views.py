@@ -1,4 +1,5 @@
 import logging
+from rest_framework.exceptions import ValidationError
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
@@ -18,30 +19,37 @@ logger = logging.getLogger(__name__)
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_view(request):
-
+    serializer = LoginSerializer(data=request.data)
     try:
-        serializer = LoginSerializer(data=request.data)
-        if serializer.is_valid():
-            usuario = serializer.validated_data
-            datos_usuario = CuentaSerializer(usuario).data
-            return Response({
-                'success': True,
-                'data': datos_usuario
-            }, status=status.HTTP_200_OK)
-            
-        return Response({
-            'success': False, 
-            'errors': serializer.errors
-        }, status=status.HTTP_401_UNAUTHORIZED)
+        serializer.is_valid(raise_exception=True)
         
+        usuario = serializer.validated_data
+        datos_usuario = CuentaSerializer(usuario).data
+        
+        return Response({
+            'status': "success",
+            'message': "Inicio de sesión exitoso",
+            'data': datos_usuario
+        }, status=status.HTTP_200_OK)
+        
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_field = list(error_dict.values())[0]
+        clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+
+        return Response({
+            'status': "error",
+            'message': clean_message,
+            'data': None
+        }, status=status.HTTP_401_UNAUTHORIZED) 
+
     except Exception as e:
         logger.error(f"Error en login: {str(e)}")
         return Response({
-            'success': False, 
-            'error': 'Error interno del servidor'
+            'status': "error",
+            'message': str(e),
+            'data': None
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
 @extend_schema(
     tags=["Gestion de Usuarios"],
     summary="Registro de Usuario",
@@ -109,40 +117,55 @@ def editar_usuario(request, id):
 
 
 
+
 @extend_schema(
     tags=["Gestion de Usuarios"],
-    summary="editar estatus de Usuario",
-
+    summary="Editar estatus de Usuario",
+    request=CambiarEstadoCuentaSerializer, 
 ) 
 @api_view(['PATCH'])
 def cambiar_estado_usuario(request,id):
-
     try:
         usuario = cuenta.objects.get(id=id)
+        serializer = CambiarEstadoCuentaSerializer(usuario, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        usuario_actualizado = serializer.save()
+        estado_str = "activado" if usuario_actualizado.is_active else "suspendido"
+
+        return Response({
+            'status': 'success',
+            'message': f'Usuario {estado_str} exitosamente.',
+            'data': CuentaSerializer(usuario_actualizado).data
+        }, status=status.HTTP_200_OK)
+        
     except cuenta.DoesNotExist:
         return Response({
-            'success': False, 
-            'error': 'El usuario no existe.'
+            'status': "error",
+            'message': 'El usuario no existe.',
+            'data': None
         }, status=status.HTTP_404_NOT_FOUND)
-
-    if 'is_active' in request.data:
-        nuevo_estado = request.data.get('is_active')
-        if isinstance(nuevo_estado, str):
-            nuevo_estado = nuevo_estado.lower() == 'true'
-        usuario.is_active = bool(nuevo_estado)
-    else:
-        usuario.is_active = not usuario.is_active
-
-    usuario.save()
-    
-    estado_str = "activado" if usuario.is_active else "suspendido"
-
-    return Response({
-        'success': True,
-        'message': f'Usuario {estado_str} exitosamente.',
-        'data': CuentaSerializer(usuario).data
-    }, status=status.HTTP_200_OK)
-
+        
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_value = list(error_dict.values())[0]
+        clean_message = first_error_value[0] if isinstance(first_error_value, list) else first_error_value
+        return Response({
+            'status': "error",
+            'message': clean_message, 
+            'data': None
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error al cambiar estado: {str(e)}")
+        return Response({
+            'status': "error",
+            'message': "Error interno del servidor",
+            'data': None
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
 @extend_schema(
     tags=["Gestion de Usuarios"],
     summary="Consulta de usuarios",

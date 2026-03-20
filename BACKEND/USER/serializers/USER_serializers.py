@@ -146,6 +146,23 @@ class UpdateCuentaSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
 
+class CambiarEstadoCuentaSerializer(serializers.ModelSerializer):
+    is_active = serializers.BooleanField(required=False)
+
+    class Meta:
+        model = cuenta
+        fields = ['is_active']
+
+    def update(self, instance, validated_data):
+      
+        if 'is_active' in validated_data:
+            instance.is_active = validated_data['is_active']
+        else:
+            instance.is_active = not instance.is_active
+
+        instance.save()
+        return instance
+
 class LoginSerializer(serializers.Serializer):
     cedula= serializers.CharField(required=True)
     password = serializers.CharField(required=True, write_only=True, style={'input_type': 'password'})
