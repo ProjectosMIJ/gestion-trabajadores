@@ -70,7 +70,7 @@ def update_position_passive(request, id):
     methods=['POST'],
     summary="Crear Cargo de Personal Pasivo",
     description="Registra un nuevo cargo para personal pasivo.",
-    request=CodigosCreateUpdatePassiveSerializer,
+    request=ListerCodigosPassiveSerializer,
 
 )
 @api_view(['GET', 'POST'])
@@ -90,7 +90,7 @@ def work_codes_passive(request):
                 }, status=status.HTTP_400_BAD_REQUEST)
 
             codigos = filterset.qs.distinct()[:10]
-            serializer = CodigosCreateUpdatePassiveSerializer(codigos, many=True)
+            serializer = ListerCodigosPassiveSerializer(codigos, many=True)
             
             return Response({
                 'status': "OK",

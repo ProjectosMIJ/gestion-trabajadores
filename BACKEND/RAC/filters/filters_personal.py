@@ -1,9 +1,34 @@
 import django_filters
-from ..models import Employee, AsigTrabajo
+from USER.models.user_models import cuenta
+from RAC.models.personal_models import Employee, AsigTrabajo
 from RAC.models.family_personal_models import Employeefamily
 
 
+class CuentaFilter(django_filters.FilterSet):
+    cedulaidentidad = django_filters.CharFilter(
+        field_name='cedula__cedulaidentidad', 
+        lookup_expr='icontains'
+    )
+    codigo = django_filters.CharFilter(
+        field_name='cedula__assignments__codigo', 
+        lookup_expr='exact'
+    )
+    dependencia_id = django_filters.NumberFilter(
+        field_name='cedula__assignments__Dependencia'
+    )
+    direccion_general_id = django_filters.NumberFilter(
+        field_name='cedula__assignments__DireccionGeneral'
+    )
+    direccion_linea_id = django_filters.NumberFilter(
+        field_name='cedula__assignments__DireccionLinea'
+    )
+    coordinacion_id = django_filters.NumberFilter(
+        field_name='cedula__assignments__Coordinacion'
+    )    
 
+    class Meta:
+        model = cuenta
+        fields = []
 class EmployeeFilter(django_filters.FilterSet):
     cedulaidentidad = django_filters.CharFilter( lookup_expr='icontains')
     codigo = django_filters.CharFilter(field_name='assignments__codigo', lookup_expr='exact')
