@@ -8,7 +8,6 @@ const apiFetchGet = async <T>(url: string) => {
     },
   );
   const getResponse: ApiResponse<T> = await response.json();
-  console.log(getResponse);
   return getResponse;
 };
 
@@ -17,6 +16,7 @@ export const getPasiveSearch = async <T>({
 }: {
   searchParams: string;
 }) => {
-  const url = searchParams && `employee/pasivo/?${searchParams}`;
+  const url =
+    searchParams && `employee/pasivo/?cedulaidentidad=${searchParams}`;
   return await apiFetchGet<T>(url);
 };
