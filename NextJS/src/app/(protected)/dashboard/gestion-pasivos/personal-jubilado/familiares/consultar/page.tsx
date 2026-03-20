@@ -23,7 +23,6 @@ import {
   getFamilyPasive,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
 export default function FamilyConsultPasive() {
-  const [employee, setEmployee] = useState<string | null>(null);
   const [searchParams, setSearchParams] = useState<string>();
 
   const { data: session } = useSession();
@@ -42,7 +41,7 @@ export default function FamilyConsultPasive() {
   );
 
   const onSearch = (values: z.infer<typeof schemaSearch>) => {
-    const isNotAdmin = session?.user?.role !== "admin";
+    const isNotAdmin = session?.user?.role.nombre_rol !== "ADMINISTRADOR";
     const payload = {
       ...values,
       dependencia_id: isNotAdmin ? Number(session?.user.dependency?.id) : "",

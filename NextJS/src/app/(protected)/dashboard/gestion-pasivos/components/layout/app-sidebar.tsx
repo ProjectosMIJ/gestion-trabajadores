@@ -60,7 +60,7 @@ const items: MenuItem[] = [
   },
   {
     permission: {
-      roleAccept: ["basic", "admin"],
+      roleAccept: ["ANALISTA", "ADMINISTRADOR"],
       departmentAccept: ["RAC"],
     },
     title: "Personal Jubilado/Pasivo",
@@ -72,7 +72,7 @@ const items: MenuItem[] = [
         url: "/dashboard/gestion-pasivos/personal-jubilado/consultar",
         icon: ListCheck,
         permission: {
-          roleAccept: ["basic", "admin"],
+          roleAccept: ["ANALISTA", "ADMINISTRADOR"],
           departmentAccept: ["RAC"],
         },
       },
@@ -81,7 +81,7 @@ const items: MenuItem[] = [
         url: "/dashboard/gestion-pasivos/personal-jubilado/familiares/agregar-familiar",
         icon: ContactRound,
         permission: {
-          roleAccept: ["admin"],
+          roleAccept: ["ADMINISTRADOR"],
           departmentAccept: ["RAC"],
         },
       },
@@ -90,7 +90,7 @@ const items: MenuItem[] = [
         url: "/dashboard/gestion-pasivos/personal-jubilado/familiares/consultar",
         icon: BookUser,
         permission: {
-          roleAccept: ["admin"],
+          roleAccept: ["ADMINISTRADOR"],
           departmentAccept: ["RAC"],
         },
       },
@@ -99,7 +99,7 @@ const items: MenuItem[] = [
 
   {
     permission: {
-      roleAccept: ["admin"],
+      roleAccept: ["ADMINISTRADOR"],
       departmentAccept: ["RAC"],
     },
     title: "Movimientos",
@@ -111,7 +111,7 @@ const items: MenuItem[] = [
         url: "/dashboard/gestion-pasivos/movimientos/cambiar-estatus",
         icon: FileChartLine,
         permission: {
-          roleAccept: ["admin"],
+          roleAccept: ["ADMINISTRADOR"],
           departmentAccept: ["RAC"],
         },
       },
@@ -120,7 +120,7 @@ const items: MenuItem[] = [
         url: "/dashboard/gestion-pasivos/movimientos/cambiar-pasivo",
         icon: BookCheck,
         permission: {
-          roleAccept: ["admin"],
+          roleAccept: ["ADMINISTRADOR"],
           departmentAccept: ["RAC"],
         },
       },
@@ -128,7 +128,7 @@ const items: MenuItem[] = [
   },
   {
     permission: {
-      roleAccept: ["basic", "admin"],
+      roleAccept: ["ANALISTA", "ADMINISTRADOR"],
       departmentAccept: ["RAC"],
     },
     icon: BarChart3,
@@ -140,7 +140,7 @@ const items: MenuItem[] = [
         url: "/dashboard/gestion-pasivos/reportes/pasivos",
         icon: IdCard,
         permission: {
-          roleAccept: ["basic", "admin"],
+          roleAccept: ["ANALISTA", "ADMINISTRADOR"],
           departmentAccept: ["RAC"],
         },
       },
@@ -159,15 +159,16 @@ export function AppSidebarPasivos() {
     if (!item.permission) return true;
 
     const hasRolePermission = item.permission.roleAccept.includes(
-      session?.user.role || "",
+      session?.user.role.nombre_rol || "",
     );
 
     const hasDepartmentPermission = item.permission.departmentAccept.includes(
-      session?.user.department || "",
+      session?.user.department.nombre_departamento || "",
     );
 
     return hasRolePermission && hasDepartmentPermission;
   };
+  console.log(session!.user.role?.nombre_rol);
 
   const filteredItems = items
     .filter((item) => {
@@ -290,9 +291,13 @@ export function AppSidebarPasivos() {
                 </h2>
               </div>
               <div className="flex flex-col">
-                <h2 className="font-semibold">Rol: {session.user.role}</h2>
+                <h2 className="font-semibold">
+                  {/* Rol:{session.user.role?.nombre_rol || "Sin Rol"} */}
+                </h2>
                 <h1 className="text-sm text-gray-400 font-bold">
-                  Departamento: {session.user.department}
+                  Departamento:{" "}
+                  {/* {session.user.department?.nombre_departamento ||
+                    "Sin Departamento"} */}
                 </h1>
               </div>
             </div>

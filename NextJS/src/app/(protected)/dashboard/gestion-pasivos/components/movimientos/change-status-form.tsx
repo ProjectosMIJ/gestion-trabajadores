@@ -3,6 +3,7 @@
 import {
   getEmployeeById,
   getInternalReason,
+  getPasiveById,
   getStatusNomina,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
 import ChangeStatusAction from "@/app/(protected)/dashboard/gestion-trabajadores/movimientos/cambiar-estatus/actions/actions-change-status";
@@ -65,12 +66,9 @@ export function ChangeStatusPasiveForm() {
   });
   const handleSearch = async (values: z.infer<typeof schemaSearchEmployee>) => {
     if (!values.searchEmployeeForm) return;
-    const response = await getPasiveSearch<EmployeeData[]>({
-      searchParams: values.searchEmployeeForm,
-    });
-
+    const response = await getPasiveById(values.searchEmployeeForm);
     if (response.data && response.data !== undefined) {
-      setEmployee(response.data[0]);
+      setEmployee(response.data);
     }
   };
   const formSearch = useForm({

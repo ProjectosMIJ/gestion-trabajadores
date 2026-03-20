@@ -1,8 +1,19 @@
+"use client";
 import { Family } from "@/app/types/types";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   SheetContentUI,
   SheetHeaderUI,
@@ -24,10 +35,17 @@ import { formatInTimeZone } from "date-fns-tz";
 import {
   Ambulance,
   GraduationCap,
+  Heart,
+  PersonStanding,
   ShipIcon,
   ShipWheel,
   Shirt,
 } from "lucide-react";
+import UpdateBasicInfoFamily from "@/app/(protected)/dashboard/gestion-trabajadores/components/employees/tableFamilys/updateInfo/form/form-update-info";
+import FormRelationship from "@/app/(protected)/dashboard/gestion-trabajadores/components/employees/tableFamilys/updateInfo/form/form-relationship";
+import UpdateFormAcademy from "@/app/(protected)/dashboard/gestion-trabajadores/components/employees/tableFamilys/updateInfo/form/form-academy-update";
+import UpdateFormPhysical from "@/app/(protected)/dashboard/gestion-trabajadores/components/employees/tableFamilys/updateInfo/form/form-physical-update";
+import FormUpdateHealthFamily from "@/app/(protected)/dashboard/gestion-trabajadores/components/employees/tableFamilys/updateInfo/form/form-health_profile";
 interface Props {
   family: Family;
 }
@@ -44,7 +62,22 @@ export function DetailInfoFamily({ family }: Props) {
         <ScrollArea className="space-y-5 h-[90%]">
           <div className="space-y-5">
             <Card>
-              <CardHeader>Información Basica</CardHeader>
+              <CardHeader className="flex justify-between">
+                <div className="flex flex-row justify-between gap-2">
+                  Información Basica
+                  <PersonStanding />
+                </div>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant={"default"} size={"sm"}>
+                      Editar
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <UpdateBasicInfoFamily id={family.id} />
+                  </DialogContent>
+                </Dialog>
+              </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2">
                   <span>Cedula</span>
@@ -72,8 +105,21 @@ export function DetailInfoFamily({ family }: Props) {
               </CardContent>
             </Card>
             <Card>
-              <CardHeader className="flex flex-row">
-                Relacion/Parentesco
+              <CardHeader className="flex flex-row justify-between">
+                <div className="flex flex-row gap-2 items-center">
+                  Relacion/Parentesco
+                  <PersonStanding />
+                </div>
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button variant={"default"} size={"sm"}>
+                      Editar
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <FormRelationship id={family.id} />
+                  </DialogContent>
+                </Dialog>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2">
@@ -105,9 +151,19 @@ export function DetailInfoFamily({ family }: Props) {
             <Card>
               <CardHeader>
                 <CardTitle className="flex flex-row items-center gap-3 justify-between">
-                  <div className="flex flex-row gap-2  items-center">
-                    Formaciones Academicas <GraduationCap />{" "}
+                  <div className="flex items-center gap-2">
+                    Formaciones Academicas <GraduationCap />
                   </div>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant={"default"} size={"sm"}>
+                        Editar
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <UpdateFormAcademy id={family.id} />
+                    </DialogContent>
+                  </Dialog>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -146,6 +202,16 @@ export function DetailInfoFamily({ family }: Props) {
                   <div className="flex flex-row items-center gap-2">
                     Información De Vestimenta <Shirt />
                   </div>
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <Button variant={"default"} size={"sm"}>
+                        Editar
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <UpdateFormPhysical id={family.id} />
+                    </DialogContent>
+                  </Dialog>
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -171,6 +237,21 @@ export function DetailInfoFamily({ family }: Props) {
                 </div>
               </CardContent>
             </Card>
+            <CardHeader className="flex flex-row justify-between">
+              <div className=" flex flex-row items-center gap-2 ">
+                Información De Salud <Heart />
+              </div>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant={"default"} size={"sm"}>
+                    Editar
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <FormUpdateHealthFamily id={family.id} />
+                </DialogContent>
+              </Dialog>
+            </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 place-content-center">
                 <div>Tipo De Sangre:</div>

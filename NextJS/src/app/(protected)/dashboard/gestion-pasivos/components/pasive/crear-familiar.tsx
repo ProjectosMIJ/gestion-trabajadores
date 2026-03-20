@@ -11,6 +11,7 @@ import {
   getMencion,
   getPantsSize,
   getParent,
+  getPasiveById,
   getPatologys,
   getSex,
   getShirtSize,
@@ -243,16 +244,11 @@ export function CreateFamilyPasiveForm() {
   });
   const handleSearch = async (values: z.infer<typeof schemaSearchEmployee>) => {
     if (!values.searchEmployeeForm) return;
-    const response = await getPasiveSearch<EmployeeData[]>({
-      searchParams: values.searchEmployeeForm,
-    });
-    const convertResponse: ApiResponse<EmployeeData> = {
-      data: response.data[0],
-      message: response.message,
-      status: response.status,
-    };
+
+    const response = await getPasiveById(values.searchEmployeeForm);
+
     if (response.data) {
-      setEmployee(convertResponse);
+      setEmployee(response);
     }
   };
   const academyLevelId = useWatch({

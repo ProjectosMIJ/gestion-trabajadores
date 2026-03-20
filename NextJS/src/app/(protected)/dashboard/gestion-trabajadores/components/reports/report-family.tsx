@@ -179,7 +179,7 @@ export default function ReportEmployee() {
     );
   }
   const onSubmit = (data: SchemaReportFamilyType) => {
-    const isNotAdmin = session?.user?.role !== "admin";
+    const isNotAdmin = session?.user?.role.nombre_rol !== "ADMINISTRADOR";
     const payload: SchemaReportFamilyType = {
       ...data,
       filtros: {
@@ -431,7 +431,7 @@ export default function ReportEmployee() {
                         )}
                       />
                     </fieldset>
-                    {session.user.role == "admin" && (
+                    {session.user.role == "ADMINISTRADOR" && (
                       <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-green-600">
                         <legend className="text-green-800 font-semibold">
                           Direcciones Administativa Del Empleado
@@ -477,7 +477,9 @@ export default function ReportEmployee() {
                           name="filtros.direccion_general_id"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Dirección General / Coordinación</FormLabel>
+                              <FormLabel>
+                                Dirección General / Coordinación
+                              </FormLabel>
                               <Select
                                 onValueChange={(values) => {
                                   field.onChange(Number.parseInt(values));

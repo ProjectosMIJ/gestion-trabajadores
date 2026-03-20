@@ -52,7 +52,7 @@ export default function PersonalPage() {
     async () => await getNominaPasivo(),
   );
   const onSearch = (values: z.infer<typeof schemaSearch>) => {
-    const isNotAdmin = session?.user?.role !== "admin";
+    const isNotAdmin = session?.user?.role.nombre_rol !== "ADMINISTRADOR";
     const payload = {
       ...values,
       dependencia_id: isNotAdmin ? Number(session?.user.dependency?.id) : "",

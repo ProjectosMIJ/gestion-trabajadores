@@ -12,12 +12,17 @@ import { startTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import useSWR from "swr";
-import { getCategory } from "../api/getInfoRac";
+import { getCategory, getOrganismosAds } from "../api/getInfoRac";
 import {
   disabilityCreateActions,
   disabilityGroup,
 } from "./actions/actionsDisability";
-import { AdsType } from "./schemas/schemaAds";
+import {
+  AdsType,
+  AdsUpdateType,
+  schemaAds,
+  schemaAdsUpdate,
+} from "./schemas/schemaAds";
 import { AllergiesSchema, schemaAllergies } from "./schemas/schemaAllergies";
 import { CategoryGroup, schemaCategory } from "./schemas/schemaCategory";
 import { DisabitySchema, schemaDisability } from "./schemas/schemaDisability";
@@ -30,18 +35,30 @@ import {
   allergiesCreateActions,
   allergiesGroup,
 } from "./actions/actionsAllergies";
-import { adsCreateActions } from "./actions/actionsAds";
+import { adsCreateActions, adsUpdateActions } from "./actions/actionsAds";
 export default function FeedBack() {
+  const { data: organismoAds, isLoading: isLoadingAds } = useSWR(
+    "ads",
+    async () => getOrganismosAds(),
+  );
   const { data: disabilityCategory, isLoading: isLoadingDisabilityCategory } =
     useSWR("disabiltyCategory", async () => getCategory("discapacidad"));
   const { data: patologyCategory, isLoading: isLoadingPatologyCategory } =
     useSWR("patologyCategory", async () => getCategory("patologias"));
   const { data: allergiesCategory, isLoading: isLoadingAllergiesCategory } =
     useSWR("allergiesCategory", async () => getCategory("alergias"));
+  const formAdsUpdate = useForm<AdsUpdateType>({
+    defaultValues: {
+      id: 0,
+      Organismoadscrito: undefined,
+    },
+    resolver: zodResolver(schemaAdsUpdate),
+  });
   const formAds = useForm<AdsType>({
     defaultValues: {
       Organismoadscrito: undefined,
     },
+    resolver: zodResolver(schemaAds),
   });
   const formDisabilityGroup = useForm<CategoryGroup>({
     defaultValues: {
@@ -86,6 +103,16 @@ export default function FeedBack() {
   const onSubmitAds = (values: AdsType) => {
     startTransition(async () => {
       const response = await adsCreateActions(values);
+      if (response.success) {
+        toast.success(response.message);
+      } else {
+        toast.error(response.message);
+      }
+    });
+  };
+  const onSubmitUpdateAds = (values: AdsUpdateType) => {
+    startTransition(async () => {
+      const response = await adsUpdateActions(values);
       if (response.success) {
         toast.success(response.message);
       } else {
@@ -166,29 +193,69 @@ export default function FeedBack() {
           <TabsTrigger value="aler">Alergias</TabsTrigger>
         </TabsList>
         <TabsContent value="ads">
-          <Card>
-            <CardHeader>
-              <h2 className="text-2xl font-bold">Organismo Adscrito</h2>
-            </CardHeader>
-            <CardContent>
-              <Form {...formAds}>
-                <form
-                  onSubmit={formAds.handleSubmit(onSubmitAds)}
-                  className="space-y-3"
-                >
-                  <InputForm
-                    form={formAds}
-                    label="Agregar Nuevo Organismo Adscrito"
-                    nameInput="Organismoadscrito"
-                    type="text"
-                  />
-                  <Button type="submit" className="w-full">
-                    Agregar Nuevo Organismo Ads
-                  </Button>
-                </form>
-              </Form>
-            </CardContent>
-          </Card>
+          <div className="flex flex-row gap-2">
+            <Card className="grow">
+              <CardHeader>
+                <h2 className="text-2xl font-bold">
+                  Agregar Nuevo Organismo Adscrito
+                </h2>
+              </CardHeader>
+              <CardContent>
+                <Form {...formAds}>
+                  <form
+                    onSubmit={formAds.handleSubmit(onSubmitAds)}
+                    className="space-y-3"
+                  >
+                    <InputForm
+                      form={formAds}
+                      label="Agregar Nuevo Organismo Adscrito"
+                      nameInput="Organismoadscrito"
+                      type="text"
+                    />
+                    <Button type="submit" className="w-full">
+                      Agregar Nuevo Organismo Adscrito
+                    </Button>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
+            <Card className="grow">
+              <CardHeader>
+                <h2 className="text-2xl font-bold">
+                  Actualizar Organismo Adscrito
+                </h2>
+              </CardHeader>
+              <CardContent>
+                <Form {...formAdsUpdate}>
+                  <form
+                    onSubmit={formAdsUpdate.handleSubmit(onSubmitUpdateAds)}
+                    className="space-y-3"
+                  >
+                    <SelectForm
+                      Formlabel="Organismo Adscrito"
+                      SelectLabelItem="Organismo Adscrito"
+                      form={formAdsUpdate}
+                      isLoading={isLoadingAds}
+                      options={organismoAds?.data ?? []}
+                      labelKey="Organismoadscrito"
+                      valueKey="id"
+                      nameSalect="id"
+                      placeholder="Seleccione un organismo adscrito"
+                    />
+                    <InputForm
+                      form={formAdsUpdate}
+                      label="Agregar Nuevo Organismo Adscrito"
+                      nameInput="Organismoadscrito"
+                      type="text"
+                    />
+                    <Button type="submit" className="w-full">
+                      Agregar Nuevo Organismo Adscrito
+                    </Button>
+                  </form>
+                </Form>
+              </CardContent>
+            </Card>
+          </div>
         </TabsContent>
         <TabsContent value="dis">
           <div className=" flex gap-2">

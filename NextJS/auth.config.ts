@@ -1,11 +1,20 @@
+import { ApiResponse } from "@/app/types/types";
 import { signInSchema } from "@/lib/zod";
 import type { NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 export interface SessionType {
   cedula: string;
-  user_id: string;
-  username: string;
-  departament: string;
+  id: string;
+  nombres: string;
+  apellidos: string;
+  departamento: {
+    id: number;
+    nombre_departamento: string;
+  };
+  rol: {
+    id: number;
+    nombre_rol: string;
+  };
   email: string;
   phone: string;
   status: string;
@@ -45,24 +54,23 @@ export default {
               }),
             },
           );
-
           if (!response.ok) {
             throw new Error("Invalid credentials.");
           }
-
-          const userData: SessionType = await response.json();
+          const userData: ApiResponse<SessionType> = await response.json();
+          console.log(userData);
           return {
-            id: userData.user_id,
-            name: userData.username,
-            role: userData.status,
-            department: userData.departament,
-            cedula: userData.cedula,
-            phone: userData.phone,
-            email: userData.email,
-            directionGeneral: userData.direccion_general,
-            direccionLine: userData.direccion_linea,
-            coordination: userData.coordinacion,
-            dependency: userData.dependencia,
+            id: userData.data.id,
+            name: userData.data.nombres + " " + userData.data.apellidos,
+            role: userData.data.rol,
+            department: userData.data.departamento,
+            cedula: userData.data.cedula,
+            phone: userData.data.phone,
+            email: userData.data.email,
+            directionGeneral: userData.data.direccion_general,
+            direccionLine: userData.data.direccion_linea,
+            coordination: userData.data.coordinacion,
+            dependency: userData.data.dependencia,
           };
         } catch {
           throw new Error("Authentication failed");

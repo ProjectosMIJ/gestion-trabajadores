@@ -16,7 +16,6 @@ export const getPasiveSearch = async <T>({
 }: {
   searchParams: string;
 }) => {
-  const url =
-    searchParams && `employee/pasivo/?cedulaidentidad=${searchParams}`;
+  const url = searchParams && `employee/pasivo/?${searchParams}`;
   return await apiFetchGet<T>(url);
 };

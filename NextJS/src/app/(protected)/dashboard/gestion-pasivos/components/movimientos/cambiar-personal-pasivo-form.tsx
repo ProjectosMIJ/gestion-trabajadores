@@ -3,6 +3,7 @@
 import {
   getEmployeeById,
   getNominaPasivo,
+  getPasiveById,
   getReasonLeaving,
   getStatusEmployee,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
@@ -72,16 +73,10 @@ export function PasivoPasiveForm() {
   });
   const handleSearch = async (values: z.infer<typeof schemaSearchEmployee>) => {
     if (!values.searchEmployeeForm) return;
-    const response = await getPasiveSearch<EmployeeData[]>({
-      searchParams: values.searchEmployeeForm,
-    });
-    const convertData: ApiResponse<EmployeeData> = {
-      data: response.data[0],
-      message: response.message,
-      status: response.status,
-    };
+
+    const response = await getPasiveById(values.searchEmployeeForm);
     if (response.data && response.data !== undefined) {
-      setEmployee(convertData);
+      setEmployee(response);
     }
   };
   const formSearch = useForm({

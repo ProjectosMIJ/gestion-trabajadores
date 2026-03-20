@@ -130,7 +130,7 @@ export default function ReportLeaving() {
   };
   const onSubmit = (data: SchemaReportLeavingType) => {
     startTransition(async () => {
-      const isNotAdmin = session?.user?.role !== "admin";
+      const isNotAdmin = session?.user?.role.nombre_rol !== "ADMINISTRADOR";
       const payload: SchemaReportLeavingType = {
         ...data,
         filtros: {
@@ -170,7 +170,7 @@ export default function ReportLeaving() {
               <div className="flex flex-col gap-2 col-span-3 ">
                 <ScrollArea className="h-100 w-full ">
                   <div className="grid grid-cols-2 gap-2">
-                    {session.user.role == "admin" && (
+                    {session.user.role == "ADMINISTRADOR" && (
                       <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-green-600">
                         <legend className="text-green-800 font-semibold">
                           Dirección Administrativa{" "}
@@ -215,7 +215,9 @@ export default function ReportLeaving() {
                           name="filtros.direccion_general_id"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Dirección General / Coordinación</FormLabel>
+                              <FormLabel>
+                                Dirección General / Coordinación
+                              </FormLabel>
                               <Select
                                 onValueChange={(values) => {
                                   field.onChange(Number.parseInt(values));
