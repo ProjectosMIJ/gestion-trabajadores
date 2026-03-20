@@ -200,7 +200,7 @@ def employee__passive_by(request, cedulaidentidad):
                 'data': []
             }, status=status.HTTP_404_NOT_FOUND)
 
-        serializer = EmployeeDetailSerializer(empleado)
+        serializer = EmployeePasiveDetailSerializer(empleado)
         
         return Response({
             'status': "success",
