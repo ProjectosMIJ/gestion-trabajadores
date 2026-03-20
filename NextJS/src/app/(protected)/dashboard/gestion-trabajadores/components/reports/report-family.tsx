@@ -431,7 +431,7 @@ export default function ReportEmployee() {
                         )}
                       />
                     </fieldset>
-                    {session.user.role == "ADMINISTRADOR" && (
+                    {session.user.role.nombre_rol == "ADMINISTRADOR" && (
                       <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-green-600">
                         <legend className="text-green-800 font-semibold">
                           Direcciones Administativa Del Empleado
