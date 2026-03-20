@@ -1940,7 +1940,7 @@ def list_coordinations_by_line(request, line_id):
 @api_view(['GET'])
 def list_subsidiary_organisms(request):
     try:
-        queryset = OrganismoAdscrito.objects.exclude(Organismoadscrito='POLICIA')
+        queryset = OrganismoAdscrito.objects.exclude(Organismoadscrito='POLICIAL')
         serializer = OrganismoAdscritoSerializer(queryset, many=True)
         
         return Response({
