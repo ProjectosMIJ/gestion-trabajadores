@@ -173,3 +173,46 @@ def list_employees_pasive(request):
             'data': []
         }, status=status.HTTP_400_BAD_REQUEST)
       
+@extend_schema(
+    tags=["Gestion de Personal Pasivo"],
+    summary="Listar personal Pasivo con sus cargos por su cedula",
+    description="Devuelve una lista el personal Pasivo con sus cargos por su cedula",
+)     
+@api_view(['GET'])
+def employee__passive_by(request, cedulaidentidad):
+
+    try:
+        filtro_asignaciones = AsigTrabajo.objects.filter(
+            Tipo_personal__tipo_personal__iexact=PERSONAL_PASIVO
+        )
+
+        empleado = Employee.objects.filter(
+            cedulaidentidad=cedulaidentidad,
+            assignments__Tipo_personal__tipo_personal__iexact=PERSONAL_PASIVO
+        ).prefetch_related(
+            Prefetch('assignments', queryset=filtro_asignaciones)
+        ).distinct().first()
+
+        if not empleado:
+            return Response({
+                'status': "error",
+                'message': "No se encontró el empleado o no posee cargos activos.",
+                'data': []
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = EmployeeDetailSerializer(empleado)
+        
+        return Response({
+            'status': "success",
+            'message': "Empleado localizado con éxito",
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
+
+    except Exception:
+        return Response({
+            'status': "error",
+            'message': "Ocurrió un error al procesar la búsqueda del empleado.",
+            'data': None
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
+        
