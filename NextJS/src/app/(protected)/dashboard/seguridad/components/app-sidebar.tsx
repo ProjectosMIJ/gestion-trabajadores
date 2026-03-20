@@ -162,11 +162,11 @@ export function AppSidebar() {
     if (!item.permission) return true;
 
     const hasRolePermission = item.permission.roleAccept.includes(
-      session?.user?.role || "",
+      session?.user?.role.nombre_rol || "",
     );
 
     const hasDepartmentPermission = item.permission.departmentAccept.includes(
-      session?.user?.department || "",
+      session?.user?.department.nombre_departamento || "",
     );
 
     return hasRolePermission && hasDepartmentPermission;

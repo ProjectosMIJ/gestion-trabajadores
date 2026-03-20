@@ -170,7 +170,7 @@ export default function ReportLeaving() {
               <div className="flex flex-col gap-2 col-span-3 ">
                 <ScrollArea className="h-100 w-full ">
                   <div className="grid grid-cols-2 gap-2">
-                    {session.user.role == "ADMINISTRADOR" && (
+                    {session.user.role.nombre_rol == "ADMINISTRADOR" && (
                       <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-green-600">
                         <legend className="text-green-800 font-semibold">
                           Dirección Administrativa{" "}

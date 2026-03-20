@@ -261,7 +261,7 @@ export default function ReportEmployee() {
             >
               <div className="flex flex-col gap-2 col-span-3">
                 <ScrollArea className="h-100 ">
-                  {session.user.role == "ADMINISTRADOR" && (
+                  {session.user.role.nombre_rol == "ADMINISTRADOR" && (
                     <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-green-600">
                       <legend className="text-green-800 font-semibold">
                         Dirección Administrativa{" "}
