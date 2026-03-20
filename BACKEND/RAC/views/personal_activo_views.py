@@ -360,8 +360,7 @@ class ImportEmployeesView(APIView):
                         apellidos=row.get('APELLIDOS'),
                         fecha_nacimiento=fecha_nac,
                         fechaingresoorganismo=fecha_ingreso,
-                        sexoid_id=sexo_id,  # Usamos _id para asignar directamente el entero
-                        # Si tienes el ID de estado civil en el excel: usar entero en vez de string
+                        sexoid_id=sexo_id, 
                         estadoCivil_id=1
                     )
                     employees_to_create.append(employee)

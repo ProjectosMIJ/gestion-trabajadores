@@ -201,3 +201,57 @@ def usuarios_lista(request):
             'message': f"Error al listar: {str(e)}",
             'data': None
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
+
+
+@extend_schema(
+    tags=["Gestion de Usuarios"],
+    summary="Listar Departamentos",
+    description="Devuelve una lista de todas las Depepartamentos disponibles.",
+
+)
+@api_view(['GET'])
+def list_departaments(request):
+    try:
+        queryset = departaments.objects.all()
+        serializer = DepartamentoSerializer(queryset, many=True)
+        
+        return Response({
+            'status': "success",
+            'message': "Departamentos listados correctamente",
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            'status': "error",
+            'message': "No se pudo recuperar la lista de Departamentos",
+            'data': []
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
+
+@extend_schema(
+    tags=["Gestion de Usuarios"],
+    summary="Listar Roles",
+    description="Devuelve una lista de todas los roles disponibles",
+    responses=RolSerializer
+)
+@api_view(['GET'])
+def list_rols(request):
+    try:
+        queryset = Rol.objects.all()
+        serializer = RolSerializer(queryset, many=True)
+        
+        return Response({
+            'status': "success",
+            'message': "roles listados correctamente",
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            'status': "error",
+            'message': "No se pudo recuperar la lista de roles",
+            'data': []
+        }, status=status.HTTP_400_BAD_REQUEST)
