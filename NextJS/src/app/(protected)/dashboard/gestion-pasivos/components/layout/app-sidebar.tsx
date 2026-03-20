@@ -1,32 +1,18 @@
 "use client";
 import {
-  ArrowRightFromLine,
   ArrowRightLeft,
-  BadgePlus,
   BarChart3,
   BookCheck,
-  BookKey,
-  Briefcase,
-  BriefcaseBusiness,
-  BriefcaseConveyorBelt,
+  BookUser,
   ChevronDown,
   ChevronRight,
   ContactRound,
-  Crosshair,
-  DoorOpen,
   FileChartLine,
   Home,
   IdCard,
-  List,
   ListCheck,
-  MoveDownRight,
-  NotebookTabs,
-  SignpostBig,
-  User,
-  UserPlus,
   LucideIcon,
-  Badge,
-  BookUser,
+  User,
 } from "lucide-react";
 
 import {
@@ -74,186 +60,75 @@ const items: MenuItem[] = [
   },
   {
     permission: {
-      roleAccept: ["basic", "admin"],
+      roleAccept: ["ANALISTA", "ADMINISTRADOR"],
       departmentAccept: ["RAC"],
     },
     title: "Personal Jubilado/Pasivo",
     url: "#",
     icon: User,
     subMenu: [
-      // {
-      //   title: "Agregar Trabajador",
-      //   url: "/dashboard/gestion-trabajadores/personal-trabajador/registrar",
-      //   icon: UserPlus,
-      //   permission: {
-      //     roleAccept: ["admin"],
-      //     departmentAccept: ["RAC"],
-      //   },
-      // },
       {
         title: "Consultar/Actualizar",
         url: "/dashboard/gestion-pasivos/personal-jubilado/consultar",
         icon: ListCheck,
         permission: {
-          roleAccept: ["basic", "admin"],
+          roleAccept: ["ANALISTA", "ADMINISTRADOR"],
           departmentAccept: ["RAC"],
         },
       },
-      // {
-      //   title: "Agregar Familiar",
-      //   url: "/dashboard/gestion-trabajadores/personal-trabajador/familiares/agregar-familiar",
-      //   icon: ContactRound,
-      //   permission: {
-      //     roleAccept: ["admin"],
-      //     departmentAccept: ["RAC"],
-      //   },
-      // },
-      // {
-      //   title: "Consultar Familiar",
-      //   url: "/dashboard/gestion-trabajadores/personal-trabajador/familiares/consultar",
-      //   icon: BookUser,
-      //   permission: {
-      //     roleAccept: ["admin"],
-      //     departmentAccept: ["RAC"],
-      //   },
-      // },
+      {
+        title: "Agregar Familiar",
+        url: "/dashboard/gestion-pasivos/personal-jubilado/familiares/agregar-familiar",
+        icon: ContactRound,
+        permission: {
+          roleAccept: ["ADMINISTRADOR"],
+          departmentAccept: ["RAC"],
+        },
+      },
+      {
+        title: "Consultar Familiar",
+        url: "/dashboard/gestion-pasivos/personal-jubilado/familiares/consultar",
+        icon: BookUser,
+        permission: {
+          roleAccept: ["ADMINISTRADOR"],
+          departmentAccept: ["RAC"],
+        },
+      },
     ],
   },
-  // {
-  //   permission: {
-  //     roleAccept: ["admin"],
-  //     departmentAccept: ["RAC"],
-  //   },
-  //   title: "Dependencias",
-  //   url: "#",
-  //   icon: SignpostBig,
-  //   subMenu: [
-  //     {
-  //       title: "Crear Dependencia",
-  //       url: "/dashboard/gestion-trabajadores/dependencias/crear-dependencia",
-  //       icon: ArrowRightFromLine,
-  //       permission: {
-  //         roleAccept: ["admin"],
-  //         departmentAccept: ["RAC"],
-  //       },
-  //     },
-  //     {
-  //       title: "Crear Direcciones",
-  //       url: "/dashboard/gestion-trabajadores/dependencias/crear-dependencia-direccion",
-  //       icon: MoveDownRight,
-  //       permission: {
-  //         roleAccept: ["admin"],
-  //         departmentAccept: ["RAC"],
-  //       },
-  //     },
-  //     {
-  //       title: "Consultar Dependencias",
-  //       url: "/dashboard/gestion-trabajadores/dependencias/listado-dependencia",
-  //       icon: List,
-  //       permission: {
-  //         roleAccept: ["admin"],
-  //         departmentAccept: ["RAC"],
-  //       },
-  //     },
-  //   ],
-  // },
-  // {
-  //   permission: {
-  //     roleAccept: ["admin"],
-  //     departmentAccept: ["RAC"],
-  //   },
-  //   title: "Gestión De Codigos",
-  //   url: "#",
-  //   icon: Badge,
-  //   subMenu: [
-  //     {
-  //       title: "Crear Nuevo Código",
-  //       url: "/dashboard/gestion-trabajadores/cargos/crear-codigo",
-  //       icon: BadgePlus,
-  //       permission: {
-  //         roleAccept: ["admin"],
-  //         departmentAccept: ["RAC"],
-  //       },
-  //     },
-  //     {
-  //       title: "Consultar/Actualizar",
-  //       url: "/dashboard/gestion-trabajadores/cargos/listado-codigo",
-  //       icon: List,
-  //       permission: {
-  //         roleAccept: ["admin"],
-  //         departmentAccept: ["RAC"],
-  //       },
-  //     },
-  //   ],
-  // },
-  // {
-  //   permission: {
-  //     roleAccept: ["admin"],
-  //     departmentAccept: ["RAC"],
-  //   },
-  //   title: "Movimientos",
-  //   url: "#",
-  //   icon: ArrowRightLeft,
-  //   subMenu: [
-  //     {
-  //       title: "Asignar Cargo",
-  //       url: "/dashboard/gestion-trabajadores/movimientos/asignar-codigo",
-  //       icon: BriefcaseBusiness,
-  //       permission: {
-  //         roleAccept: ["admin"],
-  //         departmentAccept: ["RAC"],
-  //       },
-  //     },
-  //     {
-  //       title: "Asignar Cargo Esp",
-  //       url: "/dashboard/gestion-trabajadores/movimientos/asignar-codigo-especial",
-  //       icon: Briefcase,
-  //       permission: {
-  //         roleAccept: ["admin"],
-  //         departmentAccept: ["RAC"],
-  //       },
-  //     },
-  //     {
-  //       title: "Cambiar Cargo",
-  //       url: "/dashboard/gestion-trabajadores/movimientos/cambiar-codigo",
-  //       icon: BriefcaseConveyorBelt,
-  //       permission: {
-  //         roleAccept: ["admin"],
-  //         departmentAccept: ["RAC"],
-  //       },
-  //     },
-  //     {
-  //       title: "Cambiar Estatus",
-  //       url: "/dashboard/gestion-trabajadores/movimientos/cambiar-estatus",
-  //       icon: FileChartLine,
-  //       permission: {
-  //         roleAccept: ["admin"],
-  //         departmentAccept: ["RAC"],
-  //       },
-  //     },
-  //     {
-  //       title: "Egresar/Pasivo",
-  //       url: "/dashboard/gestion-trabajadores/movimientos/cambiar-pasivo",
-  //       icon: BookCheck,
-  //       permission: {
-  //         roleAccept: ["admin"],
-  //         departmentAccept: ["RAC"],
-  //       },
-  //     },
-  //     {
-  //       title: "Consultar Movimientos",
-  //       url: "/dashboard/gestion-trabajadores/movimientos/consultar",
-  //       icon: ListCheck,
-  //       permission: {
-  //         roleAccept: ["admin"],
-  //         departmentAccept: ["RAC"],
-  //       },
-  //     },
-  //   ],
-  // },
+
   {
     permission: {
-      roleAccept: ["basic", "admin"],
+      roleAccept: ["ADMINISTRADOR"],
+      departmentAccept: ["RAC"],
+    },
+    title: "Movimientos",
+    url: "#",
+    icon: ArrowRightLeft,
+    subMenu: [
+      {
+        title: "Cambiar Estatus",
+        url: "/dashboard/gestion-pasivos/movimientos/cambiar-estatus",
+        icon: FileChartLine,
+        permission: {
+          roleAccept: ["ADMINISTRADOR"],
+          departmentAccept: ["RAC"],
+        },
+      },
+      {
+        title: "Egresar",
+        url: "/dashboard/gestion-pasivos/movimientos/cambiar-pasivo",
+        icon: BookCheck,
+        permission: {
+          roleAccept: ["ADMINISTRADOR"],
+          departmentAccept: ["RAC"],
+        },
+      },
+    ],
+  },
+  {
+    permission: {
+      roleAccept: ["ANALISTA", "ADMINISTRADOR"],
       departmentAccept: ["RAC"],
     },
     icon: BarChart3,
@@ -265,37 +140,10 @@ const items: MenuItem[] = [
         url: "/dashboard/gestion-pasivos/reportes/pasivos",
         icon: IdCard,
         permission: {
-          roleAccept: ["basic", "admin"],
+          roleAccept: ["ANALISTA", "ADMINISTRADOR"],
           departmentAccept: ["RAC"],
         },
       },
-      // {
-      //   title: "Consultar Familiares",
-      //   url: "/dashboard/gestion-trabajadores/reportes/familiares",
-      //   icon: NotebookTabs,
-      //   permission: {
-      //     roleAccept: ["basic", "admin"],
-      //     departmentAccept: ["RAC"],
-      //   },
-      // },
-      // {
-      //   title: "Consultar Egresados",
-      //   url: "/dashboard/gestion-trabajadores/reportes/egresados",
-      //   icon: DoorOpen,
-      //   permission: {
-      //     roleAccept: ["basic", "admin"],
-      //     departmentAccept: ["RAC"],
-      //   },
-      // },
-      // {
-      //   title: "Consultar Cargos",
-      //   url: "/dashboard/gestion-trabajadores/reportes/codigos",
-      //   icon: BookKey,
-      //   permission: {
-      //     roleAccept: ["basic", "admin"],
-      //     departmentAccept: ["RAC"],
-      //   },
-      // },
     ],
   },
 ];
@@ -311,15 +159,16 @@ export function AppSidebarPasivos() {
     if (!item.permission) return true;
 
     const hasRolePermission = item.permission.roleAccept.includes(
-      session?.user.role || "",
+      session?.user.role.nombre_rol || "",
     );
 
     const hasDepartmentPermission = item.permission.departmentAccept.includes(
-      session?.user.department || "",
+      session?.user.department.nombre_departamento || "",
     );
 
     return hasRolePermission && hasDepartmentPermission;
   };
+  console.log(session!.user.role?.nombre_rol);
 
   const filteredItems = items
     .filter((item) => {
@@ -442,9 +291,13 @@ export function AppSidebarPasivos() {
                 </h2>
               </div>
               <div className="flex flex-col">
-                <h2 className="font-semibold">Rol: {session.user.role}</h2>
+                <h2 className="font-semibold">
+                  {/* Rol:{session.user.role?.nombre_rol || "Sin Rol"} */}
+                </h2>
                 <h1 className="text-sm text-gray-400 font-bold">
-                  Departamento: {session.user.department}
+                  Departamento:{" "}
+                  {/* {session.user.department?.nombre_departamento ||
+                    "Sin Departamento"} */}
                 </h1>
               </div>
             </div>

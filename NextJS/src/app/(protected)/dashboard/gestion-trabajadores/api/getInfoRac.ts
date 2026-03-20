@@ -6,6 +6,7 @@ import {
   BloodGroupType,
   Cargo,
   Carrera,
+  Category,
   Code,
   ConditionDwelling,
   Coordination,
@@ -199,6 +200,15 @@ export const getEmployeeById = async (
   const getEmployee: ApiResponse<EmployeeData> = await responseEmployee.json();
   return getEmployee;
 };
+export const getPasiveById = async (
+  id: string,
+): Promise<ApiResponse<EmployeeData>> => {
+  const responseEmployee = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}employee/pasivo/${id}/`,
+  );
+  const getEmployee: ApiResponse<EmployeeData> = await responseEmployee.json();
+  return getEmployee;
+};
 export const getEmployeeData = async (): Promise<
   ApiResponse<EmployeeData[]>
 > => {
@@ -324,6 +334,16 @@ export const getDisability = async (): Promise<
   );
   const getDisability: ApiResponse<DisabilitysType[]> =
     await responseDisability.json();
+  return getDisability;
+};
+
+export const getCategory = async (
+  type: "discapacidad" | "alergias" | "patologias",
+) => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}${type}/categorias`,
+  );
+  const getDisability: ApiResponse<Category[]> = await response.json();
   return getDisability;
 };
 export const getAllergies = async (): Promise<ApiResponse<allergies[]>> => {
@@ -642,6 +662,18 @@ export const getFamilyEmployee = async ({
   const url = searchParams
     ? `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employeefamily/?${searchParams}`
     : `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employeefamily/`;
+  const response = await fetch(url);
+  const getResponse: ApiResponse<Family[]> = await response.json();
+  return getResponse;
+};
+export const getFamilyPasive = async ({
+  searchParams,
+}: {
+  searchParams: string | undefined;
+}): Promise<ApiResponse<Family[]>> => {
+  const url = searchParams
+    ? `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Passivefamily/?${searchParams}`
+    : `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Passivefamily/`;
   const response = await fetch(url);
   const getResponse: ApiResponse<Family[]> = await response.json();
   return getResponse;

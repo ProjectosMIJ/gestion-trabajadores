@@ -14,11 +14,10 @@ urlpatterns = [
     path('Employee/<int:id>/', views.update_employee, name='actualizar-empleado'),
     # solo sus datos personales 
     path('listar-data-empleados/<str:cedulaidentidad>/', views.retrieve_employee, name='listar-data-empleados'),
-    
-    
     # PERSONAL PASIVO 
-    
     path('employee/pasivo/',views.list_employees_pasive, name='personal-pasivo'),
+    path('employee/pasivo/<str:cedulaidentidad>/', views.employee__passive_by, name='listar-data-empleados-pasivos'),
+   
     
     # --------------------
     # DATOS DE SALUD 
@@ -26,10 +25,11 @@ urlpatterns = [
     
      # grupo sanguineo
     path('listar-grupoSanguineos/', views.list_blood_types, name='listar-grupoSanguineo'),
-    path('categorias-patologias/', views.list_pathology_categories, name='listar-categorias-patologias '),
+    path('patologias/categorias/', views.list_pathology_categories, name='listar-categorias-patologias '),
     path('Patologias/', views.list_chronic_pathologies, name='listar-patologias'),
-    path('categorias-discapacidad/', views.list_disability_categories, name='listar-categorias-discapacidades'),
+    path('discapacidad/categorias/', views.list_disability_categories, name='listar-categorias-discapacidades'),
     path('Discapacidades/', views.list_disabilities, name='listar-discapacidades'),
+    path('alergias/categorias/', views.list_allergies_categories, name="categorias de alergias"),
     path('alergias/', views.list_allergies, name='listar-alergias '),
     path('releciones/', views.list_relationship, name='listar-relacion-de-contacto-de-emergencia'),
     
@@ -99,12 +99,14 @@ urlpatterns = [
    
     path('empleados-codigo/', views.create_position, name='registrar-codigo'),
       # editar codigo
-    path('codigos/<int:id>/', views.update_position, name='codigos-edit'),
+    path('codigos/<int:id>/', views.update_position, name='codigos-actualizacion'),
 #     # lista unicamente los codigos vacantes
-    path('cargos/vacantes/',views.list_general_vacants_codes, name='lista todos los codigos vacantes'),
+    path('cargos/vacantes/',views.list_general_vacants_codes, name='listos-todos-codigos-vacantes'),
 #     # listar codigo  tanto activos como vacantes
-    path('cargos/general/', views.list_general_work_codes, name='lista de codigos generales'),
-    path('cargos/pasivo/',views.list_work_codes_passive, name='lista de codigos pasivos'),
+    path('cargos/general/', views.list_general_work_codes, name='lista-codigos-generales-activos'),
+    path('cargos/pasivo/',views.work_codes_passive, name='lista-codigos-pasivos'),
+    path('cargos/pasivo/<int:id>/',views.update_position_passive, name='actualizar-codigos-pasivos'),
+    
 # ------------------
 # ASIGNACION DE CARGO
 # -------------------
@@ -146,6 +148,7 @@ urlpatterns = [
 # ORGANISMOS ADSCRITOS 
 # ------------------- 
    path('OrganismoAdscrito/',views.create_subsidiary_organism, name= "registro-organismo-Adscrito"),
+   path('OrganismoAdscrito/<int:id>/',views.update_organism, name= 'actualizacion-organismo-adscrito'),
    path('organismos-adscritos/', views.list_subsidiary_organisms, name='lista de organismos adscritos'),
    path('organismos-adscritos/padre/', views.list_subsidiary_organisms_report, name="listar-organismos-repors"),
     
@@ -175,7 +178,9 @@ urlpatterns = [
     path('Employeefamily/<str:cedula_empleado>/', views.registrar_familiar, name='creacion-empleadoFamiliar'),
     path('Employeefamily/masivo/<str:cedula_empleado>/', views.registrar_familiares_masivo, name='creacion-masiva-empleadoFamiliar'),
     path('Employeefamily/<int:familiar_id>', views.actualizar_familiar, name='actualizar_familiar'),
-    path('Employeefamily/', views.listar_familiares, name='creacion-empleadoFamiliar'),
+    path('Passivefamily/', views.listar_familiares_pasivo, name='listar-empleadoFamiliar-pasive'),
+    path('Employeefamily/', views.listar_familiares, name='listar-empleadoFamiliar'),
+    
     path('Parentesco/', views.listar_parentesco, name="listar-parentesco"),
     
     

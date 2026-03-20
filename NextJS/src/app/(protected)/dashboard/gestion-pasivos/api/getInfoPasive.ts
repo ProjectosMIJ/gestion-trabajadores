@@ -8,7 +8,6 @@ const apiFetchGet = async <T>(url: string) => {
     },
   );
   const getResponse: ApiResponse<T> = await response.json();
-  console.log(getResponse);
   return getResponse;
 };
 

@@ -222,7 +222,7 @@ export default function ReportEmployee() {
   };
   const onSubmit = (data: SchemaReportEmployeeType) => {
     startTransition(async () => {
-      const isNotAdmin = session?.user?.role !== "admin";
+      const isNotAdmin = session?.user?.role.nombre_rol !== "ADMINISTRADOR";
       const payload: SchemaReportEmployeeType = {
         ...data,
         filtros: {
@@ -261,7 +261,7 @@ export default function ReportEmployee() {
             >
               <div className="flex flex-col gap-2 col-span-3">
                 <ScrollArea className="h-100 ">
-                  {session.user.role == "admin" && (
+                  {session.user.role == "ADMINISTRADOR" && (
                     <fieldset className="flex flex-col gap-3 border-2 p-2 rounded-sm border-green-600">
                       <legend className="text-green-800 font-semibold">
                         Dirección Administrativa{" "}

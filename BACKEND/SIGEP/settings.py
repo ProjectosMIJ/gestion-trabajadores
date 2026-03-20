@@ -30,7 +30,7 @@ DEBUG = True
 
 
 
-ALLOWED_HOSTS = ['172.16.10.209', '127.0.0.1','localhost', 'django', 'djangoapp', 'django-App', 'postgresdb', 'nextjs-App','172.16.26.48','172.16.10.209','172.16.26.48']
+ALLOWED_HOSTS = ['172.16.10.209', '127.0.0.1','localhost', 'django', 'djangoapp', 'django-App', 'postgresdb', 'nextjs-App','172.16.26.48','172.16.26.48']
 
 # Application definition
 
@@ -62,14 +62,23 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'SIGEP.urls'
+
 CORS_ALLOWED_ORIGINS = [
-    "http://djangoapp:3000", 
+     "http://localhost:3000",
+     "http://172.16.26.48:3000", 
+    "http://djangoapp:3000",
+    "http://192.168.1.5:3000", 
     "http://172.16.10.209:3000",
-    "http://172.16.26.48:3000",
     "http://127.0.0.1:3000",
-    "http://nextjs-App:3000",  # <- Agregar este
+    "http://next-app:3000",
+    "http://nextjs-App:3000",
     "http://172.16.24.81:3000",
-    # ... las demás IPs
+    "http://172.21.192.1:3000",
+    "http://172.21.192.1:3000",
+    "http://172.16.24.56:3000",
+    "http://192.168.137.22:3000",
+    "http://172.22.112.1:3000",
+  
 ]
 TEMPLATES = [
     {
@@ -148,19 +157,6 @@ REST_FRAMEWORK = {
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOWED_ORIGINS = [
-    "http://192.168.1.5:3000", 
-    "http://172.16.10.209:3000",
-    "http://127.0.0.1:3000",
-    "http://next-app:3000",
-    "http://172.16.24.81:3000",
-    "http://172.21.192.1:3000",
-    "http://172.21.192.1:3000",
-    "http://172.16.24.56:3000",
-    "http://192.168.137.22:3000",
-    "http://172.22.112.1:3000",
-    "http://172.16.10.209:3000",
-]
 
 CORS_ALLOW_CREDENTIALS = True
 

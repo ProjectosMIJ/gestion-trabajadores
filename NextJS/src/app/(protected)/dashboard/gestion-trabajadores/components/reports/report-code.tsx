@@ -131,7 +131,7 @@ export default function ReportCode() {
   }
   const onSubmit = (data: SchemaReportCodeType) => {
     startTransition(async () => {
-      const isNotAdmin = session?.user?.role !== "admin";
+      const isNotAdmin = session?.user?.role.nombre_rol !== "ADMINISTRADOR";
       const payload: SchemaReportCodeType = {
         ...data,
         filtros: {
@@ -174,7 +174,7 @@ export default function ReportCode() {
               <div className="flex flex-col gap-2 col-span-3">
                 <ScrollArea className="w-full ">
                   <div className="flex flex-row w-full gap-2">
-                    {session.user.role == "admin" && (
+                    {session.user.role == "ADMINISTRADOR" && (
                       <fieldset className="flex flex-col w-full gap-3 border-2 p-2 rounded-sm border-green-600">
                         <legend className="text-green-800 font-semibold">
                           Dirección Administrativa{" "}

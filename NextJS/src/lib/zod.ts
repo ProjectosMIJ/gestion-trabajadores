@@ -35,7 +35,7 @@ export const registerInSchema = z
       required_error: "Debes seleccionar un departamento",
       invalid_type_error: "Departamento inválido",
     }),
-    status: z.enum(["basic", "admin"], {
+    status: z.enum(["ANALISTA", "ADMINISTRADOR"], {
       required_error: "Debes seleccionar un rol",
       invalid_type_error: "Rol inválido",
     }),

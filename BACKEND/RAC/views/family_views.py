@@ -3,6 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework import status
 from django.db import transaction
 from rest_framework.response import Response
+from RAC.services.constants import *
 from ..models.family_personal_models import Employeefamily, Parentesco
 from RAC.models.personal_models import Employee
 from ..serializers.family_serializers import FamilyCreateSerializer,FamilyListSerializer,ParentescoSerializer
@@ -94,7 +95,7 @@ def actualizar_familiar(request, familiar_id):
 @extend_schema(
     tags=["Familiares de Empleados"],
     summary="Gestion de familiares",
-    request=FamilyCreateSerializer,
+    request=FamilyListSerializer,
 )
 @api_view(['GET'])
 def listar_familiares(request):
@@ -108,7 +109,63 @@ def listar_familiares(request):
 
         queryset = Employeefamily.objects.select_related(
             'parentesco', 'sexo', 'estadoCivil', 'employeecedula'
-        ).all()
+        ).filter(
+            employeecedula__assignments__Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO
+        )
+
+        filterset = EmployeeFamilyFilter(request.GET, queryset=queryset)
+        
+        if not filterset.is_valid():
+            return Response({
+                "status": "Error",
+                "message": "Los parámetros de filtro son inválidos.",
+                "errors": filterset.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        familiares = filterset.qs.distinct()[:10]
+        
+        if not familiares.exists():
+            return Response({
+                "status": "Ok",
+                "message": "No se encontraron resultados para la búsqueda.",
+                "data": []
+            }, status=status.HTTP_200_OK)
+
+        serializer = FamilyListSerializer(familiares, many=True)
+        
+        return Response({
+            "status": "Ok",
+            "message": "Carga familiar listada correctamente",
+            "data": serializer.data
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            "status": "Error",
+            "message": f"Error al recuperar carga familiar: {str(e)}",
+            "data": []
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@extend_schema(
+    tags=["Familiares de Empleados"],
+    summary="Gestion de familiares",
+
+)
+@api_view(['GET'])
+def listar_familiares_pasivo(request):
+    try:
+        if not request.GET:
+            return Response({
+                "status": "Ok",
+                "message": "No se proporcionaron parámetros de búsqueda.",
+                "data": []
+            }, status=status.HTTP_200_OK)
+
+        queryset = Employeefamily.objects.select_related(
+            'parentesco', 'sexo', 'estadoCivil', 'employeecedula'
+        ).filter(
+            employeecedula__assignments__Tipo_personal__tipo_personal__iexact=PERSONAL_PASIVO
+        )
 
         filterset = EmployeeFamilyFilter(request.GET, queryset=queryset)
         

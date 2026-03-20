@@ -1,1 +1,1 @@
-from .user_models import departaments, cuenta, permissions
+from .user_models import *

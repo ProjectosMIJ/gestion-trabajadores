@@ -1,126 +1,257 @@
-from django.shortcuts import render
+import logging
+from rest_framework.exceptions import ValidationError
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework import status
-from ..serializers.USER_serializers import LoginSerializer, UserSerializer,UserDetailSerializer,RegisterSerializer
-from ..models.user_models import cuenta
-from django.contrib.auth.hashers import make_password
-from rest_framework.permissions import AllowAny
-from rest_framework.decorators import api_view, permission_classes
-import logging
+from RAC.filters.filters_personal import CuentaFilter
 from drf_spectacular.utils import extend_schema
+from  USER.models import cuenta
+from USER.serializers import *
+logger = logging.getLogger(__name__)
 
-@api_view(['GET'])
-def get(request):
-    try:
-        # Obtener todas las cuentas con sus departamentos relacionados
-        cuenta_items = cuenta.objects.select_related('departament').all()
-        
-        # Serializar usando el UserSerializer actualizado
-        serializer = UserSerializer(cuenta_items, many=True)
-        
-        return Response({
-            'success': True,
-            'data': serializer.data
-        })
-    except Exception as e:
-        # Mejor manejo de errores
-        import logging
-        logging.error(f"Error al obtener cuentas: {str(e)}")
-        return Response({
-            'success': False,
-            'error': 'Error al obtener las cuentas',
-            'detail': str(e)  # En producción, remover o controlar este detalle
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-
-def login_view(request):
-    try:
-        serializer = LoginSerializer(data=request.data)
-        
-        if serializer.is_valid():
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(
-            {'error': 'Credenciales inválidas'}, 
-            status=status.HTTP_401_UNAUTHORIZED
-        )
-    except Exception as e:
-        logging.error(f"Error durante el inicio de sesión: {str(e)}")
-        return Response(
-            {'error': 'Error en el servidor al procesar la solicitud'}, 
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
-    
-
-@api_view(['GET', 'POST'])
-def user_detail(request, user_id):
-    """
-    API endpoint para obtener o actualizar detalles de usuario
-    """
-    try:
-        user = cuenta.objects.get(user_id=user_id)
-    except cuenta.DoesNotExist:
-        return Response({'error': 'Usuario no encontrado'}, status=status.HTTP_404_NOT_FOUND)
-
-    if request.method == 'GET':
-        serializer = UserSerializer(user)
-        return Response(serializer.data)
-
-    elif request.method == 'POST':
-        # Crear una copia de los datos para no modificar el request original
-        data = request.data.copy()
-        
-        # Si se proporciona una contraseña, hashearla antes de guardarla
-        if 'password' in data:
-            data['password'] = make_password(data['password'])
-        
-        serializer = UserSerializer(user, data=data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-# registro de usuario
 @extend_schema(
     tags=["Gestion de Usuarios"],
-    summary="Buscar empleado por cédula",
-    description="Devuelve los datos de un empleado identificado por su cédula",
-    request=RegisterSerializer,
-)
+    summary="Inicio de sesion",
+    request=LoginSerializer, 
+ 
+) 
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login_view(request):
+    serializer = LoginSerializer(data=request.data)
+    try:
+        serializer.is_valid(raise_exception=True)
+        
+        usuario = serializer.validated_data
+        datos_usuario = CuentaSerializer(usuario).data
+        
+        return Response({
+            'status': "success",
+            'message': "Inicio de sesión exitoso",
+            'data': datos_usuario
+        }, status=status.HTTP_200_OK)
+        
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_field = list(error_dict.values())[0]
+        clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+
+        return Response({
+            'status': "error",
+            'message': clean_message,
+            'data': None
+        }, status=status.HTTP_401_UNAUTHORIZED) 
+
+    except Exception as e:
+        logger.error(f"Error en login: {str(e)}")
+        return Response({
+            'status': "error",
+            'message': str(e),
+            'data': None
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+@extend_schema(
+    tags=["Gestion de Usuarios"],
+    summary="Registro de Usuario",
+  request=RegisterSerializer, 
+) 
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_view(request):
+
     try:
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
-            user = serializer.save()
-            return Response({'success': True, 'message': 'Registrado'}, status=201)
+            nueva_cuenta = serializer.save()
+            return Response({
+                'success': True, 
+                'message': 'Usuario registrado exitosamente',
+                'data': CuentaSerializer(nueva_cuenta).data
+            }, status=status.HTTP_201_CREATED)
+            
+        return Response({
+            'success': False, 
+            'errors': serializer.errors
+        }, status=status.HTTP_400_BAD_REQUEST)
         
-        return Response({'success': False, 'errors': serializer.errors}, status=400)
     except Exception as e:
-        logging.error(f"Error: {str(e)}")
-        return Response({'success': False, 'error': str(e)}, status=500)
-        
-   # lista los usuarios registrados
-@api_view(['GET'])
-def usuarios(request):
+        logger.error(f"Error en registro: {str(e)}")
+        return Response({
+            'success': False, 
+            'error': 'Error interno del servidor al procesar el registro.'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+
+
+@extend_schema(
+    tags=["Gestion de Usuarios"],
+    summary="editar  Usuario",
+  request=UpdateCuentaSerializer, 
+) 
+@api_view(['PATCH', 'PUT'])
+def editar_usuario(request, id):
     try:
-     
-        usuarios = cuenta.objects.all()
-        serializer = UserDetailSerializer(usuarios, many=True)
+        usuario = cuenta.objects.get(id=id)
+    except cuenta.DoesNotExist:
+        return Response({
+            'success': False, 
+            'error': 'El usuario no existe.'
+        }, status=status.HTTP_404_NOT_FOUND)
+
+    serializer = UpdateCuentaSerializer(usuario, data=request.data, partial=True)
+    
+    if serializer.is_valid():
+        usuario_actualizado = serializer.save()
         
+    
         return Response({
             'success': True,
-            'count': len(serializer.data),
-            'usuarios': serializer.data
-        })
-    except Exception as e:
-        logging.error(f"Error al obtener lista de usuarios: {str(e)}")
+            'message': 'Usuario actualizado exitosamente.',
+            'data': CuentaSerializer(usuario_actualizado).data
+        }, status=status.HTTP_200_OK)
+        
+    return Response({
+        'success': False, 
+        'errors': serializer.errors
+    }, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+@extend_schema(
+    tags=["Gestion de Usuarios"],
+    summary="Editar estatus de Usuario",
+    request=CambiarEstadoCuentaSerializer, 
+) 
+@api_view(['PATCH'])
+def cambiar_estado_usuario(request,id):
+    try:
+        usuario = cuenta.objects.get(id=id)
+        serializer = CambiarEstadoCuentaSerializer(usuario, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        usuario_actualizado = serializer.save()
+        estado_str = "activado" if usuario_actualizado.is_active else "suspendido"
+
         return Response({
-            'success': False,
-            'error': 'Error al obtener la lista de usuarios',
-            'detail': str(e)
+            'status': 'success',
+            'message': f'Usuario {estado_str} exitosamente.',
+            'data': CuentaSerializer(usuario_actualizado).data
+        }, status=status.HTTP_200_OK)
+        
+    except cuenta.DoesNotExist:
+        return Response({
+            'status': "error",
+            'message': 'El usuario no existe.',
+            'data': None
+        }, status=status.HTTP_404_NOT_FOUND)
+        
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_value = list(error_dict.values())[0]
+        clean_message = first_error_value[0] if isinstance(first_error_value, list) else first_error_value
+        return Response({
+            'status': "error",
+            'message': clean_message, 
+            'data': None
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
+    except Exception as e:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error al cambiar estado: {str(e)}")
+        return Response({
+            'status': "error",
+            'message': "Error interno del servidor",
+            'data': None
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
+@extend_schema(
+    tags=["Gestion de Usuarios"],
+    summary="Consulta de usuarios",
+) 
+@api_view(['GET'])
+def usuarios_lista(request):
+    try:
+        queryset = cuenta.objects.select_related('cedula', 'departamento', 'rol').all()
+        
+        filterset = CuentaFilter(request.GET, queryset=queryset)
+        
+        if not filterset.is_valid():
+            return Response({
+                'status': "error",
+                'message': "Los parámetros de filtro son inválidos.",
+                'data': filterset.errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+        usuarios = filterset.qs[:10]
+        
+        serializer = CuentaSerializer(usuarios, many=True)
+        
+        return Response({
+            'status': 'success',
+            'message': 'Lista de usuarios obtenida correctamente',
+            'data': serializer.data,
+        
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        logger.error(f"Error al listar usuarios: {str(e)}")
+        return Response({
+            'status': "error",
+            'message': f"Error al listar: {str(e)}",
+            'data': None
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
+
+
+@extend_schema(
+    tags=["Gestion de Usuarios"],
+    summary="Listar Departamentos",
+    description="Devuelve una lista de todas las Depepartamentos disponibles.",
+
+)
+@api_view(['GET'])
+def list_departaments(request):
+    try:
+        queryset = departaments.objects.all()
+        serializer = DepartamentoSerializer(queryset, many=True)
+        
+        return Response({
+            'status': "success",
+            'message': "Departamentos listados correctamente",
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            'status': "error",
+            'message': "No se pudo recuperar la lista de Departamentos",
+            'data': []
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
+
+@extend_schema(
+    tags=["Gestion de Usuarios"],
+    summary="Listar Roles",
+    description="Devuelve una lista de todas los roles disponibles",
+    responses=RolSerializer
+)
+@api_view(['GET'])
+def list_rols(request):
+    try:
+        queryset = Rol.objects.all()
+        serializer = RolSerializer(queryset, many=True)
+        
+        return Response({
+            'status': "success",
+            'message': "roles listados correctamente",
+            'data': serializer.data
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            'status': "error",
+            'message': "No se pudo recuperar la lista de roles",
+            'data': []
+        }, status=status.HTTP_400_BAD_REQUEST)

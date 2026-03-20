@@ -46,7 +46,7 @@ export default function FormRegister() {
       password: "",
       password2: "",
       departament: "1",
-      status: "basic",
+      status: "ANALISTA",
       phone: "",
     },
   });
@@ -242,10 +242,10 @@ export default function FormRegister() {
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="basic" className="text-lg">
+                          <SelectItem value="ANALISTA" className="text-lg">
                             Analista
                           </SelectItem>
-                          <SelectItem value="admin" className="text-lg">
+                          <SelectItem value="ADMINISTRADOR" className="text-lg">
                             Administrador
                           </SelectItem>
                         </SelectContent>

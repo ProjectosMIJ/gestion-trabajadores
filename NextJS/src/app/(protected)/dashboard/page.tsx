@@ -68,6 +68,7 @@ const departments: Department[] = [
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
+  console.log(session?.user);
   const router = useRouter();
   if (status === "loading") {
     return <Loading promiseMessage="Cargando Sesion" />;
@@ -77,7 +78,7 @@ export default function Dashboard() {
     departmentId: string,
     departmentHref: string,
   ) => {
-    if (session?.user?.department === departmentId) {
+    if (session?.user?.department.nombre_departamento == departmentId) {
       toast.success(`Bienvenido ${session.user.name}`, {
         style: {
           color: "white",
@@ -106,7 +107,8 @@ export default function Dashboard() {
       </div>
       <div className="grid overflow-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mx-8 ">
         {departments.map((department, index) => {
-          const hasAccess = session?.user?.department === department.id;
+          const hasAccess =
+            session?.user?.department.nombre_departamento === department.id;
           return (
             <Card
               key={index}

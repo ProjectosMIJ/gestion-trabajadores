@@ -1,4 +1,5 @@
 "use client";
+import { EmployeeData } from "@/app/types/types";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -24,14 +25,9 @@ import { useForm } from "react-hook-form";
 import useSWR from "swr";
 import z from "zod";
 import PageLayout from "../../../../../../components/layout/page-layout";
-import { getPasiveSearch } from "../../api/getInfoPasive";
-import TableEmployee from "../../components/pasive/tablePasive/page";
+import { getNominaPasivo } from "../../../gestion-trabajadores/api/getInfoRac";
 import Loading from "../../../gestion-trabajadores/components/loading/loading";
-import { EmployeeData } from "@/app/types/types";
-import {
-  getNomina,
-  getNominaPasivo,
-} from "../../../gestion-trabajadores/api/getInfoRac";
+import { getPasiveSearch } from "../../api/getInfoPasive";
 import TablePasive from "../../components/pasive/tablePasive/page";
 
 export default function PersonalPage() {
@@ -56,7 +52,7 @@ export default function PersonalPage() {
     async () => await getNominaPasivo(),
   );
   const onSearch = (values: z.infer<typeof schemaSearch>) => {
-    const isNotAdmin = session?.user?.role !== "admin";
+    const isNotAdmin = session?.user?.role.nombre_rol !== "ADMINISTRADOR";
     const payload = {
       ...values,
       dependencia_id: isNotAdmin ? Number(session?.user.dependency?.id) : "",

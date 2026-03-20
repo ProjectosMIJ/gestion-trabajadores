@@ -26,7 +26,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import { useState } from "react";
-import { SignOut } from "@/components/signout-button"; 
+import { SignOut } from "@/components/signout-button";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -39,7 +39,7 @@ const items = [
   },
   {
     permission: {
-      roleAccept: ["basic", "admin"],
+      roleAccept: ["ANALISTA", "ADMINISTRADOR"],
       departmentAccept: ["oac"],
     },
     title: "Perfil",
@@ -48,7 +48,7 @@ const items = [
   },
   {
     permission: {
-      roleAccept: ["basic", "admin"],
+      roleAccept: ["ANALISTA", "ADMINISTRADOR"],
       departmentAccept: ["oac"],
     },
     title: "Crear solicitud Tecnica/Social",
@@ -80,7 +80,7 @@ const items = [
 
   {
     permission: {
-      roleAccept: ["admin"],
+      roleAccept: ["ADMINISTRADOR"],
       departmentAccept: ["oac"],
     },
     title: "Solictudes",
@@ -101,7 +101,7 @@ const items = [
   },
   {
     permission: {
-      roleAccept: ["admin"],
+      roleAccept: ["ADMINISTRADOR"],
       departmentAccept: ["oac"],
     },
     title: "Inventario",
@@ -111,7 +111,7 @@ const items = [
 
   {
     permission: {
-      roleAccept: ["admin"],
+      roleAccept: ["ADMINISTRADOR"],
       departmentAccept: ["oac"],
     },
     title: "Historico",
@@ -133,7 +133,7 @@ const items = [
 
   {
     permission: {
-      roleAccept: ["admin"],
+      roleAccept: ["ADMINISTRADOR"],
       departmentAccept: ["Seguridad"],
     },
     title: "Creacion de usuarios",
@@ -142,7 +142,7 @@ const items = [
   },
   {
     permission: {
-      roleAccept: ["admin"],
+      roleAccept: ["ADMINISTRADOR"],
       departmentAccept: ["Seguridad"],
     },
     title: "Gestión de Usuarios",
