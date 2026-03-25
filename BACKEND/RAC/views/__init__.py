@@ -5,6 +5,7 @@ from .family_views import *
 from .historial_views import *
 from .report_passive_views import *
 from .report_active_views import *
+from .carga_excel_views import *
 
 
 __all__ = [
