@@ -4,6 +4,8 @@ from .personal_pasivo_serializers import *
 from .ubicacion_serializers import *
 from .family_serializers import *
 from .historial_personal_serializers import *
+from .carga_excel_serializers import *
+
 
 
 
@@ -18,5 +20,6 @@ __all__ = [
     'gradoSerializer',
     'OrganismoAdscritoSerializer',
     'ListerCodigosPassiveSerializer'
-    'EmployeePasiveDetailSerializer'
+    'EmployeePasiveDetailSerializer',
+    'CargaMasivaExcelSerializer'
 ]

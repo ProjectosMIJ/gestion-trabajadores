@@ -312,7 +312,7 @@ def listar_motivos_internos(request):
 @api_view(['GET'])
 def listar_suspendido(request):
     try:   
-        queryset = Tipo_movimiento.objects.filter(categoriaId__categoria= "CAMBIO DE ESTATUS")
+        queryset = Tipo_movimiento.objects.filter(categoriaId__categoria= "ESTATUS")
         serializer = TipoMovimientoSerializer(queryset, many=True)
         
         return Response({
