@@ -171,6 +171,7 @@ urlpatterns = [
     path('motivos/egreso/', views.listar_motivos_egreso, name='api-motivos-egreso'),
     path('motivos/movimiento/', views.listar_motivos_internos, name='api-motivos-internos'),
     path('motivos/estatus/', views.listar_suspendido, name='api-motivos-suspendido'),
+    path('motivos/estatus/pasivos/', views.listar_suspendido_pasivo, name='motivos-suspendido'),
 
 # ------------------
 # GESTION DE FAMILIARES
