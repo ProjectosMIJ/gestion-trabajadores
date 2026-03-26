@@ -11,8 +11,5 @@ export const schemaUpdateCodeTable = z.object({
     message: "Debe Seleccionar Un Valor",
   }),
   OrganismoAdscritoid: z.number().optional(),
-  DireccionGeneral: z.number().default(0),
-  DireccionLinea: z.number().default(0),
-  Coordinacion: z.number().default(0),
 });
 export type UpdateCodeTable = z.infer<typeof schemaUpdateCodeTable>;

@@ -20,7 +20,7 @@ export async function updateCodeTable(values: UpdateCodeTable, id: number) {
       ...valuesNotCode,
     };
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}codigos/${id}/`,
+      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}cargos/pasivo/${id}/`,
       {
         method: "PUT",
         headers: {

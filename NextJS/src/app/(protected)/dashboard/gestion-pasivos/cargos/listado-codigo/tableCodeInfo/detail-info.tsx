@@ -48,15 +48,8 @@ export default function UpdateCode({ code }: Props) {
   const [open, setOpen] = useState(false);
   const [dependencyId, setDependencyId] = useState<number | string>("");
   const [isPending, startTransition] = useTransition();
-  const [selecteIdDirectionGeneral, setSelecteIdDirectionGeneral] =
-    useState<string>();
-  const [selecteIdDirectionLine, setSelecteIdDirectionLine] =
-    useState<string>();
-  const { data: directionGeneral, isLoading: isLoadingDirectionGeneral } =
-    useSWR(
-      dependencyId ? ["directionGeneral", dependencyId] : null,
-      async () => await getDirectionGeneralById(dependencyId),
-    );
+  useState<string>();
+
   const { data: organismoAds, isLoading: isLoadingOrganismoAds } = useSWR(
     "organismoAds",
     async () => await getOrganismosAds(),
@@ -78,13 +71,9 @@ export default function UpdateCode({ code }: Props) {
 
   const form = useForm({
     defaultValues: {
-      Coordinacion: 0,
       OrganismoAdscritoid: undefined,
       denominacioncargoespecificoid: 0,
       denominacioncargoid: 0,
-      Dependencia: 0,
-      DireccionGeneral: 0,
-      DireccionLinea: 0,
       gradoid: undefined,
       tiponominaid: 0,
     },
