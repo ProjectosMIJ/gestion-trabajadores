@@ -259,7 +259,7 @@ export function PasivoForm() {
                       name="motivo"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Motivo De Cambio De Cargo</FormLabel>
+                          <FormLabel>Motivo De Egreso/Pasivo</FormLabel>
                           <Select
                             onValueChange={(values) => {
                               field.onChange(Number.parseInt(values));
@@ -268,7 +268,7 @@ export function PasivoForm() {
                             <FormControl>
                               <SelectTrigger className="w-full truncate">
                                 <SelectValue
-                                  placeholder={`${isLoadingReasonLeaving ? "Cargando Motivos De Cambio De Cargo" : "Seleccione Un Código"}`}
+                                  placeholder={`${isLoadingReasonLeaving ? "Cargando Motivos De Egreso/Pasivo" : "Seleccione Un Motivo de Egreso/Pasivo"}`}
                                 />
                               </SelectTrigger>
                             </FormControl>

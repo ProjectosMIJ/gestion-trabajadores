@@ -1,5 +1,5 @@
 "use server";
-import { ApiResponse } from "./../../../../types/types";
+import { ApiResponse, Code } from "./../../../../types/types";
 const apiFetchGet = async <T>(url: string) => {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}${url}`,
@@ -18,4 +18,12 @@ export const getPasiveSearch = async <T>({
 }) => {
   const url = searchParams && `employee/pasivo/?${searchParams}`;
   return await apiFetchGet<T>(url);
+};
+
+export const getCodeListPasiveSearch = async ({
+  searchParams,
+}: {
+  searchParams: string | undefined;
+}): Promise<ApiResponse<Code[]>> => {
+  return await apiFetchGet<Code[]>(`cargos/pasivo/?${searchParams}`);
 };

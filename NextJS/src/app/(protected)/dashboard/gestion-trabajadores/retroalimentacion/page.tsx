@@ -244,7 +244,7 @@ export default function FeedBack() {
                     />
                     <InputForm
                       form={formAdsUpdate}
-                      label="Agregar Nuevo Organismo Adscrito"
+                      label="Actualizar Organismo Adscrito"
                       nameInput="Organismoadscrito"
                       type="text"
                     />

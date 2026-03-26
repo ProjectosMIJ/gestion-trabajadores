@@ -227,7 +227,9 @@ export function ChangeStatusForm() {
                             name="motivo"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Motivo De Cambio De Cargo</FormLabel>
+                                <FormLabel>
+                                  Motivo De Cambio De Estatus
+                                </FormLabel>
                                 <Select
                                   onValueChange={(values) => {
                                     field.onChange(Number.parseInt(values));
@@ -236,7 +238,7 @@ export function ChangeStatusForm() {
                                   <FormControl>
                                     <SelectTrigger className="w-full truncate">
                                       <SelectValue
-                                        placeholder={`${isLoadingInternalReason ? "Cargando Motivos De Cambio De Cargo" : "Seleccione Un Motivo De Cambio de Cargo"}`}
+                                        placeholder={`${isLoadingInternalReason ? "Cargando Motivos De Cambio De Estatus" : "Seleccione Un Motivo De Cambio de Estatus"}`}
                                       />
                                     </SelectTrigger>
                                   </FormControl>

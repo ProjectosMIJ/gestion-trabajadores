@@ -1,6 +1,8 @@
 "use client";
 import {
   ArrowRightLeft,
+  Badge,
+  BadgePlus,
   BarChart3,
   BookCheck,
   BookUser,
@@ -10,8 +12,10 @@ import {
   FileChartLine,
   Home,
   IdCard,
+  List,
   ListCheck,
   LucideIcon,
+  PersonStanding,
   User,
 } from "lucide-react";
 
@@ -68,6 +72,15 @@ const items: MenuItem[] = [
     icon: User,
     subMenu: [
       {
+        title: "Registrar",
+        url: "/dashboard/gestion-pasivos/personal-jubilado/registrar",
+        icon: PersonStanding,
+        permission: {
+          roleAccept: ["ANALISTA", "ADMINISTRADOR"],
+          departmentAccept: ["RAC"],
+        },
+      },
+      {
         title: "Consultar/Actualizar",
         url: "/dashboard/gestion-pasivos/personal-jubilado/consultar",
         icon: ListCheck,
@@ -96,7 +109,35 @@ const items: MenuItem[] = [
       },
     ],
   },
-
+  {
+    permission: {
+      roleAccept: ["ADMINISTRADOR"],
+      departmentAccept: ["RAC"],
+    },
+    title: "Gestión De Codigos",
+    url: "#",
+    icon: Badge,
+    subMenu: [
+      {
+        title: "Crear Nuevo Código",
+        url: "/dashboard/gestion-pasivos/cargos/crear-codigo",
+        icon: BadgePlus,
+        permission: {
+          roleAccept: ["ADMINISTRADOR"],
+          departmentAccept: ["RAC"],
+        },
+      },
+      {
+        title: "Consultar/Actualizar",
+        url: "/dashboard/gestion-pasivos/cargos/listado-codigo",
+        icon: List,
+        permission: {
+          roleAccept: ["ADMINISTRADOR"],
+          departmentAccept: ["RAC"],
+        },
+      },
+    ],
+  },
   {
     permission: {
       roleAccept: ["ADMINISTRADOR"],
