@@ -70,7 +70,7 @@ def update_position_passive(request, id):
     methods=['POST'],
     summary="Crear Cargo de Personal Pasivo",
     description="Registra un nuevo cargo para personal pasivo.",
-    request=ListerCodigosPassiveSerializer,
+    request=CodigosCreateUpdatePassiveSerializer,
 
 )
 @api_view(['GET', 'POST'])
