@@ -46,7 +46,6 @@ interface Props {
 }
 export default function UpdateCode({ code }: Props) {
   const [open, setOpen] = useState(false);
-  const [dependencyId, setDependencyId] = useState<number | string>("");
   const [isPending, startTransition] = useTransition();
   useState<string>();
 

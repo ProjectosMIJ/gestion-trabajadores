@@ -1,12 +1,8 @@
 "use client";
 
 import {
-  getCodeListSearch,
-  getCoordination,
-  getDependency,
-  getDirectionGeneralById,
-  getDirectionLine,
   getNominaGeneral,
+  getNominaPasivo,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
 import { Button } from "@/components/ui/button";
 import {
@@ -28,7 +24,6 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eraser, Search } from "lucide-react";
-import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import useSWR from "swr";
@@ -40,12 +35,11 @@ import {
   CardHeader,
   CardTitle,
 } from "../../../../../../components/ui/card";
-import TableCode from "../../cargos/listado-codigo/tableCodeInfo/page";
 import Loading from "../../../gestion-trabajadores/components/loading/loading";
 import { getCodeListPasiveSearch } from "../../api/getInfoPasive";
+import TableCode from "../../cargos/listado-codigo/tableCodeInfo/page";
 
 export function CodeListPage() {
-  const { data: session } = useSession();
   const [searchParams, setSearchParams] = useState<string>();
   const schemaSearch = z.object({
     tipo_nomina: z.coerce.number().optional(),
@@ -59,8 +53,8 @@ export function CodeListPage() {
     resolver: zodResolver(schemaSearch),
   });
   const { data: nomina, isLoading: isLoadingNomina } = useSWR(
-    "nominaGeneral",
-    async () => await getNominaGeneral(),
+    "nominaPasivo",
+    async () => await getNominaPasivo(),
   );
   const onSearch = (values: z.infer<typeof schemaSearch>) => {
     const filteredEntries = Object.entries(values).filter(

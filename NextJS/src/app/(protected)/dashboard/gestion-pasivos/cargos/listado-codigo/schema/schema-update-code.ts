@@ -7,9 +7,7 @@ export const schemaUpdateCodeTable = z.object({
   tiponominaid: z.number().refine((v) => v > 0, {
     message: "Debe Seleccionar Un Valor",
   }),
-  Dependencia: z.number().refine((v) => v > 0, {
-    message: "Debe Seleccionar Un Valor",
-  }),
+
   OrganismoAdscritoid: z.number().optional(),
 });
 export type UpdateCodeTable = z.infer<typeof schemaUpdateCodeTable>;
