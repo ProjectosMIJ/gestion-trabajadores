@@ -1,6 +1,6 @@
 "use server";
 import { apiFetchGet } from "@/lib/utils";
-import { ApiResponse, Code, Motion } from "./../../../../types/types";
+import { ApiResponse, Code, Family, Motion } from "./../../../../types/types";
 
 export const getPasiveSearch = async <T>({
   searchParams,
@@ -22,4 +22,20 @@ export const getInternalReasonPasive = async (): Promise<
   ApiResponse<Motion[]>
 > => {
   return await apiFetchGet<Motion[]>("motivos/estatus/pasivos/");
+};
+export const getFamilyPasive = async ({
+  searchParams,
+}: {
+  searchParams: string | undefined;
+}): Promise<ApiResponse<Family[]>> => {
+  const url = searchParams
+    ? `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Passivefamily/?${searchParams}`
+    : `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Passivefamily/`;
+  const response = await fetch(url);
+  const getResponse: ApiResponse<Family[]> = await response.json();
+  return getResponse;
+};
+
+export const getFamilyPasiveOne = async (id: number) => {
+  return await apiFetchGet<Family[]>(`Passivefamily/${id}`);
 };

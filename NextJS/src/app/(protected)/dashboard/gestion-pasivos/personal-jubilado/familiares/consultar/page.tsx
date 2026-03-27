@@ -1,4 +1,5 @@
 "use client";
+import Loading from "@/app/(protected)/dashboard/gestion-trabajadores/components/loading/loading";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -16,12 +17,8 @@ import { useForm } from "react-hook-form";
 import useSWR from "swr";
 import z from "zod";
 import PageLayout from "../../../../../../../components/layout/page-layout";
-import Loading from "@/app/(protected)/dashboard/gestion-trabajadores/components/loading/loading";
 import TableFamily from "../../../components/pasive/tableFamilys/table";
-import {
-  getFamilyEmployee,
-  getFamilyPasive,
-} from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
+import { getFamilyPasive } from "../../../api/getInfoPasive";
 export default function FamilyConsultPasive() {
   const [searchParams, setSearchParams] = useState<string>();
 

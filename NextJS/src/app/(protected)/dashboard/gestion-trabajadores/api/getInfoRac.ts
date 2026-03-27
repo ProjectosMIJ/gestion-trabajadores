@@ -666,15 +666,3 @@ export const getFamilyEmployee = async ({
   const getResponse: ApiResponse<Family[]> = await response.json();
   return getResponse;
 };
-export const getFamilyPasive = async ({
-  searchParams,
-}: {
-  searchParams: string | undefined;
-}): Promise<ApiResponse<Family[]>> => {
-  const url = searchParams
-    ? `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Passivefamily/?${searchParams}`
-    : `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Passivefamily/`;
-  const response = await fetch(url);
-  const getResponse: ApiResponse<Family[]> = await response.json();
-  return getResponse;
-};

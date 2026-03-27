@@ -6,8 +6,6 @@ import {
   getReasonLeaving,
   getStatusEmployee,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import GestionAction from "@/app/(protected)/dashboard/gestion-trabajadores/movimientos/cambiar-pasivo/actions/gestion-persona-action";
-import { schemaPasivo } from "@/app/(protected)/dashboard/gestion-trabajadores/movimientos/cambiar-pasivo/schema/schemaPasivo";
 import { ApiResponse, EmployeeData } from "@/app/types/types";
 import {
   Select,
@@ -17,9 +15,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Search } from "lucide-react";
-import { useState, useTransition } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { Plus, Search } from "lucide-react";
+import { useEffect, useState, useTransition } from "react";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import useSWR from "swr";
 import z from "zod";
@@ -37,14 +35,18 @@ import { Input } from "../../../../../../components/ui/input";
 import { Label } from "../../../../../../components/ui/label";
 import { Switch } from "../../../../../../components/ui/switch";
 import Error from "../../../gestion-trabajadores/components/error/error";
+import { schemaPasivo } from "../../movimientos/cambiar-pasivo/schema/schemaPasivo";
+import GestionAction from "../../movimientos/cambiar-pasivo/actions/gestion-persona-action";
+import { getFamilyPasiveOne } from "../../api/getInfoPasive";
+import { SelectForm } from "@/components/select-form";
+import InputForm from "@/components/input-form";
 export function PasivoPasiveForm() {
   const [surivor, setSurvivor] = useState<boolean>(false);
   const [employee, setEmployee] = useState<ApiResponse<EmployeeData>>();
   const [isPending, startTransition] = useTransition();
-
-  const { data: nominaPasivo, isLoading: isLoadingNominaPasivo } = useSWR(
-    "nominaPasivo",
-    async () => await getNominaPasivo(),
+  const { data: familyPasive, isLoading: isLoadingFamilyPasive } = useSWR(
+    employee?.data.id ? "api/family/pasive" : null,
+    async () => await getFamilyPasiveOne(employee?.data.id!),
   );
   const { data: statusEmployee, isLoading: isLoadingStatusEmployee } = useSWR(
     "statusEmployee",
@@ -61,9 +63,6 @@ export function PasivoPasiveForm() {
       estatus_id: 0,
       usuario_id: 0,
       motivo: 0,
-      tiponominaid: 0,
-      codigo_nuevo: "",
-      liberar_activos: false,
     },
   });
 
@@ -84,6 +83,12 @@ export function PasivoPasiveForm() {
     },
     resolver: zodResolver(schemaSearchEmployee),
   });
+  const { append, remove, fields } = useFieldArray<
+    z.infer<typeof schemaPasivo>
+  >({
+    name: "sobrevivientes",
+    control: form.control,
+  });
   const onSubmit = (data: z.infer<typeof schemaPasivo>) => {
     startTransition(async () => {
       if (!Array.isArray(employee) && employee?.data.cedulaidentidad) {
@@ -93,14 +98,17 @@ export function PasivoPasiveForm() {
         );
         if (response.success) {
           toast.success(response.message);
-          form.reset();
         } else {
           toast.error(response.message);
         }
       }
     });
   };
-
+  useEffect(() => {
+    if (!surivor && fields.length > 0) {
+      remove();
+    }
+  }, [surivor, fields.length, remove]);
   return (
     <>
       <Card>
@@ -150,48 +158,40 @@ export function PasivoPasiveForm() {
                     onSubmit={form.handleSubmit(onSubmit)}
                     className="space-y-2"
                   >
-                    <div className="flex flex-col gap-2">
-                      <FormField
-                        control={form.control}
-                        name="estatus_id"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Egresar</FormLabel>
-                            <Select
-                              onValueChange={(values) => {
-                                field.onChange(Number.parseInt(values));
-                              }}
-                            >
-                              <FormControl>
-                                <SelectTrigger className="w-full truncate">
-                                  <SelectValue
-                                    placeholder={`${isLoadingStatusEmployee ? "Cargando Listado" : "Seleccione Un Elemento"}  `}
-                                  />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {statusEmployee?.data
-                                  .filter((v) => v.estatus === "EGRESADO")
-                                  .map((status, i) => (
-                                    <SelectItem key={i} value={`${status.id}`}>
-                                      {status.estatus}
-                                    </SelectItem>
-                                  ))}
-                              </SelectContent>
-                            </Select>
+                    <FormField
+                      control={form.control}
+                      name="estatus_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Egresar</FormLabel>
+                          <Select
+                            onValueChange={(values) => {
+                              field.onChange(Number.parseInt(values));
+                            }}
+                          >
+                            <FormControl>
+                              <SelectTrigger className="w-full truncate">
+                                <SelectValue
+                                  placeholder={`${isLoadingStatusEmployee ? "Cargando Listado" : "Seleccione Un Elemento"}  `}
+                                />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {statusEmployee?.data
+                                .filter((v) => v.estatus === "EGRESADO")
+                                .map((status, i) => (
+                                  <SelectItem key={i} value={`${status.id}`}>
+                                    {status.estatus}
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
 
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      <div className="self-end flex flex-row gap-2 items-center">
-                        <Label>
-                          <Switch onCheckedChange={setSurvivor} />
-                          Seleccionar Pensionado Sobreviviente
-                        </Label>
-                      </div>
-                    </div>
-                    {!surivor && (
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className="flex flex-col gap-2">
                       <FormField
                         control={form.control}
                         name="motivo"
@@ -223,8 +223,64 @@ export function PasivoPasiveForm() {
                           </FormItem>
                         )}
                       />
+                      <div className="self-end flex flex-row gap-2 items-center">
+                        <Label>
+                          <Switch onCheckedChange={setSurvivor} />
+                          Seleccionar Pensionado Sobreviviente
+                        </Label>
+                      </div>
+                    </div>
+                    {surivor && (
+                      <div className="flex flex-col">
+                        <div className="self-end flex flex-row gap-2">
+                          <Button
+                            onClick={() =>
+                              append({
+                                cedula_familiar: "",
+                                codigo: "",
+                              })
+                            }
+                            type="button"
+                          >
+                            <Plus />
+                            Agregar
+                          </Button>
+                        </div>
+                        <div>
+                          {fields.map((_, i) => (
+                            <div className="flex flex-row gap-2" key={i}>
+                              <SelectForm
+                                form={form}
+                                Formlabel="Seleccionar un familiar"
+                                isLoading={isLoadingFamilyPasive}
+                                nameSalect={`sobrevivientes.${i}.cedula_familiar`}
+                                placeholder="Seleccionar un familiar"
+                                SelectLabelItem="Seleccionar un familiar"
+                                options={familyPasive?.data ?? []}
+                                labelKey={`primer_nombre`}
+                                valueKey="cedulaFamiliar"
+                                classNameItem="grow"
+                              />
+                              <InputForm
+                                form={form}
+                                label="Codigo"
+                                nameInput={`sobrevivientes.${i}.codigo`}
+                                type="text"
+                                placeholder="Codigo"
+                                className="grow"
+                              />
+                              <Button
+                                variant={"destructive"}
+                                className="self-baseline-last"
+                                onClick={() => remove(i)}
+                              >
+                                Eliminar
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
                     )}
-                    {surivor && <>hola</>}
                     <Button className="w-full mt-2" disabled={isPending}>
                       {isPending ? "Cargando" : "Ejecutar Cambio"}
                     </Button>
