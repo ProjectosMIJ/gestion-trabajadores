@@ -180,7 +180,7 @@ class SobrevivienteItemSerializer(serializers.Serializer):
         help_text="Cédula del familiar que recibirá la pensión",
         required=True
     )
-    codigo_nuevo = serializers.CharField(
+    codigo = serializers.CharField(
         help_text="Código para el nuevo puesto del pensionado sobreviviente",
         required=True,
         max_length=50
@@ -206,7 +206,7 @@ class MigracionSobrevivienteSerializer(serializers.Serializer):
 
         for item in sobrevivientes_data:
             ced_fam = item['cedula_familiar']
-            cod_nuevo = item['codigo_nuevo']
+            cod_nuevo = item['codigo']
 
             familiar = Employeefamily.objects.filter(cedulaFamiliar=ced_fam).first()
 
@@ -227,7 +227,7 @@ class MigracionSobrevivienteSerializer(serializers.Serializer):
             familiares_validados.append({
                 'familiar_obj': familiar,
                 'empleado_origen': empleado_origen, 
-                'codigo_nuevo': cod_nuevo
+                'codigo': cod_nuevo
             })
 
         data['nomina_pension'] = nomina_pension
@@ -257,7 +257,7 @@ class MigracionSobrevivienteSerializer(serializers.Serializer):
         for item in familiares_validados:
             familiar = item['familiar_obj']
             empleado_origen = item['empleado_origen']
-            codigo_nuevo = item['codigo_nuevo']
+            codigo = item['codigo']
 
             nuevo_empleado = Employee.objects.create(
                 cedulaidentidad=familiar.cedulaFamiliar,
@@ -303,7 +303,7 @@ class MigracionSobrevivienteSerializer(serializers.Serializer):
 
             nueva_asig = AsigTrabajo.objects.create(
                 employee=nuevo_empleado,
-                codigo=codigo_nuevo,
+                codigo=codigo,
                 denominacioncargoid=denominacion_pasivo,
                 denominacioncargoespecificoid=especifico_pasivo,
                 tiponominaid=nomina_pension,
