@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from django.db import transaction
-
+from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 
 from ..models.historial_personal_models import *
@@ -129,41 +129,104 @@ class GestionStatusSerializer(BaseActionInputSerializer):
 
         return instance
 
+class SobrevivienteItemSerializer(serializers.Serializer):
+    cedula_familiar = serializers.CharField(
+        help_text="Cédula del familiar que recibirá la pensión",
+        required=True
+    )
+    codigo = serializers.CharField(
+        help_text="Código para el nuevo puesto del pensionado sobreviviente",
+        required=True,
+        max_length=50
+    )
 # SERIALIZER PARA GESTIONAR EGRESOS Y PERSONAL PASIVO 
+class SobrevivienteItemSerializer(serializers.Serializer):
+    cedula_familiar = serializers.CharField(
+        help_text="Cédula del familiar que recibirá la pensión",
+        required=True
+    )
+    codigo = serializers.CharField(
+        help_text="Código para el nuevo puesto del pensionado sobreviviente",
+        required=True,
+        max_length=50
+    )
+
 class GestionEgreso_PasivoSerializer(BaseActionInputSerializer):
     motivo = serializers.PrimaryKeyRelatedField(queryset=Tipo_movimiento.objects.all())
     tiponominaid = serializers.IntegerField(required=False, allow_null=True)
     codigo_nuevo = serializers.CharField(required=False, max_length=50, allow_blank=True, allow_null=True)
     liberar_activos = serializers.BooleanField(required=False, default=False)
     
+    # Nuevo campo para la lista de sobrevivientes
+    sobrevivientes = SobrevivienteItemSerializer(many=True, required=False)
+
     def validate(self, data):
-        
         estatus_obj = data['estatus']
         estatus_nombre = estatus_obj.estatus.upper()
-      
 
         if estatus_nombre not in ESTATUS_PERMITIDOS_EGRESOS:
             raise serializers.ValidationError("Tipo de estatus no permitido")
 
+        # --- LÓGICA ORIGINAL PARA PASIVO ---
         if estatus_nombre == "PASIVO":
             errores = {}
-
             if not data.get('tiponominaid'):
-               errores['tiponominaid'] = "Es obligatorio asignar una nomina para personal PASIVO"
-        
+                errores['tiponominaid'] = "Es obligatorio asignar una nomina para personal PASIVO"
+            
             if not data.get('codigo_nuevo'):
                 errores['codigo_nuevo'] = "Debe asignar un codigo al nuevo cargo pasivo"
             elif AsigTrabajo.objects.filter(codigo=data['codigo_nuevo']).exists():
                 errores['codigo_nuevo'] = "Este codigo de puesto ya esta en uso"
 
             if errores:
-               raise serializers.ValidationError(errores)
+                raise serializers.ValidationError(errores)
+
+        # --- LÓGICA DE VALIDACIÓN PARA SOBREVIVIENTES ---
+        sobrevivientes_input = data.get('sobrevivientes')
+        if sobrevivientes_input:
+            if estatus_nombre != "EGRESADO":
+                raise serializers.ValidationError("La carga de sobrevivientes solo es permitida para estatus EGRESADO.")
+
+            try:
+                nomina_pension = Tiponomina.objects.get(nomina__iexact="PENSIONADO SOBREVIVIENTE")
+            except ObjectDoesNotExist:
+                raise serializers.ValidationError("El tipo de nómina 'PENSIONADO SOBREVIVIENTE' no está configurado.")
+
+            codigos_ingresados = []
+            familiares_validados = []
+
+            for item in sobrevivientes_input:
+                ced_fam = item['cedula_familiar']
+                cod_nuevo = item['codigo']
+
+                familiar = Employeefamily.objects.filter(cedulaFamiliar=ced_fam).first()
+                if not familiar:
+                    raise serializers.ValidationError(f"No se encontró familiar con la cédula {ced_fam}.")
+
+                if Employee.objects.filter(cedulaidentidad=ced_fam).exists():
+                    raise serializers.ValidationError(f"El familiar {ced_fam} ya es personal del sistema.")
+
+                if cod_nuevo in codigos_ingresados:
+                    raise serializers.ValidationError(f"Código {cod_nuevo} duplicado en la petición.")
+                codigos_ingresados.append(cod_nuevo)
+
+                if AsigTrabajo.objects.filter(codigo=cod_nuevo, tiponominaid=nomina_pension).exists():
+                    raise serializers.ValidationError(f"El código {cod_nuevo} ya existe en la nómina de sobrevivientes.")
+
+                familiares_validados.append({
+                    'familiar_obj': familiar,
+                    'empleado_origen': familiar.employeecedula, 
+                    'codigo': cod_nuevo
+                })
+
+            # Inyectamos los datos validados para usarlos en el update
+            data['nomina_pension_obj'] = nomina_pension
+            data['familiares_validados_list'] = familiares_validados
+
         return data
 
     @transaction.atomic
-    
     def update(self, instance, validated_data):
-        
         usuario = validated_data['usuario']
         estatus_obj = validated_data['estatus']
         estatus_nombre = estatus_obj.estatus.upper()
@@ -172,19 +235,105 @@ class GestionEgreso_PasivoSerializer(BaseActionInputSerializer):
         try:
             estatus_vacante = Estatus.objects.get(estatus__iexact=ESTATUS_VACANTE)
         except Estatus.DoesNotExist:
-            raise serializers.ValidationError("Estatus VACANTE no configurado en el sistema")
-        
-        
+            raise serializers.ValidationError("Estatus VACANTE no configurado")
       
         if estatus_nombre == "EGRESADO":
+            # 1. Egresar al trabajador titular
             self._procesar_egreso_total(instance, motivo, usuario, estatus_vacante)
+            
+            # 2. Procesar sobrevivientes si existen
+            familiares = validated_data.get('familiares_validados_list')
+            if familiares:
+                nomina = validated_data.get('nomina_pension_obj')
+                self._ejecutar_creacion_sobrevivientes(familiares, nomina, usuario)
+                
             return instance
 
         if estatus_nombre == "PASIVO":
             return self._procesar_pasivo(instance, validated_data, motivo, usuario, estatus_vacante)
 
         return instance
-    
+
+    def _ejecutar_creacion_sobrevivientes(self, familiares_validados, nomina_pension, usuario):
+        """Lógica para convertir familiares en nuevos empleados pensionados"""
+        try:
+            estatus_activo = Estatus.objects.get(estatus__iexact="ACTIVO")
+            tipo_pasivo = Tipo_personal.objects.get(tipo_personal__iexact="PASIVO")
+            dependencia = Dependencias.objects.get(dependencia__iexact="MINISTERIO")
+            dg_humana = DireccionGeneral.objects.get(direccion_general__iexact="OFICINA DE GESTION HUMANA")
+            denom_pasivo = Denominacioncargo.objects.get(cargo__iexact="PERSONAL PASIVO")
+            espec_pasivo = Denominacioncargoespecifico.objects.get(cargo__iexact="PERSONAL PASIVO")
+            motivo_ingreso = Tipo_movimiento.objects.get(movimiento__iexact="PENSION POR SOBREVIVIENTE")
+        except ObjectDoesNotExist as e:
+            raise serializers.ValidationError(f"Error de configuración: {str(e)}")
+
+        for item in familiares_validados:
+            fam = item['familiar_obj']
+            emp_origen = item['empleado_origen']
+            codigo = item['codigo']
+
+            # Crear el registro de Empleado para el familiar
+            nuevo_emp = Employee.objects.create(
+                cedulaidentidad=fam.cedulaFamiliar,
+                nombres=f"{fam.primer_nombre or ''} {fam.segundo_nombre or ''}".strip(),
+                apellidos=f"{fam.primer_apellido or ''} {fam.segundo_apellido or ''}".strip(),
+                fecha_nacimiento=fam.fechanacimiento,
+                sexoid=fam.sexo,
+                estadoCivil=fam.estadoCivil,
+                fechaingresoorganismo=timezone.now().date(),
+            )
+            nuevo_emp._history_user = usuario
+            nuevo_emp.save()
+
+            # Migración de Perfil Salud
+            salud = perfil_salud.objects.filter(familiar_id=fam).first()
+            if salud:
+                n_salud = perfil_salud.objects.create(empleado_id=nuevo_emp, grupoSanguineo=salud.grupoSanguineo)
+                n_salud.patologiaCronica.set(salud.patologiaCronica.all())
+                n_salud.discapacidad.set(salud.discapacidad.all())
+                n_salud.alergias.set(salud.alergias.all())
+
+            # Migración de Perfil Físico
+            fisico = perfil_fisico.objects.filter(familiar_id=fam).first()
+            if fisico:
+                perfil_fisico.objects.create(
+                    empleado_id=nuevo_emp,
+                    tallaCamisa=fisico.tallaCamisa,
+                    tallaPantalon=fisico.tallaPantalon,
+                    tallaZapatos=fisico.tallaZapatos
+                )
+
+            # Migración de Formación Académica
+            acad = formacion_academica.objects.filter(familiar_id=fam).first()
+            if acad:
+                formacion_academica.objects.create(
+                    empleado_id=nuevo_emp,
+                    nivel_Academico_id=acad.nivel_Academico_id,
+                    carrera_id=acad.carrera_id,
+                    mencion_id=acad.mencion_id,
+                    institucion=acad.institucion,
+                    capacitacion=acad.capacitacion
+                )
+
+            # Crear Asignación de Trabajo (Cargo)
+            asig = AsigTrabajo.objects.create(
+                employee=nuevo_emp,
+                codigo=codigo,
+                denominacioncargoid=denom_pasivo,
+                denominacioncargoespecificoid=espec_pasivo,
+                tiponominaid=nomina_pension,
+                estatusid=estatus_activo,
+                Tipo_personal=tipo_pasivo,
+                Dependencia=dependencia,
+                DireccionGeneral=dg_humana,
+                observaciones=f"Pensión sobreviviente derivada de C.I. {emp_origen.cedulaidentidad}"
+            )
+            asig._history_user = usuario
+            asig.save()
+
+            registrar_historial_movimiento(nuevo_emp, asig, 'INGRESO', motivo_ingreso, usuario)
+
+    # --- TUS MÉTODOS ORIGINALES SIN CAMBIOS ---
     def _procesar_pasivo(self, empleado, validated_data, motivo_obj, usuario, estatus_vacante):
         try:
             dg_humana = DireccionGeneral.objects.get(direccion_general__iexact="OFICINA DE GESTION HUMANA")
@@ -225,20 +374,10 @@ class GestionEgreso_PasivoSerializer(BaseActionInputSerializer):
         nueva_asig._history_user = usuario
         nueva_asig.save()
 
-        # 4. Registro en el Histórico
-        registrar_historial_movimiento(
-            empleado=empleado,
-            puesto=nueva_asig,
-            
-            tipo_movimiento='CAMBIO_NOMINA',
-            motivo=motivo_obj,
-            usuario=usuario
-        )
+        registrar_historial_movimiento(empleado, nueva_asig, 'CAMBIO_NOMINA', motivo_obj, usuario)
         return empleado
-    
-#    REGISTRO DE EGRESO 
+
     def _procesar_egreso_total(self, empleado, motivo, usuario, estatus_vacante):
-        
         try:
             estatus_egresado = Estatus.objects.get(estatus__iexact="EGRESADO") 
         except Estatus.DoesNotExist:
@@ -254,13 +393,12 @@ class GestionEgreso_PasivoSerializer(BaseActionInputSerializer):
             fecha_egreso=fecha_hoy
         )
         egreso_obj = EmployeeEgresado.objects.create(
-        employee=empleado,
-        n_contrato=empleado.n_contrato, 
-        fechaingresoorganismo=empleado.fechaingresoorganismo,
-        motivo_egreso=motivo
+            employee=empleado,
+            n_contrato=empleado.n_contrato, 
+            fechaingresoorganismo=empleado.fechaingresoorganismo,
+            motivo_egreso=motivo
         )
 
-   
         for asig in asignaciones:
             CargoEgresado.objects.create(
                 egreso=egreso_obj,
@@ -284,9 +422,6 @@ class GestionEgreso_PasivoSerializer(BaseActionInputSerializer):
             asig.estatusid = estatus_vacante
             asig._history_user = usuario
             asig.save()
-        
-    # SERIALIZER LISTAR PERSONAL EGRESADO 
-
 class CargoEgresadoSerializer(serializers.ModelSerializer):
     denominacioncargo = denominacionCargoSerializer(source='denominacioncargoid', read_only=True)
     denominacioncargoespecifico = denominacionCargoEspecificoSerializer(source='denominacioncargoespecificoid', read_only=True)

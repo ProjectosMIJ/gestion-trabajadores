@@ -58,7 +58,6 @@ export default {
             throw new Error("Invalid credentials.");
           }
           const userData: ApiResponse<SessionType> = await response.json();
-          console.log(userData);
           return {
             id: userData.data.id,
             name: userData.data.nombres + " " + userData.data.apellidos,

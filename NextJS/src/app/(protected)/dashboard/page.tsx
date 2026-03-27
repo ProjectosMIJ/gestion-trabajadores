@@ -17,38 +17,6 @@ type Department = {
 };
 const departments: Department[] = [
   {
-    id: "beneficios",
-    name: "Beneficios",
-    imageSrc: "/images/departments/beneficios.png",
-    href: "dashboard/beneficios/",
-    color: "bg-blue-500",
-    alt: "Farmacia moderna con estantes llenos de medicamentos, productos de cuidado personal y un mostrador de atención al cliente.",
-  },
-  {
-    id: "farmacia",
-    name: "Farmacia",
-    imageSrc: "/images/departments/farmacia.jpg",
-    href: "dashboard/farmacia/",
-    color: "bg-blue-500",
-    alt: "Farmacia moderna con estantes llenos de medicamentos, productos de cuidado personal y un mostrador de atención al cliente.",
-  },
-  {
-    id: "servicio medico",
-    name: "servicio médico",
-    imageSrc: "/images/departments/medicina.jpg",
-    href: "dashboard/servicio-medico/",
-    color: "bg-green-500",
-    alt: "Consultorio médico con equipo de diagnóstico y profesional atendiendo a un paciente.",
-  },
-  {
-    id: "oac",
-    name: "Oficina de Atención al Ciudadano",
-    imageSrc: "/images/departments/oac.png",
-    href: "dashboard/oac/",
-    color: "bg-green-500",
-    alt: "Oficina de atención al ciudadano con mostradores de servicio, funcionarios públicos atendiendo y fila de usuarios esperando.",
-  },
-  {
     id: "Seguridad",
     name: "Seguridad",
     imageSrc: "/images/departments/seguridad.jpg",
@@ -68,7 +36,6 @@ const departments: Department[] = [
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
-  console.log(session?.user);
   const router = useRouter();
   if (status === "loading") {
     return <Loading promiseMessage="Cargando Sesion" />;

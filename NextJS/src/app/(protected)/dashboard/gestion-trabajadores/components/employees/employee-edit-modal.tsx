@@ -132,7 +132,6 @@ export function EmployeeEditModal({
   async function handleSave(data: z.infer<typeof schemaEmployeeEdit>) {
     try {
       startTransition(async () => {
-        console.log(data);
         const response = await updateEmployee(data, employee.cedulaidentidad);
         if (response.success) {
           toast.success(response.message);

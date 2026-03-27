@@ -113,7 +113,7 @@ export function FormBasicUpdateInfo({
   return (
     <Card className="w-full h-full">
       <CardHeader>
-        <CardTitle>Registrar Nuevo Trabajador</CardTitle>
+        <CardTitle>Actualizar Información Basica</CardTitle>
       </CardHeader>
 
       <CardContent>

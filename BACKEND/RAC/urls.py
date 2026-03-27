@@ -166,11 +166,14 @@ urlpatterns = [
     path('historyEmployee/cargo-movimiento/<int:cargo_id>/', views.cambiar_cargo, name='cargo-movimiento'),
     path('historyEmployee/egreso/<str:cedulaidentidad>/', views.gestion_egreso_pasivo, name='empleado-egreso'),
     path('historyEmployee/Estatus/<int:cargo_id>/',views.gestionar_estatus_puesto, name='gestion-puestos'),
-   
-       
     path('motivos/egreso/', views.listar_motivos_egreso, name='api-motivos-egreso'),
+    path('motivos/egreso/fallecimineto/', views.listar_motivos_fallecimiento, name='api-motivos-egreso-fallecimiento'),
     path('motivos/movimiento/', views.listar_motivos_internos, name='api-motivos-internos'),
     path('motivos/estatus/', views.listar_suspendido, name='api-motivos-suspendido'),
+    path('motivos/estatus/pasivos/', views.listar_suspendido_pasivo, name='motivos-suspendido'),
+    
+    # MOVIMIENTO A PASIVO HEREDERO 
+
 
 # ------------------
 # GESTION DE FAMILIARES
@@ -179,8 +182,10 @@ urlpatterns = [
     path('Employeefamily/masivo/<str:cedula_empleado>/', views.registrar_familiares_masivo, name='creacion-masiva-empleadoFamiliar'),
     path('Employeefamily/<int:familiar_id>', views.actualizar_familiar, name='actualizar_familiar'),
     path('Passivefamily/', views.listar_familiares_pasivo, name='listar-empleadoFamiliar-pasive'),
+     path('Passivefamily/<int:id_empleado>/', views.familiares_pasivo_by, name='listar-empleadoFamiliar-pasive'),
     path('Employeefamily/', views.listar_familiares, name='listar-empleadoFamiliar'),
     
+    path('Employeefamilys/<int:id_empleado>/', views.familiares_active_by, name='listar-empleadoFamiliar'),
     path('Parentesco/', views.listar_parentesco, name="listar-parentesco"),
     
     
@@ -200,11 +205,11 @@ urlpatterns = [
     # Generación de reportes PDF
     path('reports/pdf/', views.generate_pdf_report_active, name='reporte_activo_pdf'),
     path('reports/pasivo/', views.generate_pdf_report_passive, name='reporte_pasivo_pdf'),
+    path('reportes/excel/', views.exportar_beneficios_xlsx, name='api_exportar_beneficios_excel'),
     
     
     path('menciones/create/', views.crear_menciones_view, name='menciones-creadas'),
     path('carga/cargos/', views.ImportarCargosESPECIALESView.as_view(), name="carga-trabajador-masiva"),
     path('carga/trabajador/', views.ImportEmployeesView.as_view(), name="carga-trabajador-masiva"),
     
-    path('reportes/excel/', views.exportar_beneficios_xlsx, name='api_exportar_beneficios_excel'),
 ]

@@ -21,29 +21,25 @@ from ..services.constants_historial import registrar_historial_movimiento
 # lista de los distintos campos utilizados en las api 
 # -------------------------------------------------------------
 
-
 class CleanZerosMixin:
     def to_internal_value(self, data):
         def limpiar_recursivo(item):
             if isinstance(item, dict):
-                return {k: limpiar_recursivo(v) for k, v in item.items() if v is not None}
-            
-            elif isinstance(item, list):
-                nueva_lista = []
-                for i in item:
-                    valor_limpio = limpiar_recursivo(i)
+                nuevo_dict = {}
+                for k, v in item.items():
+                    if v in [0, "0", "None", None, "undefined", "null", ""]:
+                        continue
+                    valor_limpio = limpiar_recursivo(v)
                     if valor_limpio is not None:
-                        nueva_lista.append(valor_limpio)
-                return nueva_lista
-            
-            elif item == 0 or item == "0" or item == "None" or item is None:
-                return None
+                        nuevo_dict[k] = valor_limpio
+                return nuevo_dict
+            elif isinstance(item, list):
+                return [limpiar_recursivo(i) for i in item if i not in [0, "0", "None", None, "undefined", "null", ""]]
             return item
-
         data_limpia = limpiar_recursivo(data)
         return super().to_internal_value(data_limpia)
  
-    # DATOS PERFIL
+
 
 class SexoSerializer(serializers.ModelSerializer):
     class Meta:

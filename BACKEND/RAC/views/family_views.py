@@ -148,6 +148,48 @@ def listar_familiares(request):
 
 @extend_schema(
     tags=["Familiares de Empleados"],
+    summary="Gestion de familiares  por id",
+
+)
+@api_view(['GET'])
+def familiares_active_by(request, id_empleado): 
+    try:
+        queryset = Employeefamily.objects.select_related(
+            'parentesco', 'sexo', 'estadoCivil', 'employeecedula'
+        ).filter(
+            employeecedula__id=id_empleado, # Filtro por el ID recibido en la URL
+            employeecedula__assignments__Tipo_personal__tipo_personal__iexact=PERSONAL_ACTIVO
+        ).distinct()
+
+        # 2. Verificamos si existen resultados
+        if not queryset.exists():
+            return Response({
+                "status": "Ok",
+                "message": f"No se encontraron familiares para el empleado con ID {id_empleado} o no es personal pasivo.",
+                "data": []
+            }, status=status.HTTP_200_OK)
+
+        serializer = FamilyListSerializer(queryset[:10], many=True)
+        
+        return Response({
+            "status": "Ok",
+            "message": "Carga familiar listada correctamente",
+            "data": serializer.data
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            "status": "Error",
+            "message": f"Error al recuperar carga familiar: {str(e)}",
+            "data": []
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+
+
+@extend_schema(
+    tags=["Familiares de Empleados"],
     summary="Gestion de familiares",
 
 )
@@ -199,6 +241,46 @@ def listar_familiares_pasivo(request):
             "message": f"Error al recuperar carga familiar: {str(e)}",
             "data": []
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@extend_schema(
+    tags=["Familiares de Empleados"],
+    summary="Gestion de familiares",
+
+)
+
+@api_view(['GET'])
+def familiares_pasivo_by(request, id_empleado): 
+    try:
+        queryset = Employeefamily.objects.select_related(
+            'parentesco', 'sexo', 'estadoCivil', 'employeecedula'
+        ).filter(
+            employeecedula__id=id_empleado,
+            employeecedula__assignments__Tipo_personal__tipo_personal__iexact=PERSONAL_PASIVO
+        ).distinct()
+
+        if not queryset.exists():
+            return Response({
+                "status": "Ok",
+                "message": f"No se encontraron familiares para el empleado con ID {id_empleado} o no es personal pasivo.",
+                "data": []
+            }, status=status.HTTP_200_OK)
+
+        serializer = FamilyListSerializer(queryset[:10], many=True)
+        
+        return Response({
+            "status": "Ok",
+            "message": "Carga familiar listada correctamente",
+            "data": serializer.data
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            "status": "Error",
+            "message": f"Error al recuperar carga familiar: {str(e)}",
+            "data": []
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 @extend_schema(

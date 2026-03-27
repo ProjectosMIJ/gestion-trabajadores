@@ -537,6 +537,15 @@ export const getReasonLeaving = async (): Promise<ApiResponse<Motion[]>> => {
   const getResponse: ApiResponse<Motion[]> = await response.json();
   return getResponse;
 };
+export const getReasonLeavingPasive = async (): Promise<
+  ApiResponse<Motion[]>
+> => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}motivos/egreso/fallecimineto/`,
+  );
+  const getResponse: ApiResponse<Motion[]> = await response.json();
+  return getResponse;
+};
 export const getInternalReason = async (): Promise<ApiResponse<Motion[]>> => {
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}motivos/estatus/`,
@@ -662,18 +671,6 @@ export const getFamilyEmployee = async ({
   const url = searchParams
     ? `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employeefamily/?${searchParams}`
     : `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employeefamily/`;
-  const response = await fetch(url);
-  const getResponse: ApiResponse<Family[]> = await response.json();
-  return getResponse;
-};
-export const getFamilyPasive = async ({
-  searchParams,
-}: {
-  searchParams: string | undefined;
-}): Promise<ApiResponse<Family[]>> => {
-  const url = searchParams
-    ? `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Passivefamily/?${searchParams}`
-    : `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Passivefamily/`;
   const response = await fetch(url);
   const getResponse: ApiResponse<Family[]> = await response.json();
   return getResponse;

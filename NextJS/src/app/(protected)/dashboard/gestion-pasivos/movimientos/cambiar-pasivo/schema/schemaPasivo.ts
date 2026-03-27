@@ -1,12 +1,14 @@
 import z from "zod";
-
+const survivorSchema = z.object({
+  cedula_familiar: z.string(),
+  codigo: z.string(),
+});
 export const schemaPasivo = z.object({
   estatus_id: z.number(),
   usuario_id: z.number(),
-  motivo: z.number().refine((value) => value > 0, {
-    message: "El motivo es requerido",
-  }),
-  tiponominaid: z.number(),
-  codigo_nuevo: z.string(),
-  liberar_activos: z.boolean().default(false),
+  motivo: z.coerce
+    .number()
+
+    .optional(),
+  sobrevivientes: z.array(survivorSchema).optional(),
 });

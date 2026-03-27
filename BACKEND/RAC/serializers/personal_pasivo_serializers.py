@@ -1,11 +1,9 @@
 
 from rest_framework import serializers
-
+from django.utils import timezone
+from django.core.exceptions import ObjectDoesNotExist
 from ..models.personal_models import *
 from RAC.serializers.personal_activo_serializers import *
-
-
-
 
 
 class CodigosCreateUpdatePassiveSerializer(CleanZerosMixin, serializers.ModelSerializer):
@@ -76,8 +74,6 @@ class CodigosCreateUpdatePassiveSerializer(CleanZerosMixin, serializers.ModelSer
         usuario = validated_data.pop('usuario_id')
         instance._history_user = usuario
         return super().update(instance, validated_data)
-
-
 class ListerCodigosPassiveSerializer(serializers.ModelSerializer):
 
     denominacioncargo = denominacionCargoSerializer(
@@ -109,10 +105,6 @@ class ListerCodigosPassiveSerializer(serializers.ModelSerializer):
             'observaciones',
             'fecha_actualizacion',
         ]
-   
-
-
-
 class EmployeePasiveDetailSerializer(serializers.ModelSerializer):
 
     sexo = SexoSerializer(source='sexoid', read_only=True)

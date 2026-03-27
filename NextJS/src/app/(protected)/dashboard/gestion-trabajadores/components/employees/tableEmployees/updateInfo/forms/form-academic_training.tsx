@@ -88,11 +88,7 @@ export default function FormUpdateAcademyLevel({
       const response = await updateInfoEmployee(values, idEmployee);
       if (response.success) {
         toast.success(response.message);
-        mutate(
-          (key) => Array.isArray(key) && key[0] === "LISTA_EMPLEADOS",
-          undefined,
-          { revalidate: true },
-        );
+        mutate("LISTA_EMPLEADOS");
       } else {
         toast.error(response.message);
       }

@@ -82,9 +82,7 @@ export default function TableDependencys() {
       : null,
     async () => await getCoordination(coordinationId!),
   );
-  console.log(directionGeneral);
-  console.log(directionLine);
-  console.log(coordination);
+
   return (
     <>
       <Card>

@@ -29,8 +29,6 @@ from rest_framework import status
 def update_position_passive(request, id):
     codigo = get_object_or_404(AsigTrabajo, id=id)
     serializer = CodigosCreateUpdatePassiveSerializer(codigo, data=request.data, partial=True)
-    
-    
     try:
         serializer.is_valid(raise_exception=True)
         serializer.save()
@@ -70,7 +68,7 @@ def update_position_passive(request, id):
     methods=['POST'],
     summary="Crear Cargo de Personal Pasivo",
     description="Registra un nuevo cargo para personal pasivo.",
-    request=ListerCodigosPassiveSerializer,
+    request=CodigosCreateUpdatePassiveSerializer,
 
 )
 @api_view(['GET', 'POST'])
@@ -215,4 +213,5 @@ def employee__passive_by(request, cedulaidentidad):
             'data': None
         }, status=status.HTTP_400_BAD_REQUEST)
         
-        
+  
+  

@@ -1,15 +1,13 @@
 "use client";
 
 import {
-  getEmployeeById,
-  getNominaPasivo,
   getPasiveById,
-  getReasonLeaving,
+  getReasonLeavingPasive,
   getStatusEmployee,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
-import GestionAction from "@/app/(protected)/dashboard/gestion-trabajadores/movimientos/cambiar-pasivo/actions/gestion-persona-action";
-import { schemaPasivo } from "@/app/(protected)/dashboard/gestion-trabajadores/movimientos/cambiar-pasivo/schema/schemaPasivo";
 import { ApiResponse, EmployeeData } from "@/app/types/types";
+import InputForm from "@/components/input-form";
+import { SelectForm } from "@/components/select-form";
 import {
   Select,
   SelectContent,
@@ -18,9 +16,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Search } from "lucide-react";
-import { useState, useTransition } from "react";
-import { useForm, useWatch } from "react-hook-form";
+import { Plus, Search } from "lucide-react";
+import { useEffect, useState, useTransition } from "react";
+import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import useSWR from "swr";
 import z from "zod";
@@ -38,22 +36,24 @@ import { Input } from "../../../../../../components/ui/input";
 import { Label } from "../../../../../../components/ui/label";
 import { Switch } from "../../../../../../components/ui/switch";
 import Error from "../../../gestion-trabajadores/components/error/error";
-import { getPasiveSearch } from "../../api/getInfoPasive";
+import { getFamilyPasiveOne } from "../../api/getInfoPasive";
+import GestionAction from "../../movimientos/cambiar-pasivo/actions/gestion-persona-action";
+import { schemaPasivo } from "../../movimientos/cambiar-pasivo/schema/schemaPasivo";
 export function PasivoPasiveForm() {
+  const [surivor, setSurvivor] = useState<boolean>(false);
   const [employee, setEmployee] = useState<ApiResponse<EmployeeData>>();
   const [isPending, startTransition] = useTransition();
-
-  const { data: nominaPasivo, isLoading: isLoadingNominaPasivo } = useSWR(
-    "nominaPasivo",
-    async () => await getNominaPasivo(),
+  const { data: familyPasive, isLoading: isLoadingFamilyPasive } = useSWR(
+    employee?.data.id ? "api/family/pasive" : null,
+    async () => await getFamilyPasiveOne(employee?.data.id!),
   );
   const { data: statusEmployee, isLoading: isLoadingStatusEmployee } = useSWR(
     "statusEmployee",
     async () => await getStatusEmployee(),
   );
   const { data: reasonLeaving, isLoading: isLoadingReasonLeaving } = useSWR(
-    "reasonLeaving",
-    async () => await getReasonLeaving(),
+    "reasonLeavingF",
+    async () => await getReasonLeavingPasive(),
   );
 
   const form = useForm({
@@ -62,9 +62,6 @@ export function PasivoPasiveForm() {
       estatus_id: 0,
       usuario_id: 0,
       motivo: 0,
-      tiponominaid: 0,
-      codigo_nuevo: "",
-      liberar_activos: false,
     },
   });
 
@@ -85,6 +82,12 @@ export function PasivoPasiveForm() {
     },
     resolver: zodResolver(schemaSearchEmployee),
   });
+  const { append, remove, fields } = useFieldArray<
+    z.infer<typeof schemaPasivo>
+  >({
+    name: "sobrevivientes",
+    control: form.control,
+  });
   const onSubmit = (data: z.infer<typeof schemaPasivo>) => {
     startTransition(async () => {
       if (!Array.isArray(employee) && employee?.data.cedulaidentidad) {
@@ -94,20 +97,17 @@ export function PasivoPasiveForm() {
         );
         if (response.success) {
           toast.success(response.message);
-          form.reset();
         } else {
           toast.error(response.message);
         }
       }
     });
   };
-  const estatusId = useWatch({
-    control: form.control,
-    name: "estatus_id",
-  });
-
-  const validatePeace =
-    estatusId === statusEmployee?.data.find((v) => v.estatus === "PASIVO")?.id;
+  useEffect(() => {
+    if (!surivor && fields.length > 0) {
+      remove();
+    }
+  }, [surivor, fields.length, remove]);
   return (
     <>
       <Card>
@@ -190,99 +190,96 @@ export function PasivoPasiveForm() {
                         </FormItem>
                       )}
                     />
-                    {validatePeace && (
-                      <>
-                        <FormField
-                          control={form.control}
-                          name="tiponominaid"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>
-                                Listado De Nominas De Jubilados
-                              </FormLabel>
-                              <Select
-                                onValueChange={(values) => {
-                                  field.onChange(Number.parseInt(values));
-                                }}
-                              >
-                                <FormControl>
-                                  <SelectTrigger className="w-full truncate">
-                                    <SelectValue
-                                      placeholder={`${isLoadingNominaPasivo ? "Cargando Nominas" : "Seleccione Una Nomina"}`}
-                                    />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {nominaPasivo?.data.map((nomina, i) => (
-                                    <SelectItem key={i} value={`${nomina.id}`}>
-                                      {nomina.nomina}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
-
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="codigo_nuevo"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Ingrese El Código A Asignar</FormLabel>
+                    <div className="flex flex-col gap-2">
+                      <FormField
+                        control={form.control}
+                        name="motivo"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Motivo De Egreso</FormLabel>
+                            <Select
+                              onValueChange={(values) => {
+                                field.onChange(Number.parseInt(values));
+                              }}
+                            >
                               <FormControl>
-                                <Input
-                                  {...field}
-                                  placeholder="Ingrese El Código"
-                                />
+                                <SelectTrigger className="w-full truncate">
+                                  <SelectValue
+                                    placeholder={`${isLoadingReasonLeaving ? "Cargando Motivos De Cambio De Cargo" : "Seleccione Un Código"}`}
+                                  />
+                                </SelectTrigger>
                               </FormControl>
+                              <SelectContent>
+                                {reasonLeaving?.data.map((reason, i) => (
+                                  <SelectItem key={i} value={`${reason.id}`}>
+                                    {reason.movimiento}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
 
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <div className="flex flex-row gap-2 justify-end">
-                          <Label>Desea Liberar El Cargo Activo</Label>
-                          <Switch
-                            onCheckedChange={(boolean) => {
-                              form.setValue("liberar_activos", boolean);
-                            }}
-                          />
-                        </div>
-                      </>
-                    )}
-                    <FormField
-                      control={form.control}
-                      name="motivo"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Motivo De Cambio De Cargo</FormLabel>
-                          <Select
-                            onValueChange={(values) => {
-                              field.onChange(Number.parseInt(values));
-                            }}
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <div className="self-end flex flex-row gap-2 items-center">
+                        <Label>
+                          <Switch onCheckedChange={setSurvivor} />
+                          Seleccionar Pensionado Sobreviviente
+                        </Label>
+                      </div>
+                    </div>
+                    {surivor && (
+                      <div className="flex flex-col">
+                        <div className="self-end flex flex-row gap-2">
+                          <Button
+                            onClick={() =>
+                              append({
+                                cedula_familiar: "",
+                                codigo: "",
+                              })
+                            }
+                            type="button"
                           >
-                            <FormControl>
-                              <SelectTrigger className="w-full truncate">
-                                <SelectValue
-                                  placeholder={`${isLoadingReasonLeaving ? "Cargando Motivos De Cambio De Cargo" : "Seleccione Un Código"}`}
-                                />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {reasonLeaving?.data.map((reason, i) => (
-                                <SelectItem key={i} value={`${reason.id}`}>
-                                  {reason.movimiento}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                            <Plus />
+                            Agregar
+                          </Button>
+                        </div>
+                        <div>
+                          {fields.map((_, i) => (
+                            <div className="flex flex-row gap-2" key={i}>
+                              <SelectForm
+                                form={form}
+                                Formlabel="Seleccionar un familiar"
+                                isLoading={isLoadingFamilyPasive}
+                                nameSalect={`sobrevivientes.${i}.cedula_familiar`}
+                                placeholder="Seleccionar un familiar"
+                                SelectLabelItem="Seleccionar un familiar"
+                                options={familyPasive?.data ?? []}
+                                labelKey={`primer_nombre`}
+                                valueKey="cedulaFamiliar"
+                                classNameItem="grow"
+                              />
+                              <InputForm
+                                form={form}
+                                label="Codigo"
+                                nameInput={`sobrevivientes.${i}.codigo`}
+                                type="text"
+                                placeholder="Codigo"
+                                className="grow"
+                              />
+                              <Button
+                                variant={"destructive"}
+                                className="self-baseline-last"
+                                onClick={() => remove(i)}
+                              >
+                                Eliminar
+                              </Button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                     <Button className="w-full mt-2" disabled={isPending}>
                       {isPending ? "Cargando" : "Ejecutar Cambio"}
                     </Button>

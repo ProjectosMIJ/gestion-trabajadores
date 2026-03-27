@@ -3,12 +3,16 @@
 import InputForm from "@/components/input-form";
 import PageLayout from "@/components/layout/page-layout";
 import { SelectForm } from "@/components/select-form";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+} from "@/components/ui/card";
 import { Form } from "@/components/ui/form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { startTransition } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import useSWR from "swr";
@@ -36,7 +40,15 @@ import {
   allergiesGroup,
 } from "./actions/actionsAllergies";
 import { adsCreateActions, adsUpdateActions } from "./actions/actionsAds";
+import { Sheet } from "lucide-react";
+import { getExcel } from "../../gestion-pasivos/api/getInfoPasive";
+import Link from "next/link";
+import { formatInTimeZone } from "date-fns-tz";
+import { useState, useTransition } from "react";
+import Loading from "../components/loading/loading";
 export default function FeedBack() {
+  const [isPending, startTransition] = useTransition();
+  const [link, setLink] = useState<string>("");
   const { data: organismoAds, isLoading: isLoadingAds } = useSWR(
     "ads",
     async () => getOrganismosAds(),
@@ -180,6 +192,12 @@ export default function FeedBack() {
       }
     });
   };
+  const getExcelDownload = () => {
+    startTransition(async () => {
+      const response = await getExcel();
+      setLink(URL.createObjectURL(response));
+    });
+  };
   return (
     <PageLayout
       title="Retroalimentación"
@@ -191,6 +209,9 @@ export default function FeedBack() {
           <TabsTrigger value="dis">Discapacidades</TabsTrigger>
           <TabsTrigger value="pat">Patologias</TabsTrigger>
           <TabsTrigger value="aler">Alergias</TabsTrigger>
+          <TabsTrigger value="retro-beneficio">
+            Retroalimentar El Sistema De Beneficios
+          </TabsTrigger>
         </TabsList>
         <TabsContent value="ads">
           <div className="flex flex-row gap-2">
@@ -244,7 +265,7 @@ export default function FeedBack() {
                     />
                     <InputForm
                       form={formAdsUpdate}
-                      label="Agregar Nuevo Organismo Adscrito"
+                      label="Actualizar Organismo Adscrito"
                       nameInput="Organismoadscrito"
                       type="text"
                     />
@@ -455,6 +476,45 @@ export default function FeedBack() {
                     </Button>
                   </form>
                 </Form>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+        <TabsContent value="retro-beneficio">
+          <div className="flex flex-row gap-2">
+            <Card className="grow">
+              <CardContent className="flex flex-col justify-center space-y-5">
+                <div className="flex gap-2">
+                  {isPending ? (
+                    <Loading promiseMessage="Generando Excel" />
+                  ) : (
+                    <>
+                      <Button
+                        className="bg-green-700 hover:bg-green-800 cursor-pointer m-auto"
+                        onClick={getExcelDownload}
+                      >
+                        <Sheet />
+                        Generar Excel
+                      </Button>
+                      {link && (
+                        <Link
+                          download={`retroalimentacion_beneficios_${formatInTimeZone(new Date(), "UTC", "dd/MM/yyyy")}`}
+                          href={link}
+                          className={`${buttonVariants({ variant: "default" })} `}
+                          onClick={() => setLink("")}
+                        >
+                          Descargar excel
+                        </Link>
+                      )}
+                    </>
+                  )}
+                </div>
+                <CardDescription className="text-center">
+                  Este archivo generado tiene como proposito alimentar el
+                  sistema de beneficios que no pertenece a este sistema,
+                  motivado a preservar la agilidad de entrega de los recursos
+                  alimenticios
+                </CardDescription>
               </CardContent>
             </Card>
           </div>
