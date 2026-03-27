@@ -6,26 +6,7 @@ from django.contrib.auth.hashers import check_password, make_password
 
 
 
-class DependenciaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Dependencias
-        fields = ['id', 'dependencia']
 
-class DireccionGeneralSerializer(serializers.ModelSerializer):
-    dependencia = DependenciaSerializer(source='dependenciaId', read_only=True)
-    class Meta:
-        model = DireccionGeneral
-        fields = ['id', 'direccion_general', 'dependencia']
-
-class DireccionLineaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DireccionLinea
-        fields = ['id', 'direccion_linea']
-
-class CoordinacionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Coordinaciones
-        fields = ['id', 'coordinacion']
 class DepartamentoSerializer(serializers.ModelSerializer):
     class Meta:
         model = departaments
@@ -98,7 +79,7 @@ class CuentaSerializer(serializers.ModelSerializer):
         return response
     
     
-
+ 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True)
     cedula= serializers.CharField(write_only=True, required=True)
@@ -125,10 +106,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         validated_data['cedula'] = empleado
         validated_data['password'] = make_password(validated_data['password'])
 
-        return cuenta.objects.create(**validated_data)
-    
-    
-    
+        return cuenta.objects.create(**validated_data) 
 class UpdateCuentaSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False, style={'input_type': 'password'})
 
