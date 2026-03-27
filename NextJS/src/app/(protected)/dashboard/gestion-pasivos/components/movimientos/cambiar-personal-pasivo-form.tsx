@@ -1,12 +1,13 @@
 "use client";
 
 import {
-  getNominaPasivo,
   getPasiveById,
-  getReasonLeaving,
+  getReasonLeavingPasive,
   getStatusEmployee,
 } from "@/app/(protected)/dashboard/gestion-trabajadores/api/getInfoRac";
 import { ApiResponse, EmployeeData } from "@/app/types/types";
+import InputForm from "@/components/input-form";
+import { SelectForm } from "@/components/select-form";
 import {
   Select,
   SelectContent,
@@ -17,7 +18,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, Search } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
-import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import useSWR from "swr";
 import z from "zod";
@@ -35,11 +36,9 @@ import { Input } from "../../../../../../components/ui/input";
 import { Label } from "../../../../../../components/ui/label";
 import { Switch } from "../../../../../../components/ui/switch";
 import Error from "../../../gestion-trabajadores/components/error/error";
-import { schemaPasivo } from "../../movimientos/cambiar-pasivo/schema/schemaPasivo";
-import GestionAction from "../../movimientos/cambiar-pasivo/actions/gestion-persona-action";
 import { getFamilyPasiveOne } from "../../api/getInfoPasive";
-import { SelectForm } from "@/components/select-form";
-import InputForm from "@/components/input-form";
+import GestionAction from "../../movimientos/cambiar-pasivo/actions/gestion-persona-action";
+import { schemaPasivo } from "../../movimientos/cambiar-pasivo/schema/schemaPasivo";
 export function PasivoPasiveForm() {
   const [surivor, setSurvivor] = useState<boolean>(false);
   const [employee, setEmployee] = useState<ApiResponse<EmployeeData>>();
@@ -53,8 +52,8 @@ export function PasivoPasiveForm() {
     async () => await getStatusEmployee(),
   );
   const { data: reasonLeaving, isLoading: isLoadingReasonLeaving } = useSWR(
-    "reasonLeaving",
-    async () => await getReasonLeaving(),
+    "reasonLeavingF",
+    async () => await getReasonLeavingPasive(),
   );
 
   const form = useForm({
@@ -197,7 +196,7 @@ export function PasivoPasiveForm() {
                         name="motivo"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Motivo De Cambio De Cargo</FormLabel>
+                            <FormLabel>Motivo De Egreso</FormLabel>
                             <Select
                               onValueChange={(values) => {
                                 field.onChange(Number.parseInt(values));
