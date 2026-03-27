@@ -1,6 +1,7 @@
 import io
 import openpyxl
 import logging
+from django.utils import timezone
 from django.http import HttpResponse
 from django.db.models import Prefetch
 from RAC.services.constants import *
@@ -54,12 +55,13 @@ def exportar_beneficios_xlsx(request):
         buffer = io.BytesIO()
         wb.save(buffer)
         buffer.seek(0)
-
+        fecha_str = timezone.now().strftime("%d_%m_%Y")
+        filename = f"carga_masiva_beneficios_{fecha_str}.xlsx"
         response = HttpResponse(
             buffer.getvalue(),
             content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
         )
-        response['Content-Disposition'] = 'attachment; filename="carga_masiva_beneficios.xlsx"'
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
         return response
 
     except Exception as e:

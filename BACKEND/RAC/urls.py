@@ -167,6 +167,7 @@ urlpatterns = [
     path('historyEmployee/egreso/<str:cedulaidentidad>/', views.gestion_egreso_pasivo, name='empleado-egreso'),
     path('historyEmployee/Estatus/<int:cargo_id>/',views.gestionar_estatus_puesto, name='gestion-puestos'),
     path('motivos/egreso/', views.listar_motivos_egreso, name='api-motivos-egreso'),
+    path('motivos/egreso/fallecimineto/', views.listar_motivos_fallecimiento, name='api-motivos-egreso-fallecimiento'),
     path('motivos/movimiento/', views.listar_motivos_internos, name='api-motivos-internos'),
     path('motivos/estatus/', views.listar_suspendido, name='api-motivos-suspendido'),
     path('motivos/estatus/pasivos/', views.listar_suspendido_pasivo, name='motivos-suspendido'),

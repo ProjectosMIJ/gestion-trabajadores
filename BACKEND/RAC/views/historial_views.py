@@ -246,6 +246,33 @@ def reporte_movimientos(request):
             status=status.HTTP_400_BAD_REQUEST
         )
         
+@extend_schema(
+    tags=["Movimientos de Personal"],
+    summary="Tipo de movimientos para gestionar egresos",
+    description="Permite listar los tipos de movimientos para gestionar egresos",
+    request=TipoMovimientoSerializer
+)    
+@api_view(['GET'])
+def listar_motivos_fallecimiento(request):
+
+    try:
+ 
+        queryset = Tipo_movimiento.objects.filter(movimiento= "FALLECIMIENTO")
+        serializer = TipoMovimientoSerializer(queryset, many=True)
+        
+        return Response({
+            "status": "Ok",
+            "message": "Motivos de egreso listados correctamente",
+            "data": serializer.data
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            "status": "Error",
+            "message": f"Error al consultar los motivos de egreso: {str(e)}",
+            "data": []
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
         
 @extend_schema(
     tags=["Movimientos de Personal"],
