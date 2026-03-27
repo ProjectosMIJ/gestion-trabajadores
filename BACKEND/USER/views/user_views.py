@@ -50,6 +50,9 @@ def login_view(request):
             'message': str(e),
             'data': None
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
+        
 @extend_schema(
     tags=["Gestion de Usuarios"],
     summary="Registro de Usuario",
@@ -64,20 +67,20 @@ def register_view(request):
         if serializer.is_valid():
             nueva_cuenta = serializer.save()
             return Response({
-                'success': True, 
+                 'status': "success",
                 'message': 'Usuario registrado exitosamente',
                 'data': CuentaSerializer(nueva_cuenta).data
             }, status=status.HTTP_201_CREATED)
             
         return Response({
-            'success': False, 
+            'status': "error",
             'errors': serializer.errors
         }, status=status.HTTP_400_BAD_REQUEST)
         
     except Exception as e:
         logger.error(f"Error en registro: {str(e)}")
         return Response({
-            'success': False, 
+            'status': "error",
             'error': 'Error interno del servidor al procesar el registro.'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
@@ -94,8 +97,8 @@ def editar_usuario(request, id):
         usuario = cuenta.objects.get(id=id)
     except cuenta.DoesNotExist:
         return Response({
-            'success': False, 
-            'error': 'El usuario no existe.'
+             'status': "success",
+            'message': 'El usuario no existe.'
         }, status=status.HTTP_404_NOT_FOUND)
 
     serializer = UpdateCuentaSerializer(usuario, data=request.data, partial=True)
@@ -105,13 +108,13 @@ def editar_usuario(request, id):
         
     
         return Response({
-            'success': True,
+             'status': "success",
             'message': 'Usuario actualizado exitosamente.',
             'data': CuentaSerializer(usuario_actualizado).data
         }, status=status.HTTP_200_OK)
         
     return Response({
-        'success': False, 
+          'status': "error",
         'errors': serializer.errors
     }, status=status.HTTP_400_BAD_REQUEST)
 
