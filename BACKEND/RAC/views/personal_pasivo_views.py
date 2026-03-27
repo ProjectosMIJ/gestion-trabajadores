@@ -29,8 +29,6 @@ from rest_framework import status
 def update_position_passive(request, id):
     codigo = get_object_or_404(AsigTrabajo, id=id)
     serializer = CodigosCreateUpdatePassiveSerializer(codigo, data=request.data, partial=True)
-    
-    
     try:
         serializer.is_valid(raise_exception=True)
         serializer.save()

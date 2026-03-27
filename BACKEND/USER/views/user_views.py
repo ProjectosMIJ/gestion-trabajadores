@@ -50,6 +50,9 @@ def login_view(request):
             'message': str(e),
             'data': None
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
+        
 @extend_schema(
     tags=["Gestion de Usuarios"],
     summary="Registro de Usuario",
@@ -58,30 +61,36 @@ def login_view(request):
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register_view(request):
-
     try:
         serializer = RegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            nueva_cuenta = serializer.save()
-            return Response({
-                'success': True, 
-                'message': 'Usuario registrado exitosamente',
-                'data': CuentaSerializer(nueva_cuenta).data
-            }, status=status.HTTP_201_CREATED)
-            
-        return Response({
-            'success': False, 
-            'errors': serializer.errors
-        }, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
         
-    except Exception as e:
-        logger.error(f"Error en registro: {str(e)}")
+        nueva_cuenta = serializer.save()
+        
         return Response({
-            'success': False, 
-            'error': 'Error interno del servidor al procesar el registro.'
+            'status': "success",
+            'message': 'Usuario registrado exitosamente',
+            'data': CuentaSerializer(nueva_cuenta).data
+        }, status=status.HTTP_201_CREATED)
+
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_field = list(error_dict.values())[0]
+        clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+
+        return Response({
+            'status': "error",
+            'message': clean_message,
+            
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    except Exception as e:
+       
+        return Response({
+            'status': "error",
+            'message': 'Error interno del servidor al procesar el registro.',
+            
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-
 
 @extend_schema(
     tags=["Gestion de Usuarios"],
@@ -94,27 +103,40 @@ def editar_usuario(request, id):
         usuario = cuenta.objects.get(id=id)
     except cuenta.DoesNotExist:
         return Response({
-            'success': False, 
-            'error': 'El usuario no existe.'
+            'status': "error", 
+            'message': 'El usuario no existe.',
+            'data': None
         }, status=status.HTTP_404_NOT_FOUND)
 
     serializer = UpdateCuentaSerializer(usuario, data=request.data, partial=True)
     
-    if serializer.is_valid():
+    try:
+        serializer.is_valid(raise_exception=True)
         usuario_actualizado = serializer.save()
         
-    
         return Response({
-            'success': True,
+            'status': "success",
             'message': 'Usuario actualizado exitosamente.',
             'data': CuentaSerializer(usuario_actualizado).data
         }, status=status.HTTP_200_OK)
-        
-    return Response({
-        'success': False, 
-        'errors': serializer.errors
-    }, status=status.HTTP_400_BAD_REQUEST)
 
+    except ValidationError:
+        error_dict = serializer.errors
+        first_error_field = list(error_dict.values())[0]
+        clean_message = first_error_field[0] if isinstance(first_error_field, list) else first_error_field
+
+        return Response({
+            'status': "error",
+            'message': clean_message,
+            'data': None
+        }, status=status.HTTP_400_BAD_REQUEST)
+
+    except Exception as e:
+        return Response({
+            'status': "error",
+            'message': f"Ocurrió un error inesperado: {str(e)}",
+            'data': None
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
