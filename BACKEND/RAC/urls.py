@@ -172,8 +172,7 @@ urlpatterns = [
     path('motivos/estatus/pasivos/', views.listar_suspendido_pasivo, name='motivos-suspendido'),
     
     # MOVIMIENTO A PASIVO HEREDERO 
-    
-     path('employees/sobrevivientes/',views.migrar_heredero, name='migrar_heredero_pasivo'),
+
 
 # ------------------
 # GESTION DE FAMILIARES

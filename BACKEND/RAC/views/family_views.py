@@ -259,7 +259,6 @@ def familiares_pasivo_by(request, id_empleado):
             employeecedula__assignments__Tipo_personal__tipo_personal__iexact=PERSONAL_PASIVO
         ).distinct()
 
-        # 2. Verificamos si existen resultados
         if not queryset.exists():
             return Response({
                 "status": "Ok",
