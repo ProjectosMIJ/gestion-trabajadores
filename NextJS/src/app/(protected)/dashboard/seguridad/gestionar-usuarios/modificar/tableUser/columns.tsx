@@ -1,6 +1,15 @@
 "use client";
 import { UserSystem } from "@/app/types/types";
+import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,16 +20,10 @@ import {
 import { DropdownMenuSeparator } from "@radix-ui/react-dropdown-menu";
 import { ColumnDef } from "@tanstack/react-table";
 import { MoreHorizontal } from "lucide-react";
+import { toast } from "sonner";
+import { mutate } from "swr";
+import { blockUserAction } from "../action/update-user-action";
 import { DataTableColumnHeader } from "./data-table-column-header";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import DetailInfoUser from "./detail-info";
 export const columns: ColumnDef<UserSystem>[] = [
   {
@@ -58,7 +61,6 @@ export const columns: ColumnDef<UserSystem>[] = [
     header: "Acciones",
     cell: ({ row }) => {
       const user = row.original;
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -67,7 +69,7 @@ export const columns: ColumnDef<UserSystem>[] = [
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="gap-2">
             <DropdownMenuLabel>Acciones</DropdownMenuLabel>
             <DropdownMenuItem
               onClick={() => navigator.clipboard.writeText(user.cedula)}
@@ -76,7 +78,24 @@ export const columns: ColumnDef<UserSystem>[] = [
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuLabel>Extras</DropdownMenuLabel>
-            <DropdownMenuItem asChild></DropdownMenuItem>
+            <DropdownMenuItem asChild className="w-full hover:bg-red-800">
+              <Button
+                className="w-full hover:bg-red-800"
+                onClick={() => {
+                  blockUserAction(user.id, user.is_active).then((response) => {
+                    if (response.success) {
+                      toast.success(response.message);
+                      mutate(`/api/users/cedulaidentidad=${user.cedula}`);
+                    } else {
+                      toast.error(response.message);
+                    }
+                  });
+                }}
+                variant={user.is_active ? "destructive" : "default"}
+              >
+                {user.is_active ? "Bloquear" : "Activar"}
+              </Button>
+            </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Dialog>
                 <DialogTrigger

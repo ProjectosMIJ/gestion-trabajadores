@@ -11,6 +11,6 @@ urlpatterns = [
     path('departamentos/', views.list_departaments, name="lista_departamentos"),
     
     
-    path('usuarios/editar/<int:id>/', views.editar_usuario, name='api_editar_usuario'),
+    path('usuarios/<int:id>/', views.editar_usuario, name='api_editar_usuario'),
     path('usuarios/estado/<int:id>/', views.cambiar_estado_usuario, name='api_cambiar_estado_usuario'),
 ]

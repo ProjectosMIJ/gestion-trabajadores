@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  getEmployeeById,
   getNominaPasivo,
   getPasiveById,
   getReasonLeaving,
@@ -38,8 +37,8 @@ import { Input } from "../../../../../../components/ui/input";
 import { Label } from "../../../../../../components/ui/label";
 import { Switch } from "../../../../../../components/ui/switch";
 import Error from "../../../gestion-trabajadores/components/error/error";
-import { getPasiveSearch } from "../../api/getInfoPasive";
 export function PasivoPasiveForm() {
+  const [surivor, setSurvivor] = useState<boolean>(false);
   const [employee, setEmployee] = useState<ApiResponse<EmployeeData>>();
   const [isPending, startTransition] = useTransition();
 
@@ -101,13 +100,7 @@ export function PasivoPasiveForm() {
       }
     });
   };
-  const estatusId = useWatch({
-    control: form.control,
-    name: "estatus_id",
-  });
 
-  const validatePeace =
-    estatusId === statusEmployee?.data.find((v) => v.estatus === "PASIVO")?.id;
   return (
     <>
       <Card>
@@ -157,132 +150,81 @@ export function PasivoPasiveForm() {
                     onSubmit={form.handleSubmit(onSubmit)}
                     className="space-y-2"
                   >
-                    <FormField
-                      control={form.control}
-                      name="estatus_id"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Egresar</FormLabel>
-                          <Select
-                            onValueChange={(values) => {
-                              field.onChange(Number.parseInt(values));
-                            }}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="w-full truncate">
-                                <SelectValue
-                                  placeholder={`${isLoadingStatusEmployee ? "Cargando Listado" : "Seleccione Un Elemento"}  `}
-                                />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {statusEmployee?.data
-                                .filter((v) => v.estatus === "EGRESADO")
-                                .map((status, i) => (
-                                  <SelectItem key={i} value={`${status.id}`}>
-                                    {status.estatus}
-                                  </SelectItem>
-                                ))}
-                            </SelectContent>
-                          </Select>
-
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    {validatePeace && (
-                      <>
-                        <FormField
-                          control={form.control}
-                          name="tiponominaid"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>
-                                Listado De Nominas De Jubilados
-                              </FormLabel>
-                              <Select
-                                onValueChange={(values) => {
-                                  field.onChange(Number.parseInt(values));
-                                }}
-                              >
-                                <FormControl>
-                                  <SelectTrigger className="w-full truncate">
-                                    <SelectValue
-                                      placeholder={`${isLoadingNominaPasivo ? "Cargando Nominas" : "Seleccione Una Nomina"}`}
-                                    />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {nominaPasivo?.data.map((nomina, i) => (
-                                    <SelectItem key={i} value={`${nomina.id}`}>
-                                      {nomina.nomina}
+                    <div className="flex flex-col gap-2">
+                      <FormField
+                        control={form.control}
+                        name="estatus_id"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Egresar</FormLabel>
+                            <Select
+                              onValueChange={(values) => {
+                                field.onChange(Number.parseInt(values));
+                              }}
+                            >
+                              <FormControl>
+                                <SelectTrigger className="w-full truncate">
+                                  <SelectValue
+                                    placeholder={`${isLoadingStatusEmployee ? "Cargando Listado" : "Seleccione Un Elemento"}  `}
+                                  />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {statusEmployee?.data
+                                  .filter((v) => v.estatus === "EGRESADO")
+                                  .map((status, i) => (
+                                    <SelectItem key={i} value={`${status.id}`}>
+                                      {status.estatus}
                                     </SelectItem>
                                   ))}
-                                </SelectContent>
-                              </Select>
+                              </SelectContent>
+                            </Select>
 
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="codigo_nuevo"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Ingrese El Código A Asignar</FormLabel>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <div className="self-end flex flex-row gap-2 items-center">
+                        <Label>
+                          <Switch onCheckedChange={setSurvivor} />
+                          Seleccionar Pensionado Sobreviviente
+                        </Label>
+                      </div>
+                    </div>
+                    {!surivor && (
+                      <FormField
+                        control={form.control}
+                        name="motivo"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Motivo De Cambio De Cargo</FormLabel>
+                            <Select
+                              onValueChange={(values) => {
+                                field.onChange(Number.parseInt(values));
+                              }}
+                            >
                               <FormControl>
-                                <Input
-                                  {...field}
-                                  placeholder="Ingrese El Código"
-                                />
+                                <SelectTrigger className="w-full truncate">
+                                  <SelectValue
+                                    placeholder={`${isLoadingReasonLeaving ? "Cargando Motivos De Cambio De Cargo" : "Seleccione Un Código"}`}
+                                  />
+                                </SelectTrigger>
                               </FormControl>
+                              <SelectContent>
+                                {reasonLeaving?.data.map((reason, i) => (
+                                  <SelectItem key={i} value={`${reason.id}`}>
+                                    {reason.movimiento}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
 
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <div className="flex flex-row gap-2 justify-end">
-                          <Label>Desea Liberar El Cargo Activo</Label>
-                          <Switch
-                            onCheckedChange={(boolean) => {
-                              form.setValue("liberar_activos", boolean);
-                            }}
-                          />
-                        </div>
-                      </>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
                     )}
-                    <FormField
-                      control={form.control}
-                      name="motivo"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Motivo De Cambio De Cargo</FormLabel>
-                          <Select
-                            onValueChange={(values) => {
-                              field.onChange(Number.parseInt(values));
-                            }}
-                          >
-                            <FormControl>
-                              <SelectTrigger className="w-full truncate">
-                                <SelectValue
-                                  placeholder={`${isLoadingReasonLeaving ? "Cargando Motivos De Cambio De Cargo" : "Seleccione Un Código"}`}
-                                />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              {reasonLeaving?.data.map((reason, i) => (
-                                <SelectItem key={i} value={`${reason.id}`}>
-                                  {reason.movimiento}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    {surivor && <>hola</>}
                     <Button className="w-full mt-2" disabled={isPending}>
                       {isPending ? "Cargando" : "Ejecutar Cambio"}
                     </Button>

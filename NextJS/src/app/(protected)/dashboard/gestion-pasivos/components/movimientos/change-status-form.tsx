@@ -39,7 +39,7 @@ import {
 } from "../../../../../../components/ui/form";
 import { Input } from "../../../../../../components/ui/input";
 import Error from "../../../gestion-trabajadores/components/error/error";
-import { getPasiveSearch } from "../../api/getInfoPasive";
+import { getInternalReasonPasive } from "../../api/getInfoPasive";
 export function ChangeStatusPasiveForm() {
   const [isPending, startTransition] = useTransition();
   const [employee, setEmployee] = useState<EmployeeData>();
@@ -49,8 +49,8 @@ export function ChangeStatusPasiveForm() {
     async () => await getStatusNomina(),
   );
   const { data: internalReason, isLoading: isLoadingInternalReason } = useSWR(
-    "motionReason",
-    async () => await getInternalReason(),
+    "motionReasonPasive",
+    async () => await getInternalReasonPasive(),
   );
   const form = useForm({
     resolver: zodResolver(schemaStatusChange),

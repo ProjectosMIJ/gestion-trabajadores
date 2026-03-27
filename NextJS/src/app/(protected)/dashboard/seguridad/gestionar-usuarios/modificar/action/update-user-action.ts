@@ -2,6 +2,8 @@
 
 import { ApiResponse } from "@/app/types/types";
 import { TypeSchemaUpdateUser } from "../tableUser/updateInfo/schema/schemaUpdateUser";
+import { revalidatePath } from "next/cache";
+import { is } from "date-fns/locale";
 
 export default async function updateAction(
   values: TypeSchemaUpdateUser,
@@ -9,7 +11,7 @@ export default async function updateAction(
 ) {
   try {
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}usuarios/editar/${id}/`,
+      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}accounts/usuarios/${id}/`,
       {
         headers: {
           "Content-Type": "application/json",
@@ -19,7 +21,7 @@ export default async function updateAction(
       },
     );
     const getResponse: ApiResponse<never> = await response.json();
-    if (!(getResponse.status === "error")) {
+    if (!(getResponse.status === "success")) {
       return {
         success: false,
         message: getResponse.message,
@@ -30,6 +32,42 @@ export default async function updateAction(
       message: getResponse.message,
     };
   } catch {
+    return {
+      success: false,
+      message: "Ocurrio Un Error",
+    };
+  }
+}
+
+export async function blockUserAction(id: number, is_active: boolean) {
+  const payload = {
+    is_active: !is_active,
+  };
+  console.log(payload);
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}accounts/usuarios/estado/${id}/`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      },
+    );
+    const getResponse: ApiResponse<never> = await response.json();
+    console.log(getResponse);
+    if (!(getResponse.status === "success")) {
+      return {
+        success: false,
+        message: getResponse.message,
+      };
+    }
+    return {
+      success: true,
+      message: getResponse.message,
+    };
+  } catch (error) {
     return {
       success: false,
       message: "Ocurrio Un Error",

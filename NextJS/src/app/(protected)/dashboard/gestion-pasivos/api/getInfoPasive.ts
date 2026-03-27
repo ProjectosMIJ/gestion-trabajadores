@@ -1,6 +1,6 @@
 "use server";
 import { apiFetchGet } from "@/lib/utils";
-import { ApiResponse, Code } from "./../../../../types/types";
+import { ApiResponse, Code, Motion } from "./../../../../types/types";
 
 export const getPasiveSearch = async <T>({
   searchParams,
@@ -17,4 +17,9 @@ export const getCodeListPasiveSearch = async ({
   searchParams: string | undefined;
 }): Promise<ApiResponse<Code[]>> => {
   return await apiFetchGet<Code[]>(`cargos/pasivo/?${searchParams}`);
+};
+export const getInternalReasonPasive = async (): Promise<
+  ApiResponse<Motion[]>
+> => {
+  return await apiFetchGet<Motion[]>("motivos/estatus/pasivos/");
 };

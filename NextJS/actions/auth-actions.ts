@@ -14,9 +14,8 @@ export const loginAction = async (values: z.infer<typeof signInSchema>) => {
     return { success: "Login successful" };
   } catch (error) {
     if (error instanceof AuthError) {
-      return { error: "Invalid credentials" };
+      return { error: "Credenciales Invalidas o Usuario Bloqueado" };
     }
-    console.error(error);
     return { error: "Something went wrong" };
   }
 };
