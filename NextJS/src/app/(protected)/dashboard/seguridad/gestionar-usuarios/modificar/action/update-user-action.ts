@@ -43,7 +43,6 @@ export async function blockUserAction(id: number, is_active: boolean) {
   const payload = {
     is_active: !is_active,
   };
-  console.log(payload);
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}accounts/usuarios/estado/${id}/`,
@@ -56,7 +55,6 @@ export async function blockUserAction(id: number, is_active: boolean) {
       },
     );
     const getResponse: ApiResponse<never> = await response.json();
-    console.log(getResponse);
     if (!(getResponse.status === "success")) {
       return {
         success: false,

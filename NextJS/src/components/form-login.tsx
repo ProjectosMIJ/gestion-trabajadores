@@ -32,14 +32,11 @@ export default function FormRegister() {
     setError(null);
     startTransition(async () => {
       const response = await loginAction(values);
-      console.log(response);
       if (response?.error) {
         setError(response.error);
       } else {
         router.push("/dashboard");
       }
-
-      console.log(response);
     });
   }
   return (

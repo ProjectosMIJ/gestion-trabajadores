@@ -54,8 +54,6 @@ export default async function updateInfoEmployee(
           body: formData,
         },
       );
-      console.log(data.file.name);
-      console.log(data);
       await fetch(
         `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Employee/${idEmployee}/`,
         {

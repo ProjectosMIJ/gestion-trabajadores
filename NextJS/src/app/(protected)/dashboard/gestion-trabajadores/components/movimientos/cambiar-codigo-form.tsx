@@ -117,7 +117,6 @@ export function ChangeCodeForm() {
   const handleSearch = async (values: z.infer<typeof schemaSearchEmployee>) => {
     if (!values.searchEmployeeForm) return;
     const response = await getEmployeeById(values.searchEmployeeForm);
-    console.log(response);
     if (response.data && response.data !== undefined) {
       setEmployee(response);
     }

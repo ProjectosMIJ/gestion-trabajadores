@@ -16,7 +16,6 @@ export default async function registerAction(values: TypeSchemaRegister) {
       },
     );
     const getResponse: ApiResponse<never> = await response.json();
-    console.log(getResponse);
     if (!(getResponse.status === "success")) {
       return {
         success: false,

@@ -1,6 +1,7 @@
 "use server";
 import { apiFetchGet } from "@/lib/utils";
 import { ApiResponse, Code, Family, Motion } from "./../../../../types/types";
+import { Blob } from "buffer";
 
 export const getPasiveSearch = async <T>({
   searchParams,
@@ -38,4 +39,12 @@ export const getFamilyPasive = async ({
 
 export const getFamilyPasiveOne = async (id: number) => {
   return await apiFetchGet<Family[]>(`Passivefamily/${id}`);
+};
+
+export const getExcel = async () => {
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}reportes/excel/`,
+  );
+  const getResponse = await response.blob();
+  return getResponse;
 };

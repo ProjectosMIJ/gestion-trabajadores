@@ -21,7 +21,6 @@ export default async function GestionAction(
       ...values,
       usuario_id: Number.parseInt(session.user.id),
     };
-    console.log(payload);
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}historyEmployee/egreso/${employee}/`,
       {

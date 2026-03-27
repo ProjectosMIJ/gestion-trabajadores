@@ -4,7 +4,6 @@ import { CategoryGroup } from "../schemas/schemaCategory";
 
 export async function disabilityCreateActions(values: DisabitySchema) {
   try {
-    console.log(values);
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}Discapacidades/`,
       {

@@ -15,7 +15,6 @@ import { CircleEllipsis, Search } from "lucide-react";
 
 export default function UsersPage() {
   const [searchParams, setSearchParams] = useState<string>();
-  console.log(searchParams);
   const {
     data: user,
     isLoading: isLoadingUser,

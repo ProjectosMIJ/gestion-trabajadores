@@ -209,7 +209,6 @@ export function AppSidebarPasivos() {
 
     return hasRolePermission && hasDepartmentPermission;
   };
-  console.log(session!.user.role?.nombre_rol);
 
   const filteredItems = items
     .filter((item) => {

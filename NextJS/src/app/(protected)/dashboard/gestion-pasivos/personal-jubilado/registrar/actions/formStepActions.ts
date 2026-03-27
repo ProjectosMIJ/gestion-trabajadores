@@ -114,8 +114,7 @@ export async function registerEmployeeSteps(
             getFamily.message ||
             "Error al registrar empleado",
     };
-  } catch (e) {
-    console.log(e);
+  } catch {
     return {
       success: false,
       message: "Ocurrio Un Error ",
