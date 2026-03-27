@@ -182,8 +182,10 @@ urlpatterns = [
     path('Employeefamily/masivo/<str:cedula_empleado>/', views.registrar_familiares_masivo, name='creacion-masiva-empleadoFamiliar'),
     path('Employeefamily/<int:familiar_id>', views.actualizar_familiar, name='actualizar_familiar'),
     path('Passivefamily/', views.listar_familiares_pasivo, name='listar-empleadoFamiliar-pasive'),
+     path('Passivefamily/<int:id_empleado>/', views.familiares_pasivo_by, name='listar-empleadoFamiliar-pasive'),
     path('Employeefamily/', views.listar_familiares, name='listar-empleadoFamiliar'),
     
+    path('Employeefamilys/<int:id_empleado>/', views.familiares_active_by, name='listar-empleadoFamiliar'),
     path('Parentesco/', views.listar_parentesco, name="listar-parentesco"),
     
     
