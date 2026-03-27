@@ -75,6 +75,7 @@ export default function DetailInfoUser({ id }: { id: number }) {
               />
               <SelectForm
                 Formlabel="Departamentos"
+                classNameItem="col-span-2"
                 form={form}
                 SelectLabelItem="Departamentos"
                 isLoading={isLoadingDepartment}
