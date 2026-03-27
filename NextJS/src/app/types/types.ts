@@ -196,11 +196,7 @@ export interface DireccionLinea {
   Codigo: string;
   direccion_linea: string;
 }
-export interface Coordinacion {
-  id: number;
-  Codigo: string;
-  coordinacion: string;
-}
+
 export interface Municipality {
   id: number;
   municipio: string;
@@ -275,10 +271,33 @@ export interface InfoCode {
   Dependencia: Dependency;
   DireccionGeneral: DireccionGeneral | null;
   DireccionLinea: DireccionLinea | null;
-  Coordinacion: Coordinacion | null;
+  Coordinacion: Coordination | null;
   estatusid: Status;
   observaciones: string | null;
   fecha_actualizacion: string;
+}
+export interface Depart {
+  id: number;
+  nombre_departamento: string;
+}
+export interface Role {
+  id: number;
+  nombre_rol: string;
+}
+export interface UserSystem {
+  id: 7;
+  cedula: string;
+  nombres: string;
+  apellidos: string;
+  correo: null;
+  telefono: null;
+  departamento: Depart;
+  rol: Role;
+  is_active: boolean;
+  dependencia: Dependency;
+  direccion_general: DireccionGeneral | null;
+  direccion_linea: DireccionLinea | null;
+  coordinacion: Coordination | null;
 }
 export interface EmployeeData {
   anos_apn: number;
@@ -339,7 +358,7 @@ export interface Code {
   Dependencia: Dependency;
   DireccionGeneral: DireccionGeneral;
   DireccionLinea: DireccionLinea | null;
-  Coordinacion: Coordinacion | null;
+  Coordinacion: Coordination | null;
   estatusid: Status;
   observaciones: string | null;
   fecha_actualizacion: string;

@@ -1,10 +1,6 @@
-import Register from "@/app/(auth)/register/page";
-const user = () => {
-  return (
-    <div>
-      <Register />
-    </div>
-  );
-};
+import PageLayout from "@/components/layout/page-layout";
+import RegisterForm from "./components/register/form-register";
 
-export default user;
+export default function SecurityPage() {
+  return <PageLayout title="Inicio">INICIO</PageLayout>;
+}

@@ -1,15 +1,6 @@
 "use server";
+import { apiFetchGet } from "@/lib/utils";
 import { ApiResponse, Code } from "./../../../../types/types";
-const apiFetchGet = async <T>(url: string) => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_DJANGO_API_URL_SERVER}${url}`,
-    {
-      headers: { "Content-Type": "application/json" },
-    },
-  );
-  const getResponse: ApiResponse<T> = await response.json();
-  return getResponse;
-};
 
 export const getPasiveSearch = async <T>({
   searchParams,
