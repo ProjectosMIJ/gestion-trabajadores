@@ -105,14 +105,35 @@ export async function registerEmployeeSteps(
       },
     );
     const getFamily: ApiResponse<never> = await responseFamily.json();
+    const successMessages = [];
+    const errorMessages = [];
+
+    if (response.ok) {
+      successMessages.push("Empleado guardado");
+    } else {
+      errorMessages.push(`Error Empleado: ${getEmployee.message}`);
+    }
+
+    if (responseFamily.ok) {
+      successMessages.push("Familia vinculada");
+    } else {
+      errorMessages.push(`Error Familia: ${getFamily.message}`);
+    }
+
+    if (responseNestjs.ok) {
+      successMessages.push("Archivo subido");
+    } else {
+      errorMessages.push("Error Archivo: No se pudo subir");
+    }
+    const finalMessage = [
+      successMessages.length > 0 ? `Éxito: ${successMessages.join(", ")}` : "",
+      errorMessages.length > 0 ? `Fallas: ${errorMessages.join(", ")}` : "",
+    ]
+      .filter(Boolean)
+      .join(" | ");
     return {
-      success: response.ok && responseFamily.ok,
-      message:
-        response.ok && responseFamily.ok && responseNestjs.ok
-          ? getEmployee.message
-          : getEmployee.message ||
-            getFamily.message ||
-            "Error al registrar empleado",
+      success: response.ok && responseFamily.ok && responseNestjs.ok,
+      message: finalMessage,
     };
   } catch {
     return {

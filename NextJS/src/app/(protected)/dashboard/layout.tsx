@@ -35,6 +35,7 @@ export default async function ProtectedLayout({
             warning: "!bg-yellow-600",
             loading: "!bg-cyan-500",
           },
+          duration: 10000, // Duración indefinida para toasts de carga
           style: {
             color: "white",
             border: "none",
