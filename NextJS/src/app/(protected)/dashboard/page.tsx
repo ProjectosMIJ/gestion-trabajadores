@@ -72,7 +72,7 @@ export default function Dashboard() {
         </p>
         <SignOut />
       </div>
-      <div className="grid overflow-auto grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mx-8 ">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mx-8 ">
         {departments.map((department, index) => {
           const hasAccess =
             session?.user?.department.nombre_departamento === department.id;
